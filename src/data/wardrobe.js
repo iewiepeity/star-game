@@ -18,4 +18,5 @@ export const OUTFITS={
 
 export const OUTFIT_LIST=Object.values(OUTFITS);
 export const portraitAsset=(avatarId,outfitId)=>`./assets/avatars/${AVATARS[avatarId]?avatarId:"raven"}-${OUTFITS[outfitId]?outfitId:"newcomer"}.webp`;
+export const portraitThumbAsset=(avatarId,outfitId)=>`./assets/avatars/thumbs/${AVATARS[avatarId]?avatarId:"raven"}-${OUTFITS[outfitId]?outfitId:"newcomer"}.webp`;
 export const outfitBonusText=outfit=>Object.entries(outfit.bonuses).map(([name,value])=>`${name}＋${value}`).join("・");

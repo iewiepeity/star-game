@@ -186,3 +186,11 @@ body{font-size:16px}
 .portrait-hint{position:relative;z-index:0;font-size:12px;color:#b7aca4;line-height:1.5}
 .gender-preview .gender-options{flex:1;align-self:center}
 @media(max-width:760px){.gender-preview{flex-direction:column;align-items:center}.gender-preview .gender-options{width:100%}}
+
+/* Lightweight avatar loading: reserve the interface immediately and keep internal portrait names out of sight. */
+#app{min-height:100vh;background:#f7f1e8}img{color:transparent}
+.avatar-picker span{left:8px;right:8px;bottom:8px;padding:6px 8px;border-radius:999px;background:rgba(255,250,244,.92);font-size:12px;font-weight:900;text-align:center}
+.avatar-switch b{display:none}
+.create-avatar-preview:before,.wardrobe-art:before{content:"載入造型中…";position:absolute;z-index:3;left:50%;top:50%;padding:7px 11px;border-radius:999px;background:rgba(81,74,72,.82);color:#fff;font-size:12px;font-weight:800;opacity:0;transform:translate(-50%,-50%);transition:opacity .15s;pointer-events:none}
+.create-avatar-preview.image-loading:before,.wardrobe-art.image-loading:before{opacity:1}
+.create-avatar-preview img,.wardrobe-art img{transition:opacity .15s}.image-loading img{opacity:.72}
