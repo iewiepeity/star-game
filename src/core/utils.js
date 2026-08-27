@@ -2,8 +2,7 @@
 import{state}from"./state.js";
 import{JOB}from"../data/job.js";
 import{SHORT}from"../data/calendar.js";
-import{KNOWN_GENDERS}from"../data/genders.js";
-import{PLAYER_PORTRAITS}from"../data/portraits.js";
+import{AVATARS,OUTFITS,portraitAsset}from"../data/wardrobe.js";
 
 export const random=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 export const esc=v=>String(v).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
@@ -17,7 +16,7 @@ export function weekInYear(){return((state.week-1)%52)+1}
 // 通告（JOB）指定工作日的文字描述，供 views/jobs.js、views/planner.js 與 logic/runner.js 共用。
 export function jobWorkDaysText(){return JOB.workDays.map(i=>"週"+SHORT[i]).join("、")}
 
-// 依性別挑一張玩家立繪路徑；非固定三個選項（含「自訂」與尚未輸入時）一律退回 default 那張。
-// 不把路徑存進 state：性別隨時可能被改，路徑永遠是即時算出來的，不會有存檔存到舊路徑對不上的問題。
-const GENDER_PORTRAIT_KEYS=["female","male","nonbinary"];
-export function playerPortraitPath(gender){const i=KNOWN_GENDERS.indexOf(gender);return i>=0?PLAYER_PORTRAITS[GENDER_PORTRAIT_KEYS[i]]:PLAYER_PORTRAITS.default}
+// 玩家選擇的外型與當前服裝共同決定立繪；性別欄只影響稱呼，不限制任何立繪。
+export function playerPortraitPath(outfitId=state.outfitId,avatarId=state.avatarId){return portraitAsset(AVATARS[avatarId]?avatarId:"silver",OUTFITS[outfitId]?outfitId:"newcomer")}
+export function outfitBonus(statName){return OUTFITS[state.outfitId]?.bonuses?.[statName]||0}
+export function effectiveStat(statName){return Math.min(1000,(state.stats[statName]||0)+outfitBonus(statName))}

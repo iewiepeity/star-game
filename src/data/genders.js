@@ -1,4 +1,3 @@
-// 資料層：性別選項。KNOWN_GENDERS 是三個固定選項，GENDER_OPTIONS 多一個「自訂」讓玩家輸入自己的稱呼。
-// 立繪用的 core/utils.js 的 playerPortraitPath() 也是靠 KNOWN_GENDERS 判斷要挑哪一張圖，兩處共用同一份清單。
+// 資料層：性別／稱呼選項。立繪已獨立為 avatarId，玩家可以自由搭配，不受這份清單限制。
 export const KNOWN_GENDERS=["女性","男性","非二元"];
 export const GENDER_OPTIONS=[...KNOWN_GENDERS,"自訂"];
