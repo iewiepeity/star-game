@@ -45,7 +45,7 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 ### `core/`（狀態與通用工具）
 | 檔案 | 內容 |
 |---|---|
-| `state.js` | `initialState()`、目前遊戲狀態 `state`、`resetState()`（開新一輪的唯一入口）、`hydrateState()`（從存檔還原的唯一入口） |
+| `state.js` | `initialState()`、目前遊戲狀態 `state`、`resetState()`（開新一輪的唯一入口）、`hydrateState()`（從存檔還原及舊欄位遷移的唯一入口） |
 | `persistence.js` | `saveState`／`loadState`——把 state 存進/讀出 `localStorage`，詳見下方「存讀檔」一節 |
 | `utils.js` | `random`／`esc`／`money`／`width`／`successRateLabel`（只顯示文字提示、不外露精確機率）／`yearOf`／`weekInYear`／`jobWorkDaysText` |
 | `stats.js` | `rollStats`／`initializeHiddenStats`／`reroll`——唯一會寫入能力初始值與隱藏特質的地方 |
@@ -104,7 +104,8 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 
 兩個值得知道的細節：
 - **版本號是為了未來的欄位變動準備的**：如果之後改了 `state` 的形狀（例如某個欄位改名、拿掉），把 `persistence.js` 裡的 `SAVE_VERSION` 加一即可——舊存檔會被判定成「版本不符」直接捨棄開新局，不需要另外寫遷移程式。真的想保留舊存檔玩家的進度時，才需要在 `loadState()` 加版本轉換邏輯。
-- **`hydrateState()` 用 `Object.assign(initialState(), saved)` 墊底**：以後新增的 state 欄位，只要舊存檔沒有這個鍵，就會自動拿到 `initialState()` 給的預設值，不會是 `undefined`——但這只保護「整個新欄位」，如果是既有欄位的資料形狀本身改變（例如 `agencyApplications` 的值從字串改成物件），墊底救不回來，那種情況才需要真的加版本號。
+- **`hydrateState()` 會補預設值並處理相容遷移**：先用 `Object.assign(initialState(), saved)` 補齊新欄位，再把舊版共用的 `mapLocation` 轉成逐日 `freeLocations[dayIndex]`。上週目的地則存於 `lastFreeLocations`，讓「複製上週」能同時還原行程與各日地點；非自由活動日期一律清除目的地，避免舊資料誤觸事件。
+- **行程游標不循環覆蓋**：排入活動或自由活動地點後，游標最多只前進到星期日；在星期日繼續排程時會停在原位並顯示提示，不會繞回星期一覆蓋已排好的行程。
 - **逐日事件的讀秒畫面（`runnerPhase==="loading"`）背後有一個 0.65 秒的 `setTimeout`**，重新整理頁面後計時器不會恢復。`main.js` 讀檔時特別檢查這個狀態，發現存檔剛好停在讀秒瞬間就重新呼叫一次 `startDay()`，讓當天重新跑一次讀秒，不會卡住。
 - 所有 `localStorage` 存取都包在 `try/catch` 裡：私密瀏覽模式或使用者關閉網站資料時，存讀會靜默失敗，遊戲照常從新的一局開始，不會噴錯讓畫面卡死。
 
