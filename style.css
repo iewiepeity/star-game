@@ -48,3 +48,24 @@
 .tablet-dock{height:55px;min-height:55px}
 @media(max-height:680px) and (min-width:761px){.tablet{height:76vh;top:57%}.tablet-home{gap:9px;padding:16px 24px 12px}.tablet-home header b{font-size:22px}.home-contract{padding:9px 14px}.next-action{padding-top:9px;padding-bottom:9px}.home-notes span{padding:8px 10px}}
 @media(max-width:760px){.tablet{height:min(480px,calc(100vh - 125px));min-height:360px;top:auto}.tablet-screen{grid-template-rows:minmax(0,1fr) 55px}.tablet-home{padding:16px 16px 12px;gap:9px}.tablet-home header b{font-size:21px}.home-contract{padding:9px 12px}.next-action{padding:10px 42px 10px 12px}.home-notes span{padding:8px}.home-notes small{font-size:12px}}
+
+/* Readable game typography: 14px secondary, 16px body */
+body{font-size:16px}
+.room-hud small,.hud-stats span,.desk-pin small{font-size:14px}
+.tablet-home header span,.tablet-home header small,.home-contract small,.next-action span,.next-action small,.home-notes small{font-size:14px}
+.home-contract>div,.home-notes b,.tablet-dock button{font-size:16px}
+.next-action b{font-size:18px}
+.window-bar p{font-size:14px}.window-bar h2{font-size:26px}.window-start{font-size:16px}
+.app-window .planner-app,.app-window .inside-page{font-size:16px}
+.week-brief span,.week-brief small,.calendar-head small{font-size:14px}
+.week-brief>div>b,.calendar-head b{font-size:20px}
+.week-brief>strong,.focus-row,.focus-row button,.calendar-head button{font-size:16px}
+.calendar-cell>span{font-size:18px}.calendar-cell>span small{font-size:14px}.app-window .calendar-cell>b{font-size:18px}.app-window .calendar-cell>em{font-size:14px}
+.week-check,.week-check span,.week-check em,.mini-toast{font-size:15px}
+.activity-drawer header span{font-size:14px}.activity-drawer header b{font-size:22px}.activity-drawer nav button{font-size:15px}
+.drawer-list button{min-height:76px;padding:12px 14px}.drawer-list button>span>b{font-size:16px}.drawer-list button>span>small,.drawer-list button>em,.drawer-list button>em small{font-size:14px;line-height:1.45}
+.inside-title span,.inside-title p,.stat-row small,.tablet-empty p,.contact-list small,.log-list small{font-size:14px}
+.stat-row span,.stat-row strong,.contact-list b,.contact-list em,.log-list b,.log-list span{font-size:16px}
+.event-top,.story-action small,.story-action em,.decision span,.decision p,.decision button small,.day-result span,.day-result p,.summary-paper>span,.summary-paper>p,.reward-status small,.week-recap{font-size:14px}
+.story-action b,.decision button b,.day-result>div b,.reward-status b{font-size:17px}
+@media(max-width:760px){body{font-size:16px}.window-bar p{display:none}.window-bar h2{font-size:20px}.window-start{font-size:14px}.app-window .planner-app{padding:18px 14px}.app-window .calendar-cell>b{font-size:16px}.drawer-list button{min-height:72px}.activity-drawer{font-size:16px}}
