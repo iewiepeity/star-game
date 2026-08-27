@@ -13,6 +13,7 @@ import{bindMap}from"./bind/map.js";
 import{bindNpc}from"./bind/npc.js";
 import{bindAgency}from"./bind/agency.js";
 import{bindJobs}from"./bind/jobs.js";
+import{bindWardrobe}from"./bind/wardrobe.js";
 
 export function bind(){
  if(state.screen==="create"){bindCreateScreen();return}
@@ -25,4 +26,5 @@ export function bind(){
  bindNpc();
  bindAgency();
  bindJobs();
+ bindWardrobe();
 }
