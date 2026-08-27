@@ -3,7 +3,7 @@
 // SAVE_VERSION 是存檔格式版本號：以後 state 的形狀如果改到舊存檔會對不上（例如整個欄位改名），
 // 就把這裡的數字加一，讀到舊版本一律當作沒有存檔，直接開新的一輪，不必寫遷移邏輯。
 const KEY="star-game-save";
-const SAVE_VERSION=1;
+const SAVE_VERSION=2;
 
 export function saveState(state){
  try{localStorage.setItem(KEY,JSON.stringify({v:SAVE_VERSION,state}))}catch(e){}

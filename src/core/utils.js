@@ -16,7 +16,7 @@ export function weekInYear(){return((state.week-1)%52)+1}
 // 通告（JOB）指定工作日的文字描述，供 views/jobs.js、views/planner.js 與 logic/runner.js 共用。
 export function jobWorkDaysText(){return JOB.workDays.map(i=>"週"+SHORT[i]).join("、")}
 
-// 玩家選擇的外型與當前服裝共同決定立繪；性別欄只影響稱呼，不限制任何立繪。
+// 玩家選擇的外型與當前服裝共同決定立繪；女性／男性會各自鎖定另一種性別的立繪，非二元與自訂稱呼不受限制。
 export function playerPortraitPath(outfitId=state.outfitId,avatarId=state.avatarId){return portraitAsset(AVATARS[avatarId]?avatarId:"raven",OUTFITS[outfitId]?outfitId:"newcomer")}
 export function outfitBonus(statName){return OUTFITS[state.outfitId]?.bonuses?.[statName]||0}
 export function effectiveStat(statName){return Math.min(1000,(state.stats[statName]||0)+outfitBonus(statName))}
