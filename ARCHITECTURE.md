@@ -42,6 +42,7 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 | `genders.js` | 性別選項清單（`KNOWN_GENDERS`／`GENDER_OPTIONS`），角色建立畫面與玩家立繪都靠這份清單判斷 |
 | `portraits.js` | 舊版玩家立繪路徑相容對照；新功能不再直接使用 |
 | `wardrobe.js` | 四款玩家立繪、五套服裝、價格、能力加成與素材路徑的唯一資料來源 |
+| `jobs-catalog.js` | 50 份一至五星通告／試鏡內容；五種類型各 10 份，供本機備援與 Supabase 種子共同使用 |
 
 ### `core/`（狀態與通用工具）
 | 檔案 | 內容 |
@@ -106,7 +107,7 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 `core/persistence.js` 把整個 `state` 序列化存進 `localStorage`（鍵名 `star-game-save`），存檔格式是 `{v: 版本號, state}`。存檔時機是 `render.js`——每次 `render()` 畫完面都會存一次，所以理論上不會有「忘記存檔」的情況，任何一次點擊之後重新整理頁面都能接回原本畫面。讀檔在 `main.js` 開機時做：讀到版本號吻合的存檔就用 `core/state.js` 的 `hydrateState()` 蓋掉初始狀態；讀不到、格式不對、或版本號不吻合，一律當作沒有存檔，照舊開新的一局。
 
 兩個值得知道的細節：
-- **版本號是為了未來的欄位變動準備的**：如果之後改了 `state` 的形狀（例如某個欄位改名、拿掉），把 `persistence.js` 裡的 `SAVE_VERSION` 加一即可——舊存檔會被判定成「版本不符」直接捨棄開新局，不需要另外寫遷移程式。真的想保留舊存檔玩家的進度時，才需要在 `loadState()` 加版本轉換邏輯。
+- **版本號是為了未來的欄位變動準備的**：`persistence.js` 的 `SAVE_VERSION` 是目前寫出的版本，`SUPPORTED_SAVE_VERSIONS` 列出仍可讀取的舊版；結構變更時應在 `hydrateState()` 寫遷移，不可直接丟棄既有玩家進度。目前 v1 共用衣櫃會遷移成四位角色各自擁有原本已購買的服裝。
 - **`hydrateState()` 會補預設值並處理相容遷移**：先用 `Object.assign(initialState(), saved)` 補齊新欄位，再把舊版共用的 `mapLocation` 轉成逐日 `freeLocations[dayIndex]`。上週目的地則存於 `lastFreeLocations`，讓「複製上週」能同時還原行程與各日地點；非自由活動日期一律清除目的地，避免舊資料誤觸事件。
 - **行程游標不循環覆蓋**：排入活動或自由活動地點後，游標最多只前進到星期日；在星期日繼續排程時會停在原位並顯示提示，不會繞回星期一覆蓋已排好的行程。
 - **逐日事件的讀秒畫面（`runnerPhase==="loading"`）背後有一個 0.65 秒的 `setTimeout`**，重新整理頁面後計時器不會恢復。`main.js` 讀檔時特別檢查這個狀態，發現存檔剛好停在讀秒瞬間就重新呼叫一次 `startDay()`，讓當天重新跑一次讀秒，不會卡住。
@@ -116,13 +117,22 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 
 玩家目前可選夜櫻、暖杏、夜墨與春茶四款立繪，每款都有新人私服、練習服、試鏡造型、舞台造型與典禮禮服。素材集中於 `assets/avatars/`，資料、價格與能力加成集中於 `data/wardrobe.js`。原霧銀角色已改為尚未登場的 NPC，不會出現在創角或衣櫃；舊存檔若仍記錄 `avatarId: "silver"`，`hydrateState()` 會自動遷移為夜櫻系，避免讀檔失效。
 
-換裝採「同人物、同站姿的完整立繪切換」，而非把獨立衣服圖硬疊在身體上，避免不同身形造成領口、手臂與腰線錯位。`state.avatarId`、`state.outfitId` 與 `state.ownedOutfits` 會隨一般存檔保存；舊存檔缺少欄位時由 `initialState()` 自動補上預設值。
+換裝採「同人物、同站姿的完整立繪切換」，而非把獨立衣服圖硬疊在身體上，避免不同身形造成領口、手臂與腰線錯位。`state.avatarId`、`state.outfitId` 與 `state.ownedOutfits` 會隨一般存檔保存；`ownedOutfits` 以人物 id 分組，每位角色的服裝分開購買。舊存檔缺少欄位時由 `initialState()` 補上預設值，舊版共用衣櫃則由 `hydrateState()` 遷移。
 
-- 玩家立繪不再綁定 `state.gender`；姓名、性別／稱呼與外型可自由搭配。`playerPortraitPath()` 會依 `avatarId` 與 `outfitId` 即時計算素材路徑。
+- 女性／男性會鎖定對應性別的玩家立繪；非二元與自訂稱呼不限制外型。玩家本週造訪星望整形外科後，可付費變性並自動換成對應立繪。`playerPortraitPath()` 會依 `avatarId` 與 `outfitId` 即時計算素材路徑。
+- 星光購物商場與星望整形外科的本週造訪紀錄存於 `visitedLocationsByWeek`，同週多個地點可以累積，不會被後一次自由活動覆蓋。
 - `effectiveStat()` 會在基礎能力上加上目前服裝加成，能力頁、通告資質、試鏡、經紀公司資格與面談判定都使用此函式；訓練成長仍只寫入基礎能力，因此脫下服裝後加成會正確消失。
 - NPC 立繪是每個人物資料自己的 `portrait` 欄位（`data/npcs.js`），新增 NPC 時比照加一行即可。資料表內存在不等於已認識；只有人物 id 寫入 `state.knownPeople` 後才會顯示。
 - 目前接好的位置：角色建立畫面（四款外型即時預覽）、紙娃娃衣櫃、房間畫面左上角玩家頭像、人物檔案 App 的大頭照與左側列表、手機通訊錄的聯絡人頭像。
 - 刻意沒有接的位置：逐日事件畫面（現在的訓練/休息/工作等大部分行程沒有明確的「畫面上該放誰的立繪」，要接的話得先決定內容規則，不只是加參數，所以先跳過，需要的話再說）。
+
+## 通告內容庫與 Supabase
+
+`data/jobs-catalog.js` 是 50 份通告的內容唯一來源，固定為五種類型、五個星級、每組兩份。硬性 `requirements` 只放 21 項公開能力；不公開精確數字的判定拆成 `softTraits`，娛樂圈評價則以 `reputationSignals` 表示。每一星級另有最低累積訓練場次，現行 `J001` 已由 `bind/jobs.js` 阻擋零訓練接取。
+
+`supabase/schema.sql` 建立公開唯讀的 `job_catalog`，開啟 RLS，並只授予 `anon` 與 `authenticated` 讀取啟用內容的權限。`scripts/generate-job-seed.mjs` 將同一份 JS 內容轉為可重複執行的 upsert SQL，因此不得在資料庫種子與 JS 兩邊手動維護兩份文案。`scripts/validate-content.mjs` 會檢查總數、配比、資質、執行日與試鏡欄位。
+
+GitHub Pages 前端只能使用 Supabase publishable key；`service_role`／secret key 永遠不可進入這個儲存庫。新 Supabase 專案尚未建立時，本機內容庫仍是可玩的備援資料來源。
 
 ## 這次重構「沒有」做的事
 
