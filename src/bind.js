@@ -14,6 +14,7 @@ import{bindNpc}from"./bind/npc.js";
 import{bindAgency}from"./bind/agency.js";
 import{bindJobs}from"./bind/jobs.js";
 import{bindWardrobe}from"./bind/wardrobe.js";
+import{bindSave}from"./bind/save.js";
 
 export function bind(){
  if(state.screen==="create"){bindCreateScreen();return}
@@ -27,4 +28,5 @@ export function bind(){
  bindAgency();
  bindJobs();
  bindWardrobe();
+ bindSave();
 }
