@@ -1,0 +1,5 @@
+// 畫面層：星途紀錄 App——重要旗標（flags）與每週紀錄（history）的回顧列表。
+import{state}from"../core/state.js";
+import{esc}from"../core/utils.js";
+
+export function logApp(){return `<div class="inside-page"><div class="inside-title"><div><span>CAREER LOG</span><h2>星途紀錄</h2></div><p>已完成 ${state.history.length} 週</p></div>${state.flags.length?`<div class="inside-title"><div><span>BUTTERFLY FLAGS</span><h3>重要旗標</h3></div><p>${state.flags.length} 項</p></div><div class="log-list">${[...state.flags].reverse().map(f=>`<article><b>第 ${f.week} 週</b><span>旗標</span><small>${esc(f.label)}｜${esc(f.note)}</small></article>`).join("")}</div>`:""}${state.history.length?`<div class="inside-title"><div><span>WEEKLY LOG</span><h3>每週紀錄</h3></div></div><div class="log-list">${[...state.history].reverse().map(w=>`<article><b>第 ${w.week} 週</b><span>${w.hospitalized?"住院":w.results.filter(r=>r.success).length+" 次成功"}</span><small>${w.results.map(r=>r.action).join("・")||"住院休養"}</small></article>`).join("")}</div>`:`<div class="tablet-empty"><span>✦</span><h3>第一頁還是空白</h3><p>完成第一週後，每日成果與重大選擇會整理在這裡。</p></div>`}</div>`}

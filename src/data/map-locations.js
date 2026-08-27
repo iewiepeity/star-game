@@ -1,0 +1,2 @@
+// 資料層：星望市地圖上可選擇的自由活動地點。locked 為 true 的地點目前尚未開放進入。
+export const MAP_LOCATIONS={radio:{name:"星望廣播電臺",area:"傳媒區",icon:"聲",note:"節目錄音、主持與業界人士出入的地方。",effect:"可能認識主持人，提升口才或社交"},livehouse:{name:"月蝕 Live House",area:"舊城區",icon:"樂",note:"新人樂團與地下歌手聚集的小型展演空間。",effect:"獲得舞台經驗、歌藝或創作靈感"},park:{name:"星光河濱公園",area:"河岸區",icon:"休",note:"適合散步、慢跑與放空的公共空間。",effect:"降低疲勞並可能觸發日常事件"},studio:{name:"十七號攝影棚",area:"影視園區",icon:"影",note:"廣告與戲劇經常在此拍攝，目前尚未開放。",effect:"需要通告或業界關係才能進入",locked:true}};
