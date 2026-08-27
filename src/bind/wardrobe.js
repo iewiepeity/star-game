@@ -1,12 +1,12 @@
 // 事件層：衣櫃的人物切換、購買、穿著與變性。購買服裝需本週已去過服裝店（星光購物商場），
 // 變性需本週已去過整形醫院（星望整形外科）；成功後立刻套用，並由 render() 寫入存檔。
 import{AVATARS,OUTFITS,portraitAsset,isAvatarLocked,defaultAvatarForGender,GENDER_CHANGE_COST}from"../data/wardrobe.js";
-import{state}from"../core/state.js";
+import{state,visitedLocationThisWeek}from"../core/state.js";
 import{preloadImage}from"../core/images.js";
 import{render}from"../render.js";
 
-const shoppingUnlocked=()=>state.lastVisitedLocation==="shop"&&state.lastVisitedWeek===state.week;
-const surgeryUnlocked=()=>state.lastVisitedLocation==="clinic"&&state.lastVisitedWeek===state.week;
+const shoppingUnlocked=()=>visitedLocationThisWeek("shop");
+const surgeryUnlocked=()=>visitedLocationThisWeek("clinic");
 
 export function bindWardrobe(){
  document.querySelectorAll("[data-wardrobe-avatar]").forEach(x=>x.onclick=async()=>{const id=x.dataset.wardrobeAvatar,avatar=AVATARS[id];if(!avatar||isAvatarLocked(avatar,state.gender))return;const owned=state.ownedOutfits[id]||["newcomer"],nextOutfit=owned.includes(state.outfitId)?state.outfitId:"newcomer";await preloadImage(portraitAsset(id,nextOutfit));state.avatarId=id;state.outfitId=nextOutfit;state.wardrobeNotice="已切換人物立繪";render()});
