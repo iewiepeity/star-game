@@ -1,4 +1,5 @@
-// 事件層：行程規劃 App——點日期開抽屜、篩選、選擇活動、切換本週策略、複製上週／全部休息、開始這週。
+// 事件層：行程規劃 App——點日期把游標移過去、篩選、點活動直接套用並自動把游標推進下一天、
+// 切換本週策略、複製上週／全部休息、開始這週。
 import{ACTIONS}from"../data/actions.js";
 import{JOB}from"../data/job.js";
 import{FOCUSES}from"../data/focuses.js";
@@ -11,10 +12,9 @@ import{budget}from"../views/planner.js";
 import{render}from"../render.js";
 
 export function bindPlanner(){
- document.querySelectorAll("[data-day]").forEach(x=>x.onclick=()=>{state.selectedDay=Number(x.dataset.day);state.drawerOpen=true;render()});
- document.querySelectorAll("[data-close-drawer]").forEach(x=>x.onclick=()=>{state.drawerOpen=false;render()});
+ document.querySelectorAll("[data-day]").forEach(x=>x.onclick=()=>{state.selectedDay=Number(x.dataset.day);render()});
  document.querySelectorAll("[data-filter]").forEach(x=>x.onclick=()=>{state.filter=x.dataset.filter;render()});
- document.querySelectorAll("[data-pick]").forEach(x=>x.onclick=()=>{const id=x.dataset.pick;if(id==="adshoot"&&!JOB.workDays.includes(state.selectedDay)){state.notice=`此通告僅能安排在每週${jobWorkDaysText()}`;render();return}if(id==="free"){state.drawerOpen=false;state.appOpen="map";render();return}if(state.agencyInterview&&state.agencyInterview.dayIndex===state.selectedDay)cancelAgencyInterview();state.schedule[state.selectedDay]=id;state.notice=`${DAYS[state.selectedDay]}已安排「${ACTIONS[id].label}」`;state.drawerOpen=false;render()});
+ document.querySelectorAll("[data-pick]").forEach(x=>x.onclick=()=>{const id=x.dataset.pick;if(id==="adshoot"&&!JOB.workDays.includes(state.selectedDay)){state.notice=`此通告僅能安排在每週${jobWorkDaysText()}`;render();return}if(id==="free"){state.appOpen="map";render();return}if(state.agencyInterview&&state.agencyInterview.dayIndex===state.selectedDay)cancelAgencyInterview();state.schedule[state.selectedDay]=id;state.notice=`${DAYS[state.selectedDay]}已安排「${ACTIONS[id].label}」`;state.selectedDay=(state.selectedDay+1)%7;render()});
  document.querySelectorAll("[data-focus]").forEach(x=>x.onclick=()=>{state.focus=x.dataset.focus;state.notice=`本週策略改為「${FOCUSES[state.focus].label}」`;render()});
  document.querySelector("#copy")?.addEventListener("click",()=>{if(state.lastSchedule){if(state.agencyInterview)cancelAgencyInterview();state.schedule=state.lastSchedule.map(id=>(id==="adshoot"&&state.jobStage!=="active")||id==="agency_interview"?"rest":id);state.notice="已複製上週行程";render()}});
  document.querySelector("#rest-all")?.addEventListener("click",()=>{if(state.agencyInterview)cancelAgencyInterview();state.schedule=Array(7).fill("rest");state.notice="本週已全部改為休息";render()});
