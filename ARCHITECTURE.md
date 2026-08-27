@@ -35,15 +35,17 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 | `actions.js` | 行事曆可安排的每種行程（訓練/工作/生活/休息/面談）及其花費、疲勞、成長區間 |
 | `calendar.js` | 星期長/短名稱 |
 | `focuses.js` | 本週策略選項 |
-| `npcs.js` | 可認識的人物檔案 |
+| `npcs.js` | 可認識的人物檔案（含 `portrait` 立繪路徑，見下方「立繪」一節） |
 | `job.js` | 第一份通告（晨露汽水廣告）的固定條件 |
 | `agencies.js` | 經紀公司清單（門檻、合約條件）——新增公司只需擴充這裡 |
 | `map-locations.js` | 星望市地圖可選地點 |
+| `genders.js` | 性別選項清單（`KNOWN_GENDERS`／`GENDER_OPTIONS`），角色建立畫面與玩家立繪都靠這份清單判斷 |
+| `portraits.js` | 玩家立繪依性別對應的圖檔路徑（`PLAYER_PORTRAITS`） |
 
 ### `core/`（狀態與通用工具）
 | 檔案 | 內容 |
 |---|---|
-| `state.js` | `initialState()`、目前遊戲狀態 `state`、`resetState()`（開新一輪的唯一入口）、`hydrateState()`（從存檔還原的唯一入口） |
+| `state.js` | `initialState()`、目前遊戲狀態 `state`、`resetState()`（開新一輪的唯一入口）、`hydrateState()`（從存檔還原及舊欄位遷移的唯一入口） |
 | `persistence.js` | `saveState`／`loadState`——把 state 存進/讀出 `localStorage`，詳見下方「存讀檔」一節 |
 | `utils.js` | `random`／`esc`／`money`／`width`／`successRateLabel`（只顯示文字提示、不外露精確機率）／`yearOf`／`weekInYear`／`jobWorkDaysText` |
 | `stats.js` | `rollStats`／`initializeHiddenStats`／`reroll`——唯一會寫入能力初始值與隱藏特質的地方 |
@@ -102,9 +104,21 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 
 兩個值得知道的細節：
 - **版本號是為了未來的欄位變動準備的**：如果之後改了 `state` 的形狀（例如某個欄位改名、拿掉），把 `persistence.js` 裡的 `SAVE_VERSION` 加一即可——舊存檔會被判定成「版本不符」直接捨棄開新局，不需要另外寫遷移程式。真的想保留舊存檔玩家的進度時，才需要在 `loadState()` 加版本轉換邏輯。
-- **`hydrateState()` 用 `Object.assign(initialState(), saved)` 墊底**：以後新增的 state 欄位，只要舊存檔沒有這個鍵，就會自動拿到 `initialState()` 給的預設值，不會是 `undefined`——但這只保護「整個新欄位」，如果是既有欄位的資料形狀本身改變（例如 `agencyApplications` 的值從字串改成物件），墊底救不回來，那種情況才需要真的加版本號。
+- **`hydrateState()` 會補預設值並處理相容遷移**：先用 `Object.assign(initialState(), saved)` 補齊新欄位，再把舊版共用的 `mapLocation` 轉成逐日 `freeLocations[dayIndex]`。上週目的地則存於 `lastFreeLocations`，讓「複製上週」能同時還原行程與各日地點；非自由活動日期一律清除目的地，避免舊資料誤觸事件。
+- **行程游標不循環覆蓋**：排入活動或自由活動地點後，游標最多只前進到星期日；在星期日繼續排程時會停在原位並顯示提示，不會繞回星期一覆蓋已排好的行程。
 - **逐日事件的讀秒畫面（`runnerPhase==="loading"`）背後有一個 0.65 秒的 `setTimeout`**，重新整理頁面後計時器不會恢復。`main.js` 讀檔時特別檢查這個狀態，發現存檔剛好停在讀秒瞬間就重新呼叫一次 `startDay()`，讓當天重新跑一次讀秒，不會卡住。
 - 所有 `localStorage` 存取都包在 `try/catch` 裡：私密瀏覽模式或使用者關閉網站資料時，存讀會靜默失敗，遊戲照常從新的一局開始，不會噴錯讓畫面卡死。
+
+## 立繪（美術圖還沒畫，先接好參數）
+
+畫面上會出現人物圖的地方都已經接好 `<img>`，但實際圖檔還沒有——確切要存進哪個檔名、放在哪個資料夾，列在 `assets/portraits/README.md`，不在這裡重複一份，避免兩處文件之後對不上。
+
+機制很單純：每個 `<img class="portrait-img" src="固定路徑" onerror="this.remove()">` 都疊在原本就有的文字頭像／占位框上面。圖檔存在就整個蓋過去；找不到檔案（現在都是這樣）瀏覽器會觸發 `onerror`，`<img>` 自己把自己從 DOM 移除，底下的文字頭像或占位提示就會露出來——所以現在沒有圖也不會看到壞掉的圖示，之後只要把對的檔名存進 `assets/portraits/`，畫面會自動吃到，不用碰任何程式碼。
+
+- 玩家立繪依 `state.gender` 決定要用哪一張，邏輯在 `core/utils.js` 的 `playerPortraitPath()`；路徑本身放在 `data/portraits.js`，不存進 `state`（性別隨時可能改，每次都即時算，不會有存檔存到舊路徑對不上的問題）。
+- NPC 立繪是每個人物資料自己的 `portrait` 欄位（`data/npcs.js`），新增 NPC 時比照加一行即可。
+- 目前接好的位置：角色建立畫面（依性別即時預覽）、房間畫面左上角玩家頭像、人物檔案 App 的大頭照與左側列表、手機通訊錄的聯絡人頭像。
+- 刻意沒有接的位置：逐日事件畫面（現在的訓練/休息/工作等大部分行程沒有明確的「畫面上該放誰的立繪」，要接的話得先決定內容規則，不只是加參數，所以先跳過，需要的話再說）。
 
 ## 這次重構「沒有」做的事
 
