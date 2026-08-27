@@ -17,6 +17,6 @@ export function weekInYear(){return((state.week-1)%52)+1}
 export function jobWorkDaysText(){return JOB.workDays.map(i=>"週"+SHORT[i]).join("、")}
 
 // 玩家選擇的外型與當前服裝共同決定立繪；性別欄只影響稱呼，不限制任何立繪。
-export function playerPortraitPath(outfitId=state.outfitId,avatarId=state.avatarId){return portraitAsset(AVATARS[avatarId]?avatarId:"silver",OUTFITS[outfitId]?outfitId:"newcomer")}
+export function playerPortraitPath(outfitId=state.outfitId,avatarId=state.avatarId){return portraitAsset(AVATARS[avatarId]?avatarId:"raven",OUTFITS[outfitId]?outfitId:"newcomer")}
 export function outfitBonus(statName){return OUTFITS[state.outfitId]?.bonuses?.[statName]||0}
 export function effectiveStat(statName){return Math.min(1000,(state.stats[statName]||0)+outfitBonus(statName))}
