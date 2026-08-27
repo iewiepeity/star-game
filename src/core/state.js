@@ -10,3 +10,7 @@ export let state=initialState();
 
 // 開新的一輪（startNewRun，見 views/ending.js）呼叫這個函式，而不是自己重新指派 state。
 export function resetState(){state=initialState();return state}
+
+// 從存檔還原（main.js 開機時呼叫）。跟 resetState() 一樣，重新指派只能發生在這裡；
+// 用 initialState() 墊底再蓋上存檔內容，未來新增的欄位在舊存檔裡讀不到時會自動補上預設值，不會是 undefined。
+export function hydrateState(saved){state=Object.assign(initialState(),saved);return state}
