@@ -61,7 +61,7 @@ function syncGuide(guide){
  activeGuide=id;
  guideTimer=setTimeout(()=>{
   guideTimer=null;
-  if(activeGuide===id){activeGuide="";render()}
+  if(activeGuide===id){markTutorialSeen(state,id);activeGuide="";render()}
  },GUIDE_DURATION);
 }
 
@@ -74,13 +74,12 @@ export function render(){
  const view=isCreate?createView():state.screen==="prologue"?prologueView():state.screen==="runner"?runnerView():state.screen==="summary"?summaryView():state.screen==="ending"?endingView():state.screen==="event"?eventView():roomView();
  const message=isCreate?"":String(state.notice||"").trim();
  const guide=!isCreate&&!message?nextTutorial(state):null;
- if(guide)markTutorialSeen(state,guide.id);
  app.innerHTML=view+(message?toastMarkup(message):guide?guideMarkup(guide):"");
  const nextBody=app.querySelector(".window-body");
  if(nextBody&&state.appOpen===previousApp)nextBody.scrollTop=appScrollPositions[state.appOpen]||0;
  app.querySelectorAll(".mini-toast").forEach(node=>node.remove());
  bind();
- document.querySelector("[data-dismiss-guide]")?.addEventListener("click",()=>{if(guideTimer)clearTimeout(guideTimer);guideTimer=null;activeGuide="";render()});
+ document.querySelector("[data-dismiss-guide]")?.addEventListener("click",()=>{if(guideTimer)clearTimeout(guideTimer);guideTimer=null;if(guide)markTutorialSeen(state,guide.id);activeGuide="";render()});
  saveState(state);
  syncToast(message);
  syncGuide(guide);
