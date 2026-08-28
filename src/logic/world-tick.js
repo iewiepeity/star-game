@@ -26,6 +26,7 @@ import{tickNpcProactiveEvents}from"./npc-proactive.js";
 import{maybeQueueMediaEvent}from"./media-engine.js";
 import{tickSequelOpportunities}from"./sequel-engine.js";
 import{queueAnnualWorldEvent}from"./world-events.js";
+import{tickRomanceRelationships}from"./romance-engine.js";
 
 export function advanceWorldWeek(){
  const closingNews=generateIndustryNews();
@@ -45,8 +46,9 @@ export function advanceWorldWeek(){
  const npcGrowth=tickNpcCareers();
  const npcWork=syncNpcAutonomousWork();
  const npcRelationUpdates=tickNpcRelationshipDynamics();
+ const romanceUpdates=tickRomanceRelationships();
  const rumorUpdates=tickRumors();
- const npcUpdates=[...npcWork,...npcGrowth,...npcRelationUpdates,...rumorUpdates,...rivalUpdates,...workUpdates];
+ const npcUpdates=[...npcWork,...npcGrowth,...npcRelationUpdates,...romanceUpdates,...rumorUpdates,...rivalUpdates,...workUpdates];
  const news=generateIndustryNews({awards,npcUpdates});
  const opinion=tickPublicOpinion(news);
  tickBrandRelations();

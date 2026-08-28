@@ -25,8 +25,10 @@ export const NPC_CAREER_PROFILES={
 };
 
 export const NPC_INTERACTIONS={
- chat:{label:"聊近況",closeness:4,trust:2,fatigue:0},
- meal:{label:"約吃飯",closeness:7,trust:4,cost:700,fatigue:1},
- support:{label:"替對方工作應援",closeness:4,trust:7,cost:300,fatigue:1},
- collaborate:{label:"聊工作與合作",closeness:3,trust:5,minStage:"familiar",fame:1}
+ chat:{label:"聊近況",closeness:4,trust:2,affection:1,fatigue:0},
+ meal:{label:"約吃飯",closeness:7,trust:4,affection:2,cost:700,fatigue:1},
+ support:{label:"替對方工作應援",closeness:4,trust:7,affection:1,cost:300,fatigue:1},
+ collaborate:{label:"聊工作與合作",closeness:3,trust:5,affection:0,minStage:"familiar",fame:1},
+ personal:{label:"關心對方",closeness:4,trust:6,affection:4,minStage:"friend",fatigue:1},
+ date:{label:"單獨約會",closeness:6,trust:4,affection:7,minRomance:"dating",cost:1200,fatigue:1}
 };

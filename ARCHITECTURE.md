@@ -36,6 +36,7 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 | `calendar.js` | 星期長/短名稱 |
 | `focuses.js` | 本週策略選項 |
 | `npcs.js` | 主要人物完整設定，以及 `head`／`bust`／`portrait` 三種立繪用途 |
+| `romance.js` | 可攻略資格、年齡／作品／工作界線條件，以及戀愛階段定義 |
 | `job.js` | 第一份通告（晨露汽水廣告）的固定條件 |
 | `agencies.js` | 經紀公司清單（門檻、合約條件）——新增公司只需擴充這裡 |
 | `map-locations.js` | 星望市地圖可選地點 |
@@ -66,6 +67,7 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 | `random-events.js` | 隨機事件抽選、避免連續重複、效果套用，以及 NPC 初遇／關係成長 |
 | `event-engine.js` | 通用事件條件、分類、選項、旗標與效果套用；內容事件不得自行散落修改 state |
 | `npc-engine.js` | NPC 初遇、關係數值、階段與人物里程碑的唯一入口 |
+| `romance-engine.js` | 隱藏好感、戀愛資格、唯一伴侶、地下／公開、分手、冷落衰減與階段狀態機 |
 | `job-engine.js` | 50 份通告共用的多通告申請、試鏡、簽約、排程、完成與違約狀態機 |
 | `portfolio.js` | 作品履歷、品質計算與獎項判定 |
 | `career.js` | 職涯路線與五年／退圈／過勞結局判定器 |
@@ -122,7 +124,7 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 `core/persistence.js` 把整個 `state` 序列化存進 `localStorage`（鍵名 `star-game-save`），存檔格式是 `{v: 版本號, state}`。存檔時機是 `render.js`——每次 `render()` 畫完面都會存一次，所以理論上不會有「忘記存檔」的情況，任何一次點擊之後重新整理頁面都能接回原本畫面。讀檔在 `main.js` 開機時做：讀到版本號吻合的存檔就用 `core/state.js` 的 `hydrateState()` 蓋掉初始狀態；讀不到、格式不對、或版本號不吻合，一律當作沒有存檔，照舊開新的一局。
 
 兩個值得知道的細節：
-- **版本號是為了未來的欄位變動準備的**：`persistence.js` 的 `SAVE_VERSION` 是目前寫出的版本，`SUPPORTED_SAVE_VERSIONS` 列出仍可讀取的舊版；結構變更時應在 `hydrateState()` 寫遷移，不可直接丟棄既有玩家進度。目前 v1 共用衣櫃會遷移成四位角色各自擁有原本已購買的服裝。
+- **版本號是為了未來的欄位變動準備的**：`persistence.js` 的 `SAVE_VERSION` 是目前寫出的版本，`SUPPORTED_SAVE_VERSIONS` 列出仍可讀取的舊版；結構變更時應在 `core/migrations.js` 寫遷移，不可直接丟棄既有玩家進度。目前版本為 v11，會替舊關係資料補上隱藏好感、公開狀態、歷史與唯一伴侶欄位。
 - **`hydrateState()` 會補預設值並處理相容遷移**：先用 `Object.assign(initialState(), saved)` 補齊新欄位，再把舊版共用的 `mapLocation` 轉成逐日 `freeLocations[dayIndex]`。上週目的地則存於 `lastFreeLocations`，讓「複製上週」能同時還原行程與各日地點；非自由活動日期一律清除目的地，避免舊資料誤觸事件。
 - **行程游標不循環覆蓋**：排入活動或自由活動地點後，游標最多只前進到星期日；在星期日繼續排程時會停在原位並顯示提示，不會繞回星期一覆蓋已排好的行程。
 - **逐日事件的讀秒畫面（`runnerPhase==="loading"`）背後有一個 0.65 秒的 `setTimeout`**，重新整理頁面後計時器不會恢復。`main.js` 讀檔時特別檢查這個狀態，發現存檔剛好停在讀秒瞬間就重新呼叫一次 `startDay()`，讓當天重新跑一次讀秒，不會卡住。
