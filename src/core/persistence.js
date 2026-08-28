@@ -1,4 +1,5 @@
 import{assertGameState}from"./save-schema.js";
+import{migrateSaveState}from"./migrations.js";
 const AUTO_KEY="star-game-save";
 const MANUAL_PREFIX="star-game-save-slot-";
 const LEGACY_MANUAL_KEY="star-game-save-manual";
@@ -7,7 +8,7 @@ export const SAVE_VERSION=4;
 export const SAVE_SLOT_COUNT=5;
 const SUPPORTED_SAVE_VERSIONS=new Set([1,2,3,4]);
 
-function migrateEnvelope(parsed){if(!parsed||!SUPPORTED_SAVE_VERSIONS.has(parsed.v)||!parsed.state)return null;let state=structuredClone(parsed.state);if(parsed.v<4){state.saveVersion=4;if(!Array.isArray(state.eventQueue))state.eventQueue=[];if(state.activeEvent==null)state.activeEvent=null;if(!Number.isFinite(state.health))state.health=100;if(!Number.isInteger(state.overworkStrikes))state.overworkStrikes=0;if(!state.awardSeasons||typeof state.awardSeasons!=="object")state.awardSeasons={};if(!Array.isArray(state.careerRouteHistory))state.careerRouteHistory=[];if(!Number.isInteger(state.rngCursor))state.rngCursor=0;if(state.rngSeed==null)state.rngSeed=Date.now()>>>0}return{...parsed,v:SAVE_VERSION,state}}
+function migrateEnvelope(parsed){if(!parsed||!SUPPORTED_SAVE_VERSIONS.has(parsed.v)||!parsed.state)return null;const migrated=migrateSaveState(parsed.state,parsed.v);return{...parsed,v:migrated.version,state:migrated.state}}
 function readRaw(key){try{const raw=localStorage.getItem(key);if(!raw)return null;return migrateEnvelope(JSON.parse(raw))}catch{return null}}
 function writeRaw(key,state,label=""){try{assertGameState(state);localStorage.setItem(key,JSON.stringify({game:"star-game",v:SAVE_VERSION,state,savedAt:Date.now(),label}));return true}catch{return false}}
 function meta(slot,data){return data?{slot,savedAt:data.savedAt,week:data.state.week,name:data.state.name,label:data.label||"",version:data.v}:null}
@@ -24,7 +25,7 @@ export function backupCurrent(state,label="自動備份"){return writeRaw(BACKUP
 export function loadBackup(){return readRaw(BACKUP_KEY)?.state||null}
 export function backupMeta(){return meta("backup",readRaw(BACKUP_KEY))}
 export function exportSave(state){assertGameState(state);return JSON.stringify({game:"star-game",v:SAVE_VERSION,exportedAt:Date.now(),state},null,2)}
-export function parseImportedSave(text){const parsed=migrateEnvelope(JSON.parse(text));if(parsed?.game!=="star-game"||!parsed.state)throw new Error("不是可支援的《星途未定》存檔");return assertGameState(parsed.state)}
+export function parseImportedSave(text){const parsed=migrateEnvelope(JSON.parse(text));if(parsed?.game!=="star-game"||!parsed.state)throw new Error("不是可支援的《星途未定》存檔");return parsed.state}
 export function migrateLegacyManualSlot(){try{if(localStorage.getItem(manualSlotKey(1)))return;const legacy=readRaw(LEGACY_MANUAL_KEY);if(legacy)localStorage.setItem(manualSlotKey(1),JSON.stringify({...legacy,v:SAVE_VERSION,label:"舊版手動存檔"}))}catch{}}
 export const saveManualState=state=>saveManualSlot(1,state);
 export const loadManualState=()=>loadManualSlot(1);
