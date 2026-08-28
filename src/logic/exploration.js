@@ -2,6 +2,7 @@ import{MAP_LOCATIONS}from"../data/map-locations.js";
 import{NPCS}from"../data/npcs.js";
 import{state}from"../core/state.js";
 import{random,money}from"../core/utils.js";
+import{resolveLocationEvent}from"./random-events.js";
 
 function addStat(name,min,max){const gain=random(min,max);state.stats[name]=Math.min(1000,(state.stats[name]||0)+gain);return`<b>${name}＋${gain}</b>`}
 
@@ -26,5 +27,5 @@ export function resolveExploration(locationId,choice){
  if(encounter)out.unshift(encounter);
  if(locationId==="clinic")out.push("本週已解鎖衣櫃裡的整形與性別肯認醫療");
  if(locationId==="shop")out.push("本週已解鎖衣櫃服裝購買");
- return out.join("、")+"。";
+ return out.join("、")+"。"+resolveLocationEvent(locationId,choice);
 }

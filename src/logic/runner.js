@@ -10,6 +10,7 @@ import{state}from"../core/state.js";
 import{random,money,effectiveStat,successRateLabel,jobWorkDaysText}from"../core/utils.js";
 import{deterministicInterviewScore,calculateJobIncome,cancelAgencyInterview,isAgencyContractActive}from"./agency.js";
 import{resolveExploration}from"./exploration.js";
+import{prepareScheduleEvent,resolveScheduleEvent}from"./random-events.js";
 import{render}from"../render.js";
 
 // 依當天安排的行程，決定要不要跳出「現場選擇」；回傳 null 代表當天沒有選擇，直接照 resolveDay 的預設分支結算。
@@ -18,7 +19,7 @@ export function decisionFor(id){if(id==="agency_interview"&&state.agencyIntervie
 export function applyGains(gains){const out=[];gains.forEach(([n,min,max])=>{let gain=random(min,max)+(state.focus==="growth"?1:0);state.stats[n]=Math.min(1000,state.stats[n]+gain);out.push(`<b>${n}＋${gain}</b>`)});return out.join("、")}
 
 // 每天開始時呼叫：先顯示 loading，0.65 秒後依 decisionFor 決定要不要停在「選擇」畫面，沒有選擇就直接結算。
-export function startDay(){state.runnerResult=null;state.runnerDecision=null;state.runnerPhase="loading";render();setTimeout(()=>{const d=decisionFor(state.schedule[state.runnerDay]);if(d){state.runnerDecision=d;state.runnerPhase="decision";render()}else resolveDay(null)},650)}
+export function startDay(){state.runnerResult=null;state.runnerDecision=null;state.runnerPhase="loading";const id=state.schedule[state.runnerDay];if(id!=="free")prepareScheduleEvent(id);else state.pendingRandomEvent=null;render();setTimeout(()=>{const d=decisionFor(id);if(d){state.runnerDecision=d;state.runnerPhase="decision";render()}else resolveDay(null)},650)}
 
 // 結算當天：依行程類型（訓練／休息／自由活動／通告拍攝／經紀公司面談／試鏡與街頭演出）各自計算結果，
 // 最後統一寫入 weekResults、檢查過勞（>200 直接進結局、>100 強制住院），否則進入「結果」畫面。
@@ -31,6 +32,7 @@ export function resolveDay(choice){const id=state.schedule[state.runnerDay],a=AC
  else if(id==="agency_interview"){const active=state.agencyInterview,activeApp=active&&state.agencyApplications[active.agencyId];const valid=active&&active.dayIndex===state.runnerDay&&activeApp&&activeApp.status==="interview_scheduled";if(!valid){title="面談已取消或失效";success=false;text="這場面談目前已不存在，今天不會產生任何結果，也不會重複計算。"}else{const agency=AGENCIES[active.agencyId];state.fatigue+=a.fatigue;state.stamina=Math.max(0,state.stamina-a.stamina);const score=deterministicInterviewScore(agency,choice);success=random(1,100)<=score;const bumpStat=choice==="steady"?"口才":"鏡頭感";if(success){const gain=random(4,8);state.stats[bumpStat]=Math.min(1000,state.stats[bumpStat]+gain);state.contract=Math.min(100,state.contract+8);activeApp.status="offer";state.agencyOffer={agencyId:agency.id,offeredWeek:state.week};title="面談順利，公司決定發出合約！";text=`你以${choice==="steady"?"穩健":"積極"}的方式應對問題，對方相當滿意。<b>${bumpStat}＋${gain}、簽約準備度＋8%</b>。回到經紀公司頁即可查看正式合約。`;state.flags.push({week:state.week,label:`${agency.name}面談通過`,note:`以${choice==="steady"?"穩健":"企圖心"}回答獲得合約邀約。`})}else{const gain=random(1,3);state.stats[bumpStat]=Math.min(1000,state.stats[bumpStat]+gain);activeApp.status="rejected";title="這次沒有獲得錄取通知";text=`公司婉拒了這次機會，不過臨場經驗仍有收穫，<b>${bumpStat}＋${gain}</b>。`;state.flags.push({week:state.week,label:`${agency.name}面談未獲錄取`,note:`以${choice==="steady"?"穩健":"企圖心"}回答應對，這次沒有成功。`})}state.schedule[state.runnerDay]="rest";state.agencyInterview=null}}
  else if(a.gains){text=`自主安排留下成果，${applyGains(a.gains)}。`;state.fatigue+=a.fatigue;state.stamina=Math.max(0,state.stamina-a.stamina)}
  else{state.fatigue+=a.fatigue;state.stamina=Math.max(0,state.stamina-a.stamina);let power=id==="audition"?(effectiveStat("鏡頭感")+effectiveStat("親和力")+effectiveStat("口才"))/3:(effectiveStat("歌藝")+effectiveStat("肢體表現")+effectiveStat("社交"))/3;let chance=Math.max(10,Math.min(78,32+(power-75)*.24+(state.focus==="fame"?8:0)+(choice==="safe"||choice==="steady"?10:-4)));if(Math.random()*100<chance){if(id==="audition"){const f=choice==="bold"?8:4,g=random(5,9);state.stats.鏡頭感+=g;state.fame+=f+(state.focus==="fame"?2:0);state.fans+=random(15,55);state.contract+=choice==="bold"?18:13;text=`導演請你留下資料。<b>鏡頭感＋${g}、知名度＋${f}、簽約進度＋${choice==="bold"?18:13}%</b>。`}else{const earn=choice==="interact"?random(900,1800):random(500,1100);state.money+=earn;state.fame+=2+(state.focus==="fame"?2:0);state.fans+=random(8,35);text=`有人停下來替你鼓掌。小費 <b>＋${money(earn)}</b>，知名度與粉絲也增加了。`}}else{title="這次沒有成功";success=false;const n=id==="audition"?"鏡頭感":"歌藝",g=random(1,3);state.stats[n]+=g;text=`機會擦身而過，但實戰沒有白費，<b>${n}＋${g}</b>。`}}
+ if(id!=="free")text+=resolveScheduleEvent(id);
  state.contract=Math.min(100,state.contract);state.weekResults.push({day:DAYS[state.runnerDay],action:a.label,result:(title+" "+text.replace(/<[^>]+>/g,"")),success});
  if(state.fatigue>200){state.endingType="death";state.screen="ending";state.appOpen=null;render();return}
  if(state.fatigue>100){hospitalize();return}
