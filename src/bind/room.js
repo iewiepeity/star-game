@@ -10,5 +10,7 @@ export function bindRoomShell(){
  document.querySelectorAll("[data-close-app]").forEach(x=>x.onclick=()=>{state.appOpen=null;render()});
  document.querySelector("[data-open-job]")?.addEventListener("click",()=>{state.appOpen="jobs";render()});
  document.querySelector("[data-go-free]")?.addEventListener("click",()=>{state.selectedDay=state.schedule.findIndex(id=>id==="rest");if(state.selectedDay<0)state.selectedDay=6;state.appOpen="map";render()});
- document.querySelector("[data-retire]")?.addEventListener("click",()=>{state.endingType="retire";state.endingResult=evaluateEnding("retire");state.screen="ending";state.appOpen=null;render()});
+ document.querySelector("[data-retire]")?.addEventListener("click",()=>{state.retireConfirm=true;render()});
+ document.querySelectorAll("[data-retire-cancel]").forEach(button=>button.onclick=()=>{state.retireConfirm=false;render()});
+ document.querySelector("[data-retire-confirm]")?.addEventListener("click",()=>{state.retireConfirm=false;state.endingType="retire";state.endingResult=evaluateEnding("retire");state.screen="ending";state.appOpen=null;render()});
 }

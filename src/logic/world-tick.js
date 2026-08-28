@@ -27,6 +27,15 @@ import{maybeQueueMediaEvent}from"./media-engine.js";
 import{tickSequelOpportunities}from"./sequel-engine.js";
 import{queueAnnualWorldEvent}from"./world-events.js";
 import{tickRomanceRelationships}from"./romance-engine.js";
+import{enqueueVisibleEvent}from"./event-engine.js";
+import{queueHiddenRoute}from"./hidden-route.js";
+
+function queueAwardCeremony(awards){
+ if(!awards.length)return null;
+ const wins=awards.filter(award=>award.result!=="入圍"),titles=awards.map(award=>{const work=state.completedWorks.find(item=>item.id===award.workId);return`《${work?.title||"作品"}》${award.result}`}).join("、");
+ const event={id:`award-ceremony-${state.week}`,kind:"職涯事件",priority:90,maxDelayWeeks:3,title:wins.length?"名字在頒獎台上被念出":"入圍名單上的那一行",text:`典禮燈光亮起，${titles}。一路累積的工作，此刻終於有了能被看見的形狀。`,choices:[{id:"team",label:"把掌聲留給整個團隊",outcome:"你沒有把作品說成一個人的功勞，合作過的人都記住了這句話。",effect:{rep:"業界評價",value:wins.length?6:3,rep2:"路人緣",value2:3}},{id:"future",label:"談下一部想做的作品",outcome:"你把這一晚當成起點，媒體也開始追問下一步。",effect:{rep:"話題度",value:wins.length?7:3,fame:wins.length?4:1}}]};
+ enqueueVisibleEvent(event,"獎項典禮");return event.id;
+}
 
 export function advanceWorldWeek(){
  const closingNews=generateIndustryNews();
@@ -40,6 +49,7 @@ export function advanceWorldWeek(){
  checkAgencyContractExpiry();
  const breached=checkJobDeadlines();
  const awards=resolveDueAwardSeasons();
+ queueAwardCeremony(awards);
  const market=tickWorldMarket();
  const rivalUpdates=tickCompetitors();
  const workUpdates=tickWorkLifecycles();
@@ -65,5 +75,6 @@ export function advanceWorldWeek(){
  const media=maybeQueueMediaEvent();
  const sequel=tickSequelOpportunities();
  const worldEvent=queueAnnualWorldEvent();
- return{breached,awards,market,npcUpdates,rumorUpdates,news,opinion,scandal,persona,fandom,due,calendar,npcStories,proactive,media,sequel,worldEvent};
+ const hiddenRoute=queueHiddenRoute();
+ return{breached,awards,market,npcUpdates,rumorUpdates,news,opinion,scandal,persona,fandom,due,calendar,npcStories,proactive,media,sequel,worldEvent,hiddenRoute};
 }

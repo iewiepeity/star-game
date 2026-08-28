@@ -18,6 +18,7 @@ let toastTimer=null;
 let activeToast="";
 let guideTimer=null;
 let activeGuide="";
+const appScrollPositions={};
 
 function toastMarkup(message){
  return `<div class="game-toast" role="status" aria-live="polite"><i aria-hidden="true">✓</i><span>${esc(message)}</span></div>`;
@@ -65,6 +66,8 @@ function syncGuide(guide){
 }
 
 export function render(){
+ const previousWindow=app.querySelector(".app-window"),previousBody=previousWindow?.querySelector(".window-body"),previousApp=state.appOpen;
+ if(previousBody&&previousApp)appScrollPositions[previousApp]=previousBody.scrollTop;
  syncVisitedLocations();
  evaluateAchievements();
  const isCreate=state.screen==="create";
@@ -73,6 +76,8 @@ export function render(){
  const guide=!isCreate&&!message?nextTutorial(state):null;
  if(guide)markTutorialSeen(state,guide.id);
  app.innerHTML=view+(message?toastMarkup(message):guide?guideMarkup(guide):"");
+ const nextBody=app.querySelector(".window-body");
+ if(nextBody&&state.appOpen===previousApp)nextBody.scrollTop=appScrollPositions[state.appOpen]||0;
  app.querySelectorAll(".mini-toast").forEach(node=>node.remove());
  bind();
  document.querySelector("[data-dismiss-guide]")?.addEventListener("click",()=>{if(guideTimer)clearTimeout(guideTimer);guideTimer=null;activeGuide="";render()});
