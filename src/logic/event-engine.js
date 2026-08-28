@@ -1,41 +1,33 @@
 import{state}from"../core/state.js";
 import{money,effectiveStat}from"../core/utils.js";
 import{adjustRelationship,meetNpc}from"./npc-engine.js";
+import{careerRoute}from"./career.js";
 
 export const EVENT_KINDS=Object.freeze({INSTANT:"即時事件",CHOICE:"選擇事件",DELAYED:"延遲事件",CHAIN:"連鎖事件",NPC:"人物事件",CAREER:"職涯事件",PUBLIC:"輿論事件"});
-export function classifyEvent(event){if(event.kind)return event.kind;if(event.choices?.length)return EVENT_KINDS.CHOICE;if(event.effect?.npc||event.effects?.some(x=>x.npc))return EVENT_KINDS.NPC;if(event.effect?.delayWeeks||event.followUp)return EVENT_KINDS.DELAYED;if(event.effect?.flag||event.requires?.flags)return EVENT_KINDS.CHAIN;if(event.effect?.rep||event.effect?.fame||event.effect?.fans)return EVENT_KINDS.PUBLIC;if(event.effect?.work||event.effect?.award)return EVENT_KINDS.CAREER;return EVENT_KINDS.INSTANT}
+export function classifyEvent(event){if(event.kind)return event.kind;if(event.choices?.length)return EVENT_KINDS.CHOICE;if(event.effect?.npc||event.effects?.some(x=>x.npc))return EVENT_KINDS.NPC;if(event.effect?.delayWeeks||event.followUp)return EVENT_KINDS.DELAYED;if(event.effect?.flag||event.requires?.flags)return EVENT_KINDS.CHAIN;if(event.effect?.rep||event.effect?.fame||event.effect?.fans||event.effects?.some(x=>x.rep||x.fame||x.fans))return EVENT_KINDS.PUBLIC;if(event.effect?.work||event.effect?.award)return EVENT_KINDS.CAREER;return EVENT_KINDS.INSTANT}
 
 export function matchesConditions(c={},game=state){
  if(c.weekMin&&game.week<c.weekMin)return false;if(c.weekMax&&game.week>c.weekMax)return false;
- if(c.moneyMin!=null&&game.money<c.moneyMin)return false;if(c.fameMin!=null&&game.fame<c.fameMin)return false;if(c.fansMin!=null&&game.fans<c.fansMin)return false;
- if(c.fatigueMax!=null&&game.fatigue>c.fatigueMax)return false;if(c.moodMin!=null&&game.mood<c.moodMin)return false;
+ if(c.moneyMin!=null&&game.money<c.moneyMin)return false;if(c.moneyMax!=null&&game.money>c.moneyMax)return false;if(c.fameMin!=null&&game.fame<c.fameMin)return false;if(c.fansMin!=null&&game.fans<c.fansMin)return false;
+ if(c.fatigueMax!=null&&game.fatigue>c.fatigueMax)return false;if(c.fatigueMin!=null&&game.fatigue<c.fatigueMin)return false;if(c.moodMin!=null&&game.mood<c.moodMin)return false;if(c.healthMin!=null&&game.health<c.healthMin)return false;
  if(c.knownNpc&&!game.knownPeople.includes(c.knownNpc))return false;if(c.unknownNpc&&game.knownPeople.includes(c.unknownNpc))return false;
  if(c.flags&&!c.flags.every(flag=>game.eventFlags.includes(flag)))return false;if(c.notFlags?.some(flag=>game.eventFlags.includes(flag)))return false;
- if(c.stats&&Object.entries(c.stats).some(([name,min])=>effectiveStat(name)<min))return false;
- if(c.rep&&Object.entries(c.rep).some(([name,min])=>(game.rep[name]||0)<min))return false;
+ if(c.stats&&Object.entries(c.stats).some(([name,min])=>effectiveStat(name)<min))return false;if(c.rep&&Object.entries(c.rep).some(([name,min])=>(game.rep[name]||0)<min))return false;
  if(c.relationship&&Object.entries(c.relationship).some(([npc,need])=>{const rel=game.relationships[npc]||{};return(need.closeness!=null&&(rel.closeness||0)<need.closeness)||(need.trust!=null&&(rel.trust||0)<need.trust)||(need.romance&&rel.romance!==need.romance)}))return false;
  if(c.completedWorksMin!=null&&game.completedWorks.length<c.completedWorksMin)return false;if(c.awardsMin!=null&&game.awards.length<c.awardsMin)return false;
- if(c.agencySigned!=null&&Boolean(game.currentAgencyId)!==Boolean(c.agencySigned))return false;
- if(c.activeJob&&game.activeJobs?.[c.activeJob]?.stage!=="active")return false;
+ if(c.completedCategory&&!game.completedWorks.some(w=>w.category===c.completedCategory))return false;if(c.awardResult&&!game.awards.some(a=>a.result===c.awardResult))return false;
+ if(c.agencySigned!=null&&Boolean(game.currentAgencyId)!==Boolean(c.agencySigned))return false;if(c.agencyId&&game.currentAgencyId!==c.agencyId)return false;
+ if(c.activeJob&&game.activeJobs?.[c.activeJob]?.stage!=="active")return false;if(c.jobStage&&Object.values(game.activeJobs||{}).every(j=>j.stage!==c.jobStage))return false;
+ if(c.location){const locations=game.freeLocations||[];if(!locations.includes(c.location))return false}if(c.action&&!game.schedule?.includes(c.action))return false;
+ if(c.careerRoute&&careerRoute()!==c.careerRoute)return false;
  return true;
 }
 export function eligibleEvents(pool,game=state){return(pool||[]).filter(event=>matchesConditions(event.requires||{},game))}
-
-function oneEffect(effect={},source="事件"){const out=[];
- if(effect.hidden){const name=effect.hidden,value=effect.value??1;state.hidden[name]=Math.max(0,Math.min(1000,(state.hidden[name]||500)+value));out.push(`${name}獲得成長`)}
- if(effect.rep){const name=effect.rep,value=effect.value??1;state.rep[name]=Math.max(0,Math.min(1000,(state.rep[name]||0)+value));out.push(`${name}${value>=0?"＋":""}${value}`)}
- if(effect.stat){const value=effect.value??1;state.stats[effect.stat]=Math.max(0,Math.min(1000,(state.stats[effect.stat]||0)+value));out.push(`${effect.stat}${value>=0?"＋":""}${value}`)}
- for(const key of["mood","fatigue","money","fame","fans","contract","health"]){if(effect[key]==null)continue;const value=effect[key];if(key==="mood"||key==="health")state[key]=Math.max(0,Math.min(100,state[key]+value));else if(key==="fatigue")state.fatigue=Math.max(0,state.fatigue+value);else if(key==="contract")state.contract=Math.max(0,Math.min(100,state.contract+value));else state[key]=Math.max(0,(state[key]||0)+value);const label={mood:"心情",fatigue:"疲勞",money:"金錢",fame:"知名度",fans:"粉絲",contract:"簽約準備度",health:"健康"}[key];out.push(`${label}${value>=0?"＋":""}${key==="money"?money(value):value}`)}
- if(effect.flag&&!state.eventFlags.includes(effect.flag)){state.eventFlags.push(effect.flag);out.push(`解鎖「${effect.flag}」`)}
- if(effect.removeFlag)state.eventFlags=state.eventFlags.filter(x=>x!==effect.removeFlag);
- if(effect.npc){const met=meetNpc(effect.npc,source);if(met.text)out.push(met.text);const rel=adjustRelationship(effect.npc,{closeness:effect.relation||0,trust:effect.trust||0,romance:effect.romance,source});if(rel.text&&!met.met)out.push(rel.text)}
- return out}
+function oneEffect(effect={},source="事件"){const out=[];if(effect.hidden){const name=effect.hidden,value=effect.value??1;state.hidden[name]=Math.max(0,Math.min(1000,(state.hidden[name]||500)+value));out.push(`${name}獲得成長`)}if(effect.rep){const name=effect.rep,value=effect.value??1;state.rep[name]=Math.max(0,Math.min(1000,(state.rep[name]||0)+value));out.push(`${name}${value>=0?"＋":""}${value}`)}if(effect.stat){const value=effect.value??1;state.stats[effect.stat]=Math.max(0,Math.min(1000,(state.stats[effect.stat]||0)+value));out.push(`${effect.stat}${value>=0?"＋":""}${value}`)}for(const key of["mood","fatigue","money","fame","fans","contract","health"]){if(effect[key]==null)continue;const value=effect[key];if(key==="mood"||key==="health")state[key]=Math.max(0,Math.min(100,state[key]+value));else if(key==="fatigue")state.fatigue=Math.max(0,state.fatigue+value);else if(key==="contract")state.contract=Math.max(0,Math.min(100,state.contract+value));else state[key]=Math.max(0,(state[key]||0)+value);const label={mood:"心情",fatigue:"疲勞",money:"金錢",fame:"知名度",fans:"粉絲",contract:"簽約準備度",health:"健康"}[key];out.push(`${label}${value>=0?"＋":""}${key==="money"?money(value):value}`)}if(effect.flag&&!state.eventFlags.includes(effect.flag)){state.eventFlags.push(effect.flag);out.push(`解鎖「${effect.flag}」`)}if(effect.removeFlag)state.eventFlags=state.eventFlags.filter(x=>x!==effect.removeFlag);if(effect.npc){const met=meetNpc(effect.npc,source);if(met.text)out.push(met.text);const rel=adjustRelationship(effect.npc,{closeness:effect.relation||0,trust:effect.trust||0,romance:effect.romance,source});if(rel.text&&!met.met)out.push(rel.text)}return out}
 export function applyEffects(effect={},source="事件"){const list=Array.isArray(effect)?effect:(effect.effects||[effect]);return list.flatMap(item=>oneEffect(item,source))}
-
 export function queueEvent(event,{source="系統",dueWeek=state.week}={}){if(!event)return false;state.queuedEvents.push({dueWeek,event,source});return true}
 export function enqueueVisibleEvent(event,source="系統"){if(!event)return false;state.eventQueue.push({event,source});return true}
 export function activateNextEvent(){if(state.activeEvent||!state.eventQueue.length)return state.activeEvent;state.activeEvent=state.eventQueue.shift();state.screen="event";return state.activeEvent}
 export function dismissActiveEvent(){state.activeEvent=null;return activateNextEvent()}
-
 export function resolveEvent(event,choiceId=null){if(!event||!matchesConditions(event.requires||{}))return null;const choice=event.choices?.find(item=>item.id===choiceId);if(event.choices?.length&&!choice)return{pending:true,event};const effect=choice?.effect||choice?.effects||event.effects||event.effect||{};const effects=applyEffects(effect,event.title||"事件");const record={id:event.id||null,week:state.week,kind:classifyEvent(event),title:event.title,choice:choiceId,outcome:choice?.outcome||event.outcome,effects};state.eventHistory.push(record);if(event.followUp){const delay=event.effect?.delayWeeks||event.followUp.delayWeeks||1;queueEvent(event.followUp.event||event.followUp,{source:event.title,dueWeek:state.week+delay})}return{...record,text:event.text}}
 export function processQueuedEvents(){const due=state.queuedEvents.filter(item=>item.dueWeek<=state.week),future=state.queuedEvents.filter(item=>item.dueWeek>state.week);state.queuedEvents=future;for(const item of due)if(matchesConditions(item.event.requires||{}))enqueueVisibleEvent(item.event,item.source);return due.length}
