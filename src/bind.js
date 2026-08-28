@@ -1,17 +1,2 @@
-import{state}from"./core/state.js";
-import{bindCreateScreen}from"./bind/create.js";
-import{bindRunnerScreen}from"./bind/runner.js";
-import{bindSummaryScreen}from"./bind/summary.js";
-import{bindEndingScreen}from"./bind/ending.js";
-import{bindEventScreen}from"./bind/event.js";
-import{bindRoomShell}from"./bind/room.js";
-import{bindPlanner}from"./bind/planner.js";
-import{bindMap}from"./bind/map.js";
-import{bindNpc}from"./bind/npc.js";
-import{bindAgency}from"./bind/agency.js";
-import{bindJobs}from"./bind/jobs.js";
-import{bindWardrobe}from"./bind/wardrobe.js";
-import{bindSave}from"./bind/save.js";
-import{bindForum}from"./bind/forum.js";
-import{bindSocial}from"./bind/social.js";
-export function bind(){if(state.screen==="create"){bindCreateScreen();return}if(state.screen==="runner"){bindRunnerScreen();return}if(state.screen==="summary"){bindSummaryScreen();return}if(state.screen==="ending"){bindEndingScreen();return}if(state.screen==="event"){bindEventScreen();return}bindRoomShell();bindPlanner();bindMap();bindNpc();bindAgency();bindJobs();bindWardrobe();bindSave();bindForum();bindSocial()}
+import{state}from"./core/state.js";import{bindCreateScreen}from"./bind/create.js";import{bindRunnerScreen}from"./bind/runner.js";import{bindSummaryScreen}from"./bind/summary.js";import{bindEndingScreen}from"./bind/ending.js";import{bindEventScreen}from"./bind/event.js";import{bindRoomShell}from"./bind/room.js";import{bindPlanner}from"./bind/planner.js";import{bindMap}from"./bind/map.js";import{bindNpc}from"./bind/npc.js";import{bindAgency}from"./bind/agency.js";import{bindJobs}from"./bind/jobs.js";import{bindWardrobe}from"./bind/wardrobe.js";import{bindSave}from"./bind/save.js";import{bindForum}from"./bind/forum.js";import{bindSocial}from"./bind/social.js";import{bindCreative}from"./bind/creative.js";
+export function bind(){if(state.screen==="create"){bindCreateScreen();return}if(state.screen==="runner"){bindRunnerScreen();return}if(state.screen==="summary"){bindSummaryScreen();return}if(state.screen==="ending"){bindEndingScreen();return}if(state.screen==="event"){bindEventScreen();return}bindRoomShell();bindPlanner();bindMap();bindNpc();bindAgency();bindJobs();bindWardrobe();bindSave();bindForum();bindSocial();bindCreative()}
