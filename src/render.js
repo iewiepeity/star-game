@@ -7,5 +7,6 @@ import{endingView}from"./views/ending.js";
 import{eventView}from"./views/event.js";
 import{roomView}from"./views/room.js";
 import{bind}from"./bind.js";
+import{evaluateAchievements}from"./logic/achievement-engine.js";
 const app=document.querySelector("#app");
-export function render(){syncVisitedLocations();app.innerHTML=state.screen==="create"?createView():state.screen==="runner"?runnerView():state.screen==="summary"?summaryView():state.screen==="ending"?endingView():state.screen==="event"?eventView():roomView();bind();saveState(state)}
+export function render(){syncVisitedLocations();evaluateAchievements();app.innerHTML=state.screen==="create"?createView():state.screen==="runner"?runnerView():state.screen==="summary"?summaryView():state.screen==="ending"?endingView():state.screen==="event"?eventView():roomView();bind();saveState(state)}

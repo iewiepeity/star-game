@@ -6,7 +6,7 @@ import{render}from"../render.js";
 import{evaluateEnding}from"../logic/career.js";
 
 export function bindRoomShell(){
- document.querySelectorAll("[data-open-app]").forEach(x=>x.onclick=()=>{const target=x.dataset.openApp;if(target==="map"){const openDay=state.schedule.findIndex(id=>id==="rest");if(openDay>=0)state.selectedDay=openDay}if(target==="agency"&&!state.selectedAgencyId)state.selectedAgencyId=AGENCY_LIST[0].id;state.appOpen=target;render()});
+ document.querySelectorAll("[data-open-app]").forEach(x=>x.onclick=()=>{const target=x.dataset.openApp;if(target==="map"){const openDay=state.schedule.findIndex(id=>id==="rest");if(openDay>=0)state.selectedDay=openDay}if(target==="agency"&&!state.selectedAgencyId)state.selectedAgencyId=AGENCY_LIST[0].id;if(target==="achievements")state.achievementNotifications=[];state.appOpen=target;render()});
  document.querySelectorAll("[data-close-app]").forEach(x=>x.onclick=()=>{state.appOpen=null;render()});
  document.querySelector("[data-open-job]")?.addEventListener("click",()=>{state.appOpen="jobs";render()});
  document.querySelector("[data-go-free]")?.addEventListener("click",()=>{state.selectedDay=state.schedule.findIndex(id=>id==="rest");if(state.selectedDay<0)state.selectedDay=6;state.appOpen="map";render()});

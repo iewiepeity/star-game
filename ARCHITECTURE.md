@@ -48,7 +48,7 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 | `genders.js` | 性別選項清單（`KNOWN_GENDERS`／`GENDER_OPTIONS`），角色建立畫面與玩家立繪都靠這份清單判斷 |
 | `portraits.js` | 舊版玩家立繪路徑相容對照；新功能不再直接使用 |
 | `wardrobe.js` | 四款玩家立繪、五套服裝、價格、能力加成與素材路徑的唯一資料來源 |
-| `jobs-catalog.js` | 50 份一至五星通告／試鏡內容；五種類型各 10 份，供本機備援與 Supabase 種子共同使用 |
+| `jobs-catalog.js`、`jobs-expansion.js`、`jobs.js` | 75 份一至五星通告／試鏡內容；`jobs.js` 是遊戲執行時的合併入口 |
 
 ### `core/`（狀態與通用工具）
 | 檔案 | 內容 |
@@ -70,7 +70,9 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 | `npc-engine.js` | NPC 初遇、友情／信任、隱藏敵意、友好／交惡階段與人物里程碑的唯一入口 |
 | `romance-engine.js` | 隱藏好感、戀愛資格、唯一伴侶、地下／公開、分手、冷落衰減與階段狀態機 |
 | `npc-interaction-engine.js` | 把排入日程的 NPC 相處與和解轉為逐日選擇，結算好感／交惡結果並保存相處記憶 |
-| `job-engine.js` | 50 份通告共用的多通告申請、試鏡、簽約、排程、完成與違約狀態機 |
+| `job-engine.js` | 75 份通告共用的多通告申請、試鏡排程、當天判定、簽約、排程、完成與違約狀態機 |
+| `condition-engine.js` | 統一處理疲勞、體力、健康、心情造成的表現倍率與活動資源消耗 |
+| `achievement-engine.js`、`weekly-task.js` | 成就解鎖／進度與每週任務條件、獎勵的單一判定來源 |
 | `portfolio.js` | 作品履歷、品質計算與獎項判定 |
 | `career.js` | 職涯路線與五年／退圈／過勞結局判定器 |
 
