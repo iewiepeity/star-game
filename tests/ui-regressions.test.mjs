@@ -7,6 +7,10 @@ import{socialApp}from"../src/views/social.js";
 import{creativeApp}from"../src/views/creative.js";
 import{plannerApp}from"../src/views/planner.js";
 import{agencyApp}from"../src/views/agency.js";
+import{npcApp}from"../src/views/npc.js";
+import{meetNpc,npcFirstMeeting}from"../src/logic/npc-engine.js";
+import{resolveExploration}from"../src/logic/exploration.js";
+import{applyJobNpcRelations}from"../src/logic/npc-ecosystem.js";
 
 test("同一週最多只呈現一個事件，其餘順延且不會選完立刻跳下一件",()=>{
  resetState();
@@ -64,4 +68,42 @@ test("經紀公司頁明確說明簽約準備度成長方式",()=>{
  assert.match(html,/簽約準備度怎麼增加/);
  assert.match(html,/未簽約時完成每週任務/);
  assert.match(html,/公開試鏡或街頭演出/);
+});
+
+test("初次遇見 NPC 會顯示完整相遇劇情並保存來源",()=>{
+ resetState();
+ const result=meetNpc("lujingran","在月蝕 Live House 建立第一次印象。");
+ assert.equal(result.met,true);
+ assert.match(result.title,/江敘白.*還沒關掉的麥克風/);
+ assert.match(result.text,/旋律不錯/);
+ assert.equal(result.portrait,"./assets/portraits/busts/lujingran.webp");
+ assert.deepEqual(npcFirstMeeting("lujingran"),{
+  week:1,
+  source:"在月蝕 Live House 建立第一次印象。",
+  title:"還沒關掉的麥克風",
+  text:state.relationships.lujingran.firstMeetingText
+ });
+});
+
+test("探索相遇會把人物立繪交給逐日劇情，人物檔案也顯示初遇章節",()=>{
+ resetState();
+ const result=resolveExploration("livehouse","explore");
+ assert.equal(result.encounter?.met,true);
+ assert.ok(result.encounter?.portrait);
+ state.selectedNpc=result.encounter.npcId;
+ const html=npcApp();
+ assert.match(html,/FIRST ENCOUNTER/);
+ assert.match(html,/初次|麥克風|練習室|候補|照片|履歷|鏡頭|對戲/);
+ assert.match(html,/npc-first-meeting/);
+});
+
+test("第一次與通告共演 NPC 合作會回傳正式初遇劇情，不會靜默加入人際",()=>{
+ resetState();
+ const result=applyJobNpcRelations({title:"夏日試拍"},{npcCast:["jiqing"]});
+ assert.equal(result.encounters.length,1);
+ assert.match(result.encounters[0].title,/夏日試拍/);
+ assert.match(result.encounters[0].text,/第一次開工|工作人員/);
+ assert.ok(state.knownPeople.includes("jiqing"));
+ const repeated=applyJobNpcRelations({title:"夏日試拍"},{npcCast:["jiqing"]});
+ assert.equal(repeated.encounters.length,0);
 });
