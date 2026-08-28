@@ -9,6 +9,8 @@ script:{group:"訓練",icon:"✎",label:"劇本寫作課",short:"編劇課",note
 image:{group:"訓練",icon:"◇",label:"形象儀態課",short:"儀態課",note:"氣質、儀態與親和力",type:"train",gains:[["氣質",3,6],["儀態",3,6],["親和力",1,3]],fatigue:6,stamina:6,cost:750},
 networking:{group:"訓練",icon:"☕",label:"社交應對課",short:"社交課",note:"社交與親和力訓練",type:"train",gains:[["社交",4,8],["親和力",1,3]],fatigue:6,stamina:6,cost:500},
 audition:{group:"工作",icon:"★",label:"新人公開試鏡",short:"公開試鏡",note:"鏡頭感、親和力與口才",type:"work",fatigue:13,stamina:13,cost:300},
+// 僅供 v1-v3 舊存檔／舊事件資料辨識；v4 UI 不會提供此 action，hydrateState 會轉為 job_session 或 rest。
+adshoot:{group:"legacy",icon:"🎥",label:"舊版晨露廣告拍攝",short:"舊通告",note:"舊存檔相容用",type:"legacy",fatigue:18,stamina:18,cost:0,hidden:true},
 job_session:{group:"工作",icon:"🎥",label:"正式通告執行",short:"通告工作",note:"依已簽署合約與指定工作日執行",type:"job",fatigue:18,stamina:18,cost:0,hidden:true},
 street:{group:"工作",icon:"🎸",label:"街頭演出",short:"街頭演出",note:"賺取小費並累積實戰曝光",type:"work",fatigue:12,stamina:12,cost:0},
 free:{group:"生活",icon:"☀",label:"自由活動",short:"自由活動",note:"探索星望市，可能遇見新人物",type:"life",fatigue:3,stamina:4,cost:300},
