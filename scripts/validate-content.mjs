@@ -34,7 +34,8 @@ assert(NPC_LIST.length===10,`本次主要 NPC 必須是 10 位，目前是 ${NPC
 for(const npc of NPC_LIST){
  assert(npc.name&&npc.job&&npc.bio&&npc.personality&&npc.likes&&npc.dislikes,`NPC 設定不完整：${npc.id}`);
  assert(existsSync(new URL(`../${npc.portrait.replace("./","")}`,import.meta.url)),`NPC 立繪不存在：${npc.id}`);
- assert(existsSync(new URL(`../${npc.thumb.replace("./","")}`,import.meta.url)),`NPC 縮圖不存在：${npc.id}`);
+ assert(existsSync(new URL(`../${npc.head.replace("./","")}`,import.meta.url)),`NPC 頭像不存在：${npc.id}`);
+ assert(existsSync(new URL(`../${npc.bust.replace("./","")}`,import.meta.url)),`NPC 半身像不存在：${npc.id}`);
 }
 const openLocations=Object.entries(MAP_LOCATIONS).filter(([,location])=>!location.locked);
 assert(openLocations.length>=15,`自由探索地點至少 15 個，目前是 ${openLocations.length}`);
