@@ -15,6 +15,8 @@ import{bindAgency}from"./bind/agency.js";
 import{bindJobs}from"./bind/jobs.js";
 import{bindWardrobe}from"./bind/wardrobe.js";
 import{bindSave}from"./bind/save.js";
+import{bindForum}from"./bind/forum.js";
+import{bindSocial}from"./bind/social.js";
 
 export function bind(){
  if(state.screen==="create"){bindCreateScreen();return}
@@ -29,4 +31,6 @@ export function bind(){
  bindJobs();
  bindWardrobe();
  bindSave();
+ bindForum();
+ bindSocial();
 }

@@ -39,6 +39,8 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 | `job.js` | 第一份通告（晨露汽水廣告）的固定條件 |
 | `agencies.js` | 經紀公司清單（門檻、合約條件）——新增公司只需擴充這裡 |
 | `map-locations.js` | 星望市地圖可選地點 |
+| `forum.js` | 論壇分類、討論串與模擬留言素材 |
+| `social.js` | 官方／NPC 社群貼文與玩家發文模板 |
 | `genders.js` | 性別選項清單（`KNOWN_GENDERS`／`GENDER_OPTIONS`），角色建立畫面與玩家立繪都靠這份清單判斷 |
 | `portraits.js` | 舊版玩家立繪路徑相容對照；新功能不再直接使用 |
 | `wardrobe.js` | 四款玩家立繪、五套服裝、價格、能力加成與素材路徑的唯一資料來源 |
@@ -58,6 +60,7 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 | `agency.js` | 經紀公司資格判定、投遞／面談／簽約／到期的完整狀態機、通告抽成計算。三個關鍵不變量：①`isAgencyContractActive()` 是唯一判斷「合約是否仍有效」的地方；②`cancelAgencyInterview()` 是唯一取消面談的入口（手動覆蓋行程、住院都要走這裡）；③`deterministicInterviewScore()` 不含亂數，同一個 state 重算幾次都同分，真正成敗由 `logic/runner.js` 在結算時另外擲骰 |
 | `jobs.js` | `resolveJobAudition`——試鏡是否獲選的判定 |
 | `runner.js` | `decisionFor`（當天要不要跳現場選擇）、`applyGains`（套用能力成長）、`startDay`/`resolveDay`（逐日結算）、`hospitalize`（過勞強制住院）、`finishWeek`（週任務結算） |
+| `exploration.js` | 自由探索的地點成長、狀態恢復、額外花費與 NPC 初遇共用結算 |
 
 ### `views/`（只讀 state，回傳 HTML 字串，不寫 state）
 | 檔案 | 內容 |
@@ -71,6 +74,8 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 | `map.js` | 星望市地圖 App |
 | `jobs.js` | 通告中心 App（含 `jobWorkDaysText` 供其他畫面共用） |
 | `npc.js` | 人物檔案 App |
+| `forum.js` | 星談論壇 App（玩家動態話題、討論串與模擬留言） |
+| `social.js` | 星光社群 App（玩家發文、按讚、官方與已認識 NPC 動態） |
 | `agency.js` | 經紀公司 App（列表、資格比對、面談狀態、合約卡片） |
 | `wardrobe.js` | 紙娃娃衣櫃 App（人物切換、服裝預覽、價格與能力加成） |
 | `runner.js` | 逐日事件畫面（loading／選擇／結果三態） |
@@ -99,6 +104,8 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 | `agency.js` | 經紀公司 App | 切換公司、投遞／排面談／接受或婉拒合約 |
 | `jobs.js` | 通告中心 App | 接取試鏡、簽約、排入拍攝日、試鏡現場選擇 |
 | `wardrobe.js` | 紙娃娃衣櫃 App | 切換人物立繪、購買服裝、穿著造型 |
+| `forum.js` | 星談論壇 App | 分類、開啟討論串、重新整理留言 |
+| `social.js` | 星光社群 App | 發布近況、切換按讚狀態 |
 
 **新增一個 App 的事件**：在 `src/bind/` 底下加一支新檔案（例如 `bind/shop.js`），匯出一個 `bindShop()` 函式，只用 `document.querySelectorAll("[data-shop-action]")` 這類自己 App 專屬的 `data-*` 屬性去掛事件；然後在 `src/bind.js` 裡多一行 `import` 和多一行呼叫。**不需要改任何既有的 `bind/*.js`**——因為每支檔案只找自己的 `data-*` 屬性，某個 App 沒開啟時對應的 DOM 根本不存在，`querySelectorAll` 自然找不到東西、什麼事都不會發生，所以就算把全部 App 的 `bind*()` 都呼叫一輪也不會互相干擾。
 
