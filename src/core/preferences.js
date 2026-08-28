@@ -1,10 +1,11 @@
 const KEY="star-game-preferences";
 const FONT_SIZES=new Set(["standard","comfortable","large"]);
 const THEMES=new Set(["warm","rose","night"]);
-export const DEFAULT_PREFERENCES={fontSize:"standard",theme:"warm"};
+const AUTO_SPEEDS=new Set(["x1","x2"]);
+export const DEFAULT_PREFERENCES={fontSize:"standard",theme:"warm",autoSpeed:"x1"};
 
 export function normalizePreferences(value={}){
- return{fontSize:FONT_SIZES.has(value.fontSize)?value.fontSize:DEFAULT_PREFERENCES.fontSize,theme:THEMES.has(value.theme)?value.theme:DEFAULT_PREFERENCES.theme};
+ return{fontSize:FONT_SIZES.has(value.fontSize)?value.fontSize:DEFAULT_PREFERENCES.fontSize,theme:THEMES.has(value.theme)?value.theme:DEFAULT_PREFERENCES.theme,autoSpeed:AUTO_SPEEDS.has(value.autoSpeed)?value.autoSpeed:DEFAULT_PREFERENCES.autoSpeed};
 }
 
 function readPreferences(){
@@ -13,6 +14,7 @@ function readPreferences(){
 
 let preferences=readPreferences();
 export function getPreferences(){return{...preferences}}
+export function autoAdvanceDelay(){return preferences.autoSpeed==="x2"?5000:10000}
 export function applyPreferences(){
  if(typeof document==="undefined")return;
  document.documentElement.dataset.fontSize=preferences.fontSize;

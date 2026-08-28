@@ -10,7 +10,40 @@ export const AGENCIES={
   description:"星望市歷史最久的中型經紀公司之一，戲劇、廣告與綜藝資源均衡，重視新人的長期栽培而非速成流量。",
   specialties:["戲劇","廣告","綜藝"],
   requirements:{contractReadiness:20,abilities:[["鏡頭感",60],["親和力",50]]},
-  contract:{durationWeeks:104,commissionRate:.2,description:"兩年新人合約，公司提供資源培訓與通告引薦"}
+  contract:{durationWeeks:104,commissionRate:.2,creativeFreedom:55,guaranteedAuditions:1,description:"兩年新人合約，公司提供資源培訓與通告引薦"}
+ },
+ mirror:{
+  id:"mirror",
+  name:"映界文化",
+  shortName:"映界",
+  type:"演員經紀與影視企劃",
+  scale:"精品型公司",
+  description:"以演員養成、劇本判讀與長線作品規劃聞名。資源不追求量，但會替旗下藝人慎選角色與合作班底。",
+  specialties:["戲劇","電影","電視劇"],
+  requirements:{contractReadiness:35,abilities:[["演技",90],["鏡頭感",80],["學識",55]]},
+  contract:{durationWeeks:104,commissionRate:.18,creativeFreedom:75,guaranteedAuditions:1,description:"兩年演員合約，選案較少但角色與劇本品質優先"}
+ },
+ clearvoice:{
+  id:"clearvoice",
+  name:"澄音娛樂",
+  shortName:"澄音",
+  type:"音樂與偶像經紀公司",
+  scale:"大型公司",
+  description:"擁有完整唱片製作、舞台與宣傳體系，能快速堆高曝光，也要求藝人配合密集訓練與團隊規劃。",
+  specialties:["音樂","歌曲","廣告"],
+  requirements:{contractReadiness:30,abilities:[["歌藝",80],["聲線",70],["儀態",60]]},
+  contract:{durationWeeks:156,commissionRate:.25,creativeFreedom:35,guaranteedAuditions:3,description:"三年培訓合約，資源密集、曝光積極，公司主導性較高"}
+ },
+ tide:{
+  id:"tide",
+  name:"浪潮媒體",
+  shortName:"浪潮",
+  type:"綜藝與新媒體經紀公司",
+  scale:"新創公司",
+  description:"擅長綜藝、主持、直播與社群合作，決策快、題材敢玩，適合反應靈活且願意經營個人特色的藝人。",
+  specialties:["綜藝","廣告"],
+  requirements:{contractReadiness:18,abilities:[["主持",70],["口才",65],["親和力",60]]},
+  contract:{durationWeeks:78,commissionRate:.22,creativeFreedom:70,guaranteedAuditions:2,description:"一年半彈性合約，重視即時曝光與個人品牌經營"}
  }
 };
 export const AGENCY_LIST=Object.values(AGENCIES);

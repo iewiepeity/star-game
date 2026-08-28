@@ -1,4 +1,7 @@
 export const MANAGERS={
- starlight:{id:"mgr-starlight",agencyId:"starlight",name:"許芮安",title:"新人組經紀人",personality:"冷靜務實",description:"做事俐落、嘴上不太哄人，但會把藝人的檔期、風險與長期路線顧得很細。最討厭臨時失聯與明知會爆還硬要亂衝。",strengths:["危機處理","商務談判","行程管理"],initialTrust:52,initialStress:18}
+ starlight:{id:"mgr-starlight",agencyId:"starlight",name:"許芮安",title:"新人組經紀人",personality:"冷靜務實",workingStyle:"穩健均衡，先守住履約與健康，再慢慢放大曝光。",description:"做事俐落、嘴上不太哄人，但會把藝人的檔期、風險與長期路線顧得很細。最討厭臨時失聯與明知會爆還硬要亂衝。",strengths:["危機處理","商務談判","行程管理"],support:{offerRange:[2,4],offerExpiryWeeks:1,auditionPrepBonus:4},initialTrust:52,initialStress:18},
+ mirror:{id:"mgr-mirror",agencyId:"mirror",name:"沈靜禾",title:"演員部資深經紀人",personality:"寡言精準",workingStyle:"寧缺勿濫，會替你擋掉不合適的角色，把時間留給真正能累積履歷的作品。",description:"談劇本時比導演還仔細，不愛漂亮話，只問角色能留下什麼。她給的案子不多，但通常已先查過製作團隊與合約風險。",strengths:["劇本判讀","角色規劃","製作風險"],support:{offerRange:[1,3],offerExpiryWeeks:2,auditionPrepBonus:6},initialTrust:46,initialStress:14},
+ clearvoice:{id:"mgr-clearvoice",agencyId:"clearvoice",name:"韓知勳",title:"音樂事業部經紀人",personality:"強勢高效",workingStyle:"機會來了就要接住，會集中安排曝光與舞台，但也會嚴格追蹤訓練成果。",description:"手機永遠同時亮著三個群組，對市場風向與宣傳節奏異常敏銳。要求很高，卻不會把沒有準備好的藝人硬推上台送頭。",strengths:["宣傳節奏","舞台資源","品牌合作"],support:{offerRange:[3,4],offerExpiryWeeks:1,auditionPrepBonus:5},initialTrust:44,initialStress:24},
+ tide:{id:"mgr-tide",agencyId:"tide",name:"羅沐晴",title:"內容與藝人統籌",personality:"靈活外向",workingStyle:"邊做邊測市場，擅長把一次亮眼表現延伸成下一個合作與話題。",description:"腦中永遠有下一支企劃，會盯留言風向，也會在玩梗玩過頭前踩煞車。她不替藝人捏造人設，但很會找到本人真正有趣的地方。",strengths:["綜藝企劃","社群經營","臨場救火"],support:{offerRange:[2,4],offerExpiryWeeks:1,auditionPrepBonus:5},initialTrust:50,initialStress:20}
 };
 export const managerForAgency=id=>MANAGERS[id]||null;
