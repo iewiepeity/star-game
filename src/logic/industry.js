@@ -1,6 +1,6 @@
 import{INDUSTRY_COMPANIES}from"../data/industry.js";
 import{NPC_CAREER_PROFILES}from"../data/npc-network.js";
-import{JOB_CATALOG}from"../data/jobs-catalog.js";
+import{JOB_CATALOG}from"../data/jobs.js";
 import{state,visitedLocationThisWeek}from"../core/state.js";
 import{availableJobs}from"./job-engine.js";
 import{activeAgencyOffer}from"./agency-offers.js";
