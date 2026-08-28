@@ -5,7 +5,9 @@ import{startDay}from"./logic/runner.js";
 import{ensureRngState}from"./core/rng.js";
 import{activateNextEvent}from"./logic/event-engine.js";
 import{render}from"./render.js";
+import{applyPreferences}from"./core/preferences.js";
 
+applyPreferences();
 migrateLegacyManualSlot();
 const saved=loadState();
 if(saved){hydrateState(saved);ensureRngState();if(state.screen==="runner"&&state.runnerPhase==="loading")startDay();else if(state.eventQueue.length&&!state.activeEvent){activateNextEvent();render()}else render()}else rollStats();
