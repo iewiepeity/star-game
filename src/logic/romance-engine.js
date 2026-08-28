@@ -16,7 +16,7 @@ const NEXT_THRESHOLDS=Object.freeze({
  broken:{next:"interested",affection:70,closeness:75,trust:65,minWeeks:13}
 });
 
-export function playerAge(game=state){return 18+Math.floor(Math.max(0,(game.week||1)-1)/52)}
+export function playerAge(game=state){return 22+Math.floor(Math.max(0,(game.week||1)-1)/52)}
 export function romanceRoute(id){return ROMANCE_ROUTES[id]||null}
 export function romanceStageLabel(stage){return ROMANCE_STAGE_BY_ID[stage]?.label||"尚未定義"}
 

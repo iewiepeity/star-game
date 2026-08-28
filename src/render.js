@@ -1,6 +1,7 @@
 import{state,syncVisitedLocations}from"./core/state.js";
 import{saveState}from"./core/persistence.js";
 import{createView}from"./views/create.js";
+import{prologueView}from"./views/prologue.js";
 import{runnerView}from"./views/runner.js";
 import{summaryView}from"./views/summary.js";
 import{endingView}from"./views/ending.js";
@@ -67,7 +68,7 @@ export function render(){
  syncVisitedLocations();
  evaluateAchievements();
  const isCreate=state.screen==="create";
- const view=isCreate?createView():state.screen==="runner"?runnerView():state.screen==="summary"?summaryView():state.screen==="ending"?endingView():state.screen==="event"?eventView():roomView();
+ const view=isCreate?createView():state.screen==="prologue"?prologueView():state.screen==="runner"?runnerView():state.screen==="summary"?summaryView():state.screen==="ending"?endingView():state.screen==="event"?eventView():roomView();
  const message=isCreate?"":String(state.notice||"").trim();
  const guide=!isCreate&&!message?nextTutorial(state):null;
  if(guide)markTutorialSeen(state,guide.id);

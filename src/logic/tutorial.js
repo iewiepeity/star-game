@@ -1,5 +1,5 @@
 export const TUTORIALS=[
- {id:"room-welcome",when:s=>s.screen==="game"&&!s.appOpen,kicker:"新人手冊・第一步",title:"先安排，再開跑",text:"每一週都從平板開始。先安排七天行程，再按「開始這週」，結果會按照星期逐日演出。"},
+ {id:"room-welcome",when:s=>s.screen==="game"&&!s.appOpen,kicker:"新人手冊・第一步",title:"平板已經亮了",text:"點平板裡的「安排本週行程」，先排好七天，再按「開始這週」。結果會按照星期逐日演出。"},
  {id:"planner-basics",when:s=>s.screen==="game"&&s.appOpen==="planner",kicker:"經紀人小抄・行程",title:"點日期，再選活動",text:"先點行事曆中的一天，再從下方選活動。疲勞會影響訓練、試鏡與工作表現，別把自己排成黑心公司的受害者。"},
  {id:"agency-basics",when:s=>s.screen==="game"&&s.appOpen==="agency",kicker:"經紀人小抄・簽約",title:"公司不是裝飾品",text:"比較門檻與合約後再投遞。簽約後，經紀人每週只會送來有限且適合你的工作，不會把整座娛樂圈塞進信箱。"},
  {id:"map-basics",when:s=>s.screen==="game"&&s.appOpen==="map",kicker:"經紀人小抄・探索",title:"自由活動要有目的地",text:"地圖會把目前選取的日期安排成自由活動。主動探索較容易遇見人物；專注體驗則偏向能力成長。"},
