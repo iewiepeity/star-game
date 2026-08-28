@@ -1,5 +1,22 @@
 import{test,expect}from"@playwright/test";
-async function createPlayer(page,name="測試新人"){await page.goto("/");const input=page.locator("#player-name");await input.fill(name);await input.dispatchEvent("input");await page.locator("#to-stats").click();await page.locator("#start").click();await page.locator("[data-skip-onboarding]").click();await expect(page.locator("body")).toContainText(name)}
+async function createPlayer(page,name="測試新人"){
+  await page.goto("/");
+  const enterIdentity=async()=>{
+    const input=page.locator("#player-name");
+    await expect(input).toBeVisible();
+    await input.fill(name);
+    await expect(input).toHaveValue(name);
+    await input.dispatchEvent("change");
+    await page.locator("#to-stats").click();
+  };
+  await enterIdentity();
+  if(!await page.locator("#start").isVisible().catch(()=>false))await enterIdentity();
+  await expect(page.locator("#start")).toBeVisible({timeout:10000});
+  await page.locator("#start").click();
+  await expect(page.locator("[data-skip-onboarding]")).toBeVisible({timeout:10000});
+  await page.locator("[data-skip-onboarding]").click();
+  await expect(page.locator("body")).toContainText(name)
+}
 test("創角後可閱讀童年卡片序章並接到平板教學",async({page})=>{await page.goto("/");await page.locator("#player-name").fill("序章測試");await page.locator("#player-name").dispatchEvent("input");await page.locator("#to-stats").click();await page.locator("#start").click();await expect(page.locator(".childhood-card")).toContainText("要當明星");for(let i=0;i<4;i++)await page.locator(".prologue-dialogue [data-prologue-next]").click();await expect(page.locator(".room-screen")).toBeVisible();await expect(page.locator(".guide-toast")).toBeVisible({timeout:10000});await expect(page.locator(".guide-toast")).toContainText("平板已經亮了")});
 test("創角、自動存檔、重新整理與離線啟動",async({page,context})=>{const errors=[];page.on("console",msg=>{if(msg.type()==="error")errors.push(msg.text())});await createPlayer(page);await expect(page.locator("body")).toContainText("工作信箱");await expect(page.locator("body")).toContainText("創作工作室");const save=await page.evaluate(()=>localStorage.getItem("star-game-save"));expect(save).toContain("測試新人");await page.reload();await expect(page.locator("body")).toContainText("測試新人");await page.waitForFunction(()=>navigator.serviceWorker?.controller||false);await context.setOffline(true);await page.reload();await expect(page.locator("body")).toContainText("工作信箱");expect(errors).toEqual([])});
 test("正式通告執行週會自動逐日結算，不點下一天也能進週總結",async({page})=>{test.setTimeout(55000);await createPlayer(page,"作品測試");await page.evaluate(async()=>{const{state}=await import("/src/core/state.js");const{ABILITIES}=await import("/src/data/abilities.js");const{ensureJobState,signJob,scheduleJobSession}=await import("/src/logic/job-engine.js");const{setPreference}=await import("/src/core/preferences.js");const{render}=await import("/src/render.js");setPreference("autoSpeed","x2");state.stats=Object.fromEntries(ABILITIES.map(name=>[name,1000]));state.hidden={幽默:700,共情:700,洞察:700,膽識:700,品德:700,自律:700,野心:700,抗壓:700};state.trainingSessionsCompleted=100;state.schedule=Array(7).fill("rest");state.scheduledJobIds=Array(7).fill(null);state.freeLocations=Array(7).fill(null);const record=ensureJobState("J001");record.stage="passed";signJob("J001");record.remainingSessions=1;scheduleJobSession("J001",0);state.appOpen="planner";render()});await page.locator("#begin-week").click();await expect(page.locator(".event-screen")).toBeVisible();await expect(page.locator(".first-meeting-scene")).toBeVisible({timeout:5000});await page.locator("#next-day").click();await expect(page.locator("#next-week")).toBeVisible({timeout:45000});const result=await page.evaluate(async()=>{const{state}=await import("/src/core/state.js");return{works:state.completedWorks.length,stage:state.activeJobs.J001?.stage,results:state.history.at(-1)?.results?.length}});expect(result.works).toBeGreaterThan(0);expect(result.stage).toBe("completed");expect(result.results).toBe(7)});
