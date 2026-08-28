@@ -17,6 +17,9 @@ import{tickScandals,syncScandalResponseFlags}from"./scandal-engine.js";
 import{tickManager}from"./manager.js";
 import{tickWorldMarket}from"./world-market.js";
 import{evaluatePersona}from"./persona-engine.js";
+import{tickCompetitors}from"./competitors.js";
+import{tickWorkLifecycles}from"./work-lifecycle.js";
+import{syncFandom}from"./fandom.js";
 
 export function advanceWorldWeek(){
  const closingNews=generateIndustryNews();
@@ -31,9 +34,11 @@ export function advanceWorldWeek(){
  const breached=checkJobDeadlines();
  const awards=resolveDueAwardSeasons();
  const market=tickWorldMarket();
+ const rivalUpdates=tickCompetitors();
+ const workUpdates=tickWorkLifecycles();
  const npcGrowth=tickNpcCareers();
  const npcWork=syncNpcAutonomousWork();
- const npcUpdates=[...npcWork,...npcGrowth];
+ const npcUpdates=[...npcWork,...npcGrowth,...rivalUpdates,...workUpdates];
  const news=generateIndustryNews({awards,npcUpdates});
  const opinion=tickPublicOpinion(news);
  tickBrandRelations();
@@ -42,8 +47,9 @@ export function advanceWorldWeek(){
  refreshAgencyJobOffers();
  recordCareerRoute();
  const persona=evaluatePersona();
+ const fandom=syncFandom();
  const due=processQueuedEvents();
  const calendar=enqueueCalendarEvents();
  const npcStories=queueNpcStoryEvents();
- return{breached,awards,market,npcUpdates,news,opinion,scandal,persona,due,calendar,npcStories};
+ return{breached,awards,market,npcUpdates,news,opinion,scandal,persona,fandom,due,calendar,npcStories};
 }
