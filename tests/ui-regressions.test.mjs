@@ -11,6 +11,9 @@ import{npcApp}from"../src/views/npc.js";
 import{meetNpc,npcFirstMeeting}from"../src/logic/npc-engine.js";
 import{resolveExploration}from"../src/logic/exploration.js";
 import{applyJobNpcRelations}from"../src/logic/npc-ecosystem.js";
+import{resultView}from"../src/views/runner.js";
+import{JOB_BY_ID}from"../src/data/jobs.js";
+import{auditionChance}from"../src/logic/job-engine.js";
 
 test("同一週最多只呈現一個事件，其餘順延且不會選完立刻跳下一件",()=>{
  resetState();
@@ -106,4 +109,39 @@ test("第一次與通告共演 NPC 合作會回傳正式初遇劇情，不會靜
  assert.ok(state.knownPeople.includes("jiqing"));
  const repeated=applyJobNpcRelations({title:"夏日試拍"},{npcCast:["jiqing"]});
  assert.equal(repeated.encounters.length,0);
+});
+
+test("本週策略會顯示精確作用，而且曝光與人脈都有真實數值效果",()=>{
+ resetState();
+ state.focus="fame";
+ const planner=plannerApp();
+ assert.match(planner,/成功率 \+5%・知名度 \+2/);
+ const fameChance=auditionChance(JOB_BY_ID.J001,"steady");
+ state.focus="growth";
+ const normalChance=auditionChance(JOB_BY_ID.J001,"steady");
+ assert.equal(fameChance,normalChance+5);
+ state.focus="people";
+ meetNpc("lujingran");
+ assert.equal(state.relationships.lujingran.closeness,10);
+ assert.equal(state.relationships.lujingran.trust,11);
+});
+
+test("產業自由活動會進入現場徵選看板，而不是只跑一般行程",async()=>{
+ resetState();
+ state.schedule[0]="free";
+ state.freeLocations[0]="tv_company";
+ state.runnerDay=0;
+ globalThis.document={querySelector:()=>({})};
+ const{decisionFor}=await import("../src/logic/runner.js");
+ const decision=decisionFor("free");
+ assert.ok(decision.choices.some(choice=>choice.id==="browse_jobs"));
+ const result=resolveExploration("tv_company","browse_jobs");
+ assert.equal(result.venue.company.name,"星曜電視台");
+ assert.ok(result.venue.jobs.length>0);
+ state.runnerResult={title:"星曜電視台・Casting Desk",text:result.text,success:true,venue:result.venue};
+ const html=resultView();
+ assert.match(html,/ON-SITE CASTING DESK/);
+ assert.match(html,/現場公開徵選/);
+ assert.match(html,/data-venue-apply/);
+ assert.match(html,/現場看板會停留/);
 });
