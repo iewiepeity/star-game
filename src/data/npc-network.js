@@ -30,5 +30,6 @@ export const NPC_INTERACTIONS={
  support:{label:"替對方工作應援",closeness:4,trust:7,affection:1,cost:300,fatigue:1},
  collaborate:{label:"聊工作與合作",closeness:3,trust:5,affection:0,minStage:"familiar",fame:1},
  personal:{label:"關心對方",closeness:4,trust:6,affection:4,minStage:"friend",fatigue:1},
- date:{label:"單獨約會",closeness:6,trust:4,affection:7,minRomance:"dating",cost:1200,fatigue:1}
+ date:{label:"單獨約會",closeness:6,trust:4,affection:7,minRomance:"dating",cost:1200,fatigue:1},
+ reconcile:{label:"嘗試和解",closeness:0,trust:0,affection:0,minHostility:20,fatigue:1}
 };

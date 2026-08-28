@@ -3,7 +3,7 @@ import assert from"node:assert/strict";
 import{state,resetState}from"../src/core/state.js";
 import{meetNpc,adjustRelationship}from"../src/logic/npc-engine.js";
 import{romanceEligibility,romanceOpportunity,setRomanceVisibility,transitionRomance,breakUp}from"../src/logic/romance-engine.js";
-import{migrateV10ToV11}from"../src/core/migrations.js";
+import{migrateV10ToV11,migrateV11ToV12}from"../src/core/migrations.js";
 import{npcApp}from"../src/views/npc.js";
 import{peopleApp}from"../src/views/people.js";
 import{evaluateEnding,endingSnapshot}from"../src/logic/career.js";
@@ -19,5 +19,8 @@ test("隱藏好感與友情、信任共同解鎖曖昧，且只能有一位正�
 test("正式關係支援公開、地下戀與分手",()=>{fresh();meetNpc("jiqing");adjustRelationship("jiqing",{closeness:70,trust:60,affection:70});transitionRomance("jiqing","interested");transitionRomance("jiqing","ambiguous");transitionRomance("jiqing","dating");assert.equal(state.relationships.jiqing.visibility,"underground");assert.equal(setRomanceVisibility("jiqing","public").ok,true);assert.equal(state.relationships.jiqing.visibility,"public");assert.equal(breakUp("jiqing").ok,true);assert.equal(state.partnerId,null);assert.equal(state.relationships.jiqing.romance,"broken")});
 
 test("v10 關係資料會補齊隱藏好感與唯一伴侶",()=>{fresh();const old=structuredClone(state);old.saveVersion=10;old.relationships={jiqing:{closeness:80,trust:70,romance:"dating"}};delete old.partnerId;const migrated=migrateV10ToV11(old);assert.equal(migrated.saveVersion,11);assert.equal(migrated.partnerId,"jiqing");assert.ok(migrated.relationships.jiqing.affection>=60);assert.equal(migrated.relationships.jiqing.visibility,"underground")});
+test("v11 關係資料會補齊交惡與相處記憶欄位",()=>{fresh();const old=structuredClone(state);old.saveVersion=11;old.relationships={jiqing:{closeness:20,trust:15,affection:3,romance:"none"}};delete old.npcInteractionEventHistory;delete old.npcInteractionMemories;const migrated=migrateV11ToV12(old);assert.equal(migrated.saveVersion,12);assert.equal(migrated.relationships.jiqing.hostility,0);assert.deepEqual(migrated.relationships.jiqing.hostilityHistory,[]);assert.deepEqual(migrated.npcInteractionEventHistory,{});assert.deepEqual(migrated.npcInteractionMemories,[])});
 
 test("穩定伴侶、訂婚與婚姻會進入五年戀愛結局判定",()=>{fresh();meetNpc("jiqing");Object.assign(state.relationships.jiqing,{closeness:92,trust:90,affection:95,romance:"married",visibility:"public"});state.partnerId="jiqing";state.endingSnapshot=endingSnapshot("fiveyear");const result=evaluateEnding("fiveyear");assert.equal(result.endingId,"soulmate");assert.equal(result.relationship.npcId,"jiqing")});
+
+test("未解衝突會阻止戀愛推進，嚴重交惡會結束正式關係",()=>{fresh();meetNpc("jiqing");adjustRelationship("jiqing",{closeness:70,trust:60,affection:70});transitionRomance("jiqing","interested");transitionRomance("jiqing","ambiguous");transitionRomance("jiqing","dating");adjustRelationship("jiqing",{hostility:20,source:"第一次嚴重失信"});assert.equal(romanceOpportunity("jiqing"),null);assert.match(romanceEligibility("jiqing").reason,/衝突/);adjustRelationship("jiqing",{hostility:30,source:"再次公開傷害"});assert.equal(state.relationships.jiqing.romance,"broken");assert.equal(state.partnerId,null)});

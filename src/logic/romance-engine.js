@@ -24,10 +24,12 @@ export function ensureRomanceFields(id){
  const rel=state.relationships[id]||(state.relationships[id]={closeness:0,trust:0,stage:"acquaintance",lastInteractionWeek:0,lastMilestoneWeek:0,events:[]});
  rel.romance=ROMANCE_STAGES.includes(rel.romance)?rel.romance:"none";
  rel.affection=clamp(rel.affection);
+ rel.hostility=clamp(rel.hostility);
  rel.visibility=rel.visibility||"private";
  rel.romanceSinceWeek=Number(rel.romanceSinceWeek)||0;
  rel.romanceHistory=Array.isArray(rel.romanceHistory)?rel.romanceHistory:[];
  rel.affectionHistory=Array.isArray(rel.affectionHistory)?rel.affectionHistory:[];
+ rel.hostilityHistory=Array.isArray(rel.hostilityHistory)?rel.hostilityHistory:[];
  return rel;
 }
 
@@ -38,6 +40,8 @@ export function romanceEligibility(id,game=state){
  if(!npc||!route)return{ok:false,reason:"目前沒有可發展的感情路線。"};
  if(route.tier==="disabled")return{ok:false,reason:"目前只開放職涯與信任路線。"};
  if(route.tier==="hidden")return{ok:false,hidden:true,reason:"這條特殊路線尚未在本周目揭露。"};
+ const rel=game.relationships?.[id]||{};
+ if((rel.hostility||0)>=20)return{ok:false,reason:"彼此仍有未解衝突，必須先修復關係，感情才可能繼續發展。"};
  const age=playerAge(game);
  if(age<route.minAge)return{ok:false,reason:`等你更成熟一些，再重新看待這段關係。`};
  if((game.completedWorks?.length||0)<(route.minWorks||0))return{ok:false,reason:"先建立屬於自己的作品與立足點，關係才可能變得平等。"};
@@ -47,8 +51,8 @@ export function romanceEligibility(id,game=state){
 
 export function adjustAffection(id,delta,source="相處"){const route=romanceRoute(id);if(!route||["disabled","hidden"].includes(route.tier)||!delta)return{changed:false};const rel=ensureRomanceFields(id),before=rel.affection;rel.affection=clamp(before+delta);rel.affectionHistory.push({week:state.week,delta:rel.affection-before,source});if(rel.affectionHistory.length>40)rel.affectionHistory=rel.affectionHistory.slice(-40);return{changed:rel.affection!==before,direction:rel.affection>before?"up":rel.affection<before?"down":"same"}}
 
-export function affectionSignal(id){const rel=ensureRomanceFields(id),value=rel.affection;if(rel.romance==="broken")return"彼此仍在適應分開後的距離";if(rel.romance==="rejected")return"那次沒有被接住的心意仍留有痕跡";if(rel.romance==="married")return"對方已經把你放進長遠的人生裡";if(value>=90)return"你對對方而言，已經是無法輕易取代的人";if(value>=75)return"對方會自然地把你算進未來安排";if(value>=58)return"對方對你的態度，明顯和其他人不太一樣";if(value>=40)return"對方開始願意把工作之外的時間留給你";if(value>=20)return"有些在意，正藏在看似平常的互動裡";return"目前仍以禮貌而自然的步調認識彼此"}
-export function trustSignal(id){const value=ensureRomanceFields(id).trust||0;if(value>=80)return"幾乎能放心把脆弱交給你";if(value>=60)return"願意談起不會對外說的事";if(value>=40)return"相處時已經不必處處防備";if(value>=20)return"正在確認你是不是值得依靠的人";return"仍保留著業界往來應有的界線"}
+export function affectionSignal(id){const rel=ensureRomanceFields(id),value=rel.affection;if(rel.hostility>=70)return"即使過去曾經親近，現在也已被明確的敵意蓋過";if(rel.hostility>=45)return"原有的在意被衝突卡住，對方不願再靠近";if(rel.hostility>=20)return"對方仍在意發生過的事，親近感暫時停在原地";if(rel.romance==="broken")return"彼此仍在適應分開後的距離";if(rel.romance==="rejected")return"那次沒有被接住的心意仍留有痕跡";if(rel.romance==="married")return"對方已經把你放進長遠的人生裡";if(value>=90)return"你對對方而言，已經是無法輕易取代的人";if(value>=75)return"對方會自然地把你算進未來安排";if(value>=58)return"對方對你的態度，明顯和其他人不太一樣";if(value>=40)return"對方開始願意把工作之外的時間留給你";if(value>=20)return"有些在意，正藏在看似平常的互動裡";return"目前仍以禮貌而自然的步調認識彼此"}
+export function trustSignal(id){const rel=ensureRomanceFields(id),value=rel.trust||0;if(rel.hostility>=70)return"對方已不再相信你的承諾，也會防範你影響工作";if(rel.hostility>=45)return"重要資訊與私人想法都不再對你開放";if(rel.hostility>=20)return"信任出現裂痕，對方正在觀察你是否真正改變";if(value>=80)return"幾乎能放心把脆弱交給你";if(value>=60)return"願意談起不會對外說的事";if(value>=40)return"相處時已經不必處處防備";if(value>=20)return"正在確認你是不是值得依靠的人";return"仍保留著業界往來應有的界線"}
 
 export function romanceOpportunity(id){const rel=ensureRomanceFields(id),need=NEXT_THRESHOLDS[rel.romance];if(!need)return null;const eligible=romanceEligibility(id);if(!eligible.ok)return null;const since=Math.max(0,state.week-(rel.romanceSinceWeek||state.week));if(rel.affection<need.affection||rel.closeness<need.closeness||rel.trust<need.trust||since<(need.minWeeks||0)||playerAge()< (need.minAge||0))return null;if(need.next==="dating"&&state.partnerId&&state.partnerId!==id)return null;return{from:rel.romance,next:need.next,need,route:eligible.route}}
 

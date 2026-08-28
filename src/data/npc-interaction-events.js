@@ -1,5 +1,5 @@
 // 每位主要 NPC 的專屬相處事件。數值只供引擎結算，畫面不顯示隱藏好感。
-const choice=(id,label,note,outcome,closeness,trust,affection)=>({id,label,note,outcome,effect:{closeness,trust,affection}});
+const choice=(id,label,note,outcome,closeness,trust,affection,hostility=0)=>({id,label,note,outcome,effect:{closeness,trust,affection,hostility}});
 const scene=(id,title,text,a,b)=>({id,title,text,choices:[a,b]});
 const gentle=(id,label,note,outcome)=>choice(id,label,note,outcome,2,2,2);
 const honest=(id,label,note,outcome)=>choice(id,label,note,outcome,1,3,1);
@@ -87,4 +87,32 @@ export const NPC_INTERACTION_EVENTS={
  }
 };
 
-export const NPC_INTERACTION_TYPES=["chat","meal","support","collaborate","personal","date"];
+const NPC_CONFLICT_CHOICES={
+ jiqing:choice("exploit","拿來賓的傷口開收視玩笑","這正好踩中她最不能接受的底線","她的笑容沒有消失，語氣卻立刻變成只剩公事。",-8,-14,-7,22),
+ shenyao:choice("dismiss","說觀眾根本看不懂細節","否定他最重視的創作判斷","他闔上場記本，冷淡地結束了這場討論。",-7,-13,-6,20),
+ tangtang:choice("ranking","拿新人排名故意刺激她","把她的焦慮當成取樂素材","她仍笑得很甜，卻不再和你分享任何練習近況。",-9,-12,-8,21),
+ guchengxi:choice("crew","說工作人員本來就能隨時替換","輕視他最在意的劇組倫理","他客氣地糾正你，之後一路只談天氣。",-8,-15,-6,23),
+ linxiafan:choice("body","用身材羞辱評論她的造型","侵犯她明確捍衛的身體界線","她當場結束對話，連一句毒舌都懶得留給你。",-10,-16,-7,25),
+ lujingran:choice("rewrite","說反正紅了再把別人歌詞改掉","把創作者署名視為可犧牲成本","他收回耳機，只說了一句『不用聊了』。",-8,-15,-7,24),
+ xiayutong:choice("prank","主張惡整越失控越有流量","否定她對節目安全的堅持","她停止記錄你的點子，語速也忽然慢了下來。",-8,-14,-6,22),
+ sufei:choice("connection","暗示她應該靠關係搶角色","否定她對公平競爭的信念","她拉緊鞋帶離開，連下一場試鏡都沒有告訴你。",-9,-15,-7,24),
+ chengyian:choice("publish","說好照片不必經本人同意就能公開","踩過他最重視的影像同意界線","他放下相機，第一次明確要求你離開拍攝現場。",-9,-16,-7,25),
+ hanzhiyuan:choice("ghost","笑說簽了約臨時失聯也沒什麼","把守信當成無關緊要的小事","他刪掉正在替你整理的計畫，只留下正式往來窗口。",-8,-15,0,23)
+};
+
+const NPC_RECONCILE_EVENTS={
+ jiqing:scene("jiqing-reconcile","把麥克風留在門外","喬映澄願意見面，但先說今天不替任何人圓場。",choice("own","直接承認自己傷害了她重視的界線","不辯解，也不要求立刻被原諒","她沒有說沒關係，只說願意再觀察你的行動。",1,3,1,-18),choice("explain","解釋當時只是想緩和氣氛","說明動機，但修復幅度有限","她接受你的說明，仍提醒玩笑造成的傷害不會因此消失。",0,1,0,-8)),
+ shenyao:scene("shenyao-reconcile","重新看一次那場戲","裴硯之帶來你們爭執過的片段，說道歉之前先談作品。",choice("prepare","帶著完整筆記重新討論","用準備證明你尊重他的專業","他逐頁看完，願意把你重新放回合作名單。",1,4,1,-17),choice("sorry","只坦率承認自己當時太敷衍","誠實，但尚未證明改變","他點頭收下道歉，關係仍需要時間。",0,2,0,-9)),
+ tangtang:scene("tangtang-reconcile","不看排名的練習","楚星梨答應見面，卻把所有排行榜通知都關掉。",choice("effort","具體說出你看見她哪些努力","讓她知道自己不是一串名次","她終於不再用笑容擋住情緒，願意重新和你練習。",2,3,2,-18),choice("gift","帶一袋糖果想讓她消氣","心意有到，但沒有碰到問題核心","她收下糖果，態度只比之前柔和一點。",1,0,1,-7)),
+ guchengxi:scene("guchengxi-reconcile","向每一個名字道歉","周予珩把當天工作人員名單放在你面前，沒有替你說好話。",choice("crew","親自向被輕視的工作人員道歉","用行動修復共同底線","他看完你的處理，才重新用朋友的語氣和你說話。",1,5,1,-20),choice("private","只向他道歉並保證不再犯","修復私人關係，但公共傷害仍在","他接受你的承諾，也要求你之後補上真正的道歉。",0,2,0,-8)),
+ linxiafan:scene("linxiafan-reconcile","不是一句審美不同","黎曼青要你先說清楚，究竟明不明白那句話傷害的是誰。",choice("learn","承認身材羞辱並完成相關課程","不要求她負責教育你","她仍很銳利，但願意重新談一次合作界線。",1,4,0,-20),choice("taste","把衝突說成彼此品味不同","迴避真正的傷害","她直接指出你仍沒理解，關係只鬆動了一點。",0,0,-1,-3)),
+ lujingran:scene("lujingran-reconcile","把署名放回最前面","江敘白沒有寒暄，只問你是否願意尊重每一位創作者。",choice("credit","補正署名並向受影響的人說明","先處理後果，再談原諒","他確認更正完成後，重新把耳機分給你一邊。",1,5,1,-20),choice("promise","保證以後不會再犯","承諾需要後續行動證明","他說會記住這句話，但沒有立刻恢復親近。",0,2,0,-8)),
+ xiayutong:scene("xiayutong-reconcile","笑點之後誰負責","宋知夏拿出一份安全流程，請你一起重做那個曾爭執的企劃。",choice("redesign","刪除惡整並補上安全與同意機制","用作品證明理念真的改變","她把你的名字加回企劃組，說這次可以再試。",1,4,1,-18),choice("ratings","承認自己只顧著收視壓力","坦白原因，但還需要行動","她理解壓力，仍暫時不讓你碰來賓流程。",0,2,0,-8)),
+ sufei:scene("sufei-reconcile","同一套規則","許映真願意再和你對戲，條件是這次誰都不能走捷徑。",choice("fair","公開放棄不公平取得的機會","用代價證明你尊重公平","她不稱讚你，只把下一場共同試鏡時間傳了過來。",2,5,1,-20),choice("apology","承認那句話侮辱了她的努力","先修復言語造成的傷害","她接受道歉，仍要看你之後怎麼選。",0,3,0,-10)),
+ chengyian:scene("chengyian-reconcile","先問能不能拍","溫時嶼把相機留在袋子裡，說今天所有事情都先取得同意。",choice("remove","撤下未授權內容並建立書面流程","真正把選擇權還給被攝者","他確認每一步完成，才重新拿起相機問你能不能拍。",1,5,1,-21),choice("delete","只刪除眼前那一張照片","處理當下，制度問題仍未解決","他接受你的處置，但合作仍保留更多距離。",0,2,0,-8)),
+ hanzhiyuan:scene("hanzhiyuan-reconcile","補上的正式說明","秦紹謙要求這次不談感覺，先把失聯造成的風險逐項處理。",choice("repair","補齊交接、賠償與健康聯絡機制","先承擔責任，再重建信任","他重新打開職涯檔案，但把每項承諾都寫得很清楚。",1,5,0,-20),choice("excuse","強調自己當時真的太忙","說明狀況，卻沒有完整承擔","他表示理解，仍只願意維持必要的工作往來。",0,1,0,-5))
+};
+
+for(const[id,event]of Object.entries(NPC_RECONCILE_EVENTS)){NPC_INTERACTION_EVENTS[id].reconcile=event;NPC_INTERACTION_EVENTS[id].chat.choices.push(NPC_CONFLICT_CHOICES[id])}
+
+export const NPC_INTERACTION_TYPES=["chat","meal","support","collaborate","personal","date","reconcile"];
