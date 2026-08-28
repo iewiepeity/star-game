@@ -5,7 +5,7 @@
 import{JOB}from"../data/job.js";
 import{AVATAR_LIST,AVATARS,OUTFITS,isAvatarLocked,defaultAvatarForGender,defaultOwnedOutfits}from"../data/wardrobe.js";
 
-export function initialState(){return{screen:"create",createStep:1,tab:"planner",appOpen:null,name:"",gender:"女性",customGender:"",avatarId:"raven",outfitId:"newcomer",ownedOutfits:defaultOwnedOutfits(),wardrobeNotice:"",visitedLocationsByWeek:{},mapFilter:"全部",saveNotice:"",stats:{},hidden:{},luck:0,rep:{業界評價:0,商業價值:0,話題度:0,爭議度:0,時尚影響力:0,國民度:0,路人緣:500,可信度:500},week:1,schedule:["vocal","acting","rest","audition","free","dance","rest"],lastSchedule:null,freeLocations:Array(7).fill(null),lastFreeLocations:null,selectedDay:0,filter:"全部",focus:"growth",stamina:100,fatigue:0,mood:70,money:18000,fame:0,fans:0,contract:8,knownPeople:[],familiarNpcs:[],relationships:{},flags:[],runnerDay:0,runnerPhase:"",runnerResult:null,runnerDecision:null,pendingRandomEvent:null,randomEventHistory:{},weekResults:[],history:[],notice:"",reward:null,jobStage:"available",jobRemaining:JOB.sessions,jobDeadline:3,jobNotice:"",selectedNpc:null,npcArtView:"bust",forumThread:null,forumCategory:"熱門",forumRefresh:0,socialPosts:[],likedSocialPosts:[],socialNotice:"",endingType:null,inheritChoice:true,hospitalSkipWeeks:0,agencyStatus:"unsigned",selectedAgencyId:null,agencyApplications:{},agencyInterview:null,agencyOffer:null,currentAgencyId:null,agencySignedWeek:null,agencyContractEndWeek:null,agencyHistory:[]}}
+export function initialState(){return{screen:"create",createStep:1,tab:"planner",appOpen:null,name:"",gender:"女性",customGender:"",avatarId:"raven",outfitId:"newcomer",ownedOutfits:defaultOwnedOutfits(),wardrobeNotice:"",visitedLocationsByWeek:{},mapFilter:"全部",saveNotice:"",stats:{},hidden:{},luck:0,rep:{業界評價:0,商業價值:0,話題度:0,爭議度:0,時尚影響力:0,國民度:0,路人緣:500,可信度:500},week:1,schedule:["vocal","acting","rest","audition","free","dance","rest"],lastSchedule:null,freeLocations:Array(7).fill(null),lastFreeLocations:null,scheduledJobIds:Array(7).fill(null),lastScheduledJobIds:null,selectedDay:0,filter:"全部",focus:"growth",stamina:100,fatigue:0,mood:70,money:18000,fame:0,fans:0,contract:8,knownPeople:[],familiarNpcs:[],relationships:{},npcEventProgress:{},npcMessages:[],flags:[],eventFlags:[],eventHistory:[],queuedEvents:[],runnerDay:0,runnerPhase:"",runnerResult:null,runnerDecision:null,pendingRandomEvent:null,randomEventHistory:{},weekResults:[],history:[],notice:"",reward:null,jobStage:"available",jobRemaining:JOB.sessions,jobDeadline:3,jobNotice:"",selectedJobId:"J001",activeJobs:{},jobHistory:[],completedWorks:[],awards:[],careerProgress:{歌曲:0,電影:0,電視劇:0,綜藝:0,廣告:0},selectedNpc:null,npcArtView:"bust",forumThread:null,forumCategory:"熱門",forumRefresh:0,socialPosts:[],likedSocialPosts:[],socialNotice:"",endingType:null,endingResult:null,inheritChoice:true,hospitalSkipWeeks:0,agencyStatus:"unsigned",selectedAgencyId:null,agencyApplications:{},agencyInterview:null,agencyOffer:null,currentAgencyId:null,agencySignedWeek:null,agencyContractEndWeek:null,agencyHistory:[]}}
 
 export let state=initialState();
 
@@ -40,6 +40,21 @@ export function hydrateState(saved){
  next.freeLocations=Array.from({length:7},(_,i)=>next.schedule[i]==="free"?(next.freeLocations[i]||null):null);
  if(saved.lastSchedule&&!Array.isArray(saved.lastFreeLocations))next.lastFreeLocations=saved.lastSchedule.map(id=>id==="free"?(saved.mapLocation||null):null);
  if(Array.isArray(next.lastFreeLocations))next.lastFreeLocations=Array.from({length:7},(_,i)=>next.lastSchedule?.[i]==="free"?(next.lastFreeLocations[i]||null):null);
+ next.scheduledJobIds=Array.from({length:7},(_,i)=>next.schedule[i]==="job_session"?(next.scheduledJobIds?.[i]||null):null);
+ if(Array.isArray(next.lastScheduledJobIds))next.lastScheduledJobIds=Array.from({length:7},(_,i)=>next.lastSchedule?.[i]==="job_session"?(next.lastScheduledJobIds[i]||null):null);
+ // v2 以前只有晨露廣告一份通告；升級後轉成以 job id 為鍵的多通告狀態。
+ if(!saved.activeJobs&&saved.jobStage&&saved.jobStage!=="available"){
+  next.activeJobs.J001={jobId:"J001",stage:saved.jobStage,appliedWeek:1,deadlineWeek:saved.jobDeadline||3,remainingSessions:saved.jobRemaining??JOB.sessions};
+  next.selectedJobId="J001";
+ }
+ next.jobHistory=Array.isArray(saved.jobHistory)?saved.jobHistory:[];
+ next.completedWorks=Array.isArray(saved.completedWorks)?saved.completedWorks:[];
+ next.awards=Array.isArray(saved.awards)?saved.awards:[];
+ next.npcEventProgress=saved.npcEventProgress&&typeof saved.npcEventProgress==="object"?saved.npcEventProgress:{};
+ next.npcMessages=Array.isArray(saved.npcMessages)?saved.npcMessages:[];
+ next.eventFlags=Array.isArray(saved.eventFlags)?saved.eventFlags:[];
+ next.eventHistory=Array.isArray(saved.eventHistory)?saved.eventHistory:[];
+ next.queuedEvents=Array.isArray(saved.queuedEvents)?saved.queuedEvents:[];
  delete next.mapLocation;
  delete next.lastVisitedLocation;
  delete next.lastVisitedWeek;

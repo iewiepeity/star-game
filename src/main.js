@@ -2,11 +2,12 @@
 // 沒有存檔（或存檔版本對不上）就跟以前一樣，觸發第一次擲骰＋第一次 render()，停在角色建立畫面的 STEP 1。
 // 完整的模組地圖與各層職責見專案根目錄的 ARCHITECTURE.md。
 import{state,hydrateState}from"./core/state.js";
-import{loadState}from"./core/persistence.js";
+import{loadState,migrateLegacyManualSlot}from"./core/persistence.js";
 import{rollStats}from"./core/stats.js";
 import{startDay}from"./logic/runner.js";
 import{render}from"./render.js";
 
+migrateLegacyManualSlot();
 const saved=loadState();
 if(saved){
  hydrateState(saved);
@@ -17,3 +18,5 @@ if(saved){
 }else{
  rollStats();
 }
+
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));

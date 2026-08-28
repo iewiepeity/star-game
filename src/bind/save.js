@@ -1,9 +1,16 @@
-// 事件層：存檔管理 App。手動存檔寫進獨立的存檔槽；讀取則用 hydrateState() 整包換成存檔當下的狀態。
 import{state,hydrateState}from"../core/state.js";
-import{saveManualState,loadManualState}from"../core/persistence.js";
+import{saveManualSlot,loadManualSlot,deleteManualSlot,backupCurrent,loadBackup,exportSave,parseImportedSave}from"../core/persistence.js";
 import{render}from"../render.js";
 
+function downloadSave(){const blob=new Blob([exportSave(state)],{type:"application/json"}),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download=`star-game-${state.name||"player"}-week-${state.week}.json`;link.click();URL.revokeObjectURL(url)}
+function loadWithBackup(saved,message){if(!saved)return;backupCurrent(state,"讀檔前備份");hydrateState(saved);state.saveNotice=message;state.appOpen="save";render()}
+
 export function bindSave(){
- document.querySelector("#manual-save")?.addEventListener("click",()=>{saveManualState(state);state.saveNotice="已建立手動存檔。";render()});
- document.querySelector("#manual-load")?.addEventListener("click",()=>{const saved=loadManualState();if(!saved){state.saveNotice="目前沒有手動存檔可以讀取。";render();return}hydrateState(saved);state.saveNotice="已讀取手動存檔，進度已回到記錄當下。";render()});
+ document.querySelectorAll("[data-save-slot]").forEach(button=>button.onclick=()=>{const slot=Number(button.dataset.saveSlot);saveManualSlot(slot,state,`手動存檔 ${slot}`);state.saveNotice=`已儲存至槽位 ${slot}。`;render()});
+ document.querySelectorAll("[data-load-slot]").forEach(button=>button.onclick=()=>loadWithBackup(loadManualSlot(Number(button.dataset.loadSlot)),`已讀取槽位 ${button.dataset.loadSlot}。`));
+ document.querySelectorAll("[data-delete-slot]").forEach(button=>button.onclick=()=>{deleteManualSlot(Number(button.dataset.deleteSlot));state.saveNotice=`已刪除槽位 ${button.dataset.deleteSlot}。`;render()});
+ document.querySelector("#export-save")?.addEventListener("click",downloadSave);
+ const input=document.querySelector("#import-save-file");document.querySelector("#import-save")?.addEventListener("click",()=>input?.click());
+ input?.addEventListener("change",async()=>{try{const file=input.files?.[0];if(!file)return;const imported=parseImportedSave(await file.text());loadWithBackup(imported,"存檔匯入成功。") }catch(error){state.saveNotice=`匯入失敗：${error.message}`;render()}});
+ document.querySelector("#load-backup")?.addEventListener("click",()=>loadWithBackup(loadBackup(),"已還原上一份安全備份。"));
 }

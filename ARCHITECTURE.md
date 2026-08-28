@@ -64,6 +64,11 @@ main.js       進入點：有存檔就還原，沒有就第一次擲骰 + 第一
 | `runner.js` | `decisionFor`（當天要不要跳現場選擇）、`applyGains`（套用能力成長）、`startDay`/`resolveDay`（逐日結算）、`hospitalize`（過勞強制住院）、`finishWeek`（週任務結算） |
 | `exploration.js` | 自由探索的地點成長、狀態恢復、額外花費與 NPC 初遇共用結算 |
 | `random-events.js` | 隨機事件抽選、避免連續重複、效果套用，以及 NPC 初遇／關係成長 |
+| `event-engine.js` | 通用事件條件、分類、選項、旗標與效果套用；內容事件不得自行散落修改 state |
+| `npc-engine.js` | NPC 初遇、關係數值、階段與人物里程碑的唯一入口 |
+| `job-engine.js` | 50 份通告共用的多通告申請、試鏡、簽約、排程、完成與違約狀態機 |
+| `portfolio.js` | 作品履歷、品質計算與獎項判定 |
+| `career.js` | 職涯路線與五年／退圈／過勞結局判定器 |
 
 ### `views/`（只讀 state，回傳 HTML 字串，不寫 state）
 | 檔案 | 內容 |
