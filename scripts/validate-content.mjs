@@ -8,7 +8,6 @@ import{ACTIONS}from"../src/data/actions.js";
 import{FORUM_THREADS}from"../src/data/forum.js";
 import{OFFICIAL_SOCIAL_POSTS}from"../src/data/social.js";
 import{existsSync}from"node:fs";
-
 const assert=(condition,message)=>{if(!condition)throw new Error(message)};
 const ids=new Set(),hidden=new Set(["幽默","共情","洞察","膽識","品德","自律","野心","抗壓"]),rep=new Set(["業界評價","商業價值","話題度","爭議度","時尚影響力","國民度","路人緣","可信度"]);
 assert(JOB_CATALOG.length===50,`通告總數必須是 50，目前是 ${JOB_CATALOG.length}`);
@@ -19,7 +18,7 @@ for(const npc of NPC_LIST){assert(npc.name&&npc.job&&npc.bio&&npc.personality&&n
 const openLocations=Object.entries(MAP_LOCATIONS).filter(([,location])=>!location.locked);assert(openLocations.length>=15,`自由探索地點至少 15 個，目前是 ${openLocations.length}`);
 for(const[id,location]of Object.entries(MAP_LOCATIONS)){assert(location.name&&location.area&&location.category&&location.note&&location.effect,`地點資料不完整：${id}`);assert(!location.encounter||NPCS[location.encounter],`地點綁定未知 NPC：${id}`);assert(Array.isArray(LOCATION_EVENTS[id])&&LOCATION_EVENTS[id].length>=10,`地點事件不足：${id}`)}
 for(const[actionId,pool]of Object.entries(SCHEDULE_EVENTS)){assert(ACTIONS[actionId],`行程事件綁定未知 action：${actionId}`);assert(Array.isArray(pool)&&pool.length>=5,`行程事件不足：${actionId}`)}
-const validateEffect=(effect,where)=>{if(!effect)return;if(effect.stat)assert(ABILITIES.includes(effect.stat),`${where} 使用未知能力 ${effect.stat}`);if(effect.hidden)assert(hidden.has(effect.hidden),`${where} 使用未知隱藏特質 ${effect.hidden}`);if(effect.rep)assert(rep.has(effect.rep),`${where} 使用未知評價 ${effect.rep}`);if(effect.npc)assert(NPCS[effect.npc],`${where} 使用未知 NPC ${effect.npc}`)};
+const validateEffect=(effect,where)=>{if(!effect)return;const hiddenName=effect.hidden===true?effect.stat:(typeof effect.hidden==="string"?effect.hidden:null);if(hiddenName)assert(hidden.has(hiddenName),`${where} 使用未知隱藏特質 ${hiddenName}`);else if(effect.stat)assert(ABILITIES.includes(effect.stat),`${where} 使用未知能力 ${effect.stat}`);if(effect.rep)assert(rep.has(effect.rep),`${where} 使用未知評價 ${effect.rep}`);if(effect.npc)assert(NPCS[effect.npc],`${where} 使用未知 NPC ${effect.npc}`)};
 for(const[id,pool]of Object.entries(LOCATION_EVENTS))pool.forEach((e,i)=>validateEffect(e.effect,`location:${id}[${i}]`));for(const[id,pool]of Object.entries(SCHEDULE_EVENTS))pool.forEach((e,i)=>validateEffect(e.effect,`schedule:${id}[${i}]`));
 assert(FORUM_THREADS.length>=8&&FORUM_THREADS.every(thread=>thread.replies.length>=4),"論壇討論或模擬留言不足");assert(OFFICIAL_SOCIAL_POSTS.length>=3,"社群官方動態不足");
 console.log(`內容交叉驗證通過：50 通告、${NPC_LIST.length} NPC、${Object.keys(MAP_LOCATIONS).length} 地點、事件與資產引用皆有效。`);
