@@ -20,6 +20,10 @@ import{evaluatePersona}from"./persona-engine.js";
 import{tickCompetitors}from"./competitors.js";
 import{tickWorkLifecycles}from"./work-lifecycle.js";
 import{syncFandom}from"./fandom.js";
+import{tickNpcProactiveEvents}from"./npc-proactive.js";
+import{maybeQueueMediaEvent}from"./media-engine.js";
+import{tickSequelOpportunities}from"./sequel-engine.js";
+import{queueAnnualWorldEvent}from"./world-events.js";
 
 export function advanceWorldWeek(){
  const closingNews=generateIndustryNews();
@@ -51,5 +55,9 @@ export function advanceWorldWeek(){
  const due=processQueuedEvents();
  const calendar=enqueueCalendarEvents();
  const npcStories=queueNpcStoryEvents();
- return{breached,awards,market,npcUpdates,news,opinion,scandal,persona,fandom,due,calendar,npcStories};
+ const proactive=tickNpcProactiveEvents();
+ const media=maybeQueueMediaEvent();
+ const sequel=tickSequelOpportunities();
+ const worldEvent=queueAnnualWorldEvent();
+ return{breached,awards,market,npcUpdates,news,opinion,scandal,persona,fandom,due,calendar,npcStories,proactive,media,sequel,worldEvent};
 }
