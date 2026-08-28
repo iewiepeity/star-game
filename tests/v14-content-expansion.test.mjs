@@ -1,5 +1,6 @@
 import test from"node:test";
 import assert from"node:assert/strict";
+import{existsSync}from"node:fs";
 import{JOB_CATALOG,JOB_CATEGORIES,jobsByTier}from"../src/data/jobs.js";
 import{LIFE_EVENTS}from"../src/data/life-events.js";
 import{CALENDAR_EVENTS}from"../src/data/calendar-events.js";
@@ -7,5 +8,5 @@ import{OUTFIT_LIST,portraitAsset,portraitThumbAsset}from"../src/data/wardrobe.js
 import{ENDING_ARCHETYPES}from"../src/logic/career.js";
 test("v1.4 通告庫擴充到 75 份且各星級／類型都有內容",()=>{assert.equal(JOB_CATALOG.length,75);assert.equal(new Set(JOB_CATALOG.map(j=>j.id)).size,75);for(let stars=1;stars<=5;stars++)for(const category of JOB_CATEGORIES)assert.ok(jobsByTier(stars,category).length>=3,`${stars} 星 ${category} 至少三份通告`)});
 test("跨行程事件與年度事件都有足夠內容密度",()=>{assert.ok(LIFE_EVENTS.train.length>=8);assert.ok(LIFE_EVENTS.job.length>=8);assert.ok(LIFE_EVENTS.life.length>=8);assert.ok(CALENDAR_EVENTS.length>=15);assert.equal(new Set(CALENDAR_EVENTS.map(e=>e.id)).size,CALENDAR_EVENTS.length)});
-test("衣櫃商品擴充且共用素材不會產生不存在的新檔名",()=>{assert.ok(OUTFIT_LIST.length>=15);const reused=OUTFIT_LIST.find(o=>o.assetKey);assert.ok(reused);assert.ok(portraitAsset("raven",reused.id).includes(`raven-${reused.assetKey}.webp`));assert.ok(portraitThumbAsset("noir",reused.id).includes(`noir-${reused.assetKey}.webp`))});
+test("衣櫃商品擴充且四位角色都有獨立完整立繪與縮圖",()=>{assert.ok(OUTFIT_LIST.length>=15);for(const avatar of["raven","sunny","noir","sage"])for(const outfit of OUTFIT_LIST){const full=portraitAsset(avatar,outfit.id),thumb=portraitThumbAsset(avatar,outfit.id);assert.ok(full.includes(`${avatar}-${outfit.id}.webp`));assert.ok(thumb.includes(`${avatar}-${outfit.id}.webp`));assert.ok(existsSync(new URL(`../${full.replace("./","")}`,import.meta.url)),`缺少完整立繪 ${avatar}/${outfit.id}`);assert.ok(existsSync(new URL(`../${thumb.replace("./","")}`,import.meta.url)),`缺少縮圖 ${avatar}/${outfit.id}`)}});
 test("五年結局具多個真正原型而非只拼接職涯名稱",()=>{assert.ok(ENDING_ARCHETYPES.length>=15);assert.equal(new Set(ENDING_ARCHETYPES.map(e=>e.id)).size,ENDING_ARCHETYPES.length);for(const id of["creative_auteur","award_collector","national_darling","commercial_king","soulmate","storm_icon"])assert.ok(ENDING_ARCHETYPES.some(e=>e.id===id))});
