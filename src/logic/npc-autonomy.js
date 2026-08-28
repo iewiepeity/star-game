@@ -1,0 +1,10 @@
+import{NPCS}from"../data/npcs.js";
+import{NPC_CAREER_PROFILES}from"../data/npc-network.js";
+import{state}from"../core/state.js";
+import{randomInt}from"../core/rng.js";
+import{ensureNpcCareer,isNpcBusy}from"./npc-ecosystem.js";
+const DAY_NAMES=["一","二","三","四","五","六","日"];
+function liveSchedule(id){state.npcSchedules??={};return state.npcSchedules[id]||(state.npcSchedules[id]=[])}
+function reserveAutonomousWork(id,category){const sessions=randomInt(1,3),slots=[];for(let week=state.week;week<=state.week+2&&slots.length<sessions;week++){const days=[0,1,2,3,4,5,6].sort(()=>randomInt(-1,1));for(const day of days){if(!isNpcBusy(id,week,day)){slots.push({week,day});if(slots.length>=sessions)break}}}if(slots.length<sessions)return null;const jobId=`NPC-AUTO-${id}-${state.week}-${category}`,title=`${category}工作`;for(const slot of slots)liveSchedule(id).push({jobId,week:slot.week,day:slot.day,status:"reserved",source:"npc-autonomous",title,category});return{jobId,title,category,slots}}
+export function syncNpcAutonomousWork(){const updates=[];for(const id of Object.keys(NPCS)){const career=ensureNpcCareer(id),profile=NPC_CAREER_PROFILES[id];career.lastScheduledWorkCount??=Math.max(0,career.works-1);if(career.works<=career.lastScheduledWorkCount)continue;const categories=profile?.specialties||[],category=categories[randomInt(0,Math.max(0,categories.length-1))]||profile?.field||"演藝";const work=reserveAutonomousWork(id,category);if(work){career.lastScheduledWorkCount=career.works;career.currentWork={...work,createdWeek:state.week};updates.push(`${NPCS[id].name}接下新的${category}工作，檔期已排入${work.slots.map(s=>`第${s.week}週週${DAY_NAMES[s.day]}`).join("、")}`)}else{career.works=Math.max(0,career.works-1);career.momentum=Math.max(10,career.momentum-2);career.lastScheduledWorkCount=career.works;updates.push(`${NPCS[id].name}因檔期衝突婉拒了一份工作`)}}return updates}
+export function cleanupNpcAutonomousSchedules(){for(const slots of Object.values(state.npcSchedules||{}))for(const slot of slots)if(slot.source==="npc-autonomous"&&slot.status==="reserved"&&slot.week<state.week)slot.status="completed"}
