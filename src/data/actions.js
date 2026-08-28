@@ -1,5 +1,3 @@
-// 資料層：行事曆可安排的每一種行程（訓練／工作／生活／休息／面談）。
-// group／type 供畫面分類與篩選使用；gains 是「成功時」的能力成長區間，由 core/stats.js 的 applyGains 消耗（見 logic/runner.js）。
 export const ACTIONS={
 vocal:{group:"訓練",icon:"♫",label:"聲樂基礎課",short:"聲樂課",note:"歌藝為主，聲線為輔",type:"train",gains:[["歌藝",4,8],["聲線",1,3]],fatigue:8,stamina:8,cost:800},
 acting:{group:"訓練",icon:"🎬",label:"新人表演課",short:"表演課",note:"演技、鏡頭感與肢體表現",type:"train",gains:[["演技",4,8],["鏡頭感",1,3],["肢體表現",1,2]],fatigue:9,stamina:9,cost:900},
@@ -10,8 +8,7 @@ songwriting:{group:"訓練",icon:"🎼",label:"詞曲創作課",short:"詞曲課
 script:{group:"訓練",icon:"✎",label:"劇本寫作課",short:"編劇課",note:"編劇為主，學識為輔",type:"train",gains:[["編劇",4,8],["學識",1,3]],fatigue:7,stamina:7,cost:650},
 image:{group:"訓練",icon:"◇",label:"形象儀態課",short:"儀態課",note:"氣質、儀態與親和力",type:"train",gains:[["氣質",3,6],["儀態",3,6],["親和力",1,3]],fatigue:6,stamina:6,cost:750},
 networking:{group:"訓練",icon:"☕",label:"社交應對課",short:"社交課",note:"社交與親和力訓練",type:"train",gains:[["社交",4,8],["親和力",1,3]],fatigue:6,stamina:6,cost:500},
-audition:{group:"工作",icon:"★",label:"新人廣告試鏡",short:"廣告試鏡",note:"鏡頭感、親和力與口才",type:"work",fatigue:13,stamina:13,cost:300},
-adshoot:{group:"工作",icon:"🎥",label:"晨露汽水廣告拍攝",short:"廣告拍攝",note:"合約通告・共需完成 3 次拍攝",type:"job",fatigue:18,stamina:18,cost:0},
+audition:{group:"工作",icon:"★",label:"新人公開試鏡",short:"公開試鏡",note:"鏡頭感、親和力與口才",type:"work",fatigue:13,stamina:13,cost:300},
 job_session:{group:"工作",icon:"🎥",label:"正式通告執行",short:"通告工作",note:"依已簽署合約與指定工作日執行",type:"job",fatigue:18,stamina:18,cost:0,hidden:true},
 street:{group:"工作",icon:"🎸",label:"街頭演出",short:"街頭演出",note:"賺取小費並累積實戰曝光",type:"work",fatigue:12,stamina:12,cost:0},
 free:{group:"生活",icon:"☀",label:"自由活動",short:"自由活動",note:"探索星望市，可能遇見新人物",type:"life",fatigue:3,stamina:4,cost:300},
