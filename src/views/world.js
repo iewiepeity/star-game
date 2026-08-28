@@ -1,0 +1,32 @@
+import { state } from "../core/state.js";
+import { esc } from "../core/utils.js";
+import { NPCS } from "../data/npcs.js";
+import { careerPhase } from "../logic/career-phases.js";
+import { publicOpinionLabel } from "../logic/reputation-engine.js";
+
+const meter = (label, value, max = 100) =>
+  `<div><span>${label}<b>${Math.round(value || 0)}</b></span><i><b style="width:${Math.min(100, Math.max(0, ((value || 0) / max) * 100))}%"></b></i></div>`;
+export function worldApp() {
+  const phase = careerPhase(),
+    market = state.worldMarket || {},
+    manager = state.managerState;
+  const rivals = Object.entries(state.competitors || state.rivals || {}).slice(
+    0,
+    5,
+  );
+  const careers = Object.entries(state.npcCareers || {})
+    .filter(([id]) => NPCS[id])
+    .sort((a, b) => (b[1].momentum || 0) - (a[1].momentum || 0))
+    .slice(0, 6);
+  const works = [...(state.completedWorks || [])].reverse().slice(0, 4),
+    news = (state.industryNews || []).slice(0, 6);
+  return `<div class="world-page"><header class="world-hero"><div><span>INDUSTRY DESK・第 ${phase.year} 年</span><h2>${esc(phase.label)}</h2><p>${esc(phase.goal)}</p></div><strong>${esc(market.headline || "市場正在等待本週的新作品")}</strong></header><section class="world-status-grid"><article><span>玩家狀態</span>${meter("健康", state.health)}${meter("心情", state.mood)}${meter("疲勞", state.fatigue)}${meter("體力", state.stamina)}</article><article><span>公眾視線</span><b>${publicOpinionLabel()}</b><p>話題 ${state.rep.話題度 || 0}・可信度 ${state.rep.可信度 || 0}・爭議 ${state.rep.爭議度 || 0}</p><small>品牌信任 ${state.publicOpinion?.brandTrust || 0}／熱度 ${state.publicOpinion?.heat || 0}</small></article><article><span>經紀團隊</span><b>${manager ? `${esc(manager.name)}・信任 ${manager.trust}` : "尚未簽約"}</b><p>${manager ? `默契 ${manager.chemistry}・壓力 ${manager.stress}` : "簽約後，經紀人的判斷與壓力會在這裡同步。"}</p><small>${manager?.history?.at(-1)?.title || "目前沒有新的後台動作"}</small></article></section><section class="world-columns"><article><header><b>作品在市場上怎麼活</b><span>WORK LIFECYCLE</span></header>${works.length ? works.map((w) => `<div class="world-row"><b>${esc(w.title)}</b><span>${"★".repeat(w.stars || 1)}・${esc(w.lifecycle?.status || w.grade || "發行中")}</span><small>${esc(w.storyLegacy || w.directionLabel || w.tags?.join("・") || "作品正在累積觀眾")}</small></div>`).join("") : `<p class="world-empty">完成第一份工作後，長尾反應會出現在這裡。</p>`}</article><article><header><b>NPC 不是停在聯絡人頁</b><span>CAREER MOVES</span></header>${careers.length ? careers.map(([id, c]) => `<div class="world-row"><b>${esc(NPCS[id].name)}</b><span>Lv.${c.level || 1}・${esc(c.trend || "穩定")}</span><small>${esc(c.currentProject || c.lastUpdate || "正在自己的道路上工作")}</small></div>`).join("") : `<p class="world-empty">認識人物後，他們的工作、起伏與選擇會持續更新。</p>`}</article></section><section class="world-columns"><article><header><b>競爭與品牌</b><span>BACKSTAGE</span></header>${rivals.length ? rivals.map(([id, r]) => `<div class="world-row"><b>${esc(r.name || NPCS[id]?.name || id)}</b><span>${esc(r.trend || r.status || "觀望")}</span><small>聲勢 ${Math.round(r.momentum || r.fame || 0)}</small></div>`).join("") : `<p class="world-empty">競爭者正在形成，重要變化會成為可見事件。</p>`}<div class="brand-strip">${
+    Object.entries(state.brandRelations || {})
+      .slice(0, 5)
+      .map(
+        ([id, v]) =>
+          `<span>${esc(id)} <b>${typeof v === "number" ? v : v.score || 0}</b></span>`,
+      )
+      .join("") || "品牌仍在觀察新人期表現"
+  }</div></article><article><header><b>本週娛樂圈</b><span>NEWSROOM</span></header>${news.length ? news.map((n) => `<div class="world-row"><b>${esc(n.title)}</b><small>${esc(n.body)}</small></div>`).join("") : `<p class="world-empty">世界新聞會隨工作、獎季、NPC 與市場變化生成。</p>`}</article></section></div>`;
+}
