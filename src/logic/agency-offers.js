@@ -1,6 +1,6 @@
 import{state}from"../core/state.js";
 import{AGENCIES}from"../data/agencies.js";
-import{JOB_CATALOG}from"../data/jobs-catalog.js";
+import{JOB_CATALOG}from"../data/jobs.js";
 import{availableJobs,jobState}from"./job-engine.js";
 import{randomInt}from"../core/rng.js";
 const agencyCategoryMap={戲劇:["電影","電視劇"],廣告:["廣告"],綜藝:["綜藝"],音樂:["歌曲"]};
