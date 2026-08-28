@@ -8,12 +8,14 @@ import{resolveDueAwardSeasons}from"./portfolio.js";
 import{enqueueCalendarEvents}from"./calendar-events.js";
 import{tickNpcCareers}from"./npc-ecosystem.js";
 import{syncNpcAutonomousWork,cleanupNpcAutonomousSchedules}from"./npc-autonomy.js";
+import{tickNpcRelationshipDynamics}from"./npc-dynamics.js";
 import{cleanupActivities}from"./scheduled-activities.js";
 import{generateIndustryNews}from"./industry-news.js";
 import{queueNpcStoryEvents}from"./npc-storylines.js";
 import{tickPublicOpinion}from"./reputation-engine.js";
 import{tickBrandRelations}from"./brand-relations.js";
 import{tickScandals,syncScandalResponseFlags}from"./scandal-engine.js";
+import{tickRumors}from"./rumor-engine.js";
 import{tickManager}from"./manager.js";
 import{tickWorldMarket}from"./world-market.js";
 import{evaluatePersona}from"./persona-engine.js";
@@ -42,7 +44,9 @@ export function advanceWorldWeek(){
  const workUpdates=tickWorkLifecycles();
  const npcGrowth=tickNpcCareers();
  const npcWork=syncNpcAutonomousWork();
- const npcUpdates=[...npcWork,...npcGrowth,...rivalUpdates,...workUpdates];
+ const npcRelationUpdates=tickNpcRelationshipDynamics();
+ const rumorUpdates=tickRumors();
+ const npcUpdates=[...npcWork,...npcGrowth,...npcRelationUpdates,...rumorUpdates,...rivalUpdates,...workUpdates];
  const news=generateIndustryNews({awards,npcUpdates});
  const opinion=tickPublicOpinion(news);
  tickBrandRelations();
@@ -59,5 +63,5 @@ export function advanceWorldWeek(){
  const media=maybeQueueMediaEvent();
  const sequel=tickSequelOpportunities();
  const worldEvent=queueAnnualWorldEvent();
- return{breached,awards,market,npcUpdates,news,opinion,scandal,persona,fandom,due,calendar,npcStories,proactive,media,sequel,worldEvent};
+ return{breached,awards,market,npcUpdates,rumorUpdates,news,opinion,scandal,persona,fandom,due,calendar,npcStories,proactive,media,sequel,worldEvent};
 }
