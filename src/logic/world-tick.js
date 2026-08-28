@@ -32,9 +32,9 @@ export function advanceWorldWeek(){
  const closingNews=generateIndustryNews();
  tickPublicOpinion(closingNews);
  syncScandalResponseFlags();
- if(state.hospitalSkipWeeks)state.history.push({week:state.week+1,results:[],reward:false,hospitalized:true,fullRecovery:true});
- state.week+=1+state.hospitalSkipWeeks;
+ state.week+=1;
  state.hospitalSkipWeeks=0;
+ if(state.forcedRestWeek&&state.week>state.forcedRestWeek)state.forcedRestWeek=null;
  cleanupActivities();
  cleanupNpcAutonomousSchedules();
  checkAgencyContractExpiry();
