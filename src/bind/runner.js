@@ -1,7 +1,3 @@
-// 事件層：逐日事件畫面。選擇分支（data-choice）與「前往下一天／查看本週總結」。
-import{state}from"../core/state.js";
-import{resolveDay,startDay,finishWeek}from"../logic/runner.js";
-
-export function bindRunnerScreen(){
- document.querySelectorAll("[data-choice]").forEach(x=>x.onclick=()=>resolveDay(x.dataset.choice));document.querySelector("#next-day")?.addEventListener("click",()=>{if(state.runnerDay===6)finishWeek();else{state.runnerDay++;startDay()}})
-}
+// 逐日行程預設自動往下一天；只有需要玩家選擇的 decision 才停住。按鈕保留作為「立即跳過等待」的快捷鍵。
+import{resolveDay,advanceRunner}from"../logic/runner.js";
+export function bindRunnerScreen(){document.querySelectorAll("[data-choice]").forEach(x=>x.onclick=()=>resolveDay(x.dataset.choice));document.querySelector("#next-day")?.addEventListener("click",()=>advanceRunner())}

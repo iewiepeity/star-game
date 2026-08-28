@@ -1,4 +1,4 @@
-import{JOB_BY_ID,JOB_CATALOG}from"../data/jobs-catalog.js";
+import{JOB_BY_ID,JOB_CATALOG}from"../data/jobs.js";
 import{DAYS}from"../data/calendar.js";
 import{state}from"../core/state.js";
 import{effectiveStat,successRateLabel}from"../core/utils.js";
