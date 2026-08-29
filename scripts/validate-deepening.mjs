@@ -43,6 +43,8 @@ for(const stance of Object.values(MANAGER_STANCES))for(const key of["conservativ
 assert(Object.keys(NPC_AUTONOMOUS_BEATS).length===10,"10 位主要 NPC 都需要自主人生文本");
 assert(Object.values(NPC_AUTONOMOUS_BEATS).every(pool=>pool.length>=3),"每位 NPC 至少需要三段自主職涯 beat");
 assert(Object.keys(NPC_LONGFORM_CHAPTERS).length===10&&Object.values(NPC_LONGFORM_CHAPTERS).every(pool=>pool.length===5),"每位 NPC 必須新增五段跨年可參與章節");
+assert(Object.values(NPC_LONGFORM_CHAPTERS).flat().every(chapter=>chapter.beats?.length>=3),"50 段跨年人物章節必須是多幕場景");
+assert(Object.values(NPC_LONGFORM_CHAPTERS).flat().every(chapter=>chapter.choices?.every(choice=>choice.note&&choice.followUp?.delayWeeks)),"人物場景的每條選擇都必須有代價說明與專屬延遲後續");
 assert(Object.keys(NPC_ROMANCE_VOICES).length===10&&Object.values(NPC_ROMANCE_VOICES).every(voice=>["interested","ambiguous","dating","committed","engaged","married"].every(stage=>voice[stage])),"每位 NPC 必須有六階段專屬戀愛聲音");
 for(const stage of["interested","ambiguous","dating","committed","engaged","married","broken"])assert(ROMANCE_STAGE_FLAVOR[stage]?.length>=2,`戀愛階段 ${stage} 文本不足`);
 assert(Object.keys(WORLD_REACTION_SIGNALS.hidden).length===8,"8 個隱藏特質都需要世界反應");

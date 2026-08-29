@@ -1,9 +1,17 @@
 // 長期內容層：把人物的三章核心線延伸成跨年可參與事件，並讓戀愛日常保留角色聲音。
 // 每位人物五個後續章節；與既有三章合計為八章，不增加主要 NPC 數量。
-const follow=(id,title,text,left,right)=>Object.freeze({id,title,text,choices:[
- {id:"stand",label:left,outcome:`你的選擇讓「${title}」不只停在旁觀。`,effect:{relation:5,trust:6,affection:2}},
- {id:"question",label:right,outcome:`你們用另一種方式走過「${title}」，這會留在共同記憶裡。`,effect:{relation:3,trust:8,affection:1}}
-]});
+const follow=(id,title,text,left,right)=>Object.freeze({
+ id,title,text,
+ beats:[
+  {label:"抵達現場",text:`這不是一則等著你閱讀的近況。你真正走進了「${title}」發生的地方，也看見其他人刻意避開的細節。`},
+  {label:"不能迴避的拉扯",text},
+  {label:"只有你聽見的話",text:`人群散開後，對方沒有立刻催你回答，只坦白說：這次真正害怕的並不是做錯，而是做完以後再也認不出自己。`}
+ ],
+ choices:[
+  {id:"stand",label:left,note:"現在站到對方身邊，日後也要共同承擔這條路的代價。",outcome:`你沒有只說支持，而是一起把「${title}」最難的部分做完。`,effect:{relation:5,trust:6,affection:2},followUp:{delayWeeks:3,title:`${title}・留下來的版本`,text:`三週後，當時被你們守住的決定出現在成品與旁人的反應裡。它沒有讓一切變簡單，卻證明那天的選擇不是一句安慰。`,outcome:"你們一起確認了選擇真正留下的結果。",effect:{trust:2,affection:1}}},
+  {id:"question",label:right,note:"先拆開問題再前進，短期較慢，卻可能避免把關心變成替對方決定。",outcome:`你沒有急著替「${title}」選答案，而是問到彼此都不能再含糊的位置。`,effect:{relation:3,trust:8,affection:1},followUp:{delayWeeks:4,title:`${title}・重新回答`,text:`四週後，對方帶著一份親自改過的答案來找你。那不是照你的意思做，而是因為那天的問題，終於能說清楚自己要什麼。`,outcome:"這次答案真正屬於做出決定的人。",effect:{trust:3,relation:1}}}
+ ]
+});
 
 export const NPC_LONGFORM_CHAPTERS=Object.freeze({
  jiqing:[

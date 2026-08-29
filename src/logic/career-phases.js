@@ -24,6 +24,18 @@ export function queueCareerPhaseEvent() {
     { id: "music", label: "把半年留給音樂作品", outcome: "高階的其他路線暫時讓路，這次選擇會真正關上一些門。", effect: { careerCommitment: "music", commitmentLabel: "音樂作品", mood: 2 } },
     { id: "media", label: "把半年留給主持綜藝", outcome: "高階的其他路線暫時讓路，這次選擇會真正關上一些門。", effect: { careerCommitment: "media", commitmentLabel: "主持綜藝", mood: 2 } },
     { id: "commercial", label: "把半年留給商業形象", outcome: "高階的其他路線暫時讓路，這次選擇會真正關上一些門。", effect: { careerCommitment: "commercial", commitmentLabel: "商業形象", mood: 2 } },
+  ] : phase.year === 3 ? [
+    {id:"compete",label:"正面爭取不可替代的位置",note:"聲勢成長更快，但競爭失利也會被放大。",outcome:"你不再迴避比較；從現在起，勝負會成為履歷的一部分。",effect:{doctrineKey:"year3",doctrineValue:"compete",doctrineLabel:"正面競爭",fame:10,rep:"話題度",value:8}},
+    {id:"alliance",label:"建立不靠互踩的合作聯盟",note:"人物信任與合作機會增加，但短期聲量較慢。",outcome:"你把位置理解成一張能一起坐大的桌子，而不是只剩一張的椅子。",effect:{doctrineKey:"year3",doctrineValue:"alliance",doctrineLabel:"合作聯盟",rep:"可信度",value:10}},
+    {id:"niche",label:"退出熱門賽道，建立自己的領域",note:"高熱度邀約減少，作品評價與長尾表現更穩。",outcome:"你接受不是每個人都立刻看懂，換取不必再被同一把尺評分。",effect:{doctrineKey:"year3",doctrineValue:"niche",doctrineLabel:"獨特定位",rep:"業界評價",value:10}},
+  ] : phase.year === 4 ? [
+    {id:"commerce",label:"用商業成功換取更大的決定權",note:"收入與品牌成長，但每季都必須維持曝光。",outcome:"你決定先拿到桌上的權力，再談想留下什麼。",effect:{doctrineKey:"year4",doctrineValue:"commerce",doctrineLabel:"商業換權",money:100000,rep:"商業價值",value:15}},
+    {id:"autonomy",label:"拒絕綁定，保住作品與選角自主",note:"部分品牌路線關閉，原創品質與業界評價提升。",outcome:"你把拒絕寫進合約；門變少了，但留下的門真正能由你決定。",effect:{doctrineKey:"year4",doctrineValue:"autonomy",doctrineLabel:"創作自主",rep:"業界評價",value:15}},
+    {id:"sustainable",label:"不再用健康與關係交換成功",note:"每週恢復更穩，高壓工作的聲勢收益降低。",outcome:"你第一次把休息當成職涯制度，而不是做不完事情的羞恥。",effect:{doctrineKey:"year4",doctrineValue:"sustainable",doctrineLabel:"可持續職涯",health:8,fatigue:-10}},
+  ] : phase.year === 5 ? [
+    {id:"masterpiece",label:"押上一年完成代表作",note:"作品品質提高，但其他工作可用時間減少。",outcome:"最後一年不再求多；你決定讓一部作品承擔這五年的答案。",effect:{doctrineKey:"year5",doctrineValue:"masterpiece",doctrineLabel:"代表作優先",rep:"業界評價",value:12}},
+    {id:"people",label:"把最後一年留給一起走來的人",note:"人物事件與關係收益提高，職涯衝刺較慢。",outcome:"你拒絕把所有陪伴都寫成成功背後的註腳。",effect:{doctrineKey:"year5",doctrineValue:"people",doctrineLabel:"重要關係優先",mood:8}},
+    {id:"legacy",label:"建立能讓新人繼續走的制度",note:"即時人氣較少，可信度與五年結局權重提高。",outcome:"你想留下的不只是一個名字，而是一條別人不必再獨自摸索的路。",effect:{doctrineKey:"year5",doctrineValue:"legacy",doctrineLabel:"產業傳承",rep:"可信度",value:15}},
   ] : null;
   const event = {
     id: `career-phase-${phase.year}`,
@@ -39,4 +51,17 @@ export function queueCareerPhaseEvent() {
   };
   enqueueVisibleEvent(event, "年度章節");
   return event.id;
+}
+
+export function applyCareerDoctrineTick(){
+ const d=state.careerDoctrine||{};
+ if(d.year3?.id==="compete"&&state.week%4===0){state.fame+=3;state.rep.話題度=Math.min(1000,(state.rep.話題度||0)+2)}
+ if(d.year3?.id==="alliance"&&state.week%4===0){state.rep.可信度=Math.min(1000,(state.rep.可信度||0)+2)}
+ if(d.year3?.id==="niche"&&state.week%6===0){state.rep.業界評價=Math.min(1000,(state.rep.業界評價||0)+3)}
+ if(d.year4?.id==="commerce"&&state.week%4===0)state.money+=12000;
+ if(d.year4?.id==="autonomy"&&state.week%4===0)state.rep.業界評價=Math.min(1000,(state.rep.業界評價||0)+3);
+ if(d.year4?.id==="sustainable"){state.fatigue=Math.max(0,state.fatigue-2);state.health=Math.min(100,state.health+1)}
+ if(d.year5?.id==="masterpiece"&&state.week%4===0)state.rep.業界評價=Math.min(1000,(state.rep.業界評價||0)+4);
+ if(d.year5?.id==="people"&&state.week%4===0)state.mood=Math.min(100,state.mood+2);
+ if(d.year5?.id==="legacy"&&state.week%4===0)state.rep.可信度=Math.min(1000,(state.rep.可信度||0)+4);
 }
