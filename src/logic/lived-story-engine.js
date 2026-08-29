@@ -1,5 +1,7 @@
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
+import { NPC_INVITATION_POOLS } from "../data/invitation-content.js";
+import { NPC_RELATION_EDGES, NPC_CAREER_PROFILES } from "../data/npc-network.js";
 import { enqueueVisibleEvent } from "./event-engine.js";
 
 const INVITATIONS=Object.freeze({
@@ -23,6 +25,20 @@ const PAIR_TOPICS=[
  ["xiayutong","hanzhiyuan","數字看不見的那一顆鏡頭","平台模型要求刪除一場低留存片段，導演與投資方第一次把最後決定交給身在作品裡的你。"],
 ];
 
+function invitationType(npcId){const rel=state.relationships?.[npcId]||{};if((rel.hostility||0)>=20)return"conflict";if(["dating","committed","engaged","married"].includes(rel.romance))return"romance";if(state.health<=55||state.fatigue>=65||state.week%16===2)return"low";return"ordinary"}
+
+function dynamicCast(){
+ const known=new Set(state.knownPeople||[]),edges=NPC_RELATION_EDGES.filter(edge=>known.has(edge.a)&&known.has(edge.b));if(!edges.length)return null;
+ const pair=edges[Math.floor(state.week/13)%edges.length],cast=[pair.a,pair.b];
+ if(state.week%26===0){const third=edges.find(edge=>cast.includes(edge.a)&&!cast.includes(edge.b))?.b||edges.find(edge=>cast.includes(edge.b)&&!cast.includes(edge.a))?.a;if(third)cast.push(third)}
+ return{cast,edge:pair};
+}
+
+function ensembleCopy({cast,edge}){
+ const names=cast.map(id=>NPCS[id].name),fields=cast.map(id=>NPC_CAREER_PROFILES[id]?.field||NPCS[id].job),relation={friend:"彼此信任是否也容得下不同意",mentor:"照顧與替對方決定之間的界線",collaborator:"專業合作裡誰有最後決定權",rival:"競爭是否必須製造一個輸家",tense:"理念不合時是否還能完成同一件事",ally:"盟友在利益衝突時如何保持誠實"}[edge.type]||"合作如何容納不同底線";
+ return{title:`${names.join(" × ")}・${relation}`,text:`${edge.note} 這次${fields.join("、")}被放進同一個公開企劃，原本私下能保留的分歧，現在必須在玩家面前做成真正決定。`};
+}
+
 function referenceText(){
  const scandal=[...(state.scandals||[])].reverse().find(x=>x.status!=="resolved");
  if(scandal)return`你最近那場「${scandal.title||scandal.type||"輿論風波"}」仍有人議論，對方沒有假裝沒看見。`;
@@ -35,9 +51,9 @@ function referenceText(){
 
 export function tickNpcInvitation(){
  if(state.week<18||state.week%8!==2)return null;
- const known=(state.knownPeople||[]).filter(id=>INVITATIONS[id]);
+ const known=(state.knownPeople||[]).filter(id=>NPC_INVITATION_POOLS[id]);
  if(!known.length)return null;
- const npcId=known[Math.floor(state.week/8)%known.length],npc=NPCS[npcId],def=INVITATIONS[npcId];
+ const npcId=known[Math.floor(state.week/8)%known.length],npc=NPCS[npcId],type=invitationType(npcId),def=NPC_INVITATION_POOLS[npcId][type]||INVITATIONS[npcId];
  const id=`invitation:${npcId}:${state.week}`;
  if((state.npcInvitationHistory||[]).some(x=>x.id===id))return null;
  const romance=state.relationships?.[npcId]?.romance;
@@ -51,23 +67,21 @@ export function tickNpcInvitation(){
   {id:"reschedule",label:"坦白今天做不到，但親自約定另一個時間",note:"不會立刻加深關係；數週後會出現改期後續。",outcome:"你沒有用『再看看』敷衍。新的日期被確實寫進兩個人的行事曆。",effect:{npc:npcId,trust:2,invitation:{id,npcId,response:"reschedule",label:"主動改期"}},followUp:{delayWeeks:2,event:{id:`${id}:rescheduled`,kind:"人物後續",title:`${npc.name}・被履行的改期`,text:`兩週後，你真的出現在${def.place}。對方沒有說謝謝，只把原本替你留的位置往外拉了一點。`,beats:[{label:"不是客套的下次",text:"被改期的邀請沒有消失，因為你讓承諾成為一個能抵達的日期。"}],outcome:"準時出現本身，成為比補償更可靠的回答。",effect:{npc:npcId,relation:4,trust:7,affection:intimate?4:1}}}},
   {id:"decline",label:"直接說現在不想赴約",note:"誠實拒絕；不消耗時間，但對方會記得這次距離。",outcome:"你沒有編造藉口。對方收回邀請，也重新理解你們現在能靠近到哪裡。",effect:{npc:npcId,relation:-2,trust:1,affection:-2,invitation:{id,npcId,response:"decline",label:"坦白拒絕"}}},
  ]},"NPC 主動邀約");
- state.npcInvitationHistory.push({id,npcId,week:state.week,response:"pending",title:def.place});
+ state.npcInvitationHistory.push({id,npcId,week:state.week,response:"pending",title:def.place,type});
  return id;
 }
 
 export function tickEnsembleScene(){
  if(state.week<30||state.week%13!==0)return null;
- const available=PAIR_TOPICS.filter(([a,b])=>state.knownPeople.includes(a)&&state.knownPeople.includes(b));
- if(!available.length)return null;
- const [a,b,title,text]=available[Math.floor(state.week/13)%available.length],na=NPCS[a],nb=NPCS[b],id=`ensemble:${a}:${b}:${state.week}`;
- enqueueVisibleEvent({id,kind:"多人事件",priority:84,maxDelayWeeks:6,title:`${na.name} × ${nb.name}・${title}`,text,cast:[a,b],beats:[
-  {label:"兩條人生撞在同一份工作",text},
+ const selected=dynamicCast();if(!selected)return null;const{cast,edge}=selected,[a,b]=cast,na=NPCS[a],nb=NPCS[b],copy=ensembleCopy(selected),id=`ensemble:${cast.join(":")}:${state.week}`;
+ enqueueVisibleEvent({id,kind:cast.length>2?"三人事件":"多人事件",priority:84,maxDelayWeeks:6,title:copy.title,text:copy.text,cast,beats:[
+  {label:`${cast.length} 條人生撞在同一份工作`,text:copy.text},
   {label:`${na.name}的立場`,text:`${na.name}不是在爭輸贏，而是擔心退讓後，最重要的東西會被當成從未存在。`},
-  {label:`${nb.name}的立場`,text:`${nb.name}也沒有要你選邊；真正的問題是，這次合作能不能容納兩種都合理的堅持。`},
+  {label:`${cast.slice(1).map(id=>NPCS[id].name).join("與")}的立場`,text:`${nb.name}${cast.length>2?`與${NPCS[cast[2]].name}`:""}也沒有要你討好所有人；真正的問題是，合作能不能容納彼此都合理的堅持。`},
  ],choices:[
-  {id:"mediate",label:"把兩人的底線寫成同一份合作條件",note:"信任共同提高，但你必須承擔協調責任。",outcome:"你沒有叫任何一方顧全大局，而是讓所謂大局第一次包含每個人的底線。",effects:[{npc:a,trust:5,relation:2},{npc:b,trust:5,relation:2},{ensemble:{id,cast:[a,b],choice:"mediate",label:"共同條件"}}]},
-  {id:"side-a",label:`支持${na.name}，接受另一條路被關閉`,note:`${na.name}會記得你站過來；${nb.name}也會記得代價由誰承擔。`,outcome:"你做了清楚而不討好的選擇。合作得以繼續，但關係不會假裝毫髮無傷。",effects:[{npc:a,trust:7,relation:4},{npc:b,trust:-2,relation:-3},{ensemble:{id,cast:[a,b],choice:"side-a",label:`支持${na.name}`}}]},
-  {id:"side-b",label:`支持${nb.name}，接受另一條路被關閉`,note:`${nb.name}會記得你站過來；${na.name}不會把不同意見當成沒發生。`,outcome:"你選擇了承擔取捨，而不是用漂亮話把衝突拖到下一次爆炸。",effects:[{npc:a,trust:-2,relation:-3},{npc:b,trust:7,relation:4},{ensemble:{id,cast:[a,b],choice:"side-b",label:`支持${nb.name}`}}]},
+  {id:"mediate",label:`把${cast.length===3?"三人":"兩人"}的底線寫成同一份合作條件`,note:"信任共同提高，但你必須承擔協調責任。",outcome:"你沒有叫任何一方顧全大局，而是讓所謂大局第一次包含每個人的底線。",effects:[...cast.map(npc=>({npc,trust:5,relation:2})),{ensemble:{id,cast,choice:"mediate",label:"共同條件"}}]},
+  {id:"side-a",label:`支持${na.name}，接受其他路線被關閉`,note:`${na.name}會記得你站過來；其他人也會記得代價由誰承擔。`,outcome:"你做了清楚而不討好的選擇。合作得以繼續，但關係不會假裝毫髮無傷。",effects:[{npc:a,trust:7,relation:4},...cast.slice(1).map(npc=>({npc,trust:-2,relation:-3})),{ensemble:{id,cast,choice:"side-a",label:`支持${na.name}`}}]},
+  {id:"side-b",label:`支持${nb.name}${cast.length>2?"一方":""}，接受${na.name}的路被關閉`,note:`${nb.name}會記得你站過來；${na.name}不會把不同意見當成沒發生。`,outcome:"你選擇了承擔取捨，而不是用漂亮話把衝突拖到下一次爆炸。",effects:[{npc:a,trust:-2,relation:-3},{npc:b,trust:7,relation:4},...(cast[2]?[{npc:cast[2],trust:4,relation:2}]:[]),{ensemble:{id,cast,choice:"side-b",label:`支持${nb.name}`}}]},
  ]},"人物關係網");
  return id;
 }
