@@ -66,6 +66,7 @@ function syncGuide(guide){
 }
 
 export function render(){
+ const activeKey=document.activeElement?.dataset?Object.entries(document.activeElement.dataset)[0]:null;
  const previousWindow=app.querySelector(".app-window"),previousBody=previousWindow?.querySelector(".window-body"),previousApp=state.appOpen;
  if(previousBody&&previousApp)appScrollPositions[previousApp]=previousBody.scrollTop;
  syncVisitedLocations();
@@ -79,6 +80,7 @@ export function render(){
  if(nextBody&&state.appOpen===previousApp)nextBody.scrollTop=appScrollPositions[state.appOpen]||0;
  app.querySelectorAll(".mini-toast").forEach(node=>node.remove());
  bind();
+ if(activeKey){const [key,value]=activeKey,attribute=key.replace(/[A-Z]/g,m=>`-${m.toLowerCase()}`);app.querySelector(`[data-${attribute}="${CSS.escape(value)}"]`)?.focus({preventScroll:true})}
  document.querySelector("[data-dismiss-guide]")?.addEventListener("click",()=>{if(guideTimer)clearTimeout(guideTimer);guideTimer=null;if(guide)markTutorialSeen(state,guide.id);activeGuide="";render()});
  saveState(state);
  syncToast(message);
