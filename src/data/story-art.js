@@ -38,6 +38,21 @@ export function runnerSceneArt(actionId,locationId=null,result=null){
 }
 
 const EXACT_EVENT_ART=Object.freeze({
+ "network-offer":cg("chapter-jiqing-network-offer.webp","喬映澄在會議室拒絕把訪談變成衝突秀"),
+ "first-season":cg("chapter-jiqing-first-season.webp","喬映澄在第一季結束後讀完聽眾來信"),
+ "actor-break":cg("chapter-shenyao-actor-break.webp","裴硯之在高壓片場停下來聽演員說完"),
+ "festival-no":cg("chapter-shenyao-festival-no.webp","裴硯之在雨夜承認影展落選的失落"),
+ "public-screening":cg("chapter-shenyao-public-screening.webp","裴硯之在小型放映的最後一排聽觀眾說話"),
+ "solo-rumor":cg("chapter-tangtang-solo-rumor.webp","楚星梨先與團員說清楚單飛傳聞"),
+ "member-conflict":cg("chapter-tangtang-member-conflict.webp","楚星梨在舞蹈教室面對團體轉型歧見"),
+ "villain-cut":cg("chapter-guchengxi-villain-cut.webp","周予珩在化妝間拒絕為反派角色討好輿論"),
+ "old-contract":cg("chapter-guchengxi-old-contract.webp","周予珩只以可證明的事回應舊合約風波"),
+ "first-payroll":cg("chapter-linxiafan-first-payroll.webp","黎曼青在深夜核對工作室第一份薪資"),
+ "assistant-name":cg("chapter-linxiafan-assistant-name.webp","黎曼青退到一旁看著助理首次獨立署名"),
+ "chorus-order":cg("chapter-lujingran-chorus-order.webp","江敘白在錄音室尋找不犧牲歌曲呼吸的短版"),
+ "quiet-release":cg("chapter-lujingran-quiet-release.webp","江敘白關掉數字與玩家聽完沒有熱搜的新歌"),
+ "team-burnout":cg("chapter-chengyian-team-burnout.webp","溫時嶼在深夜辦公室看見漂亮提案背後的透支"),
+ "team-exit":cg("chapter-hanzhiyuan-team-exit.webp","秦紹謙放下挽留條件聽完核心製作人的離職理由"),
  "guest-boundary":cg("chapter-jiqing-guest-boundary.webp","喬映澄在錄音室守住來賓不願公開的界線"),
  "missing-shot":cg("chapter-shenyao-missing-shot.webp","裴硯之在剪輯室為被拿走的關鍵鏡頭據理力爭"),
  "fan-project":cg("chapter-tangtang-fan-project.webp","楚星梨讀著粉絲替她留下的創作時間線"),

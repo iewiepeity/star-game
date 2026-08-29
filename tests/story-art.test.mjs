@@ -5,7 +5,7 @@ import{eventStoryArt,runnerSceneArt,STORY_ART_ASSETS}from"../src/data/story-art.
 
 test("所有劇情與場景美術都已存在且沒有漏接",()=>{
  const unique=new Set(STORY_ART_ASSETS.map(art=>art.src));
- assert.equal(unique.size,55);
+ assert.equal(unique.size,70);
  for(const src of unique)assert.ok(existsSync(new URL(`../${src.replace(/^\.\//,"")}`,import.meta.url)),src);
 });
 
@@ -16,6 +16,21 @@ test("行程會依內容切換場景",()=>{
 });
 
 test("人物主線、戀愛與職涯里程碑會選到專屬 CG",()=>{
+ assert.match(eventStoryArt({id:"network-offer",kind:"人物事件"}).src,/chapter-jiqing-network-offer/);
+ assert.match(eventStoryArt({id:"first-season",kind:"人物事件"}).src,/chapter-jiqing-first-season/);
+ assert.match(eventStoryArt({id:"actor-break",kind:"人物事件"}).src,/chapter-shenyao-actor-break/);
+ assert.match(eventStoryArt({id:"festival-no",kind:"人物事件"}).src,/chapter-shenyao-festival-no/);
+ assert.match(eventStoryArt({id:"public-screening",kind:"人物事件"}).src,/chapter-shenyao-public-screening/);
+ assert.match(eventStoryArt({id:"solo-rumor",kind:"人物事件"}).src,/chapter-tangtang-solo-rumor/);
+ assert.match(eventStoryArt({id:"member-conflict",kind:"人物事件"}).src,/chapter-tangtang-member-conflict/);
+ assert.match(eventStoryArt({id:"villain-cut",kind:"人物事件"}).src,/chapter-guchengxi-villain-cut/);
+ assert.match(eventStoryArt({id:"old-contract",kind:"人物事件"}).src,/chapter-guchengxi-old-contract/);
+ assert.match(eventStoryArt({id:"first-payroll",kind:"人物事件"}).src,/chapter-linxiafan-first-payroll/);
+ assert.match(eventStoryArt({id:"assistant-name",kind:"人物事件"}).src,/chapter-linxiafan-assistant-name/);
+ assert.match(eventStoryArt({id:"chorus-order",kind:"人物事件"}).src,/chapter-lujingran-chorus-order/);
+ assert.match(eventStoryArt({id:"quiet-release",kind:"人物事件"}).src,/chapter-lujingran-quiet-release/);
+ assert.match(eventStoryArt({id:"team-burnout",kind:"人物事件"}).src,/chapter-chengyian-team-burnout/);
+ assert.match(eventStoryArt({id:"team-exit",kind:"人物事件"}).src,/chapter-hanzhiyuan-team-exit/);
  assert.match(eventStoryArt({id:"guest-boundary",kind:"人物事件"}).src,/chapter-jiqing-guest-boundary/);
  assert.match(eventStoryArt({id:"missing-shot",kind:"人物事件"}).src,/chapter-shenyao-missing-shot/);
  assert.match(eventStoryArt({id:"fan-project",kind:"人物事件"}).src,/chapter-tangtang-fan-project/);
