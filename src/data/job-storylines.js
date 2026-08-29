@@ -1,5 +1,6 @@
 import{JOB_CATALOG}from"./jobs.js";
 import{FLAGSHIP_JOB_BEATS,jobDepthTier}from"./deepening-content.js";
+import{FEATURE_JOB_BEATS,isFeatureJob}from"./job-feature-beats.js";
 
 const CATEGORY_BEATS={
  歌曲:{arrival:"錄音室先關掉所有效果器，只留下最赤裸的聲音",friction:"製作團隊對情緒、技巧與市場方向出現不同意見",turn:"最後一次播放時，大家都在等那個只有這首作品才有的瞬間",breach:"錄音與宣傳檔期被迫拆散，原本預留的合作人員也轉往其他企劃"},
@@ -11,10 +12,7 @@ const CATEGORY_BEATS={
 const PRESSURES=["預算沒有多到能無限重來","宣傳日期已經寫死","合作陣容的共同檔期只有這一次","現場臨時收到市場端的新要求","主創決定把原本安全的版本全部推翻","一位核心工作人員突然無法到場","第一版成品測試反應兩極","媒體已經開始追問尚未公開的內容"];
 const DETAILS=["一個沒有寫進企劃書的小動作","試鏡時留下的那個選擇","主創反覆圈起來的一句話","合作對象臨場改變的節奏","觀眾測試裡最安靜的三秒","工作人員私下提出的提醒","第一次排練時意外留下的版本","只有現場人才知道的失誤"];
 
-function common(job,index){
- const beat=CATEGORY_BEATS[job.category]||CATEGORY_BEATS.電影,pressure=PRESSURES[index%PRESSURES.length],detail=DETAILS[(index*3)%DETAILS.length],steady=job.audition.choices[0],bold=job.audition.choices[1];
- return{beat,pressure,detail,steady,bold};
-}
+function common(job,index){const beat=CATEGORY_BEATS[job.category]||CATEGORY_BEATS.電影,pressure=PRESSURES[index%PRESSURES.length],detail=DETAILS[(index*3)%DETAILS.length],steady=job.audition.choices[0],bold=job.audition.choices[1];return{beat,pressure,detail,steady,bold}}
 function genericStory(job,index){
  const{beat,pressure,detail,steady,bold}=common(job,index);
  return Object.freeze({id:job.id,depth:"C",
@@ -30,6 +28,16 @@ function genericStory(job,index){
   breach:{title:`《${job.title}》停在未完成的位置`,text:`${beat.breach}。${job.client}記住的不是單純少了 ${job.sessions} 次工作，而是這次缺口如何影響了整個團隊。`},
   legacy:{title:`《${job.title}》後來仍被提起`,text:`作品公開後，${detail}成為觀眾與業界最常提到的部分。這份回聲會影響${job.client}是否再次把機會交到你手上。`}
  });
+}
+function featureStory(job,index){
+ const base=genericStory(job,index),feature=FEATURE_JOB_BEATS[job.id];
+ if(!feature)return base;
+ return Object.freeze({...base,depth:"B",production:Object.freeze([
+  base.production[0],
+  {label:"專屬磨合",title:`《${job.title}》出現只有這份企劃才會遇到的問題`,text:feature.friction},
+  {label:"專屬關鍵場次",title:`《${job.title}》真正留下辨識度的那一段`,text:feature.pivot},
+  base.production[3]
+ ]),legacy:{title:`《${job.title}》公開後的回聲`,text:feature.echo}});
 }
 function flagshipStory(job,index){
  const base=genericStory(job,index),flag=FLAGSHIP_JOB_BEATS[job.id];
@@ -47,6 +55,6 @@ function flagshipStory(job,index){
   legacy:{title:`《${job.title}》離開片場／錄音室之後`,text:flag.publicEcho}
  });
 }
-function build(job,index){return jobDepthTier(job.id)==="A"?flagshipStory(job,index):genericStory(job,index)}
+function build(job,index){if(jobDepthTier(job.id)==="A")return flagshipStory(job,index);if(isFeatureJob(job.id))return featureStory(job,index);return genericStory(job,index)}
 export const JOB_STORYLINES=Object.freeze(Object.fromEntries(JOB_CATALOG.map((job,index)=>[job.id,build(job,index)])));
 export const jobStoryline=id=>JOB_STORYLINES[id]||null;
