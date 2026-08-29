@@ -13,6 +13,7 @@ import { completeSequelSession } from "./sequel-engine.js";
 import { resolveNpcInteraction } from "./npc-interaction-engine.js";
 import { managerInteract } from "./manager.js";
 import { resolveScheduledJobAudition } from "./job-engine.js";
+import { auditionIntelFor, recordAuditionFailure } from "./playable-depth-engine.js";
 const COMMENTS = [
   "第一天追蹤！",
   "慢慢來，我們會看著你成長。",
@@ -48,8 +49,15 @@ function doSocial(type,payload={}) {
 }
 export function resolvePersonalTask(task, choice = null) {
   if (!task) return { ok: false, text: "這項個人安排已失效。" };
-  if (task.kind === "job_audition")
-    return resolveScheduledJobAudition(task, choice);
+  if (task.kind === "job_audition") {
+    const intel = auditionIntelFor(task.payload?.jobId);
+    const r = resolveScheduledJobAudition(task, choice);
+    const record = state.activeJobs?.[task.payload?.jobId];
+    if (record?.stage === "failed") recordAuditionFailure(task.payload.jobId);
+    if (!r) return { ok: false, text: "這場試鏡已失效。" };
+    r.text = `<section class="audition-live-note"><span>試鏡前情報</span><p>${intel.tip}</p><strong>現場追加要求：${intel.prompt}</strong></section>${r.text}${record?.stage === "failed" ? `<aside class="audition-callback-note">這次落選不代表資料被刪掉；試鏡組可能在之後的案子重新想起你。</aside>` : ""}`;
+    return r;
+  }
   if (task.kind === "creative_work") {
     const p = state.creativeProjects?.find(
         (x) => x.id === task.payload.projectId,
