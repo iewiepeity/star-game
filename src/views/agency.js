@@ -120,5 +120,5 @@ export function agencyDetailView(agency) {
 export function agencyApp() {
   const selectedId = state.selectedAgencyId || AGENCY_LIST[0].id,
     agency = AGENCIES[selectedId] || AGENCY_LIST[0];
-  return `<div class="agency-page"><div class="agency-status-bar"><span>目前狀態</span><b>${agencyOverallStatusText()}</b></div><div class="agency-layout"><nav class="agency-list">${AGENCY_LIST.map((a) => `<button class="${a.id === agency.id ? "active" : ""}" data-select-agency="${a.id}"><b>${esc(a.name)}</b><small>${esc(a.type)}</small><em>${agencyStatusLabel(a)}</em></button>`).join("")}</nav><section class="agency-detail">${agencyDetailView(agency)}</section></div></div>`;
+  return `<div class="agency-page"><div class="agency-status-bar"><span>目前狀態</span><b>${agencyOverallStatusText()}</b></div><p class="agency-picker-hint"><b>先選一間公司</b><span>點選公司卡片查看投遞資格、合約條件與面談進度；四間公司都列在下方，不需要左右滑動。</span></p><div class="agency-layout"><nav class="agency-list" aria-label="選擇經紀公司">${AGENCY_LIST.map((a) => `<button class="${a.id === agency.id ? "active" : ""}" data-select-agency="${a.id}"><b>${esc(a.name)}</b><small>${esc(a.type)}</small><em>${agencyStatusLabel(a)}</em></button>`).join("")}</nav><section class="agency-detail">${agencyDetailView(agency)}</section></div></div>`;
 }

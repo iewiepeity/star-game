@@ -422,3 +422,22 @@ html[data-theme="night"] .app-icon,html[data-theme="night"] .mini-app-icon,html[
 html[data-theme="night"] .people-hub-tabs{background:rgba(41,44,53,.96);border-color:#4a4d58}html[data-theme="night"] .people-hub-tabs button,html[data-theme="night"] .map-context{background:#343741;color:#eee;border-color:#555862}
 @media(max-width:1200px){.app-window.save .save-cards.multi-slot{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.people-hub-tabs{padding:9px 12px}.people-hub-tabs button{min-width:0;flex:1}.npc-profile{overflow:hidden}.home-priority-grid{grid-template-columns:1fr!important}.app-window.save .save-cards.multi-slot{grid-template-columns:1fr}.map-context{font-size:11px}}
+
+/* v22：手機操作回歸、公司選擇與行程／合約整合。 */
+.agency-picker-hint{display:flex;gap:12px;align-items:baseline;margin:-6px 0 14px;padding:10px 13px;border-left:3px solid #a57b73;border-radius:4px 11px 11px 4px;background:#f2ebe2;color:#756760}.agency-picker-hint b{flex:0 0 auto;color:#9d626a}.agency-picker-hint span{font-size:13px;line-height:1.55}
+.contract-alert{position:relative}.contract-alert>button{align-self:center;padding:8px 12px;border:1px solid #c9868e;border-radius:10px;background:#fff8f4;color:#a75c66;font-weight:900}.contract-awaiting{border-color:#d3aa71;background:#fff8ea}.planner-job-entry.contract-ready{border-color:#d3aa71;background:#fffaf0}.audition-contract-offer{margin-top:14px;padding:15px;border:1px solid #d9ad79;border-radius:15px;background:#fff8e9}.audition-contract-offer span,.audition-contract-offer b{display:block}.audition-contract-offer span{color:#a56d32;font-size:11px;font-weight:900;letter-spacing:.12em}.audition-contract-offer b{margin:4px 0;font-size:17px}.audition-contract-offer p{margin:0 0 11px;color:#76675e}.audition-contract-offer.signed{border-color:#94b394;background:#eef6eb}.audition-contract-offer.signed span{color:#55765b}
+@media(max-width:760px){
+ .tablet-dock{width:100%;grid-template-columns:repeat(6,minmax(0,1fr));overflow:hidden;padding:4px 3px;gap:0}
+ .tablet-dock button,.tablet-dock .dock-empty{width:auto;min-width:0;max-width:none;padding-inline:0}
+ .tablet-dock button span{max-width:100%;overflow:hidden;font-size:10px!important;line-height:1.2;text-overflow:ellipsis;white-space:nowrap}
+ .mini-app-icon{width:28px;height:28px}.mini-app-icon .app-icon-svg{width:16px;height:16px}
+ .agency-picker-hint{display:block}.agency-picker-hint span{display:block;margin-top:3px}
+ .agency-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;gap:8px}
+ .agency-list button{min-width:0;min-height:112px;flex:auto;padding:11px}
+ .event-choice-list button{width:100%;grid-template-columns:30px minmax(0,1fr) 22px;gap:9px;padding:12px!important}
+ .event-choice-list button>span{display:block;min-width:0;width:auto!important;writing-mode:horizontal-tb!important}
+ .event-choice-list button>span>b{display:block;max-width:none;white-space:normal;word-break:keep-all;overflow-wrap:break-word;writing-mode:horizontal-tb!important;font-size:16px!important;line-height:1.45!important}
+ .event-choice-list button>span>small{word-break:keep-all;overflow-wrap:break-word;writing-mode:horizontal-tb!important}
+ .contract-alert{grid-template-columns:1fr}.contract-alert>button{width:100%}
+}
+@media(max-width:390px){.agency-list{grid-template-columns:1fr}.agency-list button{min-height:0}}

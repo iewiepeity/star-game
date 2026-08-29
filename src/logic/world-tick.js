@@ -1,4 +1,5 @@
 import { state } from "../core/state.js";
+import { NPCS } from "../data/npcs.js";
 import { checkAgencyContractExpiry } from "./agency.js";
 import { refreshAgencyJobOffers } from "./agency-offers.js";
 import { checkJobDeadlines } from "./job-engine.js";
@@ -32,6 +33,13 @@ import { tickCrossEventChains } from "./cross-event-engine.js";
 import { queueCareerPhaseEvent } from "./career-phases.js";
 import { tickDeepeningSystems } from "./deepening-engine.js";
 import { tickPlayableDepth } from "./playable-depth-engine.js";
+
+export function playerFacingNpcUpdates(updates, game = state) {
+  return updates.filter((text) => {
+    const match = Object.entries(NPCS).find(([, person]) => text.includes(person.name));
+    return !match || (game.knownPeople || []).includes(match[0]);
+  });
+}
 
 function queueAwardCeremony(awards) {
   if (!awards.length) return null;
@@ -78,6 +86,7 @@ export function advanceWorldWeek() {
   const romanceUpdates = tickRomanceRelationships();
   const rumorUpdates = tickRumors();
   const npcUpdates = [...npcWork, ...npcGrowth, ...npcRelationUpdates, ...romanceUpdates, ...rumorUpdates, ...rivalUpdates, ...workUpdates];
+  const visibleNpcUpdates = playerFacingNpcUpdates(npcUpdates);
   const news = generateIndustryNews({ awards, npcUpdates });
   const opinion = tickPublicOpinion(news);
   tickBrandRelations();
@@ -101,5 +110,5 @@ export function advanceWorldWeek() {
   const playableDepth = tickPlayableDepth();
   // 新產生的跨週回聲／章節事件同一週就能進入可見佇列，而不是再多等一週。
   const due = processQueuedEvents();
-  return { breached, awards, market, npcUpdates, rumorUpdates, news, opinion, scandal, persona, fandom, due, calendar, npcStories, proactive, media, sequel, worldEvent, hiddenRoute, careerPhase, crossEvent, deepening, playableDepth };
+  return { breached, awards, market, npcUpdates: visibleNpcUpdates, worldNpcUpdates: npcUpdates, rumorUpdates, news, opinion, scandal, persona, fandom, due, calendar, npcStories, proactive, media, sequel, worldEvent, hiddenRoute, careerPhase, crossEvent, deepening, playableDepth };
 }

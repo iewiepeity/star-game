@@ -9,15 +9,17 @@ import { JOB_BY_ID } from "../data/jobs.js";
 import { activityForDay } from "../logic/scheduled-activities.js";
 import { weeklyTaskInfo } from "../logic/weekly-task.js";
 import { SCHEDULE_PRESETS } from "../logic/schedule-assistant.js";
+import { jobScheduleOptions } from "../logic/job-engine.js";
 
 function activeJobAlerts() {
-  return Object.values(state.activeJobs || {}).filter((record) => record.stage === "active").map((record) => {
+  return Object.values(state.activeJobs || {}).filter((record) => ["passed", "active"].includes(record.stage)).map((record) => {
     const job = JOB_BY_ID[record.jobId];
     if (!job) return "";
+    if (record.stage === "passed") return `<article class="contract-alert contract-awaiting"><span>試鏡通過・等待簽約</span><b>${esc(job.title)}</b><strong>${esc(job.client)}已送出正式合約</strong><small>可直接在行程 App 簽署，不必回工作信箱。</small><button data-planner-sign-job="${job.id}">立即簽約 →</button></article>`;
     const scheduled = state.scheduledJobIds.filter((id) => id === job.id).length;
     const viable = job.workDays.filter((day) => state.schedule[day] === "rest" || state.scheduledJobIds[day] === job.id || state.schedule[day] === "job_session").length;
     const pressure = record.deadlineWeek <= state.week + 1 && scheduled < Math.min(record.remainingSessions, viable) ? "・本週可用工作日偏少" : "";
-    return `<button class="contract-alert" data-open-app="jobs"><span>進行中通告</span><b>${esc(job.title)}</b><strong>剩餘 ${record.remainingSessions} 次・第 ${record.deadlineWeek} 週截止${pressure}</strong><small>指定工作日：${job.workDays.map((index) => DAYS[index]).join("、")}・本週已排 ${scheduled} 次</small><em>查看合約 →</em></button>`;
+    return `<article class="contract-alert"><span>進行中通告</span><b>${esc(job.title)}</b><strong>剩餘 ${record.remainingSessions} 次・第 ${record.deadlineWeek} 週截止${pressure}</strong><small>指定工作日：${job.workDays.map((index) => DAYS[index]).join("、")}・本週已排 ${scheduled} 次</small><button data-planner-focus-job="${job.id}">在下方排入工作 →</button></article>`;
   }).join("");
 }
 export function budget() { return state.schedule.reduce((s, id, i) => s + (ACTIONS[id]?.cost || 0) + (id === "personal_task" ? activityForDay(i)?.cost || 0 : 0), 0); }
@@ -50,6 +52,15 @@ export function calendarDay(id, i, forced = false) {
 }
 export function activityPicker() {
   const entries = Object.entries(ACTIONS).filter(([id, a]) => !a.hidden && id !== "agency_interview" && (state.filter === "全部" || a.group === state.filter));
+  const showJobs = ["全部", "工作"].includes(state.filter), selectedDay = state.selectedDay;
+  const jobEntries = showJobs ? Object.values(state.activeJobs || {}).filter((record) => ["passed", "active"].includes(record.stage)).map((record) => {
+    const job = JOB_BY_ID[record.jobId];
+    if (!job) return "";
+    if (record.stage === "passed") return `<button class="planner-job-entry contract-ready" data-planner-sign-job="${job.id}"><i class="job">✎</i><span><b>簽署《${esc(job.title)}》</b><small>${esc(job.client)}・試鏡已通過，簽約後即可排工作</small></span><em>簽約<small>不占一天</small></em></button>`;
+    const allowed = jobScheduleOptions(job.id).some((option) => option.day === selectedDay), alreadyHere = state.schedule[selectedDay] === "job_session" && state.scheduledJobIds[selectedDay] === job.id;
+    const reason = alreadyHere ? "已排在這一天" : allowed ? `排入${DAYS[selectedDay]}` : job.workDays.includes(selectedDay) ? "這天已有行程或共演檔期衝突" : `指定${job.workDays.map((day) => `週${SHORT[day]}`).join("、")}`;
+    return `<button class="planner-job-entry ${alreadyHere ? "active" : ""}" data-planner-job="${job.id}" data-job-day="${selectedDay}" ${allowed ? "" : "disabled"}><i class="job">🎥</i><span><b>《${esc(job.title)}》正式通告</b><small>剩餘 ${record.remainingSessions} 次・第 ${record.deadlineWeek} 週截止</small></span><em>${reason}</em></button>`;
+  }).join("") : "";
   const assistant = `<details class="schedule-assistant"><summary><span>✦ 排程小幫手</span><b>少排一點行政，多活一點人生</b><em>展開</em></summary><div class="preset-list">${Object.entries(SCHEDULE_PRESETS).map(([id, preset]) => `<button data-schedule-preset="${id}"><b>${preset.label}</b><small>${preset.note}</small></button>`).join("")}</div><button class="schedule-work-all" data-schedule-work>依截止日排入本週正式通告</button><p>範本不會覆蓋已排定的通告、試鏡、創作或人物約會。</p></details>`;
-  return `${assistant}<section class="activity-picker"><header><div><span>接下來排入</span><b>${DAYS[state.selectedDay]}</b></div><nav>${["全部", "訓練", "工作", "生活", "休息"].map((f) => `<button class="${state.filter === f ? "active" : ""}" data-filter="${f}">${f}</button>`).join("")}</nav></header><div class="picker-list">${entries.map(([id, a]) => `<button class="${state.schedule[state.selectedDay] === id ? "active" : ""}" data-pick="${id}"><i class="${a.type}">${a.icon}</i><span><b>${a.label}</b><small>${a.note}</small></span><em>${a.cost ? money(a.cost) : "免費"}<small>疲勞 ${a.fatigue > 0 ? "+" : ""}${a.fatigue}</small></em></button>`).join("")}</div></section>`;
+  return `${assistant}<section class="activity-picker"><header><div><span>接下來排入</span><b>${DAYS[state.selectedDay]}</b></div><nav>${["全部", "訓練", "工作", "生活", "休息"].map((f) => `<button class="${state.filter === f ? "active" : ""}" data-filter="${f}">${f}</button>`).join("")}</nav></header><div class="picker-list">${jobEntries}${entries.map(([id, a]) => `<button class="${state.schedule[state.selectedDay] === id ? "active" : ""}" data-pick="${id}"><i class="${a.type}">${a.icon}</i><span><b>${a.label}</b><small>${a.note}</small></span><em>${a.cost ? money(a.cost) : "免費"}<small>疲勞 ${a.fatigue > 0 ? "+" : ""}${a.fatigue}</small></em></button>`).join("")}</div></section>`;
 }
