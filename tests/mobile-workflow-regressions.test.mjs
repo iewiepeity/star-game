@@ -7,6 +7,9 @@ import { activityPicker, plannerApp } from "../src/views/planner.js";
 import { eventRecapText } from "../src/views/summary.js";
 import { playerFacingNpcUpdates } from "../src/logic/world-tick.js";
 import { JOB_CATALOG } from "../src/data/jobs.js";
+import { castNpcsForJob, isNpcCastEligible } from "../src/logic/npc-ecosystem.js";
+import { ensureJobState } from "../src/logic/job-engine.js";
+import { meetNpc } from "../src/logic/npc-engine.js";
 
 const root = new URL("../", import.meta.url);
 
@@ -43,7 +46,26 @@ test("試鏡通過與進行中通告都直接出現在行程工作區", () => {
 test("手機快捷列與事件選項有防溢位版面規則", async () => {
   const css = await readFile(new URL("style.css", root), "utf8");
   assert.match(css, /grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
-  assert.match(css, /\.event-choice-list button>span>b[^{]*\{[^}]*word-break:keep-all/);
+  assert.match(css, /\.event-choice-list button\{display:flex!important/);
+  assert.match(css, /\.event-choice-list button>span\{flex:1 1 auto!important/);
+  assert.match(css, /\.runner-npc-art img\{object-fit:contain;object-position:center top;transform:none\}/);
+});
+
+test("手機人物場景使用完整清晰立繪而不是半身縮圖", () => {
+  resetState();
+  const result = meetNpc("hanzhiyuan");
+  assert.equal(result.portrait, "./assets/portraits/hanzhiyuan.webp");
+  assert.doesNotMatch(result.portrait, /\/busts\//);
+});
+
+test("幕後職務不會再被抽成歌曲或影視共演者，舊存檔也會清理", () => {
+  resetState();
+  const song = JOB_CATALOG.find(job => job.category === "歌曲");
+  assert.ok(song);
+  assert.equal(isNpcCastEligible("hanzhiyuan", song), false);
+  assert.ok(castNpcsForJob(song).every(id => ["tangtang", "lujingran"].includes(id)));
+  state.activeJobs[song.id] = { jobId: song.id, stage: "active", remainingSessions: 1, npcCast: ["hanzhiyuan"], npcScheduleSlots: [] };
+  assert.deepEqual(ensureJobState(song.id).npcCast, []);
 });
 
 test("人物來源跳轉會明確開啟整合後的人物檔案分頁", async () => {

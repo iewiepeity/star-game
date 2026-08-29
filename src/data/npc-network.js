@@ -12,16 +12,16 @@ export const NPC_RELATION_EDGES=[
 ];
 
 export const NPC_CAREER_PROFILES={
- jiqing:{field:"主持",specialties:["綜藝","廣告"],level:3,momentum:62},
- shenyao:{field:"導演",specialties:["電影","電視劇"],level:4,momentum:70},
- tangtang:{field:"歌手",specialties:["歌曲","綜藝","廣告"],level:3,momentum:76},
- guchengxi:{field:"演員",specialties:["電影","電視劇","廣告"],level:4,momentum:74},
- linxiafan:{field:"時尚",specialties:["廣告","綜藝"],level:4,momentum:66},
- lujingran:{field:"歌手",specialties:["歌曲","綜藝"],level:3,momentum:61},
- xiayutong:{field:"導演",specialties:["電影","電視劇","廣告"],level:3,momentum:64},
- sufei:{field:"演員",specialties:["電視劇","電影","綜藝"],level:3,momentum:59},
- chengyian:{field:"企劃",specialties:["廣告","綜藝"],level:4,momentum:72},
- hanzhiyuan:{field:"製作",specialties:["廣告","綜藝","歌曲"],level:4,momentum:69}
+ jiqing:{field:"主持",specialties:["綜藝","廣告"],castSpecialties:["綜藝","廣告"],level:3,momentum:62},
+ shenyao:{field:"導演",specialties:["電影","電視劇"],castSpecialties:[],level:4,momentum:70},
+ tangtang:{field:"歌手",specialties:["歌曲","綜藝","廣告"],castSpecialties:["歌曲","綜藝","廣告"],level:3,momentum:76},
+ guchengxi:{field:"演員",specialties:["電影","電視劇","廣告"],castSpecialties:["電影","電視劇","廣告"],level:4,momentum:74},
+ linxiafan:{field:"時尚",specialties:["廣告","綜藝"],castSpecialties:[],level:4,momentum:66},
+ lujingran:{field:"歌手",specialties:["歌曲","綜藝"],castSpecialties:["歌曲","綜藝"],level:3,momentum:61},
+ xiayutong:{field:"導演",specialties:["電影","電視劇","廣告"],castSpecialties:[],level:3,momentum:64},
+ sufei:{field:"演員",specialties:["電視劇","電影","綜藝"],castSpecialties:["電視劇","電影","綜藝"],level:3,momentum:59},
+ chengyian:{field:"企劃",specialties:["廣告","綜藝"],castSpecialties:[],level:4,momentum:72},
+ hanzhiyuan:{field:"製作",specialties:["廣告","綜藝","歌曲"],castSpecialties:[],level:4,momentum:69}
 };
 
 export const NPC_INTERACTIONS={

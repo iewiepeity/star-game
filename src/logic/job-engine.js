@@ -5,7 +5,7 @@ import{effectiveStat,successRateLabel}from"../core/utils.js";
 import{chance}from"../core/rng.js";
 import{calculateJobIncome}from"./agency.js";
 import{addCompletedWork,workQuality}from"./portfolio.js";
-import{assignJobCast,applyJobNpcRelations,confirmJobCastAndSchedule,refreshNpcJobSchedule,jobNpcSlotsForWeek,completeNpcJobSlot,releaseNpcJobSchedule}from"./npc-ecosystem.js";
+import{assignJobCast,applyJobNpcRelations,confirmJobCastAndSchedule,refreshNpcJobSchedule,jobNpcSlotsForWeek,completeNpcJobSlot,releaseNpcJobSchedule,sanitizeJobCast}from"./npc-ecosystem.js";
 import{brandEligible,jobMarketModifier}from"./reputation-engine.js";
 import{brandAuditionModifier,brandCanWork,recordBrandOutcome}from"./brand-relations.js";
 import{recordScandal,scandalMarketPenalty}from"./scandal-engine.js";
@@ -31,8 +31,8 @@ function queueFlagshipDecision(job,record,story){
  ]},"旗艦作品");
  return true
 }
-export function ensureJobState(id){const job=JOB_BY_ID[id];if(!job)return null;const record=state.activeJobs[id]||(state.activeJobs[id]={jobId:id,stage:"available",appliedWeek:null,deadlineWeek:null,remainingSessions:job.sessions,completedSessions:0,notice:"",lastAuditionWeek:null,npcCast:[],npcScheduleSlots:[],storyHistory:[],auditionChoice:null});record.storyHistory??=[];record.auditionChoice??=null;return record}
-export function jobState(id){return state.activeJobs[id]||{jobId:id,stage:"available",remainingSessions:JOB_BY_ID[id]?.sessions||0,completedSessions:0,notice:"",npcCast:[],npcScheduleSlots:[]}}
+export function ensureJobState(id){const job=JOB_BY_ID[id];if(!job)return null;const record=state.activeJobs[id]||(state.activeJobs[id]={jobId:id,stage:"available",appliedWeek:null,deadlineWeek:null,remainingSessions:job.sessions,completedSessions:0,notice:"",lastAuditionWeek:null,npcCast:[],npcScheduleSlots:[],storyHistory:[],auditionChoice:null});record.storyHistory??=[];record.auditionChoice??=null;sanitizeJobCast(job,record);return record}
+export function jobState(id){return state.activeJobs[id]?ensureJobState(id):{jobId:id,stage:"available",remainingSessions:JOB_BY_ID[id]?.sessions||0,completedSessions:0,notice:"",npcCast:[],npcScheduleSlots:[]}}
 export function availableJobs(){return JOB_CATALOG.filter(job=>job.stars<=Math.min(5,1+Math.floor((state.completedWorks?.length||0)/4))&&(job.category!=="廣告"||brandEligible(job.stars))&&brandCanWork(job.client,job.stars))}
 export function marketAdjustedPay(job){return Math.max(0,Math.round((job?.pay||0)*marketRewardMultiplier(job?.category)))}
 function reputationScore(job){if(!job.reputationSignals?.length)return 0;return job.reputationSignals.reduce((sum,name)=>sum+((state.rep[name]||0)-500)/45,0)}

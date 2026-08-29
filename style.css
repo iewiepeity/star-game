@@ -441,3 +441,21 @@ html[data-theme="night"] .people-hub-tabs{background:rgba(41,44,53,.96);border-c
  .contract-alert{grid-template-columns:1fr}.contract-alert>button{width:100%}
 }
 @media(max-width:390px){.agency-list{grid-template-columns:1fr}.agency-list button{min-height:0}}
+
+/* v23：手機人物清晰度、完整構圖與共演名單修正。 */
+.job-cast{margin:18px 0;padding:16px;border:1px solid #dfd2c8;border-radius:17px;background:#fffaf5}.job-cast>h3{margin:0 0 11px;font-size:17px}.job-cast>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.job-cast>div>button{min-width:0;display:flex;align-items:center;gap:11px;padding:9px;border:1px solid #e4d7cd;border-radius:14px;background:#fff;color:#564a46;text-align:left}.job-cast>div>button img{flex:0 0 64px;width:64px;height:64px;display:block;object-fit:cover;object-position:center top;border-radius:12px;background:#eee4dc}.job-cast>div>button span,.job-cast>div>button b,.job-cast>div>button small{display:block;min-width:0}.job-cast>div>button b{font-size:15px}.job-cast>div>button small,.job-cast>small{color:#8a7a73;font-size:12px;line-height:1.45}.job-cast>small{display:block;margin-top:10px}
+@media(max-width:760px){
+ .event-choice-list button{display:flex!important;align-items:center!important;gap:10px!important;width:100%!important;min-width:0!important}
+ .event-choice-list button>em{flex:0 0 30px}
+ .event-choice-list button>span{flex:1 1 auto!important;display:block!important;min-width:0!important;width:100%!important;writing-mode:horizontal-tb!important}
+ .event-choice-list button>span>b,.event-choice-list button>span>small{display:block!important;width:100%!important;max-width:none!important;white-space:normal!important;word-break:normal!important;overflow-wrap:anywhere!important;writing-mode:horizontal-tb!important;text-orientation:mixed!important}
+ .event-choice-list button>i{flex:0 0 22px;margin-left:auto}
+ .runner-npc-art{min-height:260px;max-height:none;background:linear-gradient(150deg,color-mix(in srgb,var(--npc-accent) 16%,#fff),#f8eee5)}
+ .runner-npc-art img{object-fit:contain;object-position:center top;transform:none}
+ .job-cast>div{grid-template-columns:1fr}.job-cast>div>button img{flex-basis:58px;width:58px;height:58px}
+}
+@media(max-width:480px){
+ .runner-npc-art{min-height:240px;max-height:none}
+ .runner-npc-art img{object-fit:contain;object-position:center top;transform:none}
+}
+@media(max-width:420px){.event-choice-list button>em{display:block}}
