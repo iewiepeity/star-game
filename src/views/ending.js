@@ -4,8 +4,9 @@ export function endingView(){const result=state.endingResult||evaluateEnding(sta
 export function startNewRun(){
  const priorKnown=[...state.knownPeople],inherit=state.inheritChoice,nextRun=(state.runCount||1)+1;
  const achievements=structuredClone(state.unlockedAchievements||[]),notifications=[...(state.achievementNotifications||[])];
+ const dockAppIds=[...(state.dockAppIds||[])];
  const endingHistory=structuredClone(state.endingHistory||[]),result=state.endingResult||evaluateEnding(state.endingType);
  if(result&&!endingHistory.some(x=>x.run===(state.runCount||1)))endingHistory.push({run:state.runCount||1,week:state.week,endingId:result.endingId,title:result.title,rank:result.rank,score:result.score,route:result.route});
- resetState();state.runCount=nextRun;state.unlockedAchievements=achievements;state.achievementNotifications=notifications;state.endingHistory=endingHistory;
+ resetState();state.runCount=nextRun;state.unlockedAchievements=achievements;state.achievementNotifications=notifications;state.endingHistory=endingHistory;state.dockAppIds=dockAppIds;
  if(inherit)state.familiarNpcs=priorKnown;rollStats()
 }

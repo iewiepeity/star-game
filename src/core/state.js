@@ -14,6 +14,10 @@ export function initialState() {
     appOpen: null,
     gallerySelection: null,
     galleryFilter: "all",
+    dockAppIds: ["planner", "timeline", "gallery", "stats", "people", "log"],
+    dockEditing: false,
+    dockDraftIds: null,
+    dockNotice: "",
     name: "",
     gender: "女性",
     customGender: "",
@@ -294,6 +298,7 @@ export function hydrateState(saved) {
     "achievementNotifications",
     "endingHistory",
     "managerAdviceHistory",
+    "dockAppIds",
   ])
     next[key] = Array.isArray(next[key]) ? next[key] : [];
   for (const key of [
@@ -402,6 +407,9 @@ export function hydrateState(saved) {
     ? next.overworkStrikes
     : 0;
   next.rngCursor = Number.isInteger(next.rngCursor) ? next.rngCursor : 0;
+  next.dockEditing = false;
+  next.dockDraftIds = null;
+  next.dockNotice = "";
   migrateLegacyRuntime(saved, next);
   migrateLegacySchedules(next);
   delete next.mapLocation;

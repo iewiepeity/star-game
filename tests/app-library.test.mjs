@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { APP_META, APP_LIBRARY_IDS, APP_DOCK_IDS, appIcon } from "../src/views/app-icons.js";
+import { APP_META, APP_LIBRARY_IDS, APP_DOCK_IDS, DEFAULT_DOCK_IDS, normalizeDockIds, appIcon } from "../src/views/app-icons.js";
 import { resetState, state } from "../src/core/state.js";
 import { tabletHome, tabletDock, appWindow } from "../src/views/room.js";
 
@@ -23,6 +23,26 @@ test("dock uses a unique subset of app library icons", () => {
   assert.equal(APP_DOCK_IDS.length, 6);
   assert.equal(new Set(APP_DOCK_IDS).size, APP_DOCK_IDS.length);
   assert.ok(APP_DOCK_IDS.every(id => APP_LIBRARY_IDS.includes(id)));
+});
+
+test("dock accepts six player-selected apps and sanitizes invalid saved values",()=>{
+ resetState();
+ state.dockAppIds=["jobs","creative","npc","social","agency","settings"];
+ const dock=tabletDock();
+ for(const id of state.dockAppIds)assert.match(dock,new RegExp(`data-open-app="${id}"`));
+ assert.doesNotMatch(dock,/data-open-app="planner"/);
+ assert.deepEqual(normalizeDockIds(["jobs","jobs","unknown","map"]),["jobs","map"]);
+ assert.deepEqual(normalizeDockIds([]),[...DEFAULT_DOCK_IDS]);
+});
+
+test("dock editor shows selections, empty slots and blocks incomplete save",()=>{
+ resetState();state.dockEditing=true;state.dockDraftIds=["planner","gallery","jobs","creative","settings"];
+ const home=tabletHome(),dock=tabletDock();
+ assert.match(home,/CUSTOMIZE DOCK/);
+ assert.match(home,/data-dock-toggle="jobs"/);
+ assert.match(home,/data-dock-save disabled/);
+ assert.equal((dock.match(/class="dock-empty"/g)||[]).length,1);
+ assert.equal((dock.match(/data-dock-remove=/g)||[]).length,5);
 });
 
 test("home, dock and every app window render the shared icon system", () => {

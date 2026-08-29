@@ -23,7 +23,7 @@ import { worldApp } from "./world.js";
 import { timelineApp } from "./timeline.js";
 import { galleryApp, galleryUnlocked } from "./gallery.js";
 import { CG_GALLERY_ITEMS } from "../data/story-art.js";
-import { APP_META, APP_LIBRARY_IDS, APP_DOCK_IDS, appIcon } from "./app-icons.js";
+import { APP_META, APP_LIBRARY_IDS, normalizeDockIds, appIcon } from "./app-icons.js";
 import { careerPhase } from "../logic/career-phases.js";
 import { JOB_BY_ID } from "../data/jobs.js";
 
@@ -77,13 +77,17 @@ function weeklyCommandCenter() {
 }
 export function tabletHome() {
   const phase = careerPhase();
-  return `<div class="tablet-home"><header><span>第 ${yearOf()} 年・第 ${weekInYear()} 週</span><b>${esc(state.name)}，早安！</b><small>${esc(phase.label)}・${esc(phase.goal)}</small></header>${agencyHomeCard()}${weeklyCommandCenter()}<button class="next-action" data-open-app="planner"><span>下一步</span><b>安排第 ${state.week} 週行程</b><small>預計支出 ${money(budget())}</small><i>→</i></button><section class="app-library"><header><div><span>APP LIBRARY</span><b>全部 App</b></div><small>點一下就開，不用再把平板當表格看</small></header><div class="home-launchers">${APP_LIBRARY_IDS.map(appTile).join("")}</div></section><button class="retire-link" data-retire>主動結束這一輪並查看星途結算 →</button></div>`;
+  const selected=dockSelection();
+  const tools=state.dockEditing?`<div class="dock-editor-actions"><span>快捷列 ${selected.length}／6</span><button data-dock-reset>恢復預設</button><button data-dock-cancel>取消</button><button class="primary" data-dock-save ${selected.length===6?"":"disabled"}>完成</button></div>`:`<div class="app-library-actions"><small>點一下就開</small><button data-dock-edit>編輯快捷列</button></div>`;
+  return `<div class="tablet-home"><header><span>第 ${yearOf()} 年・第 ${weekInYear()} 週</span><b>${esc(state.name)}，早安！</b><small>${esc(phase.label)}・${esc(phase.goal)}</small></header>${agencyHomeCard()}${weeklyCommandCenter()}<button class="next-action" data-open-app="planner"><span>下一步</span><b>安排第 ${state.week} 週行程</b><small>預計支出 ${money(budget())}</small><i>→</i></button><section class="app-library ${state.dockEditing?"editing":""}"><header><div><span>${state.dockEditing?"CUSTOMIZE DOCK":"APP LIBRARY"}</span><b>${state.dockEditing?"挑選六個常用 App":"全部 App"}</b></div>${tools}</header>${state.dockEditing?`<p class="dock-editor-note">點選 App 加入或移出下方快捷列；排列順序就是你加入的順序。${state.dockNotice?`<strong>${esc(state.dockNotice)}</strong>`:""}</p>`:""}<div class="home-launchers">${APP_LIBRARY_IDS.map(appTile).join("")}</div></section><button class="retire-link" data-retire>主動結束這一輪並查看星途結算 →</button></div>`;
 }
 export function tabletDock() {
-  return `<nav class="tablet-dock" aria-label="常用 App">${APP_DOCK_IDS.map(id=>{const meta=APP_META[id],badge=appBadge(id);return`<button data-open-app="${id}" aria-label="開啟${meta.title}"><i class="mini-app-icon tone-${meta.tone}">${appIcon(id)}${badge?`<em class="app-badge">${badge}</em>`:""}</i><span>${meta.label}</span></button>`}).join("")}</nav>`;
+  const ids=dockSelection(),items=ids.map(id=>{const meta=APP_META[id],badge=appBadge(id),action=state.dockEditing?`data-dock-remove="${id}"`:`data-open-app="${id}"`;return`<button ${action} aria-label="${state.dockEditing?"移除":"開啟"}${meta.title}"><i class="mini-app-icon tone-${meta.tone}">${appIcon(id)}${badge?`<em class="app-badge">${badge}</em>`:""}${state.dockEditing?'<em class="dock-remove">×</em>':""}</i><span>${meta.label}</span></button>`}),empty=state.dockEditing?Array.from({length:Math.max(0,6-ids.length)},()=>'<span class="dock-empty" aria-hidden="true"><i>＋</i><small>空位</small></span>'):[];
+  return `<nav class="tablet-dock ${state.dockEditing?"editing":""}" aria-label="${state.dockEditing?"正在編輯快捷列":"常用 App"}">${[...items,...empty].join("")}</nav>`;
 }
+function dockSelection(){return normalizeDockIds(state.dockEditing?state.dockDraftIds:state.dockAppIds,{fallback:!state.dockEditing})}
 function appBadge(id){if(id==="people")return(state.npcMessages||[]).filter(message=>!message.read).length||"";if(id==="jobs")return Object.values(state.activeJobs||{}).filter(job=>job.stage==="active").length||"";if(id==="gallery")return CG_GALLERY_ITEMS.filter(galleryUnlocked).length||"";if(id==="achievements")return(state.achievementNotifications||[]).length||"";if(id==="agency")return state.agencyOffer?"!":"";return""}
-function appTile(id){const meta=APP_META[id],badge=appBadge(id);return`<button class="app-tile" data-open-app="${id}" title="${esc(meta.note)}" aria-label="開啟${meta.title}：${esc(meta.note)}"><span class="app-icon tone-${meta.tone}">${appIcon(id)}${badge?`<em class="app-badge">${badge}</em>`:""}</span><b>${meta.label}</b></button>`}
+function appTile(id){const meta=APP_META[id],badge=appBadge(id),selected=state.dockEditing&&dockSelection().includes(id),action=state.dockEditing?`data-dock-toggle="${id}"`:`data-open-app="${id}"`,classes=`app-tile${state.dockEditing?" dock-choice":""}${selected?" selected":""}`;return`<button class="${classes}" ${action} title="${esc(meta.note)}" aria-label="${state.dockEditing?(selected?"從快捷列移除":"加入快捷列"):"開啟"}${meta.title}"><span class="app-icon tone-${meta.tone}">${appIcon(id)}${badge?`<em class="app-badge">${badge}</em>`:""}${state.dockEditing?`<em class="dock-pick">${selected?"✓":"＋"}</em>`:""}</span><b>${meta.label}</b></button>`}
 export function appWindow() {
   const meta = APP_META[state.appOpen];
   const views = { planner: plannerApp, gallery: galleryApp, timeline: timelineApp, stats: statsApp, creative: creativeApp, wardrobe: wardrobeApp, people: peopleApp, log: logApp, world: worldApp, achievements: achievementsApp, map: mapApp, jobs: jobsApp, npc: npcApp, social: socialApp, forum: forumApp, agency: agencyApp, save: saveApp, settings: settingsApp };
