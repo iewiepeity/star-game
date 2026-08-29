@@ -1,6 +1,7 @@
 import{JOB_CATALOG}from"./jobs.js";
 import{FLAGSHIP_JOB_BEATS,jobDepthTier}from"./deepening-content.js";
 import{FEATURE_JOB_BEATS,isFeatureJob}from"./job-feature-beats.js";
+import{FOUNDATION_JOB_BEATS,isFoundationFeatureJob}from"./job-foundation-beats.js";
 
 const CATEGORY_BEATS={
  歌曲:{arrival:"錄音室先關掉所有效果器，只留下最赤裸的聲音",friction:"製作團隊對情緒、技巧與市場方向出現不同意見",turn:"最後一次播放時，大家都在等那個只有這首作品才有的瞬間",breach:"錄音與宣傳檔期被迫拆散，原本預留的合作人員也轉往其他企劃"},
@@ -30,9 +31,9 @@ function genericStory(job,index){
  });
 }
 function featureStory(job,index){
- const base=genericStory(job,index),feature=FEATURE_JOB_BEATS[job.id];
+ const base=genericStory(job,index),feature=FEATURE_JOB_BEATS[job.id]||FOUNDATION_JOB_BEATS[job.id];
  if(!feature)return base;
- return Object.freeze({...base,depth:"B",production:Object.freeze([
+ return Object.freeze({...base,depth:isFoundationFeatureJob(job.id)?"C":"B",production:Object.freeze([
   base.production[0],
   {label:"專屬磨合",title:`《${job.title}》出現只有這份企劃才會遇到的問題`,text:feature.friction},
   {label:"專屬關鍵場次",title:`《${job.title}》真正留下辨識度的那一段`,text:feature.pivot},
@@ -55,6 +56,6 @@ function flagshipStory(job,index){
   legacy:{title:`《${job.title}》離開片場／錄音室之後`,text:flag.publicEcho}
  });
 }
-function build(job,index){if(jobDepthTier(job.id)==="A")return flagshipStory(job,index);if(isFeatureJob(job.id))return featureStory(job,index);return genericStory(job,index)}
+function build(job,index){if(jobDepthTier(job.id)==="A")return flagshipStory(job,index);if(isFeatureJob(job.id)||isFoundationFeatureJob(job.id))return featureStory(job,index);return genericStory(job,index)}
 export const JOB_STORYLINES=Object.freeze(Object.fromEntries(JOB_CATALOG.map((job,index)=>[job.id,build(job,index)])));
 export const jobStoryline=id=>JOB_STORYLINES[id]||null;

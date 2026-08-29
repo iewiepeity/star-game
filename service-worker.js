@@ -1,4 +1,4 @@
-const CACHE="star-game-runtime-v15";
+const CACHE="star-game-runtime-v17";
 const SHELL=["./","./index.html","./style.css","./a11y.css","./src/main.js","./assets/rookie-room.webp","./assets/icons/icon-192.webp","./assets/icons/icon-512.webp","./manifest.webmanifest"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));

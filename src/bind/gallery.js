@@ -1,0 +1,2 @@
+import{state}from"../core/state.js";import{render}from"../render.js";
+export function bindGallery(){document.querySelectorAll("[data-gallery-item]").forEach(button=>button.onclick=()=>{state.gallerySelection=button.dataset.galleryItem;render()});document.querySelectorAll("[data-gallery-filter]").forEach(button=>button.onclick=()=>{state.galleryFilter=button.dataset.galleryFilter;render()});document.querySelector("[data-gallery-back]")?.addEventListener("click",()=>{state.gallerySelection=null;render()})}

@@ -11,6 +11,7 @@ import{bind}from"./bind.js";
 import{evaluateAchievements}from"./logic/achievement-engine.js";
 import{markTutorialSeen,nextTutorial}from"./logic/tutorial.js";
 import{esc}from"./core/utils.js";
+import{syncAudio}from"./core/audio.js";
 const app=document.querySelector("#app");
 const TOAST_DURATION=3200;
 const GUIDE_DURATION=8500;
@@ -77,9 +78,10 @@ export function render(){
  const guide=!isCreate&&!message?nextTutorial(state):null;
  app.innerHTML=view+(message?toastMarkup(message):guide?guideMarkup(guide):"");
  const nextBody=app.querySelector(".window-body");
- if(nextBody&&state.appOpen===previousApp)nextBody.scrollTop=appScrollPositions[state.appOpen]||0;
+ if(nextBody&&state.appOpen)nextBody.scrollTop=appScrollPositions[state.appOpen]||0;
  app.querySelectorAll(".mini-toast").forEach(node=>node.remove());
  bind();
+ syncAudio(state.screen==="game"?"room":state.screen);
  if(activeKey){const [key,value]=activeKey,attribute=key.replace(/[A-Z]/g,m=>`-${m.toLowerCase()}`);app.querySelector(`[data-${attribute}="${CSS.escape(value)}"]`)?.focus({preventScroll:true})}
  document.querySelector("[data-dismiss-guide]")?.addEventListener("click",()=>{if(guideTimer)clearTimeout(guideTimer);guideTimer=null;if(guide)markTutorialSeen(state,guide.id);activeGuide="";render()});
  saveState(state);

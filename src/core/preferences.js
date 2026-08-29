@@ -2,10 +2,11 @@ const KEY="star-game-preferences";
 const FONT_SIZES=new Set(["standard","comfortable","large"]);
 const THEMES=new Set(["warm","rose","night"]);
 const AUTO_SPEEDS=new Set(["x1","x2"]);
-export const DEFAULT_PREFERENCES={fontSize:"standard",theme:"warm",autoSpeed:"x1"};
+const clampVolume=value=>Math.max(0,Math.min(1,Number.isFinite(Number(value))?Number(value):0));
+export const DEFAULT_PREFERENCES={fontSize:"standard",theme:"warm",autoSpeed:"x1",musicVolume:.28,sfxVolume:.42,audioMuted:false};
 
 export function normalizePreferences(value={}){
- return{fontSize:FONT_SIZES.has(value.fontSize)?value.fontSize:DEFAULT_PREFERENCES.fontSize,theme:THEMES.has(value.theme)?value.theme:DEFAULT_PREFERENCES.theme,autoSpeed:AUTO_SPEEDS.has(value.autoSpeed)?value.autoSpeed:DEFAULT_PREFERENCES.autoSpeed};
+ return{fontSize:FONT_SIZES.has(value.fontSize)?value.fontSize:DEFAULT_PREFERENCES.fontSize,theme:THEMES.has(value.theme)?value.theme:DEFAULT_PREFERENCES.theme,autoSpeed:AUTO_SPEEDS.has(value.autoSpeed)?value.autoSpeed:DEFAULT_PREFERENCES.autoSpeed,musicVolume:clampVolume(value.musicVolume??DEFAULT_PREFERENCES.musicVolume),sfxVolume:clampVolume(value.sfxVolume??DEFAULT_PREFERENCES.sfxVolume),audioMuted:Boolean(value.audioMuted)};
 }
 
 function readPreferences(){
