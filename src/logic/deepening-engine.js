@@ -5,8 +5,9 @@ import { managerForAgency } from "../data/managers.js";
 import { FLAGSHIP_JOB_BEATS, MANAGER_STANCES } from "../data/deepening-content.js";
 import { NPC_AUTONOMOUS_BEATS, ROMANCE_STAGE_FLAVOR, WORLD_REACTION_SIGNALS } from "../data/living-world-content.js";
 import { NPC_LONGFORM_CHAPTERS, NPC_ROMANCE_VOICES } from "../data/longform-content.js";
-import { careerPhase } from "./career-phases.js";
+import { careerPhase, applyCareerDoctrineTick } from "./career-phases.js";
 import { enqueueVisibleEvent } from "./event-engine.js";
+import { tickNpcInvitation, tickEnsembleScene } from "./lived-story-engine.js";
 
 const jobById = Object.fromEntries(JOB_CATALOG.map((job) => [job.id, job]));
 const cap = (list, size = 40) => list.length > size ? list.slice(-size) : list;
@@ -173,9 +174,26 @@ function tickNpcLongform() {
     maxDelayWeeks: 10,
     title: `${npc.name}・${chapter.title}`,
     text: chapter.text,
+    beats: chapter.beats,
+    cast: [npcId],
     choices: chapter.choices.map((choice) => ({
       ...choice,
       effect: { ...choice.effect, npc: npcId, flag: `${id}:${choice.id}` },
+      followUp: choice.followUp ? {
+        ...choice.followUp,
+        event: {
+          id: `${id}:${choice.id}:follow-up`,
+          kind: "人物後續",
+          title: `${npc.name}・${choice.followUp.title}`,
+          text: choice.followUp.text,
+          beats: [
+            { label: "數週之後", text: choice.followUp.text },
+            { label: "被記住的選擇", text: `對方記得你當時選擇「${choice.label}」，所以這次回來找的人仍然是你。` },
+          ],
+          outcome: choice.followUp.outcome,
+          effect: { ...choice.followUp.effect, npc: npcId, flag: `${id}:${choice.id}:resolved` },
+        },
+      } : null,
     })),
   }, "人物跨年主線");
   state.npcLongformProgress[npcId] = (state.npcLongformProgress[npcId] || 0) + 1;
@@ -260,6 +278,7 @@ function updateChapterPressure() {
 
 export function tickDeepeningSystems() {
   ensureDeepeningState();
+  applyCareerDoctrineTick();
   const queued = captureWorkEchoes();
   const echoes = resolveWorldEchoes();
   const npc = tickNpcAutonomousNarratives();
@@ -268,5 +287,7 @@ export function tickDeepeningSystems() {
   const manager = tickManagerAdvice();
   const signal = tickWorldSignal();
   const chapter = updateChapterPressure();
-  return { queued, echoes, npc, longform, romance, manager, signal, chapter };
+  const invitation = tickNpcInvitation();
+  const ensemble = tickEnsembleScene();
+  return { queued, echoes, npc, longform, romance, manager, signal, chapter, invitation, ensemble };
 }

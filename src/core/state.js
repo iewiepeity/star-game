@@ -121,6 +121,11 @@ export function initialState() {
     careerPhaseHistory: [],
     careerCommitment: null,
     careerCommitmentHistory: [],
+    careerDoctrine: {},
+    majorDecisionHistory: [],
+    npcInvitations: [],
+    npcInvitationHistory: [],
+    ensembleEventHistory: [],
     contentExposure: {},
     recentNarrativeIds: [],
     npcLongformProgress: {},
@@ -156,7 +161,7 @@ export function initialState() {
     agencyJobOffers: [],
     rngSeed: null,
     rngCursor: 0,
-    saveVersion: 13,
+    saveVersion: 14,
   };
 }
 export let state = initialState();
