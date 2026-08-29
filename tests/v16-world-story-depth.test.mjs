@@ -66,13 +66,13 @@ test("九條創作方向都有開發、製作、發行、優勢與風險", () =>
       assert.ok(s[key]);
 });
 test("完成草稿後可自主製作或把企劃權出售給公司", () => {
-  let s = fresh(),
-    p = createCreativeProject("song", "自己留下的歌");
+  fresh();
+  let p = createCreativeProject("song", "自己留下的歌");
   p.status = "ready";
   p.quality = 700;
   assert.equal(chooseIndependentProduction(p.id).ok, true);
   assert.equal(p.distributionMode, "independent");
-  s = fresh();
+  fresh();
   p = createCreativeProject("song", "交出去的歌");
   p.status = "ready";
   p.quality = 700;

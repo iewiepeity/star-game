@@ -137,13 +137,16 @@ src/main.js    開機、讀檔、首次 render
 
 ## 6. 存讀檔
 
-目前 save schema 為 **v13**。
+目前 save schema 為 **v15**。
 
 - `core/persistence.js`：自動存檔、手動槽、匯出／匯入。
 - `core/migrations.js`：逐版遷移舊存檔。
 - `core/state.js::hydrateState()`：補預設值、正規化關係／行程／創作等結構。
 - 新增欄位應有初始值或可被 lazy initializer 安全補齊，不能要求玩家刪除舊存檔。
 - v13 包含 NPC 分歧、跨事件、地圖收藏與創作發行等欄位；垂直深化新增的 echo／feed 狀態亦採向後相容的 lazy 初始化。
+- v14 補齊長期章節、人物邀約、永久方針與嚴格存檔欄位，舊版會依序遷移後再 hydrate。
+- v15 加入五槽手動存檔、人物相處記憶、App 快捷列與最新世界狀態；自動存檔採 300ms 合併寫入，週次／逐日階段等關鍵節點仍立即落盤，頁面隱藏或離開前會強制 flush。
+- `core/error-recovery.js` 捕捉 render、全域錯誤與未處理 Promise；錯誤畫面直接由救援層輸出，並保留最後一次可讀自動存檔，避免壞掉的 view 重複遞迴。
 
 ## 7. 測試與內容驗證
 
@@ -151,6 +154,8 @@ src/main.js    開機、讀檔、首次 render
 npm run validate
 npm test
 npm run test:e2e
+npm run lint
+npm run audit:world-reactions
 ```
 
 `npm run validate` 目前包含：

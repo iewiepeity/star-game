@@ -1,5 +1,6 @@
 import{state,syncVisitedLocations}from"./core/state.js";
-import{saveState}from"./core/persistence.js";
+import{scheduleSaveState}from"./core/persistence.js";
+import{showFatalError}from"./core/error-recovery.js";
 import{createView}from"./views/create.js";
 import{prologueView}from"./views/prologue.js";
 import{runnerView}from"./views/runner.js";
@@ -66,7 +67,7 @@ function syncGuide(guide){
  },GUIDE_DURATION);
 }
 
-export function render(){
+function renderUnsafe(){
  const activeKey=document.activeElement?.dataset?Object.entries(document.activeElement.dataset)[0]:null;
  const previousWindow=app.querySelector(".app-window"),previousBody=previousWindow?.querySelector(".window-body"),previousApp=state.appOpen;
  if(previousBody&&previousApp)appScrollPositions[previousApp]=previousBody.scrollTop;
@@ -84,7 +85,8 @@ export function render(){
  syncAudio(state.screen==="game"?"room":state.screen);
  if(activeKey){const [key,value]=activeKey,attribute=key.replace(/[A-Z]/g,m=>`-${m.toLowerCase()}`);app.querySelector(`[data-${attribute}="${CSS.escape(value)}"]`)?.focus({preventScroll:true})}
  document.querySelector("[data-dismiss-guide]")?.addEventListener("click",()=>{if(guideTimer)clearTimeout(guideTimer);guideTimer=null;if(guide)markTutorialSeen(state,guide.id);activeGuide="";render()});
- saveState(state);
+ scheduleSaveState(state);
  syncToast(message);
  syncGuide(guide);
 }
+export function render(){try{renderUnsafe();return true}catch(error){showFatalError(error);return false}}

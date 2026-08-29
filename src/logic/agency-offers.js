@@ -1,6 +1,5 @@
 import{state}from"../core/state.js";
 import{AGENCIES}from"../data/agencies.js";
-import{JOB_CATALOG}from"../data/jobs.js";
 import{managerForAgency}from"../data/managers.js";
 import{availableJobs,jobState}from"./job-engine.js";
 import{randomInt}from"../core/rng.js";

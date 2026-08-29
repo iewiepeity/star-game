@@ -17,14 +17,6 @@ const INVITATIONS=Object.freeze({
  hanzhiyuan:{place:"辦公大樓熄燈後的一樓大廳",ask:"他取消司機，想用一段普通的路確認生活不必每分鐘都有產值。",detail:"電梯門關上後，他沒有再看報表，卻顯得比任何決策會議都更不習慣。"},
 });
 
-const PAIR_TOPICS=[
- ["jiqing","shenyao","真話應該被追問到哪裡","訪談想讓人說出口，電影卻有時需要替角色保留沉默。兩人都在等你替這場合作定下界線。"],
- ["tangtang","lujingran","舞台究竟屬於誰","一個習慣把所有力氣交給觀眾，一個堅持作品也需要留白；聯名舞台因此卡在最後一首歌。"],
- ["guchengxi","sufei","前輩的保護會不會變成陰影","同場試鏡的宣傳想把提攜寫成依附，兩人都拒絕，卻對應該如何回應有不同答案。"],
- ["linxiafan","chengyian","好作品能不能建立在透支上","得獎企劃背後是團隊連續加班；一個要停案，一個擔心停下會讓所有人的努力失去出口。"],
- ["xiayutong","hanzhiyuan","數字看不見的那一顆鏡頭","平台模型要求刪除一場低留存片段，導演與投資方第一次把最後決定交給身在作品裡的你。"],
-];
-
 function invitationType(npcId){const rel=state.relationships?.[npcId]||{};if((rel.hostility||0)>=20)return"conflict";if(["dating","committed","engaged","married"].includes(rel.romance))return"romance";if(state.health<=55||state.fatigue>=65||state.week%16===2)return"low";return"ordinary"}
 
 function dynamicCast(){
@@ -73,7 +65,7 @@ export function tickNpcInvitation(){
 
 export function tickEnsembleScene(){
  if(state.week<30||state.week%13!==0)return null;
- const selected=dynamicCast();if(!selected)return null;const{cast,edge}=selected,[a,b]=cast,na=NPCS[a],nb=NPCS[b],copy=ensembleCopy(selected),id=`ensemble:${cast.join(":")}:${state.week}`;
+ const selected=dynamicCast();if(!selected)return null;const{cast}=selected,[a,b]=cast,na=NPCS[a],nb=NPCS[b],copy=ensembleCopy(selected),id=`ensemble:${cast.join(":")}:${state.week}`;
  enqueueVisibleEvent({id,kind:cast.length>2?"三人事件":"多人事件",priority:84,maxDelayWeeks:6,title:copy.title,text:copy.text,cast,beats:[
   {label:`${cast.length} 條人生撞在同一份工作`,text:copy.text},
   {label:`${na.name}的立場`,text:`${na.name}不是在爭輸贏，而是擔心退讓後，最重要的東西會被當成從未存在。`},

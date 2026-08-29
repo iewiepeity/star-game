@@ -246,17 +246,22 @@ function tickManagerAdvice() {
   return id;
 }
 
-function strongestWorldSignal() {
-  const hidden = Object.entries(state.hidden || {}).filter(([, value]) => value >= 620).sort((a, b) => b[1] - a[1])[0];
-  const rep = Object.entries(state.rep || {}).filter(([, value]) => value >= 650).sort((a, b) => b[1] - a[1])[0];
-  if (!hidden && !rep) return null;
-  if (hidden && (!rep || hidden[1] >= rep[1])) return { group: "hidden", name: hidden[0], value: hidden[1] };
-  return { group: "rep", name: rep[0], value: rep[1] };
+function nextWorldSignal() {
+  const candidates=[
+    ...Object.entries(state.hidden||{}).filter(([,value])=>value>=620).map(([name,value])=>({group:"hidden",name,value})),
+    ...Object.entries(state.rep||{}).filter(([,value])=>value>=650).map(([name,value])=>({group:"rep",name,value}))
+  ];
+  if(!candidates.length)return null;
+  const lastSeen=new Map((state.worldSignalHistory||[]).map(item=>[item.signature,item.week]));
+  return candidates.sort((a,b)=>{
+    const aWeek=lastSeen.get(`${a.group}:${a.name}`)??-Infinity,bWeek=lastSeen.get(`${b.group}:${b.name}`)??-Infinity;
+    return aWeek-bWeek||b.value-a.value||a.name.localeCompare(b.name,"zh-Hant");
+  })[0];
 }
 
 function tickWorldSignal() {
   if (state.week % 4 !== 0) return null;
-  const signal = strongestWorldSignal();
+  const signal = nextWorldSignal();
   if (!signal) return null;
   const text = WORLD_REACTION_SIGNALS[signal.group]?.[signal.name];
   if (!text) return null;

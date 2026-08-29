@@ -3,7 +3,7 @@ import{money,effectiveStat}from"../core/utils.js";
 import{adjustRelationship,meetNpc}from"./npc-engine.js";
 import{breakUp,setRomanceVisibility}from"./romance-engine.js";
 import{careerRoute}from"./career.js";
-import{queueEvent,enqueueVisibleEvent,activateNextEvent,dismissActiveEvent}from"./event-queue.js";
+import{queueEvent,enqueueVisibleEvent}from"./event-queue.js";
 export{queueEvent,enqueueVisibleEvent,activateNextEvent,dismissActiveEvent}from"./event-queue.js";
 
 export const EVENT_KINDS=Object.freeze({INSTANT:"即時事件",CHOICE:"選擇事件",DELAYED:"延遲事件",CHAIN:"連鎖事件",NPC:"人物事件",CAREER:"職涯事件",PUBLIC:"輿論事件"});

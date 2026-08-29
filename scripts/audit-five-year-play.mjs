@@ -14,7 +14,7 @@ const decisions=[];
 for(let week=1;week<=260;week++){
  state.week=week;tickDeepeningSystems();
  activateNextEvent();
- if(state.activeEvent?.event){const event=state.activeEvent.event,choice=event.choices?.[week%Math.max(1,event.choices.length)];const result=resolveEvent(event,choice?.id);decisions.push({week,id:event.id,choice:choice?.id||null});dismissActiveEvent();}
+ if(state.activeEvent?.event){const event=state.activeEvent.event,choice=event.choices?.[week%Math.max(1,event.choices.length)];resolveEvent(event,choice?.id);decisions.push({week,id:event.id,choice:choice?.id||null});dismissActiveEvent();}
  const valid=validateGameState(state);if(!valid.ok)throw new Error(`第 ${week} 週存檔失效：${valid.errors.join("、")}`);
 }
 const longform=Object.values(state.npcLongformProgress).reduce((sum,value)=>sum+value,0),exposures=Object.values(state.contentExposure),repeatMax=Math.max(0,...exposures);

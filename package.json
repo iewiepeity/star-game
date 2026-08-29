@@ -1,14 +1,19 @@
 {
-  "name":"star-game",
-  "private":true,
-  "type":"module",
-  "scripts":{
-    "test":"node --test tests/*.test.mjs",
-    "validate":"node scripts/validate-content.mjs && node scripts/verify-expanded-content.mjs && node scripts/validate-deepening.mjs",
-    "serve":"python3 -m http.server 4173",
-    "test:e2e":"playwright test",
-    "audit:five-year":"node scripts/audit-five-year-play.mjs && node scripts/playtest-depth-v4.mjs",
-    "check":"npm run validate && npm test && npm run audit:five-year"
+  "name": "star-game",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "validate": "node scripts/validate-content.mjs && node scripts/verify-expanded-content.mjs && node scripts/validate-deepening.mjs",
+    "serve": "python3 -m http.server 4173",
+    "test:e2e": "playwright test",
+    "lint": "eslint .",
+    "audit:five-year": "node scripts/audit-five-year-play.mjs && node scripts/playtest-depth-v4.mjs",
+    "audit:world-reactions": "node scripts/audit-world-reactions.mjs",
+    "check": "npm run lint && npm run validate && npm test && npm run audit:five-year && npm run audit:world-reactions"
   },
-  "devDependencies":{"@playwright/test":"^1.55.0"}
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "eslint": "^10.9.1"
+  }
 }

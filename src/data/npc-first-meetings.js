@@ -29,6 +29,6 @@ const WORK_FIRST_LINES={
 };
 
 export function workFirstMeetingFor(id,workTitle="這次通告"){
- const base=firstMeetingFor(id),line=WORK_FIRST_LINES[id]||"工作人員正式介紹彼此後，你們在第一次合作中交換了聯絡方式。";
- return{title:`《${workTitle}》的第一次照面`,scene:`《${workTitle}》第一次開工時，工作人員把你介紹給這次的合作對象。${line}`||base.scene};
+ const base=firstMeetingFor(id),line=WORK_FIRST_LINES[id];
+ return{title:`《${workTitle}》的第一次照面`,scene:line?`《${workTitle}》第一次開工時，工作人員把你介紹給這次的合作對象。${line}`:base.scene};
 }
