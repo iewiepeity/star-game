@@ -21,7 +21,9 @@ import { creativeApp } from "./creative.js";
 import { achievementsApp } from "./achievements.js";
 import { worldApp } from "./world.js";
 import { timelineApp } from "./timeline.js";
-import { galleryApp } from "./gallery.js";
+import { galleryApp, galleryUnlocked } from "./gallery.js";
+import { CG_GALLERY_ITEMS } from "../data/story-art.js";
+import { APP_META, APP_LIBRARY_IDS, APP_DOCK_IDS, appIcon } from "./app-icons.js";
 import { careerPhase } from "../logic/career-phases.js";
 import { JOB_BY_ID } from "../data/jobs.js";
 
@@ -75,18 +77,16 @@ function weeklyCommandCenter() {
 }
 export function tabletHome() {
   const phase = careerPhase();
-  return `<div class="tablet-home"><header><span>第 ${yearOf()} 年・第 ${weekInYear()} 週</span><b>${esc(state.name)}，早安！</b><small>${esc(phase.label)}・${esc(phase.goal)}</small></header>${agencyHomeCard()}${weeklyCommandCenter()}<button class="next-action" data-open-app="planner"><span>下一步</span><b>安排第 ${state.week} 週行程</b><small>預計支出 ${money(budget())}</small><i>→</i></button><div class="home-launchers"><button data-open-app="world"><b>◉ 娛樂圈週報</b><small>市場、作品、NPC 與後台狀態</small></button><button data-open-app="map"><b>⌖ 星望市地圖</b><small>依目的探索城市與產業公司</small></button><button data-open-app="jobs"><b>▤ 工作信箱</b><small>${jobHomeStatus()}</small></button><button data-open-app="creative"><b>✎ 創作工作室</b><small>製作、販售或自主發行作品</small></button><button data-open-app="npc"><b>◈ 人物檔案</b><small>人脈也可能帶來非公開機會</small></button><button data-open-app="social"><b>◎ 星光社群</b><small>發布真實近況、查看圈內動態</small></button><button data-open-app="forum"><b>☷ 星談論壇</b><small>看看網友正在聊什麼</small></button><button data-open-app="wardrobe"><b>♢ 造型衣櫃</b><small>換裝並調整能力加成</small></button><button data-open-app="settings"><b>⚙ 遊戲設定</b><small>存讀檔、字體、主題與重新開始</small></button></div><button class="retire-link" data-retire>主動結束這一輪並查看星途結算 →</button></div>`;
+  return `<div class="tablet-home"><header><span>第 ${yearOf()} 年・第 ${weekInYear()} 週</span><b>${esc(state.name)}，早安！</b><small>${esc(phase.label)}・${esc(phase.goal)}</small></header>${agencyHomeCard()}${weeklyCommandCenter()}<button class="next-action" data-open-app="planner"><span>下一步</span><b>安排第 ${state.week} 週行程</b><small>預計支出 ${money(budget())}</small><i>→</i></button><section class="app-library"><header><div><span>APP LIBRARY</span><b>全部 App</b></div><small>點一下就開，不用再把平板當表格看</small></header><div class="home-launchers">${APP_LIBRARY_IDS.map(appTile).join("")}</div></section><button class="retire-link" data-retire>主動結束這一輪並查看星途結算 →</button></div>`;
 }
 export function tabletDock() {
-  return `<nav class="tablet-dock">${[["planner", "▦", "行程"], ["timeline", "◷", "時間線"], ["gallery", "▧", "影像館"], ["stats", "◫", "能力"], ["people", "♡", "人際"], ["log", "≡", "紀錄"]].map(([id, icon, label]) => `<button data-open-app="${id}"><i>${icon}</i>${label}</button>`).join("")}</nav>`;
+  return `<nav class="tablet-dock" aria-label="常用 App">${APP_DOCK_IDS.map(id=>{const meta=APP_META[id],badge=appBadge(id);return`<button data-open-app="${id}" aria-label="開啟${meta.title}"><i class="mini-app-icon tone-${meta.tone}">${appIcon(id)}${badge?`<em class="app-badge">${badge}</em>`:""}</i><span>${meta.label}</span></button>`}).join("")}</nav>`;
 }
+function appBadge(id){if(id==="people")return(state.npcMessages||[]).filter(message=>!message.read).length||"";if(id==="jobs")return Object.values(state.activeJobs||{}).filter(job=>job.stage==="active").length||"";if(id==="gallery")return CG_GALLERY_ITEMS.filter(galleryUnlocked).length||"";if(id==="achievements")return(state.achievementNotifications||[]).length||"";if(id==="agency")return state.agencyOffer?"!":"";return""}
+function appTile(id){const meta=APP_META[id],badge=appBadge(id);return`<button class="app-tile" data-open-app="${id}" title="${esc(meta.note)}" aria-label="開啟${meta.title}：${esc(meta.note)}"><span class="app-icon tone-${meta.tone}">${appIcon(id)}${badge?`<em class="app-badge">${badge}</em>`:""}</span><b>${meta.label}</b></button>`}
 export function appWindow() {
-  const meta = {
-    gallery: ["▧", "星途影像館", "收藏已解鎖 CG 並重讀人物章節"],
-    timeline: ["◷", "星途時間線", "集中查看人物、作品、邀約與重大選擇"],
-    planner: ["▦", "行程與工作", "安排七天行程、策略與預算"], stats: ["◫", "能力資料", "檢視公開能力與隱藏特質"], creative: ["✎", "創作工作室", "創作、修改並向產業公司投稿"], wardrobe: ["♢", "造型衣櫃", "切換造型與能力加成"], people: ["♡", "手機與人際", "查看聯絡人和關係進度"], log: ["≡", "星途紀錄", "回顧每週成果與重大選擇"], world: ["◉", "娛樂圈週報", "整合玩家狀態、市場、作品、人物與後台世界"], achievements: ["♛", "星途成就", "收藏旅程、工作、人際與生活里程碑"], map: ["⌖", "星望市地圖", "前往城市地點與娛樂產業公司"], jobs: ["▤", "工作信箱", "管理公開徵選、推薦與指名邀約"], npc: ["◈", "人物檔案", "已認識人物的資料與關係"], social: ["◎", "星光社群", "發布近況並查看動態"], forum: ["☷", "星談論壇", "娛樂討論與熱門話題"], agency: ["◆", "經紀公司", "投遞、面談與簽約進度"], save: ["💾", "存檔管理", "管理存檔與安全備份"], settings: ["⚙", "遊戲設定", "存讀檔、顯示偏好與遊戲流程"],
-  }[state.appOpen];
+  const meta = APP_META[state.appOpen];
   const views = { planner: plannerApp, gallery: galleryApp, timeline: timelineApp, stats: statsApp, creative: creativeApp, wardrobe: wardrobeApp, people: peopleApp, log: logApp, world: worldApp, achievements: achievementsApp, map: mapApp, jobs: jobsApp, npc: npcApp, social: socialApp, forum: forumApp, agency: agencyApp, save: saveApp, settings: settingsApp };
   const body = views[state.appOpen]();
-  return `<div class="app-backdrop" data-close-app></div><section class="app-window ${state.appOpen}" role="dialog" aria-modal="true" aria-labelledby="app-window-title"><header class="window-bar"><div class="window-icon">${meta[0]}</div><div><h2 id="app-window-title">${meta[1]}</h2><p>${meta[2]}</p></div>${state.appOpen === "planner" ? `<button class="window-start" id="begin-week">開始這週 →</button>` : ""}<button class="window-close" data-close-app aria-label="關閉${meta[1]}">×</button></header><div class="window-body">${body}</div></section>`;
+  return `<div class="app-backdrop" data-close-app></div><section class="app-window ${state.appOpen}" role="dialog" aria-modal="true" aria-labelledby="app-window-title"><header class="window-bar"><div class="window-icon tone-${meta.tone}">${appIcon(state.appOpen)}</div><div><h2 id="app-window-title">${meta.title}</h2><p>${meta.note}</p></div>${state.appOpen === "planner" ? `<button class="window-start" id="begin-week">開始這週 →</button>` : ""}<button class="window-close" data-close-app aria-label="關閉${meta.title}">×</button></header><div class="window-body">${body}</div></section>`;
 }
