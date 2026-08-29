@@ -38,6 +38,14 @@ export function runnerSceneArt(actionId,locationId=null,result=null){
 }
 
 const EXACT_EVENT_ART=Object.freeze({
+ "stage-return":cg("chapter-guchengxi-stage-return.webp","周予珩在老劇場後台選擇重返舞臺"),
+ "studio-year":cg("chapter-linxiafan-studio-year.webp","黎曼青在工作室週年夜為失敗版本舉杯"),
+ "same-credit":cg("chapter-sufei-same-credit.webp","許映真在並列主演席前確認平等合作"),
+ "crew-hour":cg("chapter-xiayutong-crew-hour.webp","宋知夏在清晨片場為劇組宣布收工"),
+ "board-choice":cg("chapter-hanzhiyuan-board-choice.webp","秦紹謙在雨夜董事會後交出最終企劃"),
+ "artist-no":cg("chapter-chengyian-artist-no.webp","溫時嶼收起簡報並真正聽見藝人的拒絕"),
+ "voice-rest":cg("chapter-tangtang-voice-rest.webp","楚星梨在休聲期間用心意卡代替說話"),
+ "listener-letter":cg("chapter-jiqing-listener-letter.webp","喬映澄在深夜錄音室讀一封匿名來信"),
  "rough-cut":cg("shenyao-rough-cut.webp","裴硯之在深夜剪輯室審視粗剪"),
  "unplugged":cg("tangtang-unplugged.webp","楚星梨在無伴奏的舞臺安可"),
  "rent-day":cg("sufei-rent-day.webp","許映真在房租日等待試鏡通知"),
