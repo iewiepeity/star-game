@@ -9,6 +9,8 @@ const PURPOSES={全部:{label:"全部地點",test:()=>true},work:{label:"找試�
 
 function contextHint(id, location) {
   const day = state.selectedDay || 0, weekend = day >= 5, known = location.encounter && (state.knownPeople || []).includes(location.encounter);
+  if ((state.publicLifeRisk || 0) >= 3 && !location.industry && !location.recover) return "附近已有人認出你；繼續停留可能引來更多目光，普通外出也不再完全私人。";
+  if ((state.publicLifeRisk || 0) >= 2 && weekend && !location.industry) return "週末人潮讓被認出的風險升高。若同行的是地下戀對象，這裡並不安全。";
   const npc = known ? NPCS[location.encounter] : null;
   const npcBusyHere = known && Object.values(state.npcSchedules || {}).some((item) => item?.npcId === location.encounter && (item.locationId === id || item.location === id) && (item.week == null || item.week === state.week));
   if (npcBusyHere) return `今天附近明顯有工作團隊進出。你認得其中一台車——${npc.name}似乎也在這裡工作。`;

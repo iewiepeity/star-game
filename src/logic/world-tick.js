@@ -31,6 +31,7 @@ import { queueHiddenRoute } from "./hidden-route.js";
 import { tickCrossEventChains } from "./cross-event-engine.js";
 import { queueCareerPhaseEvent } from "./career-phases.js";
 import { tickDeepeningSystems } from "./deepening-engine.js";
+import { tickPlayableDepth } from "./playable-depth-engine.js";
 
 function queueAwardCeremony(awards) {
   if (!awards.length) return null;
@@ -97,7 +98,8 @@ export function advanceWorldWeek() {
   const crossEvent = tickCrossEventChains();
   // 深化層放在所有核心狀態推進後，讀取本週真正發生的作品、關係、輿論與 NPC 變化。
   const deepening = tickDeepeningSystems();
+  const playableDepth = tickPlayableDepth();
   // 新產生的跨週回聲／章節事件同一週就能進入可見佇列，而不是再多等一週。
   const due = processQueuedEvents();
-  return { breached, awards, market, npcUpdates, rumorUpdates, news, opinion, scandal, persona, fandom, due, calendar, npcStories, proactive, media, sequel, worldEvent, hiddenRoute, careerPhase, crossEvent, deepening };
+  return { breached, awards, market, npcUpdates, rumorUpdates, news, opinion, scandal, persona, fandom, due, calendar, npcStories, proactive, media, sequel, worldEvent, hiddenRoute, careerPhase, crossEvent, deepening, playableDepth };
 }
