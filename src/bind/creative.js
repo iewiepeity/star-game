@@ -46,13 +46,15 @@ function queue(kind, payload, label, load, { reserveTeam = false } = {}) {
   return r;
 }
 export function bindCreative() {
+  const titleInput=document.querySelector("#creative-title");
+  titleInput?.addEventListener("input",()=>{state.creativeDraftTitle=titleInput.value});
   document.querySelectorAll("[data-creative-new]").forEach(
     (b) =>
       (b.onclick = () => {
         const title = document.querySelector("#creative-title")?.value;
         if (!createCreativeProject(b.dataset.creativeNew, title))
           state.notice = "請先替作品取個名字。";
-        else state.notice = "企劃已建立；真正創作需要排進本週行程。";
+        else {state.creativeDraftTitle="";state.notice = "企劃已建立；真正創作需要排進本週行程。";}
         render();
       }),
   );

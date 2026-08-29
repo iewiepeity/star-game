@@ -14,6 +14,12 @@ import{applyJobNpcRelations}from"../src/logic/npc-ecosystem.js";
 import{resultView}from"../src/views/runner.js";
 import{JOB_BY_ID}from"../src/data/jobs.js";
 import{auditionChance}from"../src/logic/job-engine.js";
+import{applyEffects}from"../src/logic/event-engine.js";
+import{brandRelation,recordBrandOutcome}from"../src/logic/brand-relations.js";
+import{worldApp}from"../src/views/world.js";
+import{SCHEDULE_EVENTS}from"../src/data/schedule-events.js";
+import{LOCATION_EVENTS}from"../src/data/location-events.js";
+import{CALENDAR_EVENTS}from"../src/data/calendar-events.js";
 
 test("同一週最多只呈現一個事件，其餘順延且不會選完立刻跳下一件",()=>{
  resetState();
@@ -63,6 +69,33 @@ test("創作工作室具有完整建立、流程與作品區塊",()=>{
  assert.match(html,/影視劇本/);
  assert.match(html,/節目企劃/);
  assert.match(html,/桌上還沒有任何企劃/);
+});
+
+test("原創企劃名稱在畫面重繪後仍保留",()=>{
+ resetState();state.creativeDraftTitle="雨後的第二幕";
+ assert.match(creativeApp(),/value="雨後的第二幕"/);
+});
+
+test("八種隱藏特質都會由劇情效果實際改變，第二特質也不遺失",()=>{
+ resetState();const traits=["幽默","共情","洞察","膽識","品德","自律","野心","抗壓"];
+ state.hidden=Object.fromEntries(traits.map(name=>[name,500]));
+ applyEffects(traits.map(name=>({hidden:name,value:2})),"劇情測試");
+ for(const name of traits)assert.equal(state.hidden[name],502,`${name} should change`);
+ applyEffects({hidden:"野心",value:3,hidden2:"自律",value2:4},"雙特質劇情");
+ assert.equal(state.hidden.野心,505);assert.equal(state.hidden.自律,506);
+});
+
+test("實際行程、地點與年度劇情資料涵蓋全部八種隱藏特質",()=>{
+ const effects=[...Object.values(SCHEDULE_EVENTS).flat(),...Object.values(LOCATION_EVENTS).flat(),...CALENDAR_EVENTS.flatMap(event=>[event,...(event.choices||[])])].map(item=>item.effect).filter(Boolean);
+ const covered=new Set(effects.flatMap(effect=>[effect.hidden===true?effect.stat:effect.hidden,effect.hidden2]).filter(Boolean));
+ for(const name of["幽默","共情","洞察","膽識","品德","自律","野心","抗壓"])assert.ok(covered.has(name),`${name} needs a real story source`);
+});
+
+test("品牌後台顯示合作狀態而不是不存在的 score 造成全為 0",()=>{
+ resetState();const fresh=brandRelation("晨露飲品");assert.equal(fresh.score,"未合作");
+ recordBrandOutcome("晨露飲品","completed",{quality:90});
+ assert.match(state.brandRelations["晨露飲品"].score,/1 次・信任/);
+ const html=worldApp();assert.match(html,/晨露飲品/);assert.doesNotMatch(html,/晨露飲品 <b>0<\/b>/);
 });
 
 test("經紀公司頁明確說明簽約準備度成長方式",()=>{

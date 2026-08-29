@@ -6,11 +6,10 @@ import { isAgencyContractActive, checkAgencyEligibility } from "../logic/agency.
 import { playerAge } from "../logic/romance-engine.js";
 import { budget, plannerApp } from "./planner.js";
 import { statsApp } from "./stats-app.js";
-import { peopleApp } from "./people.js";
+import { peopleHubApp } from "./people.js";
 import { logApp } from "./log.js";
 import { mapApp } from "./map.js";
 import { jobsApp } from "./jobs.js";
-import { npcApp } from "./npc.js";
 import { agencyApp } from "./agency.js";
 import { wardrobeApp } from "./wardrobe.js";
 import { saveApp } from "./save.js";
@@ -90,7 +89,7 @@ function appBadge(id){if(id==="people")return(state.npcMessages||[]).filter(mess
 function appTile(id){const meta=APP_META[id],badge=appBadge(id),selected=state.dockEditing&&dockSelection().includes(id),action=state.dockEditing?`data-dock-toggle="${id}"`:`data-open-app="${id}"`,classes=`app-tile${state.dockEditing?" dock-choice":""}${selected?" selected":""}`;return`<button class="${classes}" ${action} title="${esc(meta.note)}" aria-label="${state.dockEditing?(selected?"從快捷列移除":"加入快捷列"):"開啟"}${meta.title}"><span class="app-icon tone-${meta.tone}">${appIcon(id)}${badge?`<em class="app-badge">${badge}</em>`:""}${state.dockEditing?`<em class="dock-pick">${selected?"✓":"＋"}</em>`:""}</span><b>${meta.label}</b></button>`}
 export function appWindow() {
   const meta = APP_META[state.appOpen];
-  const views = { planner: plannerApp, gallery: galleryApp, timeline: timelineApp, stats: statsApp, creative: creativeApp, wardrobe: wardrobeApp, people: peopleApp, log: logApp, world: worldApp, achievements: achievementsApp, map: mapApp, jobs: jobsApp, npc: npcApp, social: socialApp, forum: forumApp, agency: agencyApp, save: saveApp, settings: settingsApp };
+  const views = { planner: plannerApp, gallery: galleryApp, timeline: timelineApp, stats: statsApp, creative: creativeApp, wardrobe: wardrobeApp, people: peopleHubApp, log: logApp, world: worldApp, achievements: achievementsApp, map: mapApp, jobs: jobsApp, npc: peopleHubApp, social: socialApp, forum: forumApp, agency: agencyApp, save: saveApp, settings: settingsApp };
   const body = views[state.appOpen]();
   return `<div class="app-backdrop" data-close-app></div><section class="app-window ${state.appOpen}" role="dialog" aria-modal="true" aria-labelledby="app-window-title"><header class="window-bar"><div class="window-icon tone-${meta.tone}">${appIcon(state.appOpen)}</div><div><h2 id="app-window-title">${meta.title}</h2><p>${meta.note}</p></div>${state.appOpen === "planner" ? `<button class="window-start" id="begin-week">開始這週 →</button>` : ""}<button class="window-close" data-close-app aria-label="關閉${meta.title}">×</button></header><div class="window-body">${body}</div></section>`;
 }

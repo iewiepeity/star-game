@@ -3,9 +3,10 @@ import assert from "node:assert/strict";
 import { APP_META, APP_LIBRARY_IDS, APP_DOCK_IDS, DEFAULT_DOCK_IDS, normalizeDockIds, appIcon } from "../src/views/app-icons.js";
 import { resetState, state } from "../src/core/state.js";
 import { tabletHome, tabletDock, appWindow } from "../src/views/room.js";
+import { peopleHubApp } from "../src/views/people.js";
 
 test("tablet app library exposes every playable app with one icon contract", () => {
-  assert.equal(APP_LIBRARY_IDS.length, 18);
+  assert.equal(APP_LIBRARY_IDS.length, 17);
   assert.equal(new Set(APP_LIBRARY_IDS).size, APP_LIBRARY_IDS.length);
   for (const id of APP_LIBRARY_IDS) {
     const meta = APP_META[id];
@@ -29,7 +30,8 @@ test("dock accepts six player-selected apps and sanitizes invalid saved values",
  resetState();
  state.dockAppIds=["jobs","creative","npc","social","agency","settings"];
  const dock=tabletDock();
- for(const id of state.dockAppIds)assert.match(dock,new RegExp(`data-open-app="${id}"`));
+ for(const id of["jobs","creative","people","social","agency","settings"])assert.match(dock,new RegExp(`data-open-app="${id}"`));
+ assert.doesNotMatch(dock,/data-open-app="npc"/);
  assert.doesNotMatch(dock,/data-open-app="planner"/);
  assert.deepEqual(normalizeDockIds(["jobs","jobs","unknown","map"]),["jobs","map"]);
  assert.deepEqual(normalizeDockIds([]),[...DEFAULT_DOCK_IDS]);
@@ -49,7 +51,7 @@ test("home, dock and every app window render the shared icon system", () => {
   resetState();
   state.name = "測試玩家";
   const home = tabletHome();
-  assert.equal((home.match(/class="app-tile"/g) || []).length, 18);
+  assert.equal((home.match(/class="app-tile"/g) || []).length, 17);
   assert.equal((tabletDock().match(/class="mini-app-icon/g) || []).length, 6);
   for (const id of APP_LIBRARY_IDS) {
     assert.match(home, new RegExp(`data-open-app="${id}"`));
@@ -59,4 +61,16 @@ test("home, dock and every app window render the shared icon system", () => {
     assert.match(window, /class="window-icon tone-/);
     assert.match(window, /class="app-icon-svg/);
   }
+});
+
+test("contacts and dossiers are two tabs in one people app",()=>{
+ resetState();state.knownPeople=["lujingran"];
+ state.peopleSection="contacts";
+ assert.match(peopleHubApp(),/訊息與關係/);
+ assert.match(peopleHubApp(),/手機通訊錄/);
+ state.peopleSection="profiles";
+ const html=peopleHubApp();
+ assert.match(html,/人物檔案/);
+ assert.match(html,/PERSONAL FILE/);
+ assert.doesNotMatch(html,/position:sticky/);
 });

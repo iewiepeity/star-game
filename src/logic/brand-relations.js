@@ -1,7 +1,7 @@
 import{state}from"../core/state.js";
 const clamp=n=>Math.max(0,Math.min(100,n));
 export function ensureBrand(client){state.brandRelations??={};return state.brandRelations[client]||(state.brandRelations[client]={trust:50,familiarity:0,works:0,failedAuditions:0,breaches:0,lastWeek:0,status:"new",history:[]})}
-function refreshStatus(r){r.status=r.trust>=80&&r.works>=2?"preferred":r.trust>=65?"trusted":r.trust<30?"avoid":r.works?"known":"new"}
+function refreshStatus(r){r.status=r.trust>=80&&r.works>=2?"preferred":r.trust>=65?"trusted":r.trust<30?"avoid":r.works?"known":"new";r.score=r.works?`${r.works} 次・信任 ${Math.round(r.trust)}`:r.failedAuditions?`試鏡中・信任 ${Math.round(r.trust)}`:"未合作"}
 export function brandRelation(client){const r=ensureBrand(client);refreshStatus(r);return r}
 export function brandAuditionModifier(client){const r=brandRelation(client);return Math.round((r.trust-50)/5)+Math.min(8,r.works*2)-Math.min(12,r.failedAuditions)}
 export function brandCanWork(client,stars=1){const r=brandRelation(client);return !(r.status==="avoid"&&stars>=3)&&!(r.breaches>=2&&stars>=4)}

@@ -1,5 +1,5 @@
 import{state}from"../core/state.js";import{NPCS}from"../data/npcs.js";import{NPC_INTERACTIONS}from"../data/npc-network.js";import{scheduleActivity}from"../logic/scheduled-activities.js";import{breakUp,setRomanceVisibility}from"../logic/romance-engine.js";import{render}from"../render.js";
-function openNpc(id){state.selectedNpc=id;state.npcArtView="bust";for(const message of state.npcMessages||[])if(message.npcId===id)message.read=true;state.appOpen="npc";render()}
+function openNpc(id){state.selectedNpc=id;state.npcArtView="bust";state.peopleSection="profiles";for(const message of state.npcMessages||[])if(message.npcId===id)message.read=true;state.appOpen="people";render()}
 export function bindNpc(){
  document.querySelectorAll("[data-select-npc]").forEach(x=>x.onclick=()=>openNpc(x.dataset.selectNpc));
  document.querySelectorAll("[data-npc-art]").forEach(x=>x.onclick=()=>{state.npcArtView=x.dataset.npcArt;render()});

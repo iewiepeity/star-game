@@ -12,6 +12,8 @@ export function initialState() {
     createStep: 1,
     tab: "planner",
     appOpen: null,
+    peopleSection: "contacts",
+    creativeDraftTitle: "",
     gallerySelection: null,
     galleryFilter: "all",
     dockAppIds: ["planner", "timeline", "gallery", "stats", "people", "log"],
@@ -317,6 +319,15 @@ export function hydrateState(saved) {
     next.relationships && typeof next.relationships === "object"
       ? next.relationships
       : {};
+  for (const relation of Object.values(next.brandRelations)) {
+    if (!relation || typeof relation !== "object") continue;
+    const trust = Number.isFinite(relation.trust) ? Math.round(relation.trust) : 50;
+    relation.score = relation.works
+      ? `${relation.works} 次・信任 ${trust}`
+      : relation.failedAuditions
+        ? `試鏡中・信任 ${trust}`
+        : "未合作";
+  }
   const legacyAffection = {
     none: 0,
     interested: 25,
@@ -410,6 +421,10 @@ export function hydrateState(saved) {
   next.dockEditing = false;
   next.dockDraftIds = null;
   next.dockNotice = "";
+  if (next.appOpen === "npc") {
+    next.appOpen = "people";
+    next.peopleSection = "profiles";
+  }
   migrateLegacyRuntime(saved, next);
   migrateLegacySchedules(next);
   delete next.mapLocation;
