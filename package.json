@@ -5,9 +5,10 @@
   "scripts":{
     "test":"node --test tests/*.test.mjs",
     "validate":"node scripts/validate-content.mjs && node scripts/verify-expanded-content.mjs && node scripts/validate-deepening.mjs",
+    "simulate":"node scripts/simulate-five-years.mjs",
     "serve":"python3 -m http.server 4173",
     "test:e2e":"playwright test",
-    "check":"npm run validate && npm test"
+    "check":"npm run validate && npm test && npm run simulate"
   },
   "devDependencies":{"@playwright/test":"^1.55.0"}
 }
