@@ -8,9 +8,11 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <title>星途未定</title>
     <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./a11y.css" />
   </head>
   <body>
-    <div id="app"></div>
+    <a class="skip-link" href="#app">跳到遊戲內容</a>
+    <div id="app" role="main" tabindex="-1" aria-label="星途未定遊戲內容"></div>
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>

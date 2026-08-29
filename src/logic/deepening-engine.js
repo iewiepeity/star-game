@@ -4,6 +4,7 @@ import { JOB_CATALOG } from "../data/jobs.js";
 import { managerForAgency } from "../data/managers.js";
 import { FLAGSHIP_JOB_BEATS, MANAGER_STANCES } from "../data/deepening-content.js";
 import { NPC_AUTONOMOUS_BEATS, ROMANCE_STAGE_FLAVOR, WORLD_REACTION_SIGNALS } from "../data/living-world-content.js";
+import { NPC_LONGFORM_CHAPTERS, NPC_ROMANCE_VOICES } from "../data/longform-content.js";
 import { careerPhase } from "./career-phases.js";
 import { enqueueVisibleEvent } from "./event-engine.js";
 
@@ -19,7 +20,35 @@ function ensureDeepeningState() {
   state.romanceFlavorState ??= {};
   state.worldSignalHistory ??= [];
   state.managerAdvice ??= null;
+  state.contentExposure ??= {};
+  state.recentNarrativeIds ??= [];
+  state.npcLongformProgress ??= {};
   return state;
+}
+
+export function exposureCount(id) {
+  ensureDeepeningState();
+  return state.contentExposure[id] || 0;
+}
+
+export function recordExposure(id) {
+  if (!id) return 0;
+  ensureDeepeningState();
+  state.contentExposure[id] = exposureCount(id) + 1;
+  state.recentNarrativeIds.push(id);
+  state.recentNarrativeIds = cap(state.recentNarrativeIds, 24);
+  return state.contentExposure[id];
+}
+
+// 優先挑選曝光較少、最近沒有出現的內容；同次數時維持資料順序，讓 Seed 回放仍可重現。
+export function leastExposed(items, idOf = (item) => item.id) {
+  ensureDeepeningState();
+  return [...items].sort((a, b) => {
+    const aId = idOf(a), bId = idOf(b);
+    const recentA = state.recentNarrativeIds.includes(aId) ? 1000 : 0;
+    const recentB = state.recentNarrativeIds.includes(bId) ? 1000 : 0;
+    return exposureCount(aId) + recentA - exposureCount(bId) - recentB;
+  })[0] || null;
 }
 
 function addFeed(item) {
@@ -28,6 +57,7 @@ function addFeed(item) {
   if (state.livingWorldFeed.some((entry) => entry.id === id)) return null;
   state.livingWorldFeed.push({ week: state.week, ...item, id });
   state.livingWorldFeed = cap(state.livingWorldFeed, 50);
+  recordExposure(id);
   return id;
 }
 
@@ -107,10 +137,12 @@ function tickNpcAutonomousNarratives() {
     const pool = NPC_AUTONOMOUS_BEATS[npcId] || [];
     if (!pool.length) continue;
     const index = state.npcAutonomousBeatIndex[npcId] || 0;
-    const text = pool[index % pool.length];
+    const candidates = pool.map((text, beatIndex) => ({ id: `npc-life:${npcId}:${beatIndex}`, text, beatIndex }));
+    const selected = leastExposed(candidates) || candidates[index % pool.length];
+    const text = selected.text;
     state.npcAutonomousBeatIndex[npcId] = index + 1;
     const npc = NPCS[npcId];
-    const id = `npc-life:${npcId}:${index}`;
+    const id = `${selected.id}:cycle-${Math.floor(index / pool.length)}`;
     addFeed({ id, type: "人物近況", title: `${npc?.name || "業界人物"}也在往前走`, text, npcId });
     // 認識的人才會把近況帶進私人訊息；陌生 NPC 不會因此進通訊錄。
     if ((state.knownPeople || []).includes(npcId)) {
@@ -121,17 +153,50 @@ function tickNpcAutonomousNarratives() {
   return updates;
 }
 
+function tickNpcLongform() {
+  if (state.week < 14 || state.week % 5 !== 0) return null;
+  const known = (state.knownPeople || []).filter((id) => NPC_LONGFORM_CHAPTERS[id]?.length);
+  if (!known.length) return null;
+  const candidates = known.flatMap((npcId) => {
+    const progress = state.npcLongformProgress[npcId] || 0;
+    const chapter = NPC_LONGFORM_CHAPTERS[npcId][progress];
+    return chapter ? [{ npcId, chapter, id: `npc-long:${npcId}:${chapter.id}` }] : [];
+  });
+  const selected = leastExposed(candidates);
+  if (!selected) return null;
+  const { npcId, chapter, id } = selected;
+  const npc = NPCS[npcId];
+  enqueueVisibleEvent({
+    id,
+    kind: "人物事件",
+    priority: 78,
+    maxDelayWeeks: 10,
+    title: `${npc.name}・${chapter.title}`,
+    text: chapter.text,
+    choices: chapter.choices.map((choice) => ({
+      ...choice,
+      effect: { ...choice.effect, npc: npcId, flag: `${id}:${choice.id}` },
+    })),
+  }, "人物跨年主線");
+  state.npcLongformProgress[npcId] = (state.npcLongformProgress[npcId] || 0) + 1;
+  addFeed({ id: `feed:${id}`, type: "人物邀請", title: `${npc.name}希望你參與接下來的決定`, text: chapter.text, npcId });
+  return id;
+}
+
 function tickRomanceFlavor() {
   const npcId = state.partnerId;
   if (!npcId || !(state.knownPeople || []).includes(npcId)) return null;
   const stage = state.relationships?.[npcId]?.romance;
-  const pool = ROMANCE_STAGE_FLAVOR[stage];
+  const personal = NPC_ROMANCE_VOICES[npcId]?.[stage];
+  const pool = personal ? [personal, ...(ROMANCE_STAGE_FLAVOR[stage] || [])] : ROMANCE_STAGE_FLAVOR[stage];
   if (!pool?.length) return null;
   const previous = state.romanceFlavorState[npcId] || {};
   const changed = previous.stage !== stage;
   if (!changed && state.week - (previous.week || 0) < 4) return null;
-  const index = changed ? 0 : ((previous.index || 0) + 1) % pool.length;
-  const text = pool[index];
+  const candidates = pool.map((text, index) => ({ id: `romance:${npcId}:${stage}:${index}`, text, index }));
+  const selected = leastExposed(candidates);
+  const index = selected.index;
+  const text = selected.text;
   state.romanceFlavorState[npcId] = { stage, week: state.week, index };
   const id = `romance-flavor:${npcId}:${stage}:${state.week}`;
   state.npcMessages.push({ id, npcId, week: state.week, text, read: false, source: "romance" });
@@ -198,9 +263,10 @@ export function tickDeepeningSystems() {
   const queued = captureWorkEchoes();
   const echoes = resolveWorldEchoes();
   const npc = tickNpcAutonomousNarratives();
+  const longform = tickNpcLongform();
   const romance = tickRomanceFlavor();
   const manager = tickManagerAdvice();
   const signal = tickWorldSignal();
   const chapter = updateChapterPressure();
-  return { queued, echoes, npc, romance, manager, signal, chapter };
+  return { queued, echoes, npc, longform, romance, manager, signal, chapter };
 }

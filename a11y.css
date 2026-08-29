@@ -1,0 +1,8 @@
+.skip-link{position:fixed;z-index:9999;left:12px;top:12px;padding:10px 14px;border-radius:10px;background:#332a27;color:#fff;transform:translateY(-160%)}
+.skip-link:focus{transform:translateY(0)}
+:focus-visible{outline:3px solid #356ca8!important;outline-offset:3px!important}
+button:disabled{cursor:not-allowed}
+.job-detail>.job-board-head,.npc-profile-copy>header{position:sticky;z-index:4;top:0;padding:12px;background:rgba(255,250,244,.96);backdrop-filter:blur(10px)}
+.job-story-preview details,.npc-info-section,.career-week{content-visibility:auto;contain-intrinsic-size:100px}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.create-avatar-preview:before,.wardrobe-art:before{animation:none!important}}
+@media(prefers-contrast:more){:root{--line:#746b65}.job-catalog-card,.npc-info-section,.map-place{border-width:2px}.week-change-chips span{border:1px solid currentColor}}
