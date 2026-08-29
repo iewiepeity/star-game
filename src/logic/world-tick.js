@@ -3,14 +3,11 @@ import { checkAgencyContractExpiry } from "./agency.js";
 import { refreshAgencyJobOffers } from "./agency-offers.js";
 import { checkJobDeadlines } from "./job-engine.js";
 import { recordCareerRoute } from "./career.js";
-import { processQueuedEvents } from "./event-engine.js";
+import { processQueuedEvents, enqueueVisibleEvent } from "./event-engine.js";
 import { resolveDueAwardSeasons } from "./portfolio.js";
 import { enqueueCalendarEvents } from "./calendar-events.js";
 import { tickNpcCareers } from "./npc-ecosystem.js";
-import {
-  syncNpcAutonomousWork,
-  cleanupNpcAutonomousSchedules,
-} from "./npc-autonomy.js";
+import { syncNpcAutonomousWork, cleanupNpcAutonomousSchedules } from "./npc-autonomy.js";
 import { tickNpcRelationshipDynamics } from "./npc-dynamics.js";
 import { cleanupActivities } from "./scheduled-activities.js";
 import { generateIndustryNews } from "./industry-news.js";
@@ -30,22 +27,18 @@ import { maybeQueueMediaEvent } from "./media-engine.js";
 import { tickSequelOpportunities } from "./sequel-engine.js";
 import { queueAnnualWorldEvent } from "./world-events.js";
 import { tickRomanceRelationships } from "./romance-engine.js";
-import { enqueueVisibleEvent } from "./event-engine.js";
 import { queueHiddenRoute } from "./hidden-route.js";
 import { tickCrossEventChains } from "./cross-event-engine.js";
 import { queueCareerPhaseEvent } from "./career-phases.js";
+import { tickDeepeningSystems } from "./deepening-engine.js";
 
 function queueAwardCeremony(awards) {
   if (!awards.length) return null;
   const wins = awards.filter((award) => award.result !== "入圍"),
-    titles = awards
-      .map((award) => {
-        const work = state.completedWorks.find(
-          (item) => item.id === award.workId,
-        );
-        return `《${work?.title || "作品"}》${award.result}`;
-      })
-      .join("、");
+    titles = awards.map((award) => {
+      const work = state.completedWorks.find((item) => item.id === award.workId);
+      return `《${work?.title || "作品"}》${award.result}`;
+    }).join("、");
   const event = {
     id: `award-ceremony-${state.week}`,
     kind: "職涯事件",
@@ -54,27 +47,8 @@ function queueAwardCeremony(awards) {
     title: wins.length ? "名字在頒獎台上被念出" : "入圍名單上的那一行",
     text: `典禮燈光亮起，${titles}。一路累積的工作，此刻終於有了能被看見的形狀。`,
     choices: [
-      {
-        id: "team",
-        label: "把掌聲留給整個團隊",
-        outcome: "你沒有把作品說成一個人的功勞，合作過的人都記住了這句話。",
-        effect: {
-          rep: "業界評價",
-          value: wins.length ? 6 : 3,
-          rep2: "路人緣",
-          value2: 3,
-        },
-      },
-      {
-        id: "future",
-        label: "談下一部想做的作品",
-        outcome: "你把這一晚當成起點，媒體也開始追問下一步。",
-        effect: {
-          rep: "話題度",
-          value: wins.length ? 7 : 3,
-          fame: wins.length ? 4 : 1,
-        },
-      },
+      { id: "team", label: "把掌聲留給整個團隊", outcome: "你沒有把作品說成一個人的功勞，合作過的人都記住了這句話。", effect: { rep: "業界評價", value: wins.length ? 6 : 3, rep2: "路人緣", value2: 3 } },
+      { id: "future", label: "談下一部想做的作品", outcome: "你把這一晚當成起點，媒體也開始追問下一步。", effect: { rep: "話題度", value: wins.length ? 7 : 3, fame: wins.length ? 4 : 1 } },
     ],
   };
   enqueueVisibleEvent(event, "獎項典禮");
@@ -87,8 +61,7 @@ export function advanceWorldWeek() {
   syncScandalResponseFlags();
   state.week += 1;
   state.hospitalSkipWeeks = 0;
-  if (state.forcedRestWeek && state.week > state.forcedRestWeek)
-    state.forcedRestWeek = null;
+  if (state.forcedRestWeek && state.week > state.forcedRestWeek) state.forcedRestWeek = null;
   cleanupActivities();
   cleanupNpcAutonomousSchedules();
   checkAgencyContractExpiry();
@@ -103,15 +76,7 @@ export function advanceWorldWeek() {
   const npcRelationUpdates = tickNpcRelationshipDynamics();
   const romanceUpdates = tickRomanceRelationships();
   const rumorUpdates = tickRumors();
-  const npcUpdates = [
-    ...npcWork,
-    ...npcGrowth,
-    ...npcRelationUpdates,
-    ...romanceUpdates,
-    ...rumorUpdates,
-    ...rivalUpdates,
-    ...workUpdates,
-  ];
+  const npcUpdates = [...npcWork, ...npcGrowth, ...npcRelationUpdates, ...romanceUpdates, ...rumorUpdates, ...rivalUpdates, ...workUpdates];
   const news = generateIndustryNews({ awards, npcUpdates });
   const opinion = tickPublicOpinion(news);
   tickBrandRelations();
@@ -121,7 +86,6 @@ export function advanceWorldWeek() {
   recordCareerRoute();
   const persona = evaluatePersona();
   const fandom = syncFandom();
-  const due = processQueuedEvents();
   const calendar = enqueueCalendarEvents();
   const npcStories = queueNpcStoryEvents();
   const proactive = tickNpcProactiveEvents();
@@ -131,26 +95,9 @@ export function advanceWorldWeek() {
   const hiddenRoute = queueHiddenRoute();
   const careerPhase = queueCareerPhaseEvent();
   const crossEvent = tickCrossEventChains();
-  return {
-    breached,
-    awards,
-    market,
-    npcUpdates,
-    rumorUpdates,
-    news,
-    opinion,
-    scandal,
-    persona,
-    fandom,
-    due,
-    calendar,
-    npcStories,
-    proactive,
-    media,
-    sequel,
-    worldEvent,
-    hiddenRoute,
-    careerPhase,
-    crossEvent,
-  };
+  // 深化層放在所有核心狀態推進後，讀取本週真正發生的作品、關係、輿論與 NPC 變化。
+  const deepening = tickDeepeningSystems();
+  // 新產生的跨週回聲／章節事件同一週就能進入可見佇列，而不是再多等一週。
+  const due = processQueuedEvents();
+  return { breached, awards, market, npcUpdates, rumorUpdates, news, opinion, scandal, persona, fandom, due, calendar, npcStories, proactive, media, sequel, worldEvent, hiddenRoute, careerPhase, crossEvent, deepening };
 }
