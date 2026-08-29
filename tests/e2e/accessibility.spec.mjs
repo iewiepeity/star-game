@@ -1,5 +1,9 @@
 import { test, expect } from "@playwright/test";
 
+// These checks exercise the document itself. Blocking the service worker keeps
+// its first-install controller reload from stealing focus during keyboard tests.
+test.use({ serviceWorkers: "block" });
+
 test("鍵盤使用者可跳到遊戲內容且主要互動有可見焦點",async({page})=>{
  await page.goto("/");
  await page.keyboard.press("Tab");
@@ -12,8 +16,11 @@ test("鍵盤使用者可跳到遊戲內容且主要互動有可見焦點",async(
 test("減少動態偏好會停用非必要動畫",async({page})=>{
  await page.emulateMedia({reducedMotion:"reduce"});
  await page.goto("/");
- const duration=await page.locator("#app").evaluate(node=>getComputedStyle(node).animationDuration);
- expect(["0.01ms","0s"]).toContain(duration);
+ const durationSeconds=await page.locator("#app").evaluate(node=>{
+  const value=getComputedStyle(node).animationDuration.trim();
+  return value.endsWith("ms")?Number.parseFloat(value)/1000:Number.parseFloat(value);
+ });
+ expect(durationSeconds).toBeLessThanOrEqual(0.00001);
 });
 
 test("手機建立角色頁沒有水平溢出",async({page})=>{
