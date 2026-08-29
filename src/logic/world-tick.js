@@ -31,73 +31,10 @@ import { queueHiddenRoute } from "./hidden-route.js";
 import { tickCrossEventChains } from "./cross-event-engine.js";
 import { queueCareerPhaseEvent } from "./career-phases.js";
 import { tickDeepeningSystems } from "./deepening-engine.js";
+import { tickPlayableDepth } from "./playable-depth-engine.js";
 
-function queueAwardCeremony(awards) {
-  if (!awards.length) return null;
-  const wins = awards.filter((award) => award.result !== "入圍"),
-    titles = awards.map((award) => {
-      const work = state.completedWorks.find((item) => item.id === award.workId);
-      return `《${work?.title || "作品"}》${award.result}`;
-    }).join("、");
-  const event = {
-    id: `award-ceremony-${state.week}`,
-    kind: "職涯事件",
-    priority: 90,
-    maxDelayWeeks: 3,
-    title: wins.length ? "名字在頒獎台上被念出" : "入圍名單上的那一行",
-    text: `典禮燈光亮起，${titles}。一路累積的工作，此刻終於有了能被看見的形狀。`,
-    choices: [
-      { id: "team", label: "把掌聲留給整個團隊", outcome: "你沒有把作品說成一個人的功勞，合作過的人都記住了這句話。", effect: { rep: "業界評價", value: wins.length ? 6 : 3, rep2: "路人緣", value2: 3 } },
-      { id: "future", label: "談下一部想做的作品", outcome: "你把這一晚當成起點，媒體也開始追問下一步。", effect: { rep: "話題度", value: wins.length ? 7 : 3, fame: wins.length ? 4 : 1 } },
-    ],
-  };
-  enqueueVisibleEvent(event, "獎項典禮");
-  return event.id;
-}
-
-export function advanceWorldWeek() {
-  const closingNews = generateIndustryNews();
-  tickPublicOpinion(closingNews);
-  syncScandalResponseFlags();
-  state.week += 1;
-  state.hospitalSkipWeeks = 0;
-  if (state.forcedRestWeek && state.week > state.forcedRestWeek) state.forcedRestWeek = null;
-  cleanupActivities();
-  cleanupNpcAutonomousSchedules();
-  checkAgencyContractExpiry();
-  const breached = checkJobDeadlines();
-  const awards = resolveDueAwardSeasons();
-  queueAwardCeremony(awards);
-  const market = tickWorldMarket();
-  const rivalUpdates = tickCompetitors();
-  const workUpdates = tickWorkLifecycles();
-  const npcGrowth = tickNpcCareers();
-  const npcWork = syncNpcAutonomousWork();
-  const npcRelationUpdates = tickNpcRelationshipDynamics();
-  const romanceUpdates = tickRomanceRelationships();
-  const rumorUpdates = tickRumors();
-  const npcUpdates = [...npcWork, ...npcGrowth, ...npcRelationUpdates, ...romanceUpdates, ...rumorUpdates, ...rivalUpdates, ...workUpdates];
-  const news = generateIndustryNews({ awards, npcUpdates });
-  const opinion = tickPublicOpinion(news);
-  tickBrandRelations();
-  const scandal = tickScandals();
-  tickManager();
-  refreshAgencyJobOffers();
-  recordCareerRoute();
-  const persona = evaluatePersona();
-  const fandom = syncFandom();
-  const calendar = enqueueCalendarEvents();
-  const npcStories = queueNpcStoryEvents();
-  const proactive = tickNpcProactiveEvents();
-  const media = maybeQueueMediaEvent();
-  const sequel = tickSequelOpportunities();
-  const worldEvent = queueAnnualWorldEvent();
-  const hiddenRoute = queueHiddenRoute();
-  const careerPhase = queueCareerPhaseEvent();
-  const crossEvent = tickCrossEventChains();
-  // 深化層放在所有核心狀態推進後，讀取本週真正發生的作品、關係、輿論與 NPC 變化。
-  const deepening = tickDeepeningSystems();
-  // 新產生的跨週回聲／章節事件同一週就能進入可見佇列，而不是再多等一週。
-  const due = processQueuedEvents();
-  return { breached, awards, market, npcUpdates, rumorUpdates, news, opinion, scandal, persona, fandom, due, calendar, npcStories, proactive, media, sequel, worldEvent, hiddenRoute, careerPhase, crossEvent, deepening };
+function queueAwardCeremony(awards){if(!awards.length)return null;const wins=awards.filter(a=>a.result!=="入圍"),titles=awards.map(a=>{const work=state.completedWorks.find(i=>i.id===a.workId);return`《${work?.title||"作品"}》${a.result}`}).join("、"),event={id:`award-ceremony-${state.week}`,kind:"職涯事件",priority:90,maxDelayWeeks:3,title:wins.length?"名字在頒獎台上被念出":"入圍名單上的那一行",text:`典禮燈光亮起，${titles}。一路累積的工作，此刻終於有了能被看見的形狀。`,choices:[{id:"team",label:"把掌聲留給整個團隊",outcome:"你沒有把作品說成一個人的功勞，合作過的人都記住了這句話。",effect:{rep:"業界評價",value:wins.length?6:3,rep2:"路人緣",value2:3}},{id:"future",label:"談下一部想做的作品",outcome:"你把這一晚當成起點，媒體也開始追問下一步。",effect:{rep:"話題度",value:wins.length?7:3,fame:wins.length?4:1}}]};enqueueVisibleEvent(event,"獎項典禮");return event.id}
+function surfacePlayableDepth(p){const visible=[];if(p.chainStart)visible.push({id:p.chainStart.id,kind:"生活事件",priority:42,maxDelayWeeks:3,title:"片場的一件小事",text:p.chainStart.start});for(const e of[...(p.chains||[]),...(p.callbacks||[])])visible.push({...e,kind:"後續事件",priority:55,maxDelayWeeks:4});if(p.manager)visible.push({id:p.manager.id,kind:"經紀人事件",priority:68,maxDelayWeeks:2,title:"經紀人主動介入",text:p.manager.text});if(p.romance)visible.push({...p.romance,kind:"關係事件",priority:52,maxDelayWeeks:2});if(p.tentpole&&p.tentpole.delta===p.tentpole.lead)visible.push({id:`tentpole-${p.tentpole.year}-${p.tentpole.week}`,kind:"年度事件",priority:58,maxDelayWeeks:2,title:`${p.tentpole.title}開始倒數`,text:p.tentpole.text});for(const e of visible)enqueueVisibleEvent(e,"實玩深化");return visible.map(e=>e.id)}
+export function advanceWorldWeek(){
+ const closingNews=generateIndustryNews();tickPublicOpinion(closingNews);syncScandalResponseFlags();state.week+=1;state.hospitalSkipWeeks=0;if(state.forcedRestWeek&&state.week>state.forcedRestWeek)state.forcedRestWeek=null;cleanupActivities();cleanupNpcAutonomousSchedules();checkAgencyContractExpiry();const breached=checkJobDeadlines(),awards=resolveDueAwardSeasons();queueAwardCeremony(awards);const market=tickWorldMarket(),rivalUpdates=tickCompetitors(),workUpdates=tickWorkLifecycles(),npcGrowth=tickNpcCareers(),npcWork=syncNpcAutonomousWork(),npcRelationUpdates=tickNpcRelationshipDynamics(),romanceUpdates=tickRomanceRelationships(),rumorUpdates=tickRumors(),npcUpdates=[...npcWork,...npcGrowth,...npcRelationUpdates,...romanceUpdates,...rumorUpdates,...rivalUpdates,...workUpdates],news=generateIndustryNews({awards,npcUpdates}),opinion=tickPublicOpinion(news);tickBrandRelations();const scandal=tickScandals();tickManager();refreshAgencyJobOffers();recordCareerRoute();const persona=evaluatePersona(),fandom=syncFandom(),calendar=enqueueCalendarEvents(),npcStories=queueNpcStoryEvents(),proactive=tickNpcProactiveEvents(),media=maybeQueueMediaEvent(),sequel=tickSequelOpportunities(),worldEvent=queueAnnualWorldEvent(),hiddenRoute=queueHiddenRoute(),careerPhase=queueCareerPhaseEvent(),crossEvent=tickCrossEventChains(),deepening=tickDeepeningSystems(),playableDepth=tickPlayableDepth(),playableVisible=surfacePlayableDepth(playableDepth),due=processQueuedEvents();return{breached,awards,market,npcUpdates,rumorUpdates,news,opinion,scandal,persona,fandom,due,calendar,npcStories,proactive,media,sequel,worldEvent,hiddenRoute,careerPhase,crossEvent,deepening,playableDepth,playableVisible}
 }
