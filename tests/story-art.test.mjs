@@ -5,7 +5,7 @@ import{eventStoryArt,runnerSceneArt,STORY_ART_ASSETS}from"../src/data/story-art.
 
 test("所有劇情與場景美術都已存在且沒有漏接",()=>{
  const unique=new Set(STORY_ART_ASSETS.map(art=>art.src));
- assert.equal(unique.size,78);
+ assert.equal(unique.size,86);
  for(const src of unique)assert.ok(existsSync(new URL(`../${src.replace(/^\.\//,"")}`,import.meta.url)),src);
 });
 
@@ -52,4 +52,8 @@ test("人物主線、戀愛與職涯里程碑會選到專屬 CG",()=>{
  assert.match(eventStoryArt({id:"npc-romance-lujingran:ambiguous:1",kind:"戀愛事件"}).src,/route-lujingran-rooftop-confession/);
  assert.match(eventStoryArt({id:"award-ceremony-52",title:"名字在頒獎台上被念出"}).src,/milestone-first-award/);
  assert.match(eventStoryArt({id:"scandal-choice:demo",title:"公關危機"}).src,/milestone-scandal-press/);
+ assert.match(eventStoryArt({id:"silver-route-festival",kind:"人物事件"}).src,/silver-pc-film-festival/);
+ assert.match(eventStoryArt({id:"silver-route-archive",kind:"人物事件"}).src,/silver-pc-archive-room/);
+ assert.match(eventStoryArt({id:"flagship-choice:J061",kind:"職涯事件"}).src,/milestone-flagship-signature/);
+ assert.match(eventStoryArt({id:"npc-romance-lujingran:romance:committed:3",kind:"戀愛事件"}).src,/milestone-romance-proposal/);
 });

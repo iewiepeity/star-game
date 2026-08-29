@@ -7,4 +7,4 @@ export const YEAR_TRANSITIONS=Object.freeze({
  260:{year:5,title:"第五年・留下自己的版本",text:"最後一年不是衝刺成唯一答案，而是確認這條路上哪些東西值得被帶到結局。",art:SCENE_ART.awards}
 });
 export const yearTransitionForWeek=week=>YEAR_TRANSITIONS[week]||null;
-export function endingArt(result){const route=`${result?.route||""} ${result?.rank||""} ${result?.title||""}`;if(/國際|海外|全球/.test(route))return SCENE_ART.airport;if(/導演|演員|電影|影視/.test(route))return SCENE_ART.cinema;if(/歌|音樂|偶像/.test(route))return SCENE_ART.recording;if(/主持|綜藝|媒體/.test(route))return SCENE_ART.radio;if(/獎|傳奇|巨星|S/.test(route))return SCENE_ART.awards;return SCENE_ART.room}
+export function endingArt(result){const route=`${result?.route||""} ${result?.rank||""} ${result?.title||""}`;if(result?.endingId==="whole_life")return{src:"./assets/cg/milestone-five-year-integrated.png",alt:"五年後的完整人生",position:"center"};if(/國際|海外|全球/.test(route))return SCENE_ART.airport;if(/導演|演員|電影|影視/.test(route))return SCENE_ART.cinema;if(/歌|音樂|偶像/.test(route))return SCENE_ART.recording;if(/主持|綜藝|媒體/.test(route))return SCENE_ART.radio;if(/獎|傳奇|巨星|S/.test(route))return SCENE_ART.awards;return SCENE_ART.room}

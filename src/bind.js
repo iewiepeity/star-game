@@ -19,6 +19,7 @@ import { bindPrologueScreen } from "./bind/prologue.js";
 import { bindSettings } from "./bind/settings.js";
 import { bindTimeline } from "./bind/timeline.js";
 import { bindGallery } from "./bind/gallery.js";
+import { bindAchievements } from "./bind/achievements.js";
 import {
   bindCreativeDirections,
   bindCreativeDistribution,
@@ -64,4 +65,5 @@ export function bind() {
   bindCreativeDistribution();
   bindTimeline();
   bindGallery();
+  bindAchievements();
 }

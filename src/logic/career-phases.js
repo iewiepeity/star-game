@@ -36,6 +36,7 @@ export function queueCareerPhaseEvent() {
     {id:"masterpiece",label:"押上一年完成代表作",note:"作品品質提高，但其他工作可用時間減少。",outcome:"最後一年不再求多；你決定讓一部作品承擔這五年的答案。",effect:{doctrineKey:"year5",doctrineValue:"masterpiece",doctrineLabel:"代表作優先",rep:"業界評價",value:12}},
     {id:"people",label:"把最後一年留給一起走來的人",note:"人物事件與關係收益提高，職涯衝刺較慢。",outcome:"你拒絕把所有陪伴都寫成成功背後的註腳。",effect:{doctrineKey:"year5",doctrineValue:"people",doctrineLabel:"重要關係優先",mood:8}},
     {id:"legacy",label:"建立能讓新人繼續走的制度",note:"即時人氣較少，可信度與五年結局權重提高。",outcome:"你想留下的不只是一個名字，而是一條別人不必再獨自摸索的路。",effect:{doctrineKey:"year5",doctrineValue:"legacy",doctrineLabel:"產業傳承",rep:"可信度",value:15}},
+    {id:"integrated",label:"讓作品、關係與制度成為同一份答案",note:"洞察、共情各 600，且至少完成 10 部作品。",special:true,requires:{hidden:{洞察:600,共情:600},completedWorksMin:10},outcome:"你不再把成功、陪伴與留下道路視為互相排斥的選項；最後一年改成一部由整個團隊共同完成的答案。",effects:[{doctrineKey:"year5",doctrineValue:"integrated",doctrineLabel:"完整人生",rep:"可信度",value:10},{mood:6,rep:"業界評價",value:8}]},
   ] : null;
   const event = {
     id: `career-phase-${phase.year}`,
@@ -68,6 +69,7 @@ export function applyCareerDoctrineTick(){
  if(d.year5?.id==="masterpiece"&&state.week%4===0)state.rep.業界評價=Math.min(1000,(state.rep.業界評價||0)+4);
  if(d.year5?.id==="people"&&state.week%4===0)state.mood=Math.min(100,state.mood+2);
  if(d.year5?.id==="legacy"&&state.week%4===0)state.rep.可信度=Math.min(1000,(state.rep.可信度||0)+4);
+ if(d.year5?.id==="integrated"&&state.week%4===0){state.rep.可信度=Math.min(1000,(state.rep.可信度||0)+2);state.rep.業界評價=Math.min(1000,(state.rep.業界評價||0)+2);state.mood=Math.min(100,state.mood+1)}
  if(state.week%17===0){const current=d.year5||d.year4||d.year3;if(current&&!state.doctrineEventHistory?.some(x=>x.week===state.week)){state.doctrineEventHistory??=[];state.doctrineEventHistory.push({week:state.week,id:current.id,label:current.label});enqueueVisibleEvent({id:`doctrine-${current.id}-${state.week}`,kind:"方針回響",priority:72,title:`「${current.label}」帶來的門`,text:`你曾經選下「${current.label}」。這一週，它不再只是履歷上的一句話：有人因此找上門，也有人明確退開。`,choices:[{id:"accept",label:"承認這就是我的取捨",outcome:"你沒有把代價粉飾成意外；團隊也更知道該替你守住什麼。",effect:{mood:3,rep:"可信度",value:3}},{id:"reframe",label:"重新說明這條路的邊界",outcome:"方針沒有撤回，但你為它補上了不傷害身邊人的條件。",effect:{mood:2,rep:"業界評價",value:2}}]},"方針回響")}}
  return true;
 }

@@ -88,6 +88,8 @@ const EXACT_EVENT_ART=Object.freeze({
  "own-column":cg("chengyian-sunset-frame.webp","溫時嶼把鏡頭轉向夕陽下的玩家"),
  "lujingran-chat":cg("lujingran-shared-headphones.webp","江敘白把耳機分給玩家一邊"),
  "band-reply":cg("lujingran-shared-headphones.webp","江敘白與玩家共聽沒有說完的旋律"),
+ "silver-route-festival":cg("silver-pc-film-festival.png","沈霧棠在夜間影展重新認出玩家"),
+ "silver-route-archive":cg("silver-pc-archive-room.png","沈霧棠在隱藏檔案室交出被抹去的記憶卡"),
  "silver-pc-last-train":cg("silver-pc-last-train.webp","沈霧棠在末班車上再次認出玩家")
 });
 
@@ -102,6 +104,12 @@ const NPC_ROUTE_ART=Object.freeze({
 });
 
 const MILESTONE_RULES=Object.freeze([
+ [/flagship-choice:|旗艦作品|第三份答案/,cg("milestone-flagship-signature.png","玩家在旗艦作品的關鍵現場提出第三份答案")],
+ [/npc-romance-.*:committed:|求婚|走向下一步/,cg("milestone-romance-proposal.png","重要的人在城市夜色中向玩家求婚")],
+ [/npc-romance-.*:engaged:|結婚|婚禮/,cg("milestone-romance-wedding.png","玩家在私人婚禮交換戒指")],
+ [/分手|分開|broken|breakup/,cg("milestone-romance-breakup.png","兩人在雨夜離開彼此的生活")],
+ [/續約|renewal|renew-/,cg("milestone-contract-renewal.png","玩家與長期夥伴簽下續約")],
+ [/完整人生|integrated|作品、關係與制度/,cg("milestone-five-year-integrated.png","五年後玩家讓作品、關係與制度成為同一份答案")],
  [/award-ceremony|頒獎|得獎|獲獎|獎座/,cg("milestone-first-award.webp","玩家第一次在頒獎臺舉起獎座")],
  [/scandal|醜聞|緋聞|公關危機|危機的第二波/,cg("milestone-scandal-press.webp","輿論危機中蜂擁而至的媒體")],
  [/overwork|過勞|昏倒|健康警訊|強制休養/,cg("milestone-overwork-collapse.webp","玩家因過勞倒在後台")],
@@ -122,12 +130,12 @@ export function eventStoryArt(event){
  if(!event)return null;
  const text=eventSearchText(event);
  for(const[id,art]of Object.entries(EXACT_EVENT_ART))if(text.includes(id))return art;
+ for(const[pattern,art]of MILESTONE_RULES)if(pattern.test(text))return art;
  const npcId=npcIdFromEvent(event);
  if(npcId&&(text.includes("npc-romance-")||event.kind==="戀愛事件"||/分開|重逢|曖昧|心意|約會/.test(text)))return NPC_ROUTE_ART[npcId];
  if(text.includes("末班車")||text.includes("silver_pc"))return NPC_ROUTE_ART.silver_pc;
  if(text.includes("醫院")||text.includes("病床"))return NPC_ROUTE_ART.hanzhiyuan;
  if(text.includes("直播後")||text.includes("爭執")||text.includes("決裂"))return NPC_ROUTE_ART.jiqing;
- for(const[pattern,art]of MILESTONE_RULES)if(pattern.test(text))return art;
  if(event.kind==="輿論事件")return SCENE_ART.press;
  if(event.kind==="戀愛事件")return SCENE_ART.cafe;
  if(event.kind==="職涯事件")return SCENE_ART.studio;
@@ -140,7 +148,17 @@ export const STORY_ART_ASSETS=Object.freeze([
  ...MILESTONE_RULES.map(([,art])=>art)
 ]);
 
+const MILESTONE_GALLERY_ITEMS=Object.freeze([
+ ["milestone:proposal","關於更遠的以後",cg("milestone-romance-proposal.png","重要的人在城市夜色中向玩家求婚")],
+ ["milestone:wedding","把承諾變成生活",cg("milestone-romance-wedding.png","玩家在私人婚禮交換戒指")],
+ ["milestone:breakup","雨夜留下的距離",cg("milestone-romance-breakup.png","兩人在雨夜離開彼此的生活")],
+ ["milestone:renewal","下一份共同合約",cg("milestone-contract-renewal.png","玩家與長期夥伴簽下續約")],
+ ["milestone:integrated","完整人生",cg("milestone-five-year-integrated.png","五年後玩家讓作品、關係與制度成為同一份答案")],
+ ["milestone:flagship","第三份答案",cg("milestone-flagship-signature.png","玩家在旗艦作品的關鍵現場提出第三份答案")]
+].map(([id,title,art])=>Object.freeze({id,kind:"milestone",title,art})));
+
 export const CG_GALLERY_ITEMS=Object.freeze([
  ...Object.entries(EXACT_EVENT_ART).map(([id,art])=>Object.freeze({id,kind:"chapter",title:art.alt,art})),
- ...Object.entries(NPC_ROUTE_ART).map(([id,art])=>Object.freeze({id:`route:${id}`,kind:"route",title:art.alt,art}))
+ ...Object.entries(NPC_ROUTE_ART).map(([id,art])=>Object.freeze({id:`route:${id}`,kind:"route",title:art.alt,art})),
+ ...MILESTONE_GALLERY_ITEMS
 ]);

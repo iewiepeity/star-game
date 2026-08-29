@@ -54,6 +54,7 @@ export function initialState() {
     brandRelations: {},
     scandals: [],
     managerState: null,
+    managerAdviceHistory: [],
     week: 1,
     schedule: ["vocal", "acting", "rest", "audition", "free", "dance", "rest"],
     lastSchedule: null,
@@ -120,6 +121,11 @@ export function initialState() {
     completedWorks: [],
     awards: [],
     awardSeasons: {},
+    runCount: 1,
+    unlockedAchievements: [],
+    achievementNotifications: [],
+    achievementFilter: "全部",
+    endingHistory: [],
     careerProgress: { 歌曲: 0, 電影: 0, 電視劇: 0, 綜藝: 0, 廣告: 0 },
     careerRouteHistory: [],
     careerPhaseHistory: [],
@@ -284,6 +290,10 @@ export function hydrateState(saved) {
     "crossEventHistory",
     "favoriteLocations",
     "recentLocations",
+    "unlockedAchievements",
+    "achievementNotifications",
+    "endingHistory",
+    "managerAdviceHistory",
   ])
     next[key] = Array.isArray(next[key]) ? next[key] : [];
   for (const key of [

@@ -239,6 +239,9 @@ function tickManagerAdvice() {
   if (!text || !def) return null;
   const id = `manager-advice:${state.currentAgencyId}:${type}:${state.week}`;
   state.managerAdvice = { id, week: state.week, type, name: def.name, text };
+  state.managerAdviceHistory ??= [];
+  state.managerAdviceHistory.push({ ...state.managerAdvice, agencyId: state.currentAgencyId });
+  state.managerAdviceHistory = cap(state.managerAdviceHistory, 40);
   addFeed({ id: `feed:${id}`, type: "經紀人", title: `${def.name}的本週判斷`, text });
   return id;
 }
