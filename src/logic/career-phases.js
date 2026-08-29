@@ -54,6 +54,10 @@ export function queueCareerPhaseEvent() {
 }
 
 export function applyCareerDoctrineTick(){
+ state.doctrineTickWeeks??={};
+ if(state.doctrineTickWeeks[state.week])return false;
+ state.doctrineTickWeeks[state.week]=true;
+ for(const week of Object.keys(state.doctrineTickWeeks))if(Number(week)<state.week-20)delete state.doctrineTickWeeks[week];
  const d=state.careerDoctrine||{};
  if(d.year3?.id==="compete"&&state.week%4===0){state.fame+=3;state.rep.話題度=Math.min(1000,(state.rep.話題度||0)+2)}
  if(d.year3?.id==="alliance"&&state.week%4===0){state.rep.可信度=Math.min(1000,(state.rep.可信度||0)+2)}
@@ -64,4 +68,6 @@ export function applyCareerDoctrineTick(){
  if(d.year5?.id==="masterpiece"&&state.week%4===0)state.rep.業界評價=Math.min(1000,(state.rep.業界評價||0)+4);
  if(d.year5?.id==="people"&&state.week%4===0)state.mood=Math.min(100,state.mood+2);
  if(d.year5?.id==="legacy"&&state.week%4===0)state.rep.可信度=Math.min(1000,(state.rep.可信度||0)+4);
+ if(state.week%17===0){const current=d.year5||d.year4||d.year3;if(current&&!state.doctrineEventHistory?.some(x=>x.week===state.week)){state.doctrineEventHistory??=[];state.doctrineEventHistory.push({week:state.week,id:current.id,label:current.label});enqueueVisibleEvent({id:`doctrine-${current.id}-${state.week}`,kind:"方針回響",priority:72,title:`「${current.label}」帶來的門`,text:`你曾經選下「${current.label}」。這一週，它不再只是履歷上的一句話：有人因此找上門，也有人明確退開。`,choices:[{id:"accept",label:"承認這就是我的取捨",outcome:"你沒有把代價粉飾成意外；團隊也更知道該替你守住什麼。",effect:{mood:3,rep:"可信度",value:3}},{id:"reframe",label:"重新說明這條路的邊界",outcome:"方針沒有撤回，但你為它補上了不傷害身邊人的條件。",effect:{mood:2,rep:"業界評價",value:2}}]},"方針回響")}}
+ return true;
 }

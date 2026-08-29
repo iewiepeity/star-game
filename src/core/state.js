@@ -126,6 +126,10 @@ export function initialState() {
     npcInvitations: [],
     npcInvitationHistory: [],
     ensembleEventHistory: [],
+    doctrineTickWeeks: {},
+    doctrineEventHistory: [],
+    timelineFilter: "all",
+    timelineQuery: "",
     contentExposure: {},
     recentNarrativeIds: [],
     npcLongformProgress: {},
@@ -161,7 +165,7 @@ export function initialState() {
     agencyJobOffers: [],
     rngSeed: null,
     rngCursor: 0,
-    saveVersion: 14,
+    saveVersion: 15,
   };
 }
 export let state = initialState();
@@ -389,7 +393,7 @@ export function hydrateState(saved) {
   delete next.mapLocation;
   delete next.lastVisitedLocation;
   delete next.lastVisitedWeek;
-  next.saveVersion = 13;
+  next.saveVersion = 15;
   state = next;
   return state;
 }

@@ -17,6 +17,7 @@ import { bindSocial } from "./bind/social.js";
 import { bindCreative } from "./bind/creative.js";
 import { bindPrologueScreen } from "./bind/prologue.js";
 import { bindSettings } from "./bind/settings.js";
+import { bindTimeline } from "./bind/timeline.js";
 import {
   bindCreativeDirections,
   bindCreativeDistribution,
@@ -60,4 +61,5 @@ export function bind() {
   bindCreative();
   bindCreativeDirections();
   bindCreativeDistribution();
+  bindTimeline();
 }

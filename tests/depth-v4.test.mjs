@@ -1,0 +1,21 @@
+import test from"node:test";
+import assert from"node:assert/strict";
+import{resetState,state}from"../src/core/state.js";
+import{LONGFORM_SCENE_BEATS}from"../src/data/longform-scene-beats.js";
+import{NPC_LONGFORM_CHAPTERS}from"../src/data/longform-content.js";
+import{NPC_INVITATION_POOLS}from"../src/data/invitation-content.js";
+import{JOB_CATALOG}from"../src/data/jobs.js";
+import{careerDoctrineAccess}from"../src/logic/job-engine.js";
+import{applyCareerDoctrineTick}from"../src/logic/career-phases.js";
+import{tickEnsembleScene,tickNpcInvitation}from"../src/logic/lived-story-engine.js";
+import{timelineItems,timelineApp}from"../src/views/timeline.js";
+import{migrateV14ToV15}from"../src/core/migrations.js";
+import{validateGameState}from"../src/core/save-schema.js";
+
+test("五十章的開場、揭露與兩種後續都是逐章撰寫",()=>{const chapters=Object.values(NPC_LONGFORM_CHAPTERS).flat(),beats=Object.values(LONGFORM_SCENE_BEATS);assert.equal(chapters.length,50);assert.equal(beats.length,50);for(const key of["opening","reveal","standAfter","questionAfter"])assert.equal(new Set(beats.map(x=>x[key])).size,50,`${key} 不可重複`)});
+test("十位人物各有日常、低潮、曖昧與衝突邀約",()=>{assert.equal(Object.keys(NPC_INVITATION_POOLS).length,10);for(const pool of Object.values(NPC_INVITATION_POOLS)){assert.deepEqual(Object.keys(pool).sort(),["conflict","low","ordinary","romance"]);assert.equal(new Set(Object.values(pool).map(x=>x.ask)).size,4)}});
+test("邀約依關係與狀態選擇不同文本",()=>{resetState();state.knownPeople=["jiqing"];state.relationships.jiqing={closeness:20,trust:20,affection:0,hostility:25,romance:"none"};state.week=18;tickNpcInvitation();assert.equal(state.npcInvitationHistory[0].type,"conflict")});
+test("關係網在年度節點能生成三人事件",()=>{resetState();state.knownPeople=["jiqing","shenyao","tangtang","guchengxi","linxiafan","lujingran","xiayutong","sufei","chengyian","hanzhiyuan"];state.week=52;const id=tickEnsembleScene(),event=state.eventQueue.find(x=>x.event.id===id)?.event;assert.equal(event.cast.length,3);assert.equal(event.kind,"三人事件");assert.equal(event.choices[0].effects.filter(x=>x.npc).length,3)});
+test("永久方針會真正關門，且同週效果只結算一次",()=>{resetState();const ad=JOB_CATALOG.find(x=>x.category==="廣告"&&x.stars>=4);state.careerDoctrine.year4={id:"autonomy",label:"創作自主"};assert.equal(careerDoctrineAccess(ad).ok,false);state.week=160;const before=state.rep.業界評價;assert.equal(applyCareerDoctrineTick(),true);assert.equal(applyCareerDoctrineTick(),false);assert.equal(state.rep.業界評價,before+3)});
+test("時間線可篩未讀、搜尋作品並提供跳轉",()=>{resetState();state.npcMessages=[{week:3,npcId:"jiqing",text:"今晚見",read:false}];state.completedWorks=[{week:2,title:"潮汐",category:"電影"}];state.timelineFilter="unread";assert.equal(timelineItems().length,1);state.timelineFilter="works";state.timelineQuery="潮汐";assert.equal(timelineItems()[0].group,"works");assert.match(timelineApp(),/data-timeline-open/)});
+test("v14 會補齊 v15 嚴格欄位，畸形新欄位會被拒絕",()=>{resetState();const old=structuredClone(state);old.saveVersion=14;delete old.doctrineTickWeeks;delete old.timelineFilter;const migrated=migrateV14ToV15(old);assert.equal(migrated.saveVersion,15);assert.equal(validateGameState(migrated).ok,true);migrated.timelineFilter="bogus";assert.equal(validateGameState(migrated).ok,false)});
