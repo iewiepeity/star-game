@@ -5,7 +5,7 @@ import{eventStoryArt,runnerSceneArt,STORY_ART_ASSETS}from"../src/data/story-art.
 
 test("所有劇情與場景美術都已存在且沒有漏接",()=>{
  const unique=new Set(STORY_ART_ASSETS.map(art=>art.src));
- assert.equal(unique.size,47);
+ assert.equal(unique.size,55);
  for(const src of unique)assert.ok(existsSync(new URL(`../${src.replace(/^\.\//,"")}`,import.meta.url)),src);
 });
 
@@ -16,6 +16,14 @@ test("行程會依內容切換場景",()=>{
 });
 
 test("人物主線、戀愛與職涯里程碑會選到專屬 CG",()=>{
+ assert.match(eventStoryArt({id:"guest-boundary",kind:"人物事件"}).src,/chapter-jiqing-guest-boundary/);
+ assert.match(eventStoryArt({id:"missing-shot",kind:"人物事件"}).src,/chapter-shenyao-missing-shot/);
+ assert.match(eventStoryArt({id:"fan-project",kind:"人物事件"}).src,/chapter-tangtang-fan-project/);
+ assert.match(eventStoryArt({id:"young-actor",kind:"人物事件"}).src,/chapter-guchengxi-young-actor/);
+ assert.match(eventStoryArt({id:"copied-work",kind:"人物事件"}).src,/chapter-linxiafan-copied-work/);
+ assert.match(eventStoryArt({id:"two-names",kind:"人物事件"}).src,/chapter-lujingran-two-names/);
+ assert.match(eventStoryArt({id:"bad-review",kind:"人物事件"}).src,/chapter-xiayutong-bad-review/);
+ assert.match(eventStoryArt({id:"family-seat",kind:"人物事件"}).src,/chapter-sufei-family-seat/);
  assert.match(eventStoryArt({id:"stage-return",kind:"人物事件"}).src,/chapter-guchengxi-stage-return/);
  assert.match(eventStoryArt({id:"studio-year",kind:"人物事件"}).src,/chapter-linxiafan-studio-year/);
  assert.match(eventStoryArt({id:"same-credit",kind:"人物事件"}).src,/chapter-sufei-same-credit/);

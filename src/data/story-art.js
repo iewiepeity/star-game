@@ -38,6 +38,14 @@ export function runnerSceneArt(actionId,locationId=null,result=null){
 }
 
 const EXACT_EVENT_ART=Object.freeze({
+ "guest-boundary":cg("chapter-jiqing-guest-boundary.webp","喬映澄在錄音室守住來賓不願公開的界線"),
+ "missing-shot":cg("chapter-shenyao-missing-shot.webp","裴硯之在剪輯室為被拿走的關鍵鏡頭據理力爭"),
+ "fan-project":cg("chapter-tangtang-fan-project.webp","楚星梨讀著粉絲替她留下的創作時間線"),
+ "young-actor":cg("chapter-guchengxi-young-actor.webp","周予珩在片場替緊張的新人留一次完整重來"),
+ "copied-work":cg("chapter-linxiafan-copied-work.webp","黎曼青在工作室整理遭到抄襲的原始創作"),
+ "two-names":cg("chapter-lujingran-two-names.webp","江敘白在演唱會上把掌聲還給所有創作者"),
+ "bad-review":cg("chapter-xiayutong-bad-review.webp","宋知夏在空蕩放映室面對那篇說中的負評"),
+ "family-seat":cg("chapter-sufei-family-seat.webp","許映真在首映散場後向家人承認一路並不容易"),
  "stage-return":cg("chapter-guchengxi-stage-return.webp","周予珩在老劇場後台選擇重返舞臺"),
  "studio-year":cg("chapter-linxiafan-studio-year.webp","黎曼青在工作室週年夜為失敗版本舉杯"),
  "same-credit":cg("chapter-sufei-same-credit.webp","許映真在並列主演席前確認平等合作"),
