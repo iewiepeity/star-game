@@ -5,6 +5,7 @@ import{signJob,scheduleJobSession,jobScheduleOptions}from"../logic/job-engine.js
 import{scheduleChange}from"../logic/schedule-transaction.js";
 export function bindPlanner(){
  const forced=state.forcedRestWeek===state.week;
+ document.querySelector("[data-clear-day]")?.addEventListener("click",event=>{if(forced)return;const day=Number(event.currentTarget.dataset.clearDay);if(state.agencyInterview?.dayIndex===day)cancelAgencyInterview();if(state.schedule[day]==="personal_task")cancelActivity(day);const result=scheduleChange(state,day,{type:"rest",allowStandardAction:true});state.notice=result.ok?`${DAYS[day]}已清空並改為休息`:result.message;render()});
  document.querySelectorAll("[data-day]").forEach(x=>x.onclick=()=>{if(forced)return;state.selectedDay=Number(x.dataset.day);render()});
  document.querySelectorAll("[data-filter]").forEach(x=>x.onclick=()=>{if(forced)return;state.filter=x.dataset.filter;render()});
  document.querySelectorAll("[data-planner-sign-job]").forEach(x=>x.onclick=()=>{if(forced)return;const ok=signJob(x.dataset.plannerSignJob);state.notice=ok?"合約已成立；這份通告已加入下方「工作」清單。":"合約目前無法成立，請查看合作檔期。";state.filter="工作";render()});

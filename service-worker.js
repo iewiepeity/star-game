@@ -1,5 +1,5 @@
-const CACHE="star-game-runtime-v1.15.0";
-const SHELL=["./","./index.html","./style.css","./a11y.css","./src/main.js","./assets/rookie-room.webp","./assets/icons/icon-192.webp","./assets/icons/icon-512.webp","./manifest.webmanifest"];
+const CACHE="star-game-runtime-v1.15.1";
+const SHELL=["./","./index.html","./style.css","./ui-hardening.css","./a11y.css","./src/main.js","./assets/rookie-room.webp","./assets/icons/icon-192.webp","./assets/icons/icon-512.webp","./manifest.webmanifest"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 async function networkFirst(request){const cache=await caches.open(CACHE);try{const response=await fetch(request);if(response?.ok)cache.put(request,response.clone());return response}catch{const cached=await cache.match(request);if(cached)return cached;if(request.mode==="navigate")return cache.match("./index.html");throw new Error("offline")}}

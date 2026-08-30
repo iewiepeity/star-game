@@ -21,6 +21,18 @@ let activeGuide="";
 let renderedMarkup="";
 const appScrollPositions={};
 
+function activeFocusSelector(){
+ const node=document.activeElement;
+ const wasInDialog=Boolean(node?.closest?.('[role="dialog"], [role="alertdialog"]'));
+ if(!node?.dataset)return{selector:"",wasInDialog};
+ if(node.dataset.focusKey)return{selector:`[data-focus-key="${CSS.escape(node.dataset.focusKey)}"]`,wasInDialog};
+ if(node.id)return{selector:`#${CSS.escape(node.id)}`,wasInDialog};
+ const entry=Object.entries(node.dataset)[0];
+ if(!entry)return{selector:"",wasInDialog};
+ const [key,value]=entry,attribute=key.replace(/[A-Z]/g,m=>`-${m.toLowerCase()}`);
+ return{selector:`[data-${attribute}="${CSS.escape(value)}"]`,wasInDialog};
+}
+
 function toastMarkup(message){
  return `<div class="game-toast" role="status" aria-live="polite"><i aria-hidden="true">✓</i><span>${esc(message)}</span></div>`;
 }
@@ -40,7 +52,8 @@ function syncToast(message){
   if(state.notice===message){
    state.notice="";
    activeToast="";
-   render();
+    document.querySelector(".game-toast")?.remove();
+    document.dispatchEvent(new CustomEvent("star-game:rendered"));
   }
  },TOAST_DURATION);
 }
@@ -62,12 +75,12 @@ function syncGuide(guide){
  activeGuide=id;
  guideTimer=setTimeout(()=>{
   guideTimer=null;
-  if(activeGuide===id){markTutorialSeen(state,id);activeGuide="";render()}
+  if(activeGuide===id){markTutorialSeen(state,id);activeGuide="";document.querySelector(`[data-guide-id="${CSS.escape(id)}"]`)?.remove();document.dispatchEvent(new CustomEvent("star-game:rendered"))}
  },GUIDE_DURATION);
 }
 
 function renderUnsafe(){
- const activeKey=document.activeElement?.dataset?Object.entries(document.activeElement.dataset)[0]:null;
+ const {selector:focusSelector,wasInDialog}=activeFocusSelector();
  const previousWindow=app.querySelector(".app-window"),previousBody=previousWindow?.querySelector(".window-body"),previousApp=state.appOpen;
  if(previousBody&&previousApp)appScrollPositions[previousApp]=previousBody.scrollTop;
  const isCreate=state.screen==="create";
@@ -81,7 +94,7 @@ function renderUnsafe(){
  app.querySelectorAll(".mini-toast").forEach(node=>node.remove());
  if(domChanged)bind();
  syncAudio(state.screen==="game"?"room":state.screen);
- if(activeKey){const [key,value]=activeKey,attribute=key.replace(/[A-Z]/g,m=>`-${m.toLowerCase()}`);app.querySelector(`[data-${attribute}="${CSS.escape(value)}"]`)?.focus({preventScroll:true})}
+ if(focusSelector&&(wasInDialog||!app.querySelector('[role="dialog"], [role="alertdialog"]')))app.querySelector(focusSelector)?.focus({preventScroll:true});
  if(domChanged)document.querySelector("[data-dismiss-guide]")?.addEventListener("click",()=>{if(guideTimer)clearTimeout(guideTimer);guideTimer=null;if(guide)markTutorialSeen(state,guide.id);activeGuide="";render()});
  document.dispatchEvent(new CustomEvent("star-game:rendered"));
  syncToast(message);

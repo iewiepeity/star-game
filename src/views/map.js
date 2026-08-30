@@ -4,8 +4,14 @@ import { NPCS } from "../data/npcs.js";
 import { state } from "../core/state.js";
 import { overseasEligibility } from "../logic/overseas.js";
 
-MAP_LOCATIONS.airport.note="第二年後可展開海外發展；抵達後選『主動探索』挑戰徵選，選『專注體驗』參加影展／音樂節交流。";
-const PURPOSES={全部:{label:"全部地點",test:()=>true},work:{label:"找試鏡／通告",test:l=>l.industry||/試鏡|通告|Casting|工作/.test(l.effect+l.note)},people:{label:"認識人物",test:l=>!!l.encounter},recover:{label:"恢復狀態",test:l=>!!l.recover},growth:{label:"能力成長",test:l=>!!l.gain}};
+MAP_LOCATIONS.airport.note = "第二年後可展開海外發展；抵達後選『主動探索』挑戰徵選，選『專注體驗』參加影展／音樂節交流。";
+const PURPOSES = {
+  全部: { label: "全部地點", test: () => true },
+  work: { label: "找試鏡／通告", test: (location) => location.industry || /試鏡|通告|Casting|工作/.test(location.effect + location.note) },
+  people: { label: "認識人物", test: (location) => Boolean(location.encounter) },
+  recover: { label: "恢復狀態", test: (location) => Boolean(location.recover) },
+  growth: { label: "能力成長", test: (location) => Boolean(location.gain) },
+};
 
 function contextHint(id, location) {
   const day = state.selectedDay || 0, weekend = day >= 5, known = location.encounter && (state.knownPeople || []).includes(location.encounter);
@@ -22,9 +28,28 @@ function contextHint(id, location) {
   return weekend ? "週末讓這裡比平常熱鬧；同一個地方，今天遇到的人與氣氛可能完全不同。" : "今天看起來很普通，但星望市的工作與人物並不會因你沒來就停止。";
 }
 
-export function mapApp(){
- const selected=state.freeLocations[state.selectedDay],filter=state.mapFilter||"全部",purpose=state.mapPurpose||"全部",overseas=overseasEligibility(),favorites=new Set(state.favoriteLocations||[]);
- const locations=Object.entries(MAP_LOCATIONS).filter(([,l])=>(filter==="全部"||l.category===filter)&&(PURPOSES[purpose]?.test(l)??true));
- const available=Object.entries(MAP_LOCATIONS).filter(([id,l])=>!l.locked||id==="airport"&&overseas.unlocked).length,recent=(state.recentLocations||[]).filter(id=>MAP_LOCATIONS[id]).slice(0,4);
- return `<div class="map-page"><div class="map-intro"><div><span>STARWISH CITY・${available} 個可探索地點</span><h2>${DAYS[state.selectedDay]}想完成什麼？</h2><p>先選目的，再挑地點；同一個地點也會因時段、週末與人物工作狀態出現不同線索。</p></div><b>基本交通費 $300</b></div><section class="map-purpose"><span>依目的找地點</span>${Object.entries(PURPOSES).map(([id,p])=>`<button class="${purpose===id?"active":""}" data-map-purpose="${id}">${p.label}</button>`).join("")}</section>${recent.length?`<section class="map-recent"><span>最近前往</span>${recent.map(id=>`<button data-map-location="${id}">${MAP_LOCATIONS[id].icon} ${MAP_LOCATIONS[id].name}</button>`).join("")}</section>`:""}<nav class="map-filters">${MAP_CATEGORIES.map(c=>`<button class="${filter===c?"active":""}" data-map-filter="${c}">${c}</button>`).join("")}</nav><div class="city-map">${locations.map(([id,l])=>{const locked=l.locked&&!(id==="airport"&&overseas.unlocked),effect=id==="airport"?(overseas.unlocked?"海外影展、音樂節與公開徵選":overseas.requirements.filter(x=>!x.met).map(x=>`${x.label}（目前 ${x.current}）`).join("・")):l.effect,hint=contextHint(id,l);return`<article class="map-place ${locked?"locked":""} ${selected===id?"selected":""}"><button class="map-favorite ${favorites.has(id)?"active":""}" data-map-favorite="${id}" aria-label="收藏${l.name}">${favorites.has(id)?"★":"☆"}</button><button class="map-place-main" ${locked?"disabled":""} data-map-location="${id}"><i>${l.icon}</i><span><small>${l.area}・${l.category}</small><b>${l.name}</b><em>${l.note}</em><strong>${effect}</strong><mark class="map-context">今日線索｜${hint}</mark></span>${locked?`<u>完成條件後開放</u>`:`<u>${l.industry?"安排並在當天開啟工作櫃台":"選擇地點"} →</u>`}</button></article>`}).join("")}</div><aside class="map-tip">產業地點不是能力訓練的替代品：實際跑到公司時，會先進入該公司的 Casting Desk，再由你選要查看／申請的工作。地圖只透露玩家當下能合理察覺的線索，不會用未相遇 NPC 直接劇透。</aside></div>`;
+function locationCard(id, location, selected, favorites, overseas) {
+  const locked = location.locked && !(id === "airport" && overseas.unlocked);
+  const effect = id === "airport"
+    ? (overseas.unlocked ? "海外影展、音樂節與公開徵選" : overseas.requirements.filter((item) => !item.met).map((item) => `${item.label}（目前 ${item.current}）`).join("・"))
+    : location.effect;
+  const hint = contextHint(id, location), favorite = favorites.has(id);
+  return `<article class="map-place ${locked ? "locked" : ""} ${selected === id ? "selected" : ""}">
+    <button class="map-favorite ${favorite ? "active" : ""}" data-map-favorite="${id}" aria-label="${favorite ? "取消收藏" : "收藏"}${location.name}" aria-pressed="${favorite}">${favorite ? "★" : "☆"}</button>
+    <div class="map-place-main"><i aria-hidden="true">${location.icon}</i><span><small>${location.area}・${location.category}</small><b>${location.name}</b><strong>${effect}</strong><details class="map-place-details"><summary>查看介紹與今日線索</summary><em>${location.note}</em><mark class="map-context">今日線索｜${hint}</mark></details></span><button class="map-go" ${locked ? "disabled" : ""} data-map-location="${id}">${locked ? "完成條件後開放" : location.industry ? "前往工作櫃台 →" : "選擇地點 →"}</button></div>
+  </article>`;
+}
+
+export function mapApp() {
+  const selected = state.freeLocations[state.selectedDay], filter = state.mapFilter || "全部", purpose = state.mapPurpose || "全部", overseas = overseasEligibility(), favorites = new Set(state.favoriteLocations || []);
+  const locations = Object.entries(MAP_LOCATIONS).filter(([, location]) => (filter === "全部" || location.category === filter) && (PURPOSES[purpose]?.test(location) ?? true));
+  const available = Object.entries(MAP_LOCATIONS).filter(([id, location]) => !location.locked || (id === "airport" && overseas.unlocked)).length;
+  const recent = (state.recentLocations || []).filter((id) => MAP_LOCATIONS[id]).slice(0, 4);
+  return `<div class="map-page"><div class="map-intro"><div><span>STARWISH CITY・${available} 個可探索地點</span><h2>${DAYS[state.selectedDay]}想完成什麼？</h2><p>先選目的，再挑地點；收藏與最近去過的地方會留在最容易找到的位置。</p></div><b>基本交通費 $300</b></div>
+    <section class="map-purpose"><span>依目的找地點</span>${Object.entries(PURPOSES).map(([id, item]) => `<button class="${purpose === id ? "active" : ""}" data-map-purpose="${id}" aria-pressed="${purpose === id}">${item.label}</button>`).join("")}</section>
+    ${recent.length ? `<section class="map-recent"><span>最近前往</span>${recent.map((id) => `<button data-map-location="${id}">${MAP_LOCATIONS[id].icon} ${MAP_LOCATIONS[id].name}</button>`).join("")}</section>` : ""}
+    <nav class="map-filters" aria-label="地點分類">${MAP_CATEGORIES.map((category) => `<button class="${filter === category ? "active" : ""}" data-map-filter="${category}" aria-pressed="${filter === category}">${category}</button>`).join("")}</nav>
+    <div class="city-map">${locations.map(([id, location]) => locationCard(id, location, selected, favorites, overseas)).join("")}</div>
+    <aside class="map-tip">產業地點會先進入該公司的工作櫃台；地圖只透露玩家當下能合理察覺的線索，不會用未相遇人物直接劇透。</aside>
+  </div>`;
 }

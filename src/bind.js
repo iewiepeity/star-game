@@ -50,20 +50,22 @@ export function bind() {
     return;
   }
   bindRoomShell();
-  bindPlanner();
-  bindMap();
-  bindNpc();
-  bindAgency();
-  bindJobs();
-  bindWardrobe();
-  bindSave();
-  bindSettings();
-  bindForum();
-  bindSocial();
-  bindCreative();
-  bindCreativeDirections();
-  bindCreativeDistribution();
-  bindTimeline();
-  bindGallery();
-  bindAchievements();
+  const appBinders = {
+    planner: [bindPlanner],
+    map: [bindMap],
+    people: [bindNpc],
+    npc: [bindNpc],
+    agency: [bindAgency],
+    jobs: [bindJobs],
+    wardrobe: [bindWardrobe],
+    save: [bindSave],
+    settings: [bindSettings, bindSave],
+    forum: [bindForum],
+    social: [bindSocial],
+    creative: [bindCreative, bindCreativeDirections, bindCreativeDistribution],
+    timeline: [bindTimeline],
+    gallery: [bindGallery],
+    achievements: [bindAchievements],
+  };
+  (appBinders[state.appOpen] || []).forEach((binder) => binder());
 }

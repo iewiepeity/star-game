@@ -28,3 +28,20 @@ test("手機建立角色頁沒有水平溢出",async({page})=>{
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
  expect(overflow).toBeLessThanOrEqual(1);
 });
+
+test("App 視窗會管理焦點、支援 Esc 並回到觸發入口",async({page})=>{
+ await page.goto("/");
+ await page.locator("#player-name").fill("鍵盤測試");
+ await page.locator("#player-name").dispatchEvent("input");
+ await page.locator("#to-stats").click();
+ await page.locator("#start").click();
+ await page.locator("[data-skip-onboarding]").click();
+ const trigger=page.locator('.home-launchers [data-open-app="settings"]');
+ await trigger.scrollIntoViewIfNeeded();
+ await trigger.click();
+ await expect(page.locator(".app-window.settings")).toBeVisible();
+ await expect(page.locator(".app-window.settings")).toContainText("遊戲設定");
+ await page.keyboard.press("Escape");
+ await expect(page.locator(".app-window")).toHaveCount(0);
+ await expect(trigger).toBeFocused();
+});

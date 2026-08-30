@@ -1,0 +1,121 @@
+:root {
+  --font-caption: 0.75rem;
+  --font-body: 0.875rem;
+  --font-reading: 1rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --radius-control: 0.75rem;
+  --surface-raised: #fffdf9;
+  --surface-muted: #f3ece4;
+  --text-secondary: #786d67;
+  --control-min: 44px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+button,
+[role="button"],
+input,
+select,
+textarea { touch-action: manipulation; }
+
+.room-screen,
+.event-screen,
+.summary-screen,
+.create-screen,
+.create-art { min-height: 100dvh; }
+
+.app-window { height: min(760px, calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom))); }
+.window-close,
+.map-favorite { min-width: var(--control-min); min-height: var(--control-min); }
+.window-close { display: grid; place-items: center; }
+.window-start,
+.list-tools input,
+.list-tools select,
+.map-purpose button,
+.map-filters button,
+.map-recent button,
+.focus-row button,
+.calendar-head button,
+.activity-picker header nav button,
+.settings-inline-actions button { min-height: var(--control-min); }
+
+.confirm-dialog:focus,
+.app-window:focus { outline: none; }
+.room-screen > [inert] { pointer-events: none; user-select: none; }
+
+.planner-app { padding-bottom: 86px !important; }
+.week-check {
+  position: sticky;
+  z-index: 8;
+  bottom: 0;
+  min-height: 54px;
+  box-shadow: 0 -8px 24px rgba(70, 50, 42, 0.1);
+  backdrop-filter: blur(12px);
+}
+.planner-day-actions { display: flex; justify-content: flex-end; margin-top: 10px; }
+.planner-clear-day { min-height: var(--control-min); padding: 0 14px; border: 1px solid #d7c9bf; border-radius: var(--radius-control); background: var(--surface-raised); }
+
+.map-place-details { margin-top: 9px; }
+.map-place-details summary { color: #8a6670; font-weight: 800; cursor: pointer; }
+.map-place-details[open] summary { margin-bottom: 8px; }
+.map-place-details em,
+.map-place-details .map-context { display: block; }
+.map-favorite[aria-pressed="true"] { color: #9b6300; }
+.map-go { align-self: end; min-height: var(--control-min); padding: 8px 12px; border: 1px solid #d8c6bc; border-radius: var(--radius-control); background: var(--surface-raised); color: #9b5f69; font-weight: 800; }
+.map-go:disabled { color: var(--text-secondary); }
+
+.job-catalog-card[aria-current="true"],
+.calendar-cell[aria-pressed="true"] { outline: 2px solid #9e6069; outline-offset: -2px; }
+.list-tools { position: sticky; z-index: 3; top: 0; background: rgba(255, 253, 249, 0.96); backdrop-filter: blur(10px); }
+
+@media (max-width: 760px) {
+  body { min-width: 0; font-size: var(--font-reading); }
+  .room-screen { min-height: 100dvh; padding-top: calc(96px + var(--safe-top)); padding-bottom: var(--safe-bottom); }
+  .room-hud { top: max(8px, var(--safe-top)); }
+  .tablet { height: calc(100dvh - 112px - var(--safe-top) - var(--safe-bottom)); min-height: 520px; }
+  .app-window { inset: max(8px, var(--safe-top)) 8px max(8px, var(--safe-bottom)); height: auto; }
+  .window-bar { min-height: 72px; height: auto; }
+  .window-bar h2 { font-size: 1.125rem; }
+  .window-bar p { display: none; }
+  .inside-title p,
+  .map-intro p,
+  .job-board-head p,
+  .map-place small,
+  .map-place strong,
+  .map-context,
+  .contact-list small,
+  .timeline-list p { font-size: var(--font-body) !important; }
+  .home-launchers .app-tile > b,
+  .tablet-dock button span { font-size: var(--font-caption) !important; }
+  .home-launchers .app-tile,
+  .tablet-dock button { min-height: 58px; }
+  .planner-app { padding-bottom: 110px !important; }
+  .week-check { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; padding: 10px 12px; }
+  .week-check em { grid-column: 1 / -1; margin-left: 0; }
+  .calendar-cell { min-height: 76px !important; }
+  .calendar-cell > b { white-space: normal; }
+  .map-place-main { align-items: start; }
+  .map-place-main > span { min-width: 0; }
+  .map-place-main > span > em { display: none; }
+  .map-place-details em { display: block; }
+  .map-go { grid-column: 2; width: 100%; }
+  .job-layout { display: block; }
+  .job-catalog { max-height: 46dvh; overflow: auto; margin-bottom: 16px; }
+  .job-detail { scroll-margin-top: 74px; }
+  .confirm-dialog { max-height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 24px); overflow: auto; }
+}
+
+@media (max-width: 390px) {
+  .home-launchers { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .hud-stats span { font-size: var(--font-caption); }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .room-hud,
+  .app-library,
+  .window-bar,
+  .week-check { backdrop-filter: none; background-color: var(--surface-raised); }
+}
