@@ -32,6 +32,16 @@
   .pwa-update span { color: var(--text-muted); font-size: 12px; }
   .pwa-update button { min-height: 42px; padding: 8px 13px; border: 0; border-radius: var(--radius-control); background: var(--accent-solid); color: white; font-weight: 900; white-space: nowrap; }
   .jobs-filter-empty { padding: 24px; }
+  .save-undo { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--surface-muted); }
+  .save-undo span, .save-undo b { display: block; }
+  .save-undo b { flex: 1; }
+  .save-undo button, .save-confirm button, .app-close-guard button { min-height: 42px; padding: 8px 13px; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--surface-raised); font-weight: 800; }
+  .save-confirm { display: grid; gap: 8px; padding: 12px; border: 1px solid color-mix(in srgb, #b5525e 45%, var(--line)); border-radius: var(--radius-control); background: color-mix(in srgb, #b5525e 8%, var(--surface-raised)); }
+  .save-confirm div, .app-close-guard div { display: flex; justify-content: flex-end; gap: 8px; }
+  .save-confirm .danger, .app-close-guard .danger { border-color: #b5525e; background: #b5525e; color: white; }
+  .app-close-guard { position: absolute; z-index: 8; inset: 0; display: grid; place-content: center; gap: 10px; padding: 24px; background: color-mix(in srgb, var(--surface-raised) 92%, transparent); text-align: center; backdrop-filter: blur(10px); }
+  .npc-action-option { display: grid; gap: 4px; }
+  .npc-action-option > small { max-width: 170px; color: var(--text-muted); font-size: 11px; line-height: 1.4; }
 }
 
 @layer utilities {
@@ -43,6 +53,8 @@
   .pwa-update { left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); display: grid; }
   .pwa-update button { width: 100%; }
   .list-tools output { grid-column: 1 / -1; }
+  .save-undo { align-items: stretch; display: grid; }
+  .save-undo button { width: 100%; }
 }
 
 @layer overrides {

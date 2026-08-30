@@ -11,7 +11,7 @@ function contactCard(id) {
   const relation = state.relationships[id] || { closeness: 0, trust: 0, hostility: 0, romance: "none" };
   const stance = relationshipStance(relation).label;
   const romance = (relation.hostility || 0) < 20 && relation.romance && relation.romance !== "none" ? `・${romanceStageLabel(relation.romance)}` : "";
-  return `<button class="contact-card ${(relation.hostility || 0) >= 45 ? "conflict" : ""}" data-select-npc="${id}"><div>${npc.avatar}<img class="portrait-img" src="${npc.head || npc.portrait || ""}" alt="" loading="lazy" decoding="async" onerror="this.remove()"></div><span><b>${esc(npc.name)}</b><small>${esc(npc.job)}</small></span><em>${stance}${romance}</em></button>`;
+  return `<button class="contact-card ${(relation.hostility || 0) >= 45 ? "conflict" : ""}" data-select-npc="${id}"><div>${npc.avatar}<img class="portrait-img" src="${npc.head || npc.portrait || ""}" alt="" loading="lazy" decoding="async" data-remove-on-error></div><span><b>${esc(npc.name)}</b><small>${esc(npc.job)}</small></span><em>${stance}${romance}</em></button>`;
 }
 
 export function peopleApp() {

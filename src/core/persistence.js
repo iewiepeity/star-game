@@ -4,6 +4,7 @@ const AUTO_KEY = "star-game-save";
 const MANUAL_PREFIX = "star-game-save-slot-";
 const LEGACY_MANUAL_KEY = "star-game-save-manual";
 const BACKUP_KEY = "star-game-save-backup";
+const RECENT_MANUAL_KEY = "star-game-save-recent-manual";
 export const SAVE_VERSION = 15;
 export const SAVE_SLOT_COUNT = 5;
 export const AUTO_SAVE_DELAY = 300;
@@ -15,14 +16,23 @@ let autoSaveTimer = null,
   lastCheckpoint = "";
 export const TRANSIENT_STATE_KEYS = Object.freeze([
   "appOpen",
+  "appCloseConfirm",
   "dockEditing",
   "dockDraftIds",
   "dockNotice",
   "saveNotice",
+  "saveConfirm",
   "wardrobeNotice",
   "socialNotice",
   "jobQuery",
   "jobSort",
+  "jobStatusFilter",
+  "peopleQuery",
+  "peopleSection",
+  "appQuery",
+  "appCategory",
+  "appReturnContext",
+  "creativeDraftTitle",
   "timelineQuery",
   "gallerySelection",
   "selectedNpc",
@@ -129,7 +139,7 @@ export function manualSlotKey(slot) {
 }
 export function saveManualSlot(slot, state, label = "") {
   if (slot < 1 || slot > SAVE_SLOT_COUNT) return false;
-  backupCurrent(state, `覆寫槽位 ${slot} 前備份`);
+  if (!archiveManualSlot(slot, "overwrite")) return false;
   return writeRaw(manualSlotKey(slot), state, label);
 }
 export function loadManualSlot(slot) {
@@ -142,8 +152,51 @@ export function manualSlotMetas() {
 }
 export function deleteManualSlot(slot) {
   try {
+    if (!archiveManualSlot(slot, "delete")) return false;
     localStorage.removeItem(manualSlotKey(slot));
     return true;
+  } catch {
+    return false;
+  }
+}
+function archiveManualSlot(slot, action) {
+  try {
+    const saved = readRaw(manualSlotKey(slot));
+    if (!saved?.state) return action === "overwrite";
+    localStorage.setItem(
+      RECENT_MANUAL_KEY,
+      JSON.stringify({ ...saved, sourceSlot: slot, action }),
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+export function recentManualMeta() {
+  const saved = readRaw(RECENT_MANUAL_KEY);
+  return saved
+    ? {
+        ...meta(saved.sourceSlot, saved),
+        action: saved.action,
+        sourceSlot: saved.sourceSlot,
+      }
+    : null;
+}
+export function restoreRecentManualSlot() {
+  try {
+    const saved = readRaw(RECENT_MANUAL_KEY),
+      slot = Number(saved?.sourceSlot);
+    if (!saved?.state || slot < 1 || slot > SAVE_SLOT_COUNT) return false;
+    const current = readRaw(manualSlotKey(slot));
+    const { sourceSlot: _sourceSlot, action: _action, ...restored } = saved;
+    localStorage.setItem(manualSlotKey(slot), JSON.stringify(restored));
+    if (current?.state)
+      localStorage.setItem(
+        RECENT_MANUAL_KEY,
+        JSON.stringify({ ...current, sourceSlot: slot, action: "overwrite" }),
+      );
+    else localStorage.removeItem(RECENT_MANUAL_KEY);
+    return slot;
   } catch {
     return false;
   }

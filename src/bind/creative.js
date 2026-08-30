@@ -18,6 +18,7 @@ import {
 } from "../logic/creative-team.js";
 import { INDUSTRY_COMPANIES } from "../data/industry.js";
 import { render } from "../render.js";
+import { creativeActionState } from "../logic/creative-workflow.js";
 function queue(kind, payload, label, load, { reserveTeam = false } = {}) {
   const duplicate = Object.values(state.scheduledActivities || {}).some(
     (a) =>
@@ -69,6 +70,12 @@ export function bindCreative() {
           render();
           return;
         }
+        const availability = creativeActionState(p, "work");
+        if (!availability.ok) {
+          state.notice = availability.reason;
+          render();
+          return;
+        }
         queue(
           "creative_work",
           { projectId: p.id },
@@ -86,6 +93,12 @@ export function bindCreative() {
           company = INDUSTRY_COMPANIES[b.dataset.company];
         if (!p || !company) {
           state.notice = "投稿資料已失效。";
+          render();
+          return;
+        }
+        const availability = creativeActionState(p, "route");
+        if (!availability.ok) {
+          state.notice = availability.reason;
           render();
           return;
         }
@@ -148,6 +161,12 @@ export function bindCreative() {
           (x) => x.id === b.dataset.creativeProduce,
         );
         if (!p) return;
+        const availability = creativeActionState(p, "produce");
+        if (!availability.ok) {
+          state.notice = availability.reason;
+          render();
+          return;
+        }
         const cost =
           p.productionSessions === 0 && !p.budgetSpent
             ? creativeBudgetCost(p)
@@ -172,7 +191,7 @@ export function bindCreative() {
         const p = state.creativeProjects?.find(
           (x) => x.id === b.dataset.creativeRelease,
         );
-        if (p)
+        if (p && creativeActionState(p, "release").ok)
           queue("creative_release", { projectId: p.id }, `發行《${p.title}》`, {
             fatigue: 7,
             stamina: 7,

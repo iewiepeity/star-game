@@ -3,15 +3,15 @@ import { JOB_BY_ID } from "../data/jobs.js";
 import { jobSource } from "../logic/industry.js";
 import { applyForJob, scheduleJobAudition, signJob, scheduleJobSession, ensureJobState } from "../logic/job-engine.js";
 import { scheduleSequelSession } from "../logic/sequel-engine.js";
-import { render } from "../render.js";
+import { render, renderUi } from "../render.js";
 import { bindDeferredSearch } from "../core/deferred-search.js";
 
 export function bindJobs() {
   bindDeferredSearch("[data-job-query]",(value)=>{state.jobQuery=value},()=>render({persist:false}));
-  document.querySelector("[data-job-sort]")?.addEventListener("change",(event)=>{state.jobSort=event.currentTarget.value;render()});
-  document.querySelector("[data-job-status]")?.addEventListener("change",(event)=>{state.jobStatusFilter=event.currentTarget.value;render()});
-  document.querySelector("[data-clear-job-filters]")?.addEventListener("click",()=>{state.jobQuery="";state.jobStatusFilter="all";state.jobSort="deadline";render()});
-  document.querySelectorAll("[data-select-job]").forEach((button) => button.onclick = () => { state.selectedJobId = button.dataset.selectJob; render(); Promise.resolve().then(() => document.querySelector(".job-detail")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" })); });
+  document.querySelector("[data-job-sort]")?.addEventListener("change",(event)=>{state.jobSort=event.currentTarget.value;renderUi()});
+  document.querySelector("[data-job-status]")?.addEventListener("change",(event)=>{state.jobStatusFilter=event.currentTarget.value;renderUi()});
+  document.querySelector("[data-clear-job-filters]")?.addEventListener("click",()=>{state.jobQuery="";state.jobStatusFilter="all";state.jobSort="deadline";renderUi()});
+  document.querySelectorAll("[data-select-job]").forEach((button) => button.onclick = () => { state.selectedJobId = button.dataset.selectJob; renderUi(); Promise.resolve().then(() => document.querySelector(".job-detail")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" })); });
   document.querySelectorAll("[data-sequel-schedule]").forEach((button) => button.onclick = () => { const result = scheduleSequelSession(button.dataset.sequelSchedule); state.notice = result.message; if (result.ok) state.appOpen = "planner"; render(); });
   document.querySelectorAll("[data-job-action]").forEach((button) => button.onclick = () => {
     const id = button.dataset.jobId, action = button.dataset.jobAction, source = action === "apply" ? jobSource(JOB_BY_ID[id]) : null, record = ensureJobState(id);

@@ -13,6 +13,7 @@ export function initialState() {
     tab: "planner",
     appOpen: null,
     appReturnContext: null,
+    appCloseConfirm: false,
     appQuery: "",
     appCategory: "全部",
     peopleSection: "contacts",
@@ -39,6 +40,7 @@ export function initialState() {
     favoriteLocations: [],
     recentLocations: [],
     saveNotice: "",
+    saveConfirm: null,
     stats: {},
     hidden: {},
     luck: 0,
@@ -426,10 +428,12 @@ export function hydrateState(saved) {
   next.dockEditing = false;
   next.dockDraftIds = null;
   next.dockNotice = "";
+  next.saveConfirm = null;
   next.appReturnContext = null;
+  next.appCloseConfirm = false;
   next.jobStatusFilter = ["all", "action", "active", "available"].includes(next.jobStatusFilter) ? next.jobStatusFilter : "all";
   next.jobSort = ["deadline", "stars", "title"].includes(next.jobSort) ? next.jobSort : "deadline";
-  next.appCategory = ["全部", "行程", "事業", "人物", "收藏", "系統"].includes(next.appCategory) ? next.appCategory : "全部";
+  next.appCategory = ["全部", "規劃", "事業", "人物", "世界", "紀錄", "個人", "系統"].includes(next.appCategory) ? next.appCategory : "全部";
   if (next.appOpen === "npc") {
     next.appOpen = "people";
     next.peopleSection = "profiles";

@@ -105,7 +105,7 @@ function syncGuide(guide){
  },GUIDE_DURATION);
 }
 
-function renderUnsafe({persist=true}={}){
+function renderUnsafe({persist=true,reason="unspecified"}={}){
  const {selector:focusSelector,wasInDialog,selection}=activeFocusSelector();
  const previousWindow=app.querySelector(".app-window"),previousBody=previousWindow?.querySelector(".window-body"),previousApp=state.appOpen;
  if(previousBody&&previousApp){appScrollPositions[previousApp]=previousBody.scrollTop;rememberAppUi(previousApp,previousBody)}
@@ -125,8 +125,10 @@ function renderUnsafe({persist=true}={}){
  document.querySelector("[data-undo-action]")?.addEventListener("click",()=>{const action=consumeUndo(message);if(!action)return;action.run();state.notice=action.doneMessage;render()},{once:true});
  document.querySelector("[data-apply-update]")?.addEventListener("click",event=>{event.currentTarget.disabled=true;event.currentTarget.textContent="更新中…";document.dispatchEvent(new CustomEvent("star-game:save-now"));applyAvailableUpdate()},{once:true});
  document.dispatchEvent(new CustomEvent("star-game:rendered"));
- if(persist)document.dispatchEvent(new CustomEvent("star-game:state-changed"));
+ if(persist)document.dispatchEvent(new CustomEvent("star-game:state-changed",{detail:{reason}}));
  syncToast(message);
  syncGuide(guide);
 }
 export function render(options){try{renderUnsafe(options);return true}catch(error){showFatalError(error);return false}}
+export function renderUi(){return render({persist:false})}
+export function commitState(reason,mutation){if(typeof mutation==="function")mutation(state);return render({persist:true,reason})}

@@ -11,6 +11,7 @@ import {
 import { INDUSTRY_LIST } from "../data/industry.js";
 import { NPCS } from "../data/npcs.js";
 import { esc, money } from "../core/utils.js";
+import { creativeActionState } from "../logic/creative-workflow.js";
 const STATUS = {
   draft: "創作中",
   ready: "可投稿",
@@ -39,30 +40,31 @@ const phase = (p) =>
             ? 2
             : 1;
 function teamPanel(p) {
-  if (!["contracted", "production", "ready_release"].includes(p.status))
+  if (!creativeActionState(p, "team").ok)
     return "";
   const eligible = eligibleCreativeCollaborators(p),
     selected = new Set(p.team || []),
-    budget = CREATIVE_BUDGETS[p.budgetTier || "standard"];
+    budget = CREATIVE_BUDGETS[p.budgetTier || "standard"],
+    budgetAction = creativeActionState(p, "budget");
   return `<section class="creative-team"><header><span>PRODUCTION SETUP</span><b>製作團隊與規格</b></header><div class="creative-self"><span>玩家參與方式</span><button data-creative-self="${p.id}">${p.selfParticipation !== false ? "✓ 親自參與" : "幕後主創"}</button></div><div class="creative-budget">${Object.entries(
     CREATIVE_BUDGETS,
   )
     .map(
       ([id, b]) =>
-        `<button ${p.productionSessions > 0 ? "disabled" : ""} class="${(p.budgetTier || "standard") === id ? "active" : ""}" data-creative-budget="${p.id}" data-tier="${id}"><b>${esc(b.label)}</b><small>${money(b.cost)}</small></button>`,
+        `<button ${budgetAction.ok ? "" : "disabled"} class="${(p.budgetTier || "standard") === id ? "active" : ""}" data-creative-budget="${p.id}" data-tier="${id}" aria-describedby="creative-budget-reason-${p.id}"><b>${esc(b.label)}</b><small>${money(b.cost)}</small></button>`,
     )
     .join(
       "",
-    )}</div><p class="creative-team-note">${esc(budget.note)}${p.budgetSpent ? `・已投入 ${money(p.budgetSpent)}` : ""}</p><div class="creative-collaborators">${eligible.length ? eligible.map((n) => `<button class="${selected.has(n.id) ? "active" : ""}" data-creative-team="${p.id}" data-npc="${n.id}">${selected.has(n.id) ? "✓ " : ""}${esc(n.name)}<small>${esc(n.field)} Lv.${n.level}</small></button>`).join("") : `<p>目前沒有關係與專業都適合的合作 NPC。多認識業界人士後會出現在這裡。</p>`}</div>${selected.size ? `<div class="creative-roles">${[...selected].map((id) => `<button data-creative-role="${p.id}" data-npc="${id}">${esc(NPCS[id]?.name || id)}：${esc(p.roleAssignments?.[id] || "待分工")} ↻</button>`).join("")}</div>` : ""}</section>`;
+    )}</div><p class="creative-team-note" id="creative-budget-reason-${p.id}">${esc(budgetAction.reason || budget.note)}${p.budgetSpent ? `・已投入 ${money(p.budgetSpent)}` : ""}</p><div class="creative-collaborators">${eligible.length ? eligible.map((n) => `<button class="${selected.has(n.id) ? "active" : ""}" data-creative-team="${p.id}" data-npc="${n.id}">${selected.has(n.id) ? "✓ " : ""}${esc(n.name)}<small>${esc(n.field)} Lv.${n.level}</small></button>`).join("") : `<p>目前沒有關係與專業都適合的合作 NPC。多認識業界人士後會出現在這裡。</p>`}</div>${selected.size ? `<div class="creative-roles">${[...selected].map((id) => `<button data-creative-role="${p.id}" data-npc="${id}">${esc(NPCS[id]?.name || id)}：${esc(p.roleAssignments?.[id] || "待分工")} ↻</button>`).join("")}</div>` : ""}</section>`;
 }
 function actionArea(p, companies) {
-  if (p.status === "ready")
+  if (creativeActionState(p, "route").ok)
     return `<div class="creative-route-choice"><header><b>決定作品接下來的命運</b><small>每條路的收益、控制權與風險都不同。</small></header><button class="creative-independent" data-creative-self-produce="${p.id}"><b>自己拍／自己製作</b><small>保留完整權利，增加一次製作並自行承擔成本</small></button><div class="creative-company-routes">${companies.map((c) => `<article><b>${c.name}</b><button data-creative-submit="${p.id}" data-company="${c.id}">提案共同製作</button><button data-creative-sell="${p.id}" data-company="${c.id}">直接販售企劃</button></article>`).join("")}</div></div>`;
-  if (["draft", "rejected"].includes(p.status))
+  if (creativeActionState(p, "work").ok)
     return `<div class="creative-actions"><button data-creative-work="${p.id}">${p.status === "rejected" ? "重新修改" : "安排一天繼續創作"} →</button></div>`;
-  if (["contracted", "production"].includes(p.status))
+  if (creativeActionState(p, "produce").ok)
     return `<div class="creative-actions"><button data-creative-produce="${p.id}">安排製作工作 →</button></div>`;
-  if (p.status === "ready_release")
+  if (creativeActionState(p, "release").ok)
     return `<div class="creative-actions"><button data-creative-release="${p.id}">安排正式發行 →</button></div>`;
   return "";
 }
