@@ -104,6 +104,7 @@ export function validateGameState(s) {
     "doctrineEventHistory",
     "unlockedAchievements",
     "achievementNotifications",
+    "seenGalleryItemIds",
     "endingHistory",
     "managerAdviceHistory",
     "dockAppIds",
@@ -218,6 +219,12 @@ export function validateGameState(s) {
       s.recentAppIds.some((id) => !validId(id)))
   )
     errors.push("recentAppIds 無效");
+  if (
+    s.seenGalleryItemIds != null &&
+    (!Array.isArray(s.seenGalleryItemIds) ||
+      s.seenGalleryItemIds.some((id) => !validId(id)))
+  )
+    errors.push("seenGalleryItemIds 無效");
   return { ok: errors.length === 0, errors };
 }
 export function assertGameState(s) {

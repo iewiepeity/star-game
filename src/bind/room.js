@@ -20,6 +20,7 @@ import {
 } from "../core/dialog-focus.js";
 import { bindDeferredSearch } from "../core/deferred-search.js";
 import { openApp } from "../core/app-navigation.js";
+import { markGallerySeen } from "../views/gallery.js";
 
 let dialogKeyHandler = null;
 let activeDialogIdentity = "";
@@ -239,6 +240,7 @@ export function bindRoomShell() {
         if (target === "agency" && !state.selectedAgencyId)
           state.selectedAgencyId = AGENCY_LIST[0].id;
         if (target === "achievements") state.achievementNotifications = [];
+        if (target === "gallery") markGallerySeen();
         if (target === "people") {
           state.peopleSection = "contacts";
           (state.npcMessages || []).forEach((message) => (message.read = true));
