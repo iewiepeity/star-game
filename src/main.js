@@ -6,7 +6,7 @@ import{ensureRngState}from"./core/rng.js";
 import{activateNextEvent}from"./logic/event-engine.js";
 import{render}from"./render.js";
 import{applyPreferences}from"./core/preferences.js";
-import{enableAudio,playSfx}from"./core/audio.js";
+import{enableAudio,playSfx,soundForControl}from"./core/audio.js";
 import{installGlobalErrorHandlers,showFatalError}from"./core/error-recovery.js";
 import{markUpdateAvailable,updateIsApplying}from"./core/pwa-update.js";
 
@@ -19,7 +19,7 @@ window.addEventListener("pagehide",()=>flushSaveState());
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flushSaveState()});
 try{
  applyPreferences();
- document.addEventListener("pointerdown",event=>{enableAudio();if(event.target.closest("button"))playSfx(event.target.closest(".main-btn,[data-confirm-accept],#begin-week")?"confirm":"tap")},{passive:true});
+ document.addEventListener("pointerdown",event=>{enableAudio();const control=event.target.closest("button,[role=button]");const sound=soundForControl(control);if(sound)playSfx(sound)},{passive:true});
  migrateLegacyManualSlot();
  const saved=loadState();
  if(saved){hydrateState(saved);ensureRngState();if(state.screen==="runner"&&state.runnerPhase==="loading")startDay();else if(state.eventQueue.length&&!state.activeEvent){activateNextEvent();render()}else render()}else rollStats();
