@@ -1,4 +1,5 @@
 // 平板 App 圖示：低飽和紙感色與細線插畫，保留文青手帳的安靜氣質。
+import { APP_IDS } from "../core/app-navigation.js";
 const paths={
  planner:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4M17 3v4M3 10h18M7 14l2 2 4-4"/>',
  timeline:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2M4 4l2 2M20 4l-2 2"/>',
@@ -22,7 +23,7 @@ const paths={
 export const APP_META=Object.freeze({
  planner:{label:"行程",title:"行程與工作",note:"安排七天行程、策略與預算",tone:"coral"},timeline:{label:"時間線",title:"星途時間線",note:"集中查看人物、作品與重大選擇",tone:"amber"},gallery:{label:"影像館",title:"星途影像館",note:"收藏 CG 並重讀人物章節",tone:"violet"},stats:{label:"能力",title:"能力資料",note:"檢視能力與隱藏特質",tone:"blue"},people:{label:"人物",title:"人物",note:"訊息、關係與人物檔案",tone:"teal"},log:{label:"紀錄",title:"星途紀錄",note:"回顧每週成果與重大選擇",tone:"slate"},world:{label:"娛樂週報",title:"娛樂圈週報",note:"市場、作品與後台世界",tone:"indigo"},map:{label:"星望地圖",title:"星望市地圖",note:"探索城市與產業公司",tone:"sage"},jobs:{label:"工作信箱",title:"工作信箱",note:"管理徵選、推薦與指名邀約",tone:"gold"},creative:{label:"創作室",title:"創作工作室",note:"製作、販售或自主發行作品",tone:"plum"},npc:{label:"人物",title:"人物",note:"訊息、關係與人物檔案",tone:"teal"},social:{label:"星光社群",title:"星光社群",note:"發布近況並查看圈內動態",tone:"pink"},forum:{label:"星談論壇",title:"星談論壇",note:"娛樂討論與熱門話題",tone:"orange"},wardrobe:{label:"造型衣櫃",title:"造型衣櫃",note:"切換造型與能力加成",tone:"lilac"},agency:{label:"經紀公司",title:"經紀公司",note:"投遞、面談與簽約進度",tone:"navy"},achievements:{label:"星途成就",title:"星途成就",note:"收藏旅程與生活里程碑",tone:"honey"},save:{label:"存檔管理",title:"存檔管理",note:"管理存檔與安全備份",tone:"mint"},settings:{label:"遊戲設定",title:"遊戲設定",note:"存讀檔、顯示與遊戲流程",tone:"gray"}
 });
-export const APP_LIBRARY_IDS=Object.freeze(["planner","timeline","gallery","stats","people","log","world","map","jobs","creative","social","forum","wardrobe","agency","achievements","save","settings"]);
+export const APP_LIBRARY_IDS=APP_IDS;
 export const APP_CATEGORIES=Object.freeze({planner:"規劃",map:"規劃",jobs:"事業",creative:"事業",agency:"事業",stats:"事業",people:"人物",social:"人物",forum:"人物",world:"世界",timeline:"紀錄",gallery:"紀錄",log:"紀錄",achievements:"紀錄",wardrobe:"個人",save:"系統",settings:"系統"});
 export const APP_CATEGORY_LABELS=Object.freeze(["全部","規劃","事業","人物","世界","紀錄","個人","系統"]);
 export const DEFAULT_DOCK_IDS=Object.freeze(["planner","timeline","gallery","stats","people","log"]);

@@ -4,7 +4,7 @@ import { MAP_LOCATIONS } from "../data/map-locations.js";
 import { DAYS } from "../data/calendar.js";
 import { state } from "../core/state.js";
 import { effectiveStat, successRateLabel } from "../core/utils.js";
-import { autoAdvanceDelay } from "../core/preferences.js";
+import { autoAdvanceDelay, setPreference } from "../core/preferences.js";
 import { randomInt, chance } from "../core/rng.js";
 import {
   deterministicInterviewScore,
@@ -146,6 +146,7 @@ function gainContractReadiness(id, success) {
 }
 export function startDay() {
   clearRunnerTimer();
+  if (state.runnerDay === 0) state.runnerPaused = false;
   state.runnerResult = null;
   state.runnerDecision = null;
   state.runnerPhase = "loading";
@@ -174,9 +175,12 @@ function scheduleAutoAdvance() {
   const delay = autoAdvanceDelay();
   if (
     delay == null ||
+    state.runnerPaused ||
     state.screen !== "runner" ||
     state.runnerPhase !== "result" ||
-    state.runnerResult?.requiresInteraction
+    state.runnerResult?.requiresInteraction ||
+    state.runnerResult?.venue ||
+    state.runnerResult?.portrait
   )
     return;
   const day = state.runnerDay;
@@ -197,6 +201,19 @@ function scheduleAutoAdvance() {
       return;
     advanceRunner();
   }, delay);
+}
+export function setRunnerPaused(paused) {
+  state.runnerPaused = Boolean(paused);
+  clearRunnerTimer();
+  if (!state.runnerPaused) scheduleAutoAdvance();
+  render({ persist: false });
+}
+export function setRunnerSpeed(speed) {
+  setPreference("autoSpeed", speed);
+  state.runnerPaused = false;
+  clearRunnerTimer();
+  scheduleAutoAdvance();
+  render({ persist: false });
 }
 export function advanceRunner() {
   clearRunnerTimer();

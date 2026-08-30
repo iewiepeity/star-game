@@ -8,6 +8,9 @@ import {
   scheduleChange,
 } from "../src/logic/schedule-transaction.js";
 import { sortJobs } from "../src/logic/job-list-model.js";
+import { sanitizeRichText } from "../src/core/safe-html.js";
+import { birthDayLimit, normalizeBirthday } from "../src/core/birthday.js";
+import { APP_IDS, isAppId } from "../src/core/app-navigation.js";
 
 test("存檔 schema 拒絕非有限數值、未知工作階段與過長 UI 輸入", () => {
   const base = initialState();
@@ -31,6 +34,49 @@ test("存檔 schema 拒絕事件處理器與 script 注入", () => {
   assert.equal(validateGameState(game).ok, false);
   game.runnerResult = { text: "<script>alert(1)</script>" };
   assert.equal(validateGameState(game).ok, false);
+});
+test("匯入的 Runner 標題與選項不能夾帶 HTML", () => {
+  for (const mutation of [
+    (game) =>
+      (game.runnerResult = {
+        title: '<img src=x onerror="alert(1)">',
+        text: "ok",
+      }),
+    (game) =>
+      (game.runnerDecision = {
+        title: "ok",
+        text: "ok",
+        choices: [{ id: "x", label: "<script>x</script>", note: "" }],
+      }),
+    (game) => (game.runnerDecision = { title: "ok", text: "ok", choices: {} }),
+  ]) {
+    const game = initialState();
+    mutation(game);
+    assert.equal(validateGameState(game).ok, false);
+  }
+});
+test("Runner 富文字只保留白名單標記並移除危險屬性", () => {
+  const html = sanitizeRichText(
+    '<section class="signed" onclick="evil()"><b>完成</b><img src=x onerror=evil()></section>',
+  );
+  assert.equal(html.includes('<section class="signed">'), true);
+  assert.equal(html.includes("<b>完成</b>"), true);
+  assert.equal(html.includes("onclick"), false);
+  assert.equal(html.includes("<img"), false);
+  assert.equal(
+    sanitizeRichText("</section><b>安全"),
+    "&lt;/section&gt;<b>安全</b>",
+  );
+});
+test("生日日期會依月份限制，二月最多 29 日", () => {
+  assert.equal(birthDayLimit(2), 29);
+  assert.deepEqual(normalizeBirthday(2, 31), { month: 2, day: 29 });
+  assert.deepEqual(normalizeBirthday(4, 31), { month: 4, day: 30 });
+});
+test("App registry 是單一有效導覽來源", () => {
+  assert.equal(new Set(APP_IDS).size, APP_IDS.length);
+  assert.equal(isAppId("world"), true);
+  assert.equal(isAppId("portfolio"), false);
 });
 test("排程交易先驗證再一次提交並清除互斥欄位", () => {
   const game = initialState(),

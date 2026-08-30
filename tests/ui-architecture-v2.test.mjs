@@ -17,7 +17,7 @@ test("工作與人物搜尋由 view/state 宣告，不再由 binder 插入 DOM",
   assert.match(peopleView, /data-people-query/);
   assert.match(peopleView, /role="tablist"/);
   assert.match(peopleView, /aria-selected/);
-  assert.match(roomBind, /"Home","End"/);
+  assert.match(roomBind, /"Home",\s*"End"/);
   assert.doesNotMatch(roomBind, /enhancePeople/);
 });
 
@@ -70,8 +70,8 @@ test("搜尋輸入支援中文組字並延遲重繪", async () => {
   assert.match(helper, /compositionend/);
   assert.match(helper, /event\.isComposing/);
   assert.match(helper, /setTimeout/);
-  assert.match(jobs, /render\(\{persist:false\}\)/);
-  assert.match(room, /render\(\{persist:false\}\)/);
+  assert.match(jobs, /render\(\{\s*persist:\s*false\s*\}\)/);
+  assert.match(room, /render\(\{\s*persist:\s*false\s*\}\)/);
 });
 
 test("畫面完成與資料異動使用不同事件", async () => {

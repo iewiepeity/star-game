@@ -1,6 +1,7 @@
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
 import { esc } from "../core/utils.js";
+import { OUTFITS, GENDER_CHANGE_COST } from "../data/wardrobe.js";
 
 export function confirmationDialog() {
   const dialog = state.confirmDialog;
@@ -47,6 +48,27 @@ export function confirmationDialog() {
       description: "這會改變彼此關係、心情、後續人物事件與五年結局，而且不能用普通互動立刻復原。",
       cancel: "繼續交往",
       confirm: "確認分手",
+    },
+    "buy-outfit": {
+      kicker: "WARDROBE PURCHASE",
+      title: `購買「${esc(OUTFITS[dialog.outfitId]?.name || "這套服裝")}」？`,
+      description: `將支付 ${(OUTFITS[dialog.outfitId]?.price || 0).toLocaleString("zh-TW")} 元；服裝會歸目前人物立繪持有並立即穿上。`,
+      cancel: "先不購買",
+      confirm: "確認購買並穿上",
+    },
+    "change-gender": {
+      kicker: "IDENTITY CHANGE",
+      title: `確認變性為${esc(dialog.targetGender || "指定性別")}？`,
+      description: `將支付 ${GENDER_CHANGE_COST.toLocaleString("zh-TW")} 元，並切換至對應人物立繪；已購買服裝仍保留在原人物名下。`,
+      cancel: "取消手術",
+      confirm: "確認手術與費用",
+    },
+    "new-run": {
+      kicker: "BEGIN AGAIN?",
+      title: "確定開始新一輪？",
+      description: "本輪結局會寫入回顧；新一輪將重設角色與進度，只保留已選擇的眼熟繼承、成就、結局紀錄與快捷列。",
+      cancel: "留在結局回顧",
+      confirm: "確認開始新一輪",
     },
   };
   const config = configs[dialog.type];

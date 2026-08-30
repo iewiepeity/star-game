@@ -17,6 +17,7 @@ let autoSaveTimer = null,
 export const TRANSIENT_STATE_KEYS = Object.freeze([
   "appOpen",
   "confirmDialog",
+  "runnerPaused",
   "saveStatus",
   "dockEditing",
   "dockDraftIds",

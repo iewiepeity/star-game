@@ -173,10 +173,24 @@ export function validateGameState(s) {
     if (!validId(s[key])) errors.push(`${key} 無效`);
   for (const [key, value] of [
     ["runnerResult.text", s.runnerResult?.text],
+    ["runnerResult.title", s.runnerResult?.title],
     ["runnerDecision.text", s.runnerDecision?.text],
+    ["runnerDecision.title", s.runnerDecision?.title],
     ["activeEvent.text", s.activeEvent?.event?.text || s.activeEvent?.text],
   ])
     if (unsafeMarkup(value)) errors.push(`${key} 含不安全標記`);
+  if (
+    s.runnerDecision?.choices != null &&
+    !Array.isArray(s.runnerDecision.choices)
+  )
+    errors.push("runnerDecision.choices 無效");
+  for (const [index, choice] of (Array.isArray(s.runnerDecision?.choices)
+    ? s.runnerDecision.choices
+    : []
+  ).entries())
+    for (const key of ["id", "label", "note"])
+      if (!safeString(choice?.[key] ?? "", 500) || unsafeMarkup(choice?.[key]))
+        errors.push(`runnerDecision.choices[${index}].${key} 無效`);
   if (!Number.isInteger(s.rngCursor ?? 0) || Number(s.rngCursor) < 0)
     errors.push("rngCursor 無效");
   if (!timelineFilters.has(s.timelineFilter))

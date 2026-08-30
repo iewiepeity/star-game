@@ -31,8 +31,8 @@ export function restoreDialogTrigger() {
 
 export function activateDialog(dialog, { initial = null } = {}) {
   if (!dialog) return;
-  const room = dialog.closest(".room-screen");
-  [...(room?.children || [])].forEach((child) => {
+  const scope = dialog.closest(".room-screen") || dialog.parentElement;
+  [...(scope?.children || [])].forEach((child) => {
     if (child !== dialog && !child.classList.contains("app-backdrop") && !child.classList.contains("confirm-backdrop")) child.inert = true;
   });
   const focusables = [...dialog.querySelectorAll(FOCUSABLE)];

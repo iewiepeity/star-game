@@ -6,6 +6,7 @@ import {
   defaultAvatarForGender,
   defaultOwnedOutfits,
 } from "../data/wardrobe.js";
+import { normalizeBirthday } from "./birthday.js";
 export function initialState() {
   return {
     screen: "create",
@@ -117,6 +118,7 @@ export function initialState() {
     calendarEventHistory: [],
     runnerDay: 0,
     runnerPhase: "",
+    runnerPaused: false,
     runnerResult: null,
     runnerDecision: null,
     pendingRandomEvent: null,
@@ -418,8 +420,9 @@ export function hydrateState(saved) {
     p.storyHistory = Array.isArray(p.storyHistory) ? p.storyHistory : [];
     p.finalGrade = p.finalGrade || null;
   }
-  next.birthMonth = Math.max(1, Math.min(12, Number(next.birthMonth) || 8));
-  next.birthDay = Math.max(1, Math.min(31, Number(next.birthDay) || 1));
+  const birthday = normalizeBirthday(next.birthMonth || 8, next.birthDay || 1);
+  next.birthMonth = birthday.month;
+  next.birthDay = birthday.day;
   next.health = Number.isFinite(next.health)
     ? Math.max(0, Math.min(100, next.health))
     : 100;
@@ -431,6 +434,7 @@ export function hydrateState(saved) {
   next.dockDraftIds = null;
   next.dockNotice = "";
   next.confirmDialog = null;
+  next.runnerPaused = false;
   next.saveStatus = "saved";
   next.appReturnContext = null;
   next.jobStatusFilter = ["all", "action", "active", "available"].includes(next.jobStatusFilter) ? next.jobStatusFilter : "all";
