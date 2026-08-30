@@ -27,6 +27,12 @@ export const SCENE_ART=Object.freeze({
  gallery:scene("white-wall-gallery.webp","白牆藝廊展場"),
  library:scene("city-media-library.webp","星望市立圖書館影視館藏區"),
  boutique:scene("starlight-boutique.webp","星光購物商場時尚選品店"),
+ park:scene("star-riverside-park.webp","金色夕陽下的星河濱水公園"),
+ gym:scene("lark-fitness-center.webp","雲雀健身中心的專業訓練區"),
+ temple:scene("starview-mazu-temple.webp","清晨的星望媽祖廟庭院"),
+ beach:scene("moon-bay-beach.webp","紫金夕照下的月灣海灘"),
+ restaurant:scene("nightlight-bistro.webp","夜光小館的慶功晚餐"),
+ beauty:scene("morning-beauty-salon.webp","晨曦藝人美容沙龍"),
  cityStreet:scene("entertainment-district-rain.webp","雨後的星望市娛樂街區")
 });
 
@@ -42,7 +48,8 @@ const LOCATION_SCENES=Object.freeze({
  media_company:"fashion",livehouse:"livehouse",cinema:"cinema",studio:"filmSet",
  recording:"recording",rehearsal:"audition",theatre:"theatre",gallery:"gallery",
  shop:"boutique",business:"boardroom",cafe:"cafe",library:"library",clinic:"hospital",
- airport:"airport",dance:"dance",park:"cityStreet",market:"cityStreet",restaurant:"cityStreet"
+ airport:"airport",dance:"dance",park:"park",market:"cityStreet",restaurant:"restaurant",
+ gym:"gym",temple:"temple",beach:"beach",beauty:"beauty"
 });
 
 export function runnerSceneArt(actionId,locationId=null,result=null){
@@ -171,7 +178,15 @@ const MILESTONE_GALLERY_ITEMS=Object.freeze([
  ["milestone:breakup","雨夜留下的距離",cg("milestone-romance-breakup.webp","兩人在雨夜離開彼此的生活")],
  ["milestone:renewal","下一份共同合約",cg("milestone-contract-renewal.webp","玩家與長期夥伴簽下續約")],
  ["milestone:integrated","完整人生",cg("milestone-five-year-integrated.webp","五年後玩家讓作品、關係與制度成為同一份答案")],
- ["milestone:flagship","第三份答案",cg("milestone-flagship-signature.webp","玩家在旗艦作品的關鍵現場提出第三份答案")]
+ ["milestone:flagship","第三份答案",cg("milestone-flagship-signature.webp","玩家在旗艦作品的關鍵現場提出第三份答案")],
+ ["milestone:award","第一次舉起獎座",cg("milestone-first-award.webp","玩家第一次在頒獎臺舉起獎座")],
+ ["milestone:scandal","被閃光燈包圍",cg("milestone-scandal-press.webp","輿論危機中蜂擁而至的媒體")],
+ ["milestone:overwork","身體按下暫停",cg("milestone-overwork-collapse.webp","玩家因過勞倒在後台")],
+ ["milestone:red-carpet","第一次走上紅毯",cg("milestone-first-red-carpet.webp","玩家第一次踏上聚光燈下的紅毯")],
+ ["milestone:fan","第一個認出你的人",cg("milestone-first-fan.webp","玩家第一次在街頭被粉絲認出")],
+ ["milestone:contract","第一份演藝合約",cg("milestone-first-contract.webp","玩家簽下第一份演藝合約")],
+ ["milestone:audition","站進正式試鏡室",cg("milestone-first-audition.webp","玩家第一次站進正式試鏡室")],
+ ["milestone:shoot","第一顆正式鏡頭",cg("milestone-first-shoot.webp","玩家第一次站上正式拍攝現場")]
 ].map(([id,title,art])=>Object.freeze({id,kind:"milestone",title,art})));
 
 export const CG_GALLERY_ITEMS=Object.freeze([

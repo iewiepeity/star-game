@@ -5,7 +5,7 @@ import{eventStoryArt,runnerSceneArt,STORY_ART_ASSETS}from"../src/data/story-art.
 
 test("所有劇情與場景美術都已存在且沒有漏接",()=>{
  const unique=new Set(STORY_ART_ASSETS.map(art=>art.src));
- assert.equal(unique.size,102);
+ assert.equal(unique.size,108);
  for(const src of unique)assert.ok(existsSync(new URL(`../${src.replace(/^\.\//,"")}`,import.meta.url)),src);
 });
 
