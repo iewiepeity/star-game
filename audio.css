@@ -1,0 +1,8 @@
+@layer components {
+  .audio-slider { display: grid; gap: 7px; margin: 12px 0; }
+  .audio-slider > span { display: flex; justify-content: space-between; gap: 12px; color: #75675f; font-size: 14px; font-weight: 800; }
+  .audio-slider input { width: 100%; accent-color: #c96e78; }
+  .audio-previews { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; }
+  .audio-previews button { min-height: 38px; padding: 8px 13px; border: 1px solid #dfcfc3; border-radius: 999px; background: #fffdf9; color: #7d635c; font-weight: 800; }
+  .audio-previews button:hover { border-color: #c97b84; background: #fff1ee; color: #ad5965; }
+}

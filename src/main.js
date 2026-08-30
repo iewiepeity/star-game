@@ -6,7 +6,7 @@ import{ensureRngState}from"./core/rng.js";
 import{activateNextEvent}from"./logic/event-engine.js";
 import{render}from"./render.js";
 import{applyPreferences}from"./core/preferences.js";
-import{enableAudio,playSfx}from"./core/audio.js";
+import{enableAudio,markPointerSound,playSfx,resumeAudio,shouldPlayKeyboardSound,soundForControl,suspendAudio}from"./core/audio.js";
 import{installGlobalErrorHandlers,showFatalError}from"./core/error-recovery.js";
 import{markUpdateAvailable,updateIsApplying}from"./core/pwa-update.js";
 
@@ -16,10 +16,11 @@ document.addEventListener("star-game:state-changed",()=>{updateSaveStatus("savin
 document.addEventListener("star-game:save-status",event=>updateSaveStatus(event.detail?.status||"error"));
 document.addEventListener("star-game:save-now",()=>flushSaveState());
 window.addEventListener("pagehide",()=>flushSaveState());
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flushSaveState()});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"){flushSaveState();suspendAudio()}else resumeAudio()});
 try{
  applyPreferences();
- document.addEventListener("pointerdown",event=>{enableAudio();if(event.target.closest("button"))playSfx(event.target.closest(".main-btn,[data-confirm-accept],#begin-week")?"confirm":"tap")},{passive:true});
+ document.addEventListener("pointerdown",async event=>{markPointerSound();const ready=await enableAudio(),control=event.target.closest("button,[role=button]"),sound=soundForControl(control);if(ready&&sound)playSfx(sound)},{passive:true});
+ document.addEventListener("click",async event=>{if(!shouldPlayKeyboardSound())return;const control=event.target.closest("button,[role=button]"),sound=soundForControl(control);if(sound&&await enableAudio())playSfx(sound)});
  migrateLegacyManualSlot();
  const saved=loadState();
  if(saved){hydrateState(saved);ensureRngState();if(state.screen==="runner"&&state.runnerPhase==="loading")startDay();else if(state.eventQueue.length&&!state.activeEvent){activateNextEvent();render()}else render()}else rollStats();

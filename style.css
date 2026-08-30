@@ -484,3 +484,8 @@ html[data-theme="night"] .people-hub-tabs{background:rgba(41,44,53,.96);border-c
 .timeline-work>img{width:76px;height:106px;object-fit:cover;border-radius:10px;box-shadow:0 7px 18px rgba(25,20,35,.16)}
 .social-work-media{display:block;width:100%;max-height:520px;object-fit:cover;object-position:center 30%;border-radius:16px;margin:12px 0 4px;background:#252130}
 @media(max-width:640px){.timeline-list article.timeline-work{grid-template-columns:auto 62px 1fr}.timeline-work>img{width:58px;height:82px}}
+.journey-guide{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;border:1px solid rgba(130,104,94,.18);border-radius:16px;background:rgba(255,255,255,.5)}
+.journey-guide header{display:grid;gap:3px}.journey-guide header span{font-size:10px;letter-spacing:1.5px;color:#9a746b}.journey-guide header b{font-size:15px}.journey-guide header p{margin:0;font-size:11px;color:var(--muted,#756b67)}
+.journey-guide>div{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.journey-guide button{border:1px solid rgba(130,104,94,.18);background:rgba(255,255,255,.75);border-radius:999px;padding:7px 10px;font-size:11px}.journey-guide button i{margin-left:5px}
+.job-catalog-card u{text-decoration:none;font-size:10px;color:#8c6d58;background:rgba(181,143,111,.1);border-radius:999px;padding:3px 7px;justify-self:start}
+@media(max-width:760px){.journey-guide{align-items:flex-start;flex-direction:column}.journey-guide>div{justify-content:flex-start}}
