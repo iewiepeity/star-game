@@ -3,7 +3,7 @@ async function fillIdentity(page, name) {
   await expect
     .poll(
       async () => {
-        const input = page.locator("#player-name");
+        const input = page.locator("#player-real-name");
         if (!(await input.isVisible().catch(() => false))) return "";
         await input.fill(name).catch(() => {});
         await input.dispatchEvent("input").catch(() => {});
@@ -53,6 +53,26 @@ test("創角後可閱讀童年卡片序章並接到平板教學", async ({ page 
   await expect(page.locator(".room-screen")).toBeVisible();
   await expect(page.locator(".guide-toast")).toBeVisible({ timeout: 10000 });
   await expect(page.locator(".guide-toast")).toContainText("平板已經亮了");
+});
+test("創角可分別設定本名與藝名並依場合顯示", async ({ page }) => {
+  await page.goto("/");
+  await fillIdentity(page, "林星予");
+  await page.locator("#player-stage-name").fill("星予");
+  await page.locator("#player-stage-name").dispatchEvent("input");
+  await page.locator("#to-stats").click();
+  await page.locator("#start").click();
+  await page.locator(".prologue-dialogue [data-prologue-next]").click();
+  await page.locator(".prologue-dialogue [data-prologue-next]").click();
+  await expect(page.locator(".prologue-dialogue")).toContainText("林星予");
+  await page.locator("[data-skip-onboarding]").click();
+  await expect(page.locator(".player-chip")).toContainText("星予");
+  await expect(page.locator(".tablet-home > header")).toContainText("林星予");
+  const saved = JSON.parse(
+    await page.evaluate(() => localStorage.getItem("star-game-save")),
+  );
+  expect(saved.state.realName).toBe("林星予");
+  expect(saved.state.stageName).toBe("星予");
+  expect(saved.state.name).toBe("星予");
 });
 test("創角、自動存檔、重新整理與離線啟動", async ({ page, context }) => {
   const errors = [];
@@ -188,7 +208,7 @@ test("設定頁可調整主題字級、快速存檔並保護重新開始", async
   await page.locator("[data-request-reset]").click();
   await page.locator("[data-confirm-accept]").click();
   await expect(page.locator(".create-screen")).toBeVisible();
-  await expect(page.locator("#player-name")).toHaveValue("");
+  await expect(page.locator("#player-real-name")).toHaveValue("");
   await page.reload();
   await expect(page.locator(".create-screen")).toBeVisible();
 });

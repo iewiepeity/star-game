@@ -28,6 +28,6 @@ test("第二年職涯承諾會暫時關閉其他三星以上路線",()=>{
  resetState();state.week=53;applyEffects({careerCommitment:"music",commitmentLabel:"音樂作品"},"年度選擇");assert.equal(careerCommitmentAccess(JOB_BY_ID.J036).ok,true);assert.equal(careerCommitmentAccess(JOB_BY_ID.J037).ok,false);assert.equal(careerCommitmentAccess(JOB_BY_ID.J001).ok,true);state.week=80;assert.equal(careerCommitmentAccess(JOB_BY_ID.J037).ok,true);
 });
 
-test("v12 存檔會連續升級 v15 並補齊長期內容欄位",()=>{
- const migrated=migrateSaveState({week:20},12);assert.equal(migrated.version,15);assert.deepEqual(migrated.state.contentExposure,{});assert.deepEqual(migrated.state.npcLongformProgress,{});assert.deepEqual(migrated.state.careerCommitmentHistory,[]);assert.deepEqual(migrated.state.careerDoctrine,{});assert.deepEqual(migrated.state.npcInvitationHistory,[]);
+test("v12 存檔會連續升級 v16 並補齊長期內容欄位",()=>{
+ const migrated=migrateSaveState({week:20},12);assert.equal(migrated.version,16);assert.deepEqual(migrated.state.contentExposure,{});assert.deepEqual(migrated.state.npcLongformProgress,{});assert.deepEqual(migrated.state.careerCommitmentHistory,[]);assert.deepEqual(migrated.state.careerDoctrine,{});assert.deepEqual(migrated.state.npcInvitationHistory,[]);
 });

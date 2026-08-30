@@ -1,6 +1,6 @@
 # 星途未定
 
-目前發行候選版本：**v1.21.2 Beta**。正式頁面只部署通過 Core 與桌機／手機 E2E 的 commit；版本紀錄、發布流程與真人盲測規格見 [`CHANGELOG.md`](./CHANGELOG.md)、[`RELEASE.md`](./RELEASE.md)、[`BETA-PLAYTEST.md`](./BETA-PLAYTEST.md)。
+目前發行候選版本：**v1.22.0 Beta**。正式頁面只部署通過 Core 與桌機／手機 E2E 的 commit；版本紀錄、發布流程與真人盲測規格見 [`CHANGELOG.md`](./CHANGELOG.md)、[`RELEASE.md`](./RELEASE.md)、[`BETA-PLAYTEST.md`](./BETA-PLAYTEST.md)。
 
 純規則版繁體中文娛樂圈五年成長模擬遊戲。玩家從新人租屋處出發，自訂角色、訓練能力、投遞經紀公司、參加試鏡、完成作品、經營人際與戀愛、面對輿論與市場，最後依五年留下的作品、獎項、關係、財產與公眾位置進入結算。遊戲不需要 AI／API Key，也不需要登入；GitHub Pages 開啟後即可在瀏覽器單機遊玩。
 
@@ -172,14 +172,14 @@ Year 2～5 也有真正改變玩法的長期決策：第二年承諾半年主軸
 
 ## 存檔、離線與多周目
 
-目前 save schema 為 **v15**。
+目前 save schema 為 **v16**。
 
 - 自動存檔。
 - 五個手動槽。
 - 讀檔前備份。
 - JSON 匯出／匯入。
 - 舊版逐版 migration＋`hydrateState()` 正規化。
-- v13～v15 會依序補齊 NPC 分歧、跨事件、地圖收藏、創作發行、長期方針與時間線欄位。
+- v13～v16 會依序補齊 NPC 分歧、跨事件、地圖收藏、創作發行、長期方針、時間線與本名／藝名欄位。
 - 本次深化新增的世界回聲／feed 採 lazy 初始化，舊存檔不必刪除。
 
 提供 Web App Manifest 與 Service Worker；首次完整載入後可安裝並離線啟動。

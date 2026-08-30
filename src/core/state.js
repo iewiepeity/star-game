@@ -7,6 +7,7 @@ import {
   defaultOwnedOutfits,
 } from "../data/wardrobe.js";
 import { normalizeBirthday } from "./birthday.js";
+import { syncLegacyPlayerName } from "./player-name.js";
 export function initialState() {
   return {
     screen: "create",
@@ -31,6 +32,8 @@ export function initialState() {
     dockDraftIds: null,
     dockNotice: "",
     name: "",
+    realName: "",
+    stageName: "",
     gender: "女性",
     customGender: "",
     birthMonth: 8,
@@ -193,7 +196,7 @@ export function initialState() {
     agencyJobOffers: [],
     rngSeed: null,
     rngCursor: 0,
-    saveVersion: 15,
+    saveVersion: 16,
   };
 }
 export let state = initialState();
@@ -241,6 +244,11 @@ function migrateLegacySchedules(next) {
 }
 export function hydrateState(saved) {
   const next = Object.assign(initialState(), saved);
+  if (!Object.prototype.hasOwnProperty.call(saved, "realName"))
+    next.realName = typeof saved.name === "string" ? saved.name : "";
+  if (!Object.prototype.hasOwnProperty.call(saved, "stageName"))
+    next.stageName = "";
+  syncLegacyPlayerName(next);
   if (next.avatarId === "silver") next.avatarId = "raven";
   const legacyOwned = Array.isArray(saved.ownedOutfits)
     ? saved.ownedOutfits
@@ -334,7 +342,9 @@ export function hydrateState(saved) {
       : {};
   for (const relation of Object.values(next.brandRelations)) {
     if (!relation || typeof relation !== "object") continue;
-    const trust = Number.isFinite(relation.trust) ? Math.round(relation.trust) : 50;
+    const trust = Number.isFinite(relation.trust)
+      ? Math.round(relation.trust)
+      : 50;
     relation.score = relation.works
       ? `${relation.works} 次・信任 ${trust}`
       : relation.failedAuditions
@@ -439,15 +449,34 @@ export function hydrateState(saved) {
   next.runnerPaused = false;
   next.saveStatus = "saved";
   next.appReturnContext = null;
-  next.jobStatusFilter = ["all", "action", "active", "available"].includes(next.jobStatusFilter) ? next.jobStatusFilter : "all";
-  next.jobSort = ["deadline", "stars", "title"].includes(next.jobSort) ? next.jobSort : "deadline";
-  next.appCategory = ["全部", "規劃", "事業", "人物", "世界", "紀錄", "個人", "系統"].includes(next.appCategory) ? next.appCategory : "全部";
+  next.jobStatusFilter = ["all", "action", "active", "available"].includes(
+    next.jobStatusFilter,
+  )
+    ? next.jobStatusFilter
+    : "all";
+  next.jobSort = ["deadline", "stars", "title"].includes(next.jobSort)
+    ? next.jobSort
+    : "deadline";
+  next.appCategory = [
+    "全部",
+    "規劃",
+    "事業",
+    "人物",
+    "世界",
+    "紀錄",
+    "個人",
+    "系統",
+  ].includes(next.appCategory)
+    ? next.appCategory
+    : "全部";
   next.appLibraryExpanded = false;
-  next.recentAppIds = Array.isArray(next.recentAppIds) ? [...new Set(next.recentAppIds.filter((id) => typeof id === "string"))].slice(0, 6) : [];
+  next.recentAppIds = Array.isArray(next.recentAppIds)
+    ? [
+        ...new Set(next.recentAppIds.filter((id) => typeof id === "string")),
+      ].slice(0, 6)
+    : [];
   next.seenGalleryItemIds = [
-    ...new Set(
-      next.seenGalleryItemIds.filter((id) => typeof id === "string"),
-    ),
+    ...new Set(next.seenGalleryItemIds.filter((id) => typeof id === "string")),
   ];
   if (next.appOpen === "npc") {
     next.appOpen = "people";
@@ -458,7 +487,7 @@ export function hydrateState(saved) {
   delete next.mapLocation;
   delete next.lastVisitedLocation;
   delete next.lastVisitedWeek;
-  next.saveVersion = 15;
+  next.saveVersion = 16;
   state = next;
   return state;
 }
@@ -467,7 +496,14 @@ export function visitedLocationThisWeek(locationId) {
     locationId,
   );
 }
-export function markVisitedLocation(locationId,week=state.week){if(!locationId)return false;const key=String(week),locations=state.visitedLocationsByWeek[key]||[];if(!locations.includes(locationId))locations.push(locationId);state.visitedLocationsByWeek[key]=locations;return true}
+export function markVisitedLocation(locationId, week = state.week) {
+  if (!locationId) return false;
+  const key = String(week),
+    locations = state.visitedLocationsByWeek[key] || [];
+  if (!locations.includes(locationId)) locations.push(locationId);
+  state.visitedLocationsByWeek[key] = locations;
+  return true;
+}
 export function syncVisitedLocations() {
   if (!state.lastVisitedLocation || !state.lastVisitedWeek) return;
   const week = String(state.lastVisitedWeek),

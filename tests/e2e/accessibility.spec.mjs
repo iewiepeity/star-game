@@ -38,8 +38,8 @@ test("手機建立角色頁沒有水平溢出", async ({ page }) => {
 
 test("App 視窗會管理焦點、支援 Esc 並回到觸發入口", async ({ page }) => {
   await page.goto("/");
-  await page.locator("#player-name").fill("鍵盤測試");
-  await page.locator("#player-name").dispatchEvent("input");
+  await page.locator("#player-real-name").fill("鍵盤測試");
+  await page.locator("#player-real-name").dispatchEvent("input");
   await page.locator("#to-stats").click();
   await page.locator("#start").click();
   await page.locator("[data-skip-onboarding]").click();

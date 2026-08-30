@@ -11,12 +11,18 @@ import {
 import { startPrologue } from "../logic/onboarding.js";
 import { render } from "../render.js";
 import { birthDayLimit, normalizeBirthday } from "../core/birthday.js";
+import { playerRealName, syncLegacyPlayerName } from "../core/player-name.js";
 function syncIdentityFromDom() {
-  const name = document.querySelector("#player-name")?.value ?? state.name,
+  const realName =
+      document.querySelector("#player-real-name")?.value ?? state.realName,
+    stageName =
+      document.querySelector("#player-stage-name")?.value ?? state.stageName,
     month =
       Number(document.querySelector("#birth-month")?.value) || state.birthMonth,
     day = Number(document.querySelector("#birth-day")?.value) || state.birthDay;
-  state.name = name;
+  state.realName = realName;
+  state.stageName = stageName;
+  syncLegacyPlayerName(state);
   const birthday = normalizeBirthday(month, day);
   state.birthMonth = birthday.month;
   state.birthDay = birthday.day;
@@ -28,15 +34,19 @@ function syncIdentityFromDom() {
   }
 }
 export function bindCreateScreen() {
-  const nameInput = document.querySelector("#player-name");
-  const syncName = () => {
-    state.name = nameInput?.value || "";
+  const realNameInput = document.querySelector("#player-real-name");
+  const stageNameInput = document.querySelector("#player-stage-name");
+  const syncNames = () => {
+    state.realName = realNameInput?.value || "";
+    state.stageName = stageNameInput?.value || "";
+    syncLegacyPlayerName(state);
     document
       .querySelector("#to-stats")
-      ?.classList.toggle("needs-name", !state.name.trim());
+      ?.classList.toggle("needs-name", !playerRealName(state));
   };
   for (const evt of ["input", "change", "keyup"])
-    nameInput?.addEventListener(evt, syncName);
+    for (const input of [realNameInput, stageNameInput])
+      input?.addEventListener(evt, syncNames);
   document.querySelector("#birth-month")?.addEventListener("input", (e) => {
     state.birthMonth = Math.max(1, Math.min(12, Number(e.target.value) || 1));
     const dayInput = document.querySelector("#birth-day");
@@ -89,8 +99,8 @@ export function bindCreateScreen() {
   });
   document.querySelector("#to-stats")?.addEventListener("click", () => {
     syncIdentityFromDom();
-    if (!state.name.trim()) {
-      state.notice = "請先輸入姓名／藝名。";
+    if (!playerRealName(state)) {
+      state.notice = "請先輸入本名；藝名可以留空。";
       render();
       return;
     }

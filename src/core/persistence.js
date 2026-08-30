@@ -5,11 +5,11 @@ const MANUAL_PREFIX = "star-game-save-slot-";
 const LEGACY_MANUAL_KEY = "star-game-save-manual";
 const BACKUP_KEY = "star-game-save-backup";
 const RECENT_MANUAL_KEY = "star-game-save-recent-manual";
-export const SAVE_VERSION = 15;
+export const SAVE_VERSION = 16;
 export const SAVE_SLOT_COUNT = 5;
 export const AUTO_SAVE_DELAY = 300;
 const SUPPORTED_SAVE_VERSIONS = new Set([
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
 ]);
 let autoSaveTimer = null,
   pendingAutoState = null,

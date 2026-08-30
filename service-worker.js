@@ -1,4 +1,4 @@
-const CACHE="star-game-runtime-v1.21.2";
+const CACHE="star-game-runtime-v1.22.0";
 const AUDIO_SHELL=["tap","open","close","back","confirm","schedule","warning","reward","message","paper","scroll","select","switch","tick"].map(name=>`./assets/audio/kenney-interface/${name}.ogg`);
 const SHELL=["./","./index.html","./cascade.css","./style.css","./ui-hardening.css","./design-system.css","./components-feedback.css","./a11y.css","./runner-flow.css","./audio.css","./src/main.js","./assets/rookie-room.webp","./assets/icons/app-icon.svg","./assets/icons/favicon-32.png","./assets/icons/apple-touch-icon.png","./assets/icons/icon-192.webp","./assets/icons/icon-512.webp","./manifest.webmanifest",...AUDIO_SHELL];
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL))));

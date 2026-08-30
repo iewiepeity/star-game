@@ -65,7 +65,12 @@ export function validateGameState(s) {
     if (!finite(s[key], min, max)) errors.push(`${key} 無效`);
   if (!Number.isInteger(s.week)) errors.push("week 必須是整數");
   if (!screens.has(s.screen)) errors.push("screen 無效");
-  if (!safeString(s.name, 40) || !safeString(s.customGender, 40))
+  if (
+    !safeString(s.name, 40) ||
+    !safeString(s.realName, 40) ||
+    !safeString(s.stageName, 40) ||
+    !safeString(s.customGender, 40)
+  )
     errors.push("玩家文字欄位無效");
   for (const key of ["schedule", "scheduledJobIds", "scheduledActivityIds"])
     if (!Array.isArray(s[key]) || s[key].length !== 7)

@@ -1,5 +1,6 @@
 import { state } from "../core/state.js";
 import { esc } from "../core/utils.js";
+import { playerRealName } from "../core/player-name.js";
 
 const SCENES = [
   {
@@ -38,5 +39,5 @@ export function prologueView() {
       Math.min(SCENES.length - 1, Number(state.prologueStep) || 0),
     ),
     scene = SCENES[step];
-  return `<main class="prologue-screen step-${step}"><img class="prologue-bg" src="./assets/rookie-room.webp" width="1536" height="1024" decoding="async" fetchpriority="high" alt="剛搬進星望市的新房間"><div class="prologue-shade"></div><header class="prologue-brand">✦ 星途未定 <span>PROLOGUE</span></header><nav class="prologue-skip"><button data-skip-prologue>跳過序章</button><button data-skip-onboarding>跳過序章與教學</button></nav>${step === 0 ? `<button class="card-on-desk" data-prologue-next aria-label="查看桌上的童年卡片">${childhoodCard()}</button>` : ""}${step === 1 ? `<section class="card-closeup">${childhoodCard(true)}</section>` : ""}<section class="prologue-dialogue"><div class="prologue-progress" role="progressbar" aria-label="序章進度" aria-valuemin="1" aria-valuemax="${SCENES.length}" aria-valuenow="${step + 1}" aria-valuetext="第 ${step + 1} 幕，共 ${SCENES.length} 幕">${SCENES.map((_, i) => `<i class="${i <= step ? "active" : ""}" aria-hidden="true"></i>`).join("")}</div><small>${esc(scene.label)}</small><h1>${esc(scene.title)}</h1><p>${esc(scene.text)}</p><div><span>${step >= 2 ? esc(state.name) : ""}</span><button class="main-btn" data-prologue-next>${esc(scene.action)}</button></div></section></main>`;
+  return `<main class="prologue-screen step-${step}"><img class="prologue-bg" src="./assets/rookie-room.webp" width="1536" height="1024" decoding="async" fetchpriority="high" alt="剛搬進星望市的新房間"><div class="prologue-shade"></div><header class="prologue-brand">✦ 星途未定 <span>PROLOGUE</span></header><nav class="prologue-skip"><button data-skip-prologue>跳過序章</button><button data-skip-onboarding>跳過序章與教學</button></nav>${step === 0 ? `<button class="card-on-desk" data-prologue-next aria-label="查看桌上的童年卡片">${childhoodCard()}</button>` : ""}${step === 1 ? `<section class="card-closeup">${childhoodCard(true)}</section>` : ""}<section class="prologue-dialogue"><div class="prologue-progress" role="progressbar" aria-label="序章進度" aria-valuemin="1" aria-valuemax="${SCENES.length}" aria-valuenow="${step + 1}" aria-valuetext="第 ${step + 1} 幕，共 ${SCENES.length} 幕">${SCENES.map((_, i) => `<i class="${i <= step ? "active" : ""}" aria-hidden="true"></i>`).join("")}</div><small>${esc(scene.label)}</small><h1>${esc(scene.title)}</h1><p>${esc(scene.text)}</p><div><span>${step >= 2 ? esc(playerRealName(state)) : ""}</span><button class="main-btn" data-prologue-next>${esc(scene.action)}</button></div></section></main>`;
 }

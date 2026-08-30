@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
 async function createPlayer(page, name) {
   await page.goto("/");
-  await page.locator("#player-name").fill(name);
-  await page.locator("#player-name").dispatchEvent("input");
+  await page.locator("#player-real-name").fill(name);
+  await page.locator("#player-real-name").dispatchEvent("input");
   await page.locator("#to-stats").click();
   await expect(page.locator("#start")).toBeVisible();
   await page.locator("#start").click();
