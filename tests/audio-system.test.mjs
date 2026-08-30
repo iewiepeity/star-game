@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { audioModeForState, playSfx, soundForControl } from "../src/core/audio.js";
+import { audioModeForState, playSfx } from "../src/core/audio.js";
 
 test("audio mode follows the current story and app context", () => {
   assert.equal(audioModeForState({ screen: "event", appOpen: null }), "event");
@@ -13,17 +13,11 @@ test("audio mode follows the current story and app context", () => {
   assert.equal(audioModeForState({ screen: "game", appOpen: null, notice: "兩人在深夜正式告白" }), "romance");
 });
 
-test("controls receive semantic sound cues", () => {
-  const control = (selector, { disabled = false } = {}) => ({
-    disabled,
-    getAttribute: () => null,
-    matches: (query) => query.split(",").some((entry) => entry.trim() === selector),
-  });
-  assert.equal(soundForControl(control("[data-close-app]")), "close");
-  assert.equal(soundForControl(control("[data-open-app]")), "open");
-  assert.equal(soundForControl(control("[data-event-choice]")), "reveal");
-  assert.equal(soundForControl(control("#begin-week")), "week");
-  assert.equal(soundForControl(control("button", { disabled: true })), null);
+test("ordinary controls stay silent while the first gesture enables music", () => {
+  const main = readFileSync(new URL("../src/main.js", import.meta.url), "utf8");
+  assert.match(main, /pointerdown.*enableAudio\(\).*once:true/);
+  assert.doesNotMatch(main, /soundForControl|shouldPlayKeyboardSound|markPointerSound/);
+  assert.doesNotMatch(main, /addEventListener\("click".*playSfx/);
 });
 
 test("audio safely becomes a no-op where Web Audio is unavailable", () => {
@@ -38,7 +32,7 @@ test("audio production chain includes dynamics, crossfades and app lifecycle han
   assert.match(audio, /suspendAudio/);
   assert.match(audio, /careerIntensity/);
   assert.match(main, /visibilityState==="hidden"/);
-  assert.match(main, /shouldPlayKeyboardSound/);
+  assert.match(main, /pointerdown.*enableAudio/);
 });
 
 test("licensed offline one-shots are present and listed in the PWA shell", () => {

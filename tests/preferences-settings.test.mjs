@@ -23,7 +23,7 @@ test("設定頁包含存讀檔、顯示偏好、教學與二次確認",()=>{
  const state=initialState();
  state.name="設定測試";
  const html=settingsApp();
- for(const text of["快速存檔與讀檔","字體大小","介面主題","自動播放速度","音樂與音效","新手教學","從頭開始"])assert.match(html,new RegExp(text));
+ for(const text of["快速存檔與讀檔","字體大小","介面主題","自動播放速度","音樂與事件音效","新手教學","從頭開始"])assert.match(html,new RegExp(text));
  assert.match(html,/data-request-reset/);
  assert.match(html,/data-auto-speed="x1"/);
  assert.match(html,/data-auto-speed="x2"/);

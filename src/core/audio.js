@@ -20,7 +20,7 @@ const MODES=Object.freeze({
 });
 
 let context=null,master=null,compressor=null,musicMix=null,sfxBus=null,musicBuses=[];
-let activeBus=0,activeMode="room",musicTimer=null,musicStep=0,careerIntensity=0,hiddenByPage=false,lastPointerAt=0,lastTapAt=0,loadPromise=null;
+let activeBus=0,activeMode="room",musicTimer=null,musicStep=0,careerIntensity=0,hiddenByPage=false,lastTapAt=0,loadPromise=null;
 const buffers=new Map(),musicSources=new Set(),sfxSources=new Set();
 
 function ensure(){
@@ -97,10 +97,3 @@ export function audioModeForState(state){
  if(state.screen==="ending")return"ending";if(state.screen==="event")return"event";if(state.screen==="runner")return"runner";if(state.screen==="summary")return"summary";if(state.screen!=="game")return"room";
  if(["planner","jobs"].includes(state.appOpen))return"planning";if(["agency","world","stats"].includes(state.appOpen))return"industry";if(["creative","wardrobe","gallery"].includes(state.appOpen))return"creative";if(["people","npc","social","forum"].includes(state.appOpen))return"social";return"room";
 }
-export function soundForControl(control){
- if(!control||control.disabled||control.getAttribute?.("aria-disabled")==="true"||control.matches?.("[data-preview-sfx]"))return null;
- if(control.matches?.("[data-confirm-cancel], [data-request-reset], .danger"))return"warning";if(control.matches?.("[data-close-app], [data-dismiss-guide]"))return"close";if(control.matches?.("[data-app-back], [data-gallery-back], [data-map-back]"))return"back";if(control.matches?.("[data-open-app], [data-open-save-manager]"))return"open";
- if(control.matches?.("[data-save-slot], [data-export-save], [data-import-save]"))return"save";if(control.matches?.("[data-buy-outfit], [data-creative-sell], [data-creative-submit]"))return"purchase";if(control.matches?.("[data-event-choice], #event-resolve"))return"reveal";if(control.matches?.("[data-schedule], [data-activity], [data-planner-day], [data-copy-week]"))return"schedule";if(control.matches?.("#begin-week, #next-week"))return"week";if(control.matches?.(".main-btn, [data-confirm-accept]"))return"confirm";return"tap";
-}
-export function markPointerSound(){lastPointerAt=globalThis.performance?.now?.()??Date.now()}
-export function shouldPlayKeyboardSound(){return(globalThis.performance?.now?.()??Date.now())-lastPointerAt>350}
