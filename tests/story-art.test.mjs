@@ -5,7 +5,7 @@ import{eventStoryArt,runnerSceneArt,STORY_ART_ASSETS}from"../src/data/story-art.
 
 test("所有劇情與場景美術都已存在且沒有漏接",()=>{
  const unique=new Set(STORY_ART_ASSETS.map(art=>art.src));
- assert.equal(unique.size,86);
+ assert.equal(unique.size,102);
  for(const src of unique)assert.ok(existsSync(new URL(`../${src.replace(/^\.\//,"")}`,import.meta.url)),src);
 });
 
@@ -56,4 +56,11 @@ test("人物主線、戀愛與職涯里程碑會選到專屬 CG",()=>{
  assert.match(eventStoryArt({id:"silver-route-archive",kind:"人物事件"}).src,/silver-pc-archive-room/);
  assert.match(eventStoryArt({id:"flagship-choice:J061",kind:"職涯事件"}).src,/milestone-flagship-signature/);
  assert.match(eventStoryArt({id:"npc-romance-lujingran:romance:committed:3",kind:"戀愛事件"}).src,/milestone-romance-proposal/);
+});
+
+test("十位主要 NPC 都有關係路線代表 CG",()=>{
+ for(const id of ["jiqing","shenyao","tangtang","guchengxi","linxiafan","lujingran","xiayutong","sufei","chengyian","hanzhiyuan"]){
+  const art=eventStoryArt({id:`npc-romance-${id}:bonded:route`,kind:"戀愛事件",title:"確認彼此心意"});
+  assert.match(art.src,new RegExp(`route-${id}`),id);
+ }
 });

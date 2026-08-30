@@ -15,21 +15,34 @@ export const SCENE_ART=Object.freeze({
  cinema:scene("star-cinema-premiere.webp","星輝電影院首映夜"),
  press:scene("press-conference.webp","媒體記者會現場"),
  hospital:scene("hospital-room-dawn.webp","清晨的醫院病房"),
- airport:scene("star-city-airport.webp","星望國際機場")
+ airport:scene("star-city-airport.webp","星望國際機場"),
+ agency:scene("talent-agency-lobby.webp","經紀公司大廳與面談區"),
+ television:scene("tv-variety-studio.webp","星曜電視台綜藝攝影棚"),
+ filmSet:scene("film-soundstage.webp","極光影業電影拍攝現場"),
+ dance:scene("pulse-dance-studio.webp","Pulse 舞蹈教室"),
+ livehouse:scene("eclipse-livehouse.webp","月蝕 Live House 舞臺"),
+ theatre:scene("galaxy-theatre.webp","星河劇場舞臺"),
+ fashion:scene("fashion-atelier.webp","時尚造型工作室"),
+ boardroom:scene("entertainment-boardroom.webp","星環商務中心會議室"),
+ gallery:scene("white-wall-gallery.webp","白牆藝廊展場"),
+ library:scene("city-media-library.webp","星望市立圖書館影視館藏區"),
+ boutique:scene("starlight-boutique.webp","星光購物商場時尚選品店"),
+ cityStreet:scene("entertainment-district-rain.webp","雨後的星望市娛樂街區")
 });
 
 const ACTION_SCENES=Object.freeze({
- vocal:"recording",songwriting:"recording",acting:"studio",dance:"studio",speech:"radio",
+ vocal:"recording",songwriting:"recording",acting:"studio",dance:"dance",speech:"radio",
  creation:"editing",script:"editing",study:"room",image:"backstage",styling:"backstage",
  networking:"cafe",audition:"audition",job_session:"studio",personal_task:"editing",
- street:"cinema",free:"cafe",rest:"room",agency_interview:"press"
+ street:"cityStreet",free:"cafe",rest:"room",agency_interview:"agency"
 });
 
 const LOCATION_SCENES=Object.freeze({
- radio:"radio",tv_company:"studio",film_company:"cinema",record_company:"recording",
- media_company:"studio",livehouse:"recording",cinema:"cinema",studio:"studio",
- recording:"recording",rehearsal:"audition",theatre:"backstage",gallery:"cinema",
- shop:"backstage",business:"press",cafe:"cafe",library:"room",clinic:"hospital",airport:"airport"
+ radio:"radio",tv_company:"television",film_company:"filmSet",record_company:"recording",
+ media_company:"fashion",livehouse:"livehouse",cinema:"cinema",studio:"filmSet",
+ recording:"recording",rehearsal:"audition",theatre:"theatre",gallery:"gallery",
+ shop:"boutique",business:"boardroom",cafe:"cafe",library:"library",clinic:"hospital",
+ airport:"airport",dance:"dance",park:"cityStreet",market:"cityStreet",restaurant:"cityStreet"
 });
 
 export function runnerSceneArt(actionId,locationId=null,result=null){
@@ -100,7 +113,11 @@ const NPC_ROUTE_ART=Object.freeze({
  jiqing:cg("route-jiqing-studio-argument.webp","喬映澄在直播後的錄音室轉身離開"),
  lujingran:cg("route-lujingran-rooftop-confession.webp","江敘白在天台以一副耳機說出心意"),
  silver_pc:cg("route-silver-last-train-farewell.webp","銀髮旅人在末班車門前伸出手"),
- chengyian:cg("route-chengyian-premiere-reunion.webp","溫時嶼在首映夜越過人群迎向玩家")
+ chengyian:cg("route-chengyian-premiere-reunion.webp","溫時嶼在首映夜越過人群迎向玩家"),
+ guchengxi:cg("route-guchengxi-stage-flower.webp","周予珩在謝幕後把唯一一朵花遞給玩家"),
+ linxiafan:cg("route-linxiafan-collar.webp","黎曼青在深夜工作室替玩家整理衣領"),
+ sufei:cg("route-sufei-stage-hand.webp","許映真在空舞臺向玩家伸出手"),
+ xiayutong:cg("route-xiayutong-wrap-drink.webp","宋知夏在收工清晨與玩家分享一杯飲料")
 });
 
 const MILESTONE_RULES=Object.freeze([
