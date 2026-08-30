@@ -21,6 +21,7 @@ let activeToast="";
 let guideTimer=null;
 let activeGuide="";
 let renderedMarkup="";
+let renderedAudioMode="";
 const appScrollPositions={};
 const nestedScrollPositions={};
 const disclosureStates={};
@@ -119,14 +120,14 @@ function renderUnsafe({persist=true,reason="unspecified"}={}){
  if(nextBody&&state.appOpen){nextBody.scrollTop=appScrollPositions[state.appOpen]||0;restoreAppUi(state.appOpen,nextBody)}
  app.querySelectorAll(".mini-toast").forEach(node=>node.remove());
  if(domChanged)bind();
- syncAudio(audioModeForState(state));
+ const audioMode=audioModeForState(state);syncAudio(audioMode,state);if(audioMode!==renderedAudioMode){if(audioMode==="runner")playSfx("clapper");else if(audioMode==="awards")playSfx("shutter");else if(audioMode==="ending")playSfx("applause");renderedAudioMode=audioMode}
  if(focusSelector&&(wasInDialog||!app.querySelector('[role="dialog"], [role="alertdialog"]'))){const next=app.querySelector(focusSelector);next?.focus({preventScroll:true});if(selection&&typeof next?.setSelectionRange==="function")next.setSelectionRange(selection.start,selection.end,selection.direction)}
  if(domChanged)document.querySelector("[data-dismiss-guide]")?.addEventListener("click",()=>{if(guideTimer)clearTimeout(guideTimer);guideTimer=null;if(guide)markTutorialSeen(state,guide.id);activeGuide="";render()});
  document.querySelector("[data-undo-action]")?.addEventListener("click",()=>{const action=consumeUndo(message);if(!action)return;action.run();state.notice=action.doneMessage;render()},{once:true});
  document.querySelector("[data-apply-update]")?.addEventListener("click",event=>{event.currentTarget.disabled=true;event.currentTarget.textContent="更新中…";document.dispatchEvent(new CustomEvent("star-game:save-now"));applyAvailableUpdate()},{once:true});
  document.dispatchEvent(new CustomEvent("star-game:rendered"));
  if(persist)document.dispatchEvent(new CustomEvent("star-game:state-changed",{detail:{reason}}));
- if(message&&message!==activeToast)playSfx(/失敗|違約|不足|無法|拒絕|警告|逾期/.test(message)?"warning":/獲得|解鎖|成功|得獎|入選|完成/.test(message)?"success":"message");
+ if(message&&message!==activeToast)playSfx(/失敗|違約|不足|無法|拒絕|警告|逾期/.test(message)?"warning":/得獎|獎項|頒獎|紅毯/.test(message)?"applause":/獲得|解鎖|成功|入選|完成/.test(message)?"success":"message");
  syncToast(message);
  syncGuide(guide);
 }
