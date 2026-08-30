@@ -50,6 +50,7 @@ test("dock editor shows selections, empty slots and blocks incomplete save",()=>
 test("home, dock and every app window render the shared icon system", () => {
   resetState();
   state.name = "測試玩家";
+  state.appLibraryExpanded = true;
   const home = tabletHome();
   assert.equal((home.match(/class="app-tile"/g) || []).length, 17);
   assert.equal((tabletDock().match(/class="mini-app-icon/g) || []).length, 6);
@@ -61,6 +62,17 @@ test("home, dock and every app window render the shared icon system", () => {
     assert.match(window, /class="window-icon tone-/);
     assert.match(window, /class="app-icon-svg/);
   }
+});
+
+test("home defaults to six recent apps and expands to the complete library",()=>{
+ resetState();state.recentAppIds=["jobs","creative","people"];
+ const compact=tabletHome();
+ assert.match(compact,/RECENT APPS/);
+ assert.equal((compact.match(/class="app-tile"/g)||[]).length,3);
+ state.appLibraryExpanded=true;
+ const expanded=tabletHome();
+ assert.match(expanded,/APP LIBRARY/);
+ assert.equal((expanded.match(/class="app-tile"/g)||[]).length,17);
 });
 
 test("contacts and dossiers are two tabs in one people app",()=>{

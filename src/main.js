@@ -11,7 +11,9 @@ import{installGlobalErrorHandlers,showFatalError}from"./core/error-recovery.js";
 import{markUpdateAvailable,updateIsApplying}from"./core/pwa-update.js";
 
 installGlobalErrorHandlers();
-document.addEventListener("star-game:state-changed",()=>scheduleSaveState(state));
+function updateSaveStatus(status){state.saveStatus=status;const node=document.querySelector("[data-save-status]");if(!node)return;node.dataset.saveStatus=status;node.querySelector("b").textContent=status==="saving"?"儲存中…":status==="error"?"尚未儲存":"已儲存";node.querySelector("small").textContent=status==="error"?"點擊開啟存檔管理":"進度保存在此裝置"}
+document.addEventListener("star-game:state-changed",()=>{updateSaveStatus("saving");scheduleSaveState(state)});
+document.addEventListener("star-game:save-status",event=>updateSaveStatus(event.detail?.status||"error"));
 document.addEventListener("star-game:save-now",()=>flushSaveState());
 window.addEventListener("pagehide",()=>flushSaveState());
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flushSaveState()});

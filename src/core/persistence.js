@@ -16,12 +16,12 @@ let autoSaveTimer = null,
   lastCheckpoint = "";
 export const TRANSIENT_STATE_KEYS = Object.freeze([
   "appOpen",
-  "appCloseConfirm",
+  "confirmDialog",
+  "saveStatus",
   "dockEditing",
   "dockDraftIds",
   "dockNotice",
   "saveNotice",
-  "saveConfirm",
   "wardrobeNotice",
   "socialNotice",
   "jobQuery",
@@ -31,6 +31,7 @@ export const TRANSIENT_STATE_KEYS = Object.freeze([
   "peopleSection",
   "appQuery",
   "appCategory",
+  "appLibraryExpanded",
   "appReturnContext",
   "creativeDraftTitle",
   "timelineQuery",
@@ -62,8 +63,8 @@ function readRaw(key) {
 }
 function writeRaw(key, state, label = "") {
   try {
-    assertGameState(state);
     const snapshot = persistableState(state);
+    assertGameState(snapshot);
     localStorage.setItem(
       key,
       JSON.stringify({
@@ -105,7 +106,14 @@ export function saveState(state) {
   autoSaveTimer = null;
   pendingAutoState = null;
   lastCheckpoint = checkpoint(state);
-  return writeRaw(AUTO_KEY, state, "自動存檔");
+  const saved = writeRaw(AUTO_KEY, state, "自動存檔");
+  if (typeof document !== "undefined")
+    document.dispatchEvent(
+      new CustomEvent("star-game:save-status", {
+        detail: { status: saved ? "saved" : "error" },
+      }),
+    );
+  return saved;
 }
 export function flushSaveState() {
   if (autoSaveTimer) clearTimeout(autoSaveTimer);

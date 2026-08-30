@@ -192,9 +192,18 @@ export function validateGameState(s) {
     errors.push("jobSort 無效");
   if (
     s.appCategory != null &&
-    !["全部", "行程", "事業", "人物", "收藏", "系統"].includes(s.appCategory)
+    !["全部", "規劃", "事業", "人物", "世界", "紀錄", "個人", "系統"].includes(
+      s.appCategory,
+    )
   )
     errors.push("appCategory 無效");
+  if (
+    s.recentAppIds != null &&
+    (!Array.isArray(s.recentAppIds) ||
+      s.recentAppIds.length > 6 ||
+      s.recentAppIds.some((id) => !validId(id)))
+  )
+    errors.push("recentAppIds 無效");
   return { ok: errors.length === 0, errors };
 }
 export function assertGameState(s) {

@@ -119,8 +119,13 @@ function auditionButtons(job, record) {
 function actionPanel(job, record) {
   const q = qualification(job),
     role = selectedJobRole(job.id);
-  if (record.stage === "available")
-    return `<button data-job-action="apply" data-job-id="${job.id}" ${q.met ? "" : "disabled"}>${jobSource(job).type === "direct" ? `接受「${esc(role.label)}」邀約` : `登記「${esc(role.label)}」試鏡`}</button>`;
+  if (record.stage === "available") {
+    if (!q.met) {
+      const missing=q.rows.filter(row=>!row.met).map(row=>`${row.name}差 ${Math.max(0,row.required-row.current)}`).join("、")||`還需訓練 ${Math.max(0,q.trainingRequired-q.training)} 次`;
+      return `<div class="disabled-action-guide"><button disabled aria-describedby="job-disabled-${job.id}">目前尚未符合資格</button><p id="job-disabled-${job.id}">${esc(missing)}</p><button class="secondary" data-open-app="planner">前往安排訓練 →</button></div>`;
+    }
+    return `<button data-job-action="apply" data-job-id="${job.id}">${jobSource(job).type === "direct" ? `接受「${esc(role.label)}」邀約` : `登記「${esc(role.label)}」試鏡`}</button>`;
+  }
   if (["applied", "failed"].includes(record.stage))
     return auditionButtons(job, record);
   if (record.stage === "audition_scheduled")
@@ -133,6 +138,7 @@ function actionPanel(job, record) {
   }
   return `<div class="contract-result"><h3>${record.stage === "completed" ? "作品已完成" : "通告已結束"}</h3><p>${esc(record.notice || "")}</p></div>`;
 }
+function nextStepPanel(job,record){const labels={available:"確認資格並登記試鏡",applied:"選擇本週空檔安排試鏡",failed:"等待冷卻或再次安排試鏡",audition_scheduled:"從行程開始本週，完成當天試鏡",passed:"簽署演出合約",active:"在期限前排完剩餘工作",completed:"查看作品與市場後續",breached:"檢視違約結果"};return`<section class="job-next-step"><div><span>NEXT STEP・${esc(labels[record.stage]||"查看目前進度")}</span><b>${record.stage==="active"?`剩餘 ${record.remainingSessions} 次・第 ${record.deadlineWeek} 週截止`:esc(job.title)}</b></div><div class="job-action">${actionPanel(job,record)}</div></section>`}
 export function jobsApp() {
   const unlocked = new Set(availableJobs().map((j) => j.id)),
     allJobs = JOB_CATALOG.filter(
@@ -172,5 +178,5 @@ export function jobsApp() {
         avoid: "暫停往來",
       }[brand.status] || brand.status,
     pay = marketAdjustedPay(job);
-  return `<div class="jobs-page multi-jobs"><aside class="job-catalog" data-scroll-key="job-catalog"><header><h3>工作信箱</h3><small>${allJobs.length} 份目前可接觸工作・完整通告庫 ${JOB_CATALOG.length} 份</small></header>${jobListTools(jobs.length, allJobs.length)}<nav>${JOB_CATEGORIES.map((c) => `<span>${c}</span>`).join("")}</nav>${jobs.map(listCard).join("")}</aside><section class="job-detail"><div class="job-board-head"><div><span>${job.id}・${"★".repeat(job.stars)}・${job.category}</span><h2>${esc(job.title)}</h2><p>${sourceLabel(job)}・${esc(job.synopsis)}</p></div><strong>${money(pay)}${pay !== job.pay ? `<small>・市場基準 ${money(job.pay)}</small>` : ""}</strong></div><dl class="job-sheet"><div><dt>委託方</dt><dd>${esc(job.client)}</dd></div><div><dt>${["電影", "電視劇"].includes(job.category) ? "試鏡角色" : "參與定位"}</dt><dd>${esc(role.label)}</dd></div><div><dt>品牌關係</dt><dd>${brandLabel}・信任 ${brand.trust}・合作 ${brand.works} 次</dd></div><div><dt>試鏡地點</dt><dd>${esc(job.audition.venue)}</dd></div><div><dt>指定工作日</dt><dd>每週${jobWorkDaysText(job)}</dd></div><div><dt>最低訓練</dt><dd>${q.training}／${q.trainingRequired} 次</dd></div></dl>${storyPanel(job, record)}${sequels}${castPanel(record)}${crewPanel(record)}<section class="qualification-panel"><div><h3>${q.met ? `${esc(role.label)}資質完整` : `${esc(role.label)}仍有能力尚未達標`}</h3><p>${esc(job.audition.tip)}${["電影", "電視劇"].includes(job.category) ? " 角色位階會直接影響本通告的能力門檻與試鏡競爭強度。" : ""}</p></div><div class="req-list">${requirementRows(job)}</div></section>${record.notice ? `<div class="job-notice">${esc(record.notice)}</div>` : ""}<div class="job-action">${actionPanel(job, record)}</div></section></div>`;
+  return `<div class="jobs-page multi-jobs"><aside class="job-catalog" data-scroll-key="job-catalog"><header><h3>工作信箱</h3><small>${allJobs.length} 份目前可接觸工作・完整通告庫 ${JOB_CATALOG.length} 份</small></header>${jobListTools(jobs.length, allJobs.length)}<nav>${JOB_CATEGORIES.map((c) => `<span>${c}</span>`).join("")}</nav>${jobs.map(listCard).join("")}</aside><section class="job-detail">${nextStepPanel(job,record)}<div class="job-board-head"><div><span>${job.id}・${"★".repeat(job.stars)}・${job.category}</span><h2>${esc(job.title)}</h2><p>${sourceLabel(job)}・${esc(job.synopsis)}</p></div><strong>${money(pay)}${pay !== job.pay ? `<small>・市場基準 ${money(job.pay)}</small>` : ""}</strong></div><dl class="job-sheet"><div><dt>委託方</dt><dd>${esc(job.client)}</dd></div><div><dt>${["電影", "電視劇"].includes(job.category) ? "試鏡角色" : "參與定位"}</dt><dd>${esc(role.label)}</dd></div><div><dt>品牌關係</dt><dd>${brandLabel}・信任 ${brand.trust}・合作 ${brand.works} 次</dd></div><div><dt>試鏡地點</dt><dd>${esc(job.audition.venue)}</dd></div><div><dt>指定工作日</dt><dd>每週${jobWorkDaysText(job)}</dd></div><div><dt>最低訓練</dt><dd>${q.training}／${q.trainingRequired} 次</dd></div></dl><details class="job-secondary-details" data-disclosure-key="job-details:${job.id}"><summary>查看劇情、合作陣容與完整資格</summary>${storyPanel(job, record)}${sequels}${castPanel(record)}${crewPanel(record)}<section class="qualification-panel"><div><h3>${q.met ? `${esc(role.label)}資質完整` : `${esc(role.label)}仍有能力尚未達標`}</h3><p>${esc(job.audition.tip)}${["電影", "電視劇"].includes(job.category) ? " 角色位階會直接影響本通告的能力門檻與試鏡競爭強度。" : ""}</p></div><div class="req-list">${requirementRows(job)}</div></section></details>${record.notice ? `<div class="job-notice">${esc(record.notice)}</div>` : ""}</section></div>`;
 }

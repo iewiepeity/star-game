@@ -1,7 +1,11 @@
 import { AGENCY_LIST } from "../data/agencies.js";
-import { state } from "../core/state.js";
+import { hydrateState, resetState, state } from "../core/state.js";
 import { render, renderUi } from "../render.js";
 import { evaluateEnding } from "../logic/career.js";
+import { breakUp } from "../logic/romance-engine.js";
+import { backupCurrent, deleteManualSlot, saveManualSlot, saveState } from "../core/persistence.js";
+import { rollStats } from "../core/stats.js";
+import { NPCS } from "../data/npcs.js";
 import { DEFAULT_DOCK_IDS, normalizeDockIds } from "../views/app-icons.js";
 import { activateDialog, rememberDialogTrigger, restoreDialogTrigger, trapDialogFocus } from "../core/dialog-focus.js";
 import { bindDeferredSearch } from "../core/deferred-search.js";
@@ -9,20 +13,19 @@ import { bindDeferredSearch } from "../core/deferred-search.js";
 let dialogKeyHandler = null;
 let activeDialogIdentity = "";
 
-function hasDirtyAppState(){return Boolean(state.creativeDraftTitle?.trim()||state.saveConfirm||state.settingsConfirmReset)}
+function hasDirtyAppState(){return Boolean(state.creativeDraftTitle?.trim())}
 function closeDialog(force=false) {
-  if(!force&&hasDirtyAppState()){state.appCloseConfirm=true;renderUi();Promise.resolve().then(()=>document.querySelector("[data-cancel-app-close]")?.focus());return}
-  state.retireConfirm = false;
+  if(!force&&hasDirtyAppState()){state.confirmDialog={type:"close-app"};renderUi();return}
   state.appOpen = null;
   state.appReturnContext = null;
-  state.appCloseConfirm = false;
+  state.confirmDialog = null;
   renderUi();
   Promise.resolve().then(restoreDialogTrigger);
 }
 
 function bindDialogKeyboard() {
   const dialog = document.querySelector(".confirm-dialog, .app-window");
-  const identity = state.retireConfirm ? "retire" : state.appOpen || "";
+  const identity = state.confirmDialog ? `confirm:${state.confirmDialog.type}` : state.appOpen || "";
   if (dialog && identity !== activeDialogIdentity) activateDialog(dialog, { initial: dialog.classList.contains("confirm-dialog") ? "[data-retire-cancel]" : null });
   activeDialogIdentity = dialog ? identity : "";
   if (dialogKeyHandler) document.removeEventListener("keydown", dialogKeyHandler);
@@ -31,7 +34,7 @@ function bindDialogKeyboard() {
     if (!current) return;
     if (event.key === "Escape") {
       event.preventDefault();
-      closeDialog(false);
+      if(state.confirmDialog){state.confirmDialog=null;renderUi();Promise.resolve().then(restoreDialogTrigger)}else closeDialog(false);
       return;
     }
     trapDialogFocus(event, current);
@@ -48,6 +51,7 @@ export function bindRoomShell() {
   bindDeferredSearch("[data-app-query]",(value)=>{state.appQuery=value},()=>render({persist:false}));
   document.querySelectorAll("[data-app-category]").forEach(button=>button.onclick=()=>{state.appCategory=button.dataset.appCategory;renderUi()});
   document.querySelector("[data-clear-app-filters]")?.addEventListener("click",()=>{state.appQuery="";state.appCategory="全部";renderUi()});
+  document.querySelector("[data-app-library-toggle]")?.addEventListener("click",()=>{state.appLibraryExpanded=!state.appLibraryExpanded;if(!state.appLibraryExpanded){state.appQuery="";state.appCategory="全部"}renderUi()});
   document.querySelector("[data-return-app]")?.addEventListener("click",(event)=>{state.appOpen=event.currentTarget.dataset.returnApp;state.appReturnContext=null;renderUi()});
   document.querySelector("[data-dock-edit]")?.addEventListener("click", () => { state.dockEditing = true; state.dockDraftIds = [...normalizeDockIds(state.dockAppIds)]; state.dockNotice = ""; renderUi(); });
   document.querySelectorAll("[data-dock-toggle]").forEach((button) => button.onclick = () => {
@@ -73,15 +77,29 @@ export function bindRoomShell() {
     const hasAchievementNotices=target==="achievements"&&Boolean(state.achievementNotifications?.length),hasUnreadPeople=target==="people"&&(state.npcMessages||[]).some(message=>!message.read);
     if (target === "achievements") state.achievementNotifications = [];
     if (target === "people") { state.peopleSection = "contacts"; (state.npcMessages || []).forEach((message) => message.read = true); }
-    state.appReturnContext = null; state.appCloseConfirm=false; state.appOpen = target; (hasAchievementNotices||hasUnreadPeople?render:renderUi)();
+    state.appReturnContext = null; state.confirmDialog=null; state.appOpen = target;
+    state.recentAppIds=[target,...(state.recentAppIds||[]).filter(id=>id!==target)].slice(0,6);
+    (hasAchievementNotices||hasUnreadPeople?render:renderUi)();
   });
   document.querySelectorAll("[data-close-app]").forEach((button) => button.onclick = ()=>closeDialog(false));
-  document.querySelector("[data-cancel-app-close]")?.addEventListener("click",()=>{state.appCloseConfirm=false;renderUi()});
-  document.querySelector("[data-confirm-app-close]")?.addEventListener("click",()=>closeDialog(true));
   document.querySelector("[data-open-job]")?.addEventListener("click", (event) => { rememberDialogTrigger(event.currentTarget); state.appOpen = "jobs"; renderUi(); });
   document.querySelector("[data-go-free]")?.addEventListener("click", () => { state.selectedDay = state.schedule.findIndex((id) => id === "rest"); if (state.selectedDay < 0) state.selectedDay = 6; state.appOpen = "map"; renderUi(); });
-  document.querySelector("[data-retire]")?.addEventListener("click", (event) => { rememberDialogTrigger(event.currentTarget); state.retireConfirm = true; renderUi(); });
-  document.querySelectorAll("[data-retire-cancel]").forEach((button) => button.onclick = () => { state.retireConfirm = false; renderUi(); Promise.resolve().then(restoreDialogTrigger); });
-  document.querySelector("[data-retire-confirm]")?.addEventListener("click", () => { state.retireConfirm = false; state.endingType = "retire"; state.endingResult = evaluateEnding("retire"); state.screen = "ending"; state.appOpen = null; render(); });
+  document.querySelector("[data-retire]")?.addEventListener("click", (event) => { rememberDialogTrigger(event.currentTarget); state.confirmDialog = {type:"retire"}; renderUi(); });
+  document.querySelectorAll("[data-confirm-cancel]").forEach(button=>button.onclick=()=>{state.confirmDialog=null;renderUi();Promise.resolve().then(restoreDialogTrigger)});
+  document.querySelector("[data-confirm-accept]")?.addEventListener("click",()=>{
+    const dialog=state.confirmDialog;if(!dialog)return;
+    if(dialog.type==="close-app"){closeDialog(true);return}
+    if(dialog.type==="overwrite"){const ok=saveManualSlot(dialog.slot,state,`手動存檔 ${dialog.slot}`);state.saveNotice=ok?`已儲存至槽位 ${dialog.slot}。`:"存檔寫入失敗，原本內容沒有被刪除。";state.confirmDialog=null;renderUi();return}
+    if(dialog.type==="delete-save"){const ok=deleteManualSlot(dialog.slot);state.saveNotice=ok?`已刪除槽位 ${dialog.slot}；仍可復原一次。`:"刪除失敗，槽位內容仍然保留。";state.confirmDialog=null;renderUi();return}
+    if(dialog.type==="breakup"){const npc=NPCS[dialog.npcId],result=breakUp(dialog.npcId,"玩家主動提出分手");state.notice=result.ok?`你和${npc?.name||"對方"}結束了這段關係。`:result.reason;state.confirmDialog=null;render();return}
+    if(dialog.type==="retire"){state.confirmDialog=null;state.endingType="retire";state.endingResult=evaluateEnding("retire");state.screen="ending";state.appOpen=null;render();return}
+    if(dialog.type==="reset"){
+      const previous=structuredClone(state);
+      if(!backupCurrent(state,"從頭開始前備份")){state.notice="無法建立安全備份，已取消重新開始。";state.confirmDialog=null;render();return}
+      resetState();rollStats();
+      if(!saveState(state)){hydrateState(previous);state.notice="無法寫入全新存檔，原本進度已恢復。";state.appOpen="settings";render();return}
+      window.location.reload();
+    }
+  });
   bindDialogKeyboard();
 }

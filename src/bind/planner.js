@@ -1,4 +1,4 @@
-import{ACTIONS}from"../data/actions.js";import{FOCUSES}from"../data/focuses.js";import{DAYS}from"../data/calendar.js";import{state}from"../core/state.js";import{cancelAgencyInterview}from"../logic/agency.js";import{cancelActivity}from"../logic/scheduled-activities.js";import{startDay}from"../logic/runner.js";import{budget}from"../views/planner.js";import{render}from"../render.js";
+import{ACTIONS}from"../data/actions.js";import{FOCUSES}from"../data/focuses.js";import{DAYS}from"../data/calendar.js";import{state}from"../core/state.js";import{cancelAgencyInterview}from"../logic/agency.js";import{cancelActivity}from"../logic/scheduled-activities.js";import{startDay}from"../logic/runner.js";import{budget}from"../views/planner.js";import{render,renderUi}from"../render.js";
 import{captureWeekStart}from"../logic/career-memory.js";
 import{applySchedulePreset,scheduleDueWork}from"../logic/schedule-assistant.js";
 import{signJob,scheduleJobSession,jobScheduleOptions}from"../logic/job-engine.js";
@@ -11,8 +11,8 @@ const offerUndo=(message,snapshot)=>setUndo(message,()=>restoreSchedule(snapshot
 export function bindPlanner(){
  const forced=state.forcedRestWeek===state.week;
  document.querySelector("[data-clear-day]")?.addEventListener("click",event=>{if(forced)return;const snapshot=scheduleSnapshot(),day=Number(event.currentTarget.dataset.clearDay);if(state.agencyInterview?.dayIndex===day)cancelAgencyInterview();if(state.schedule[day]==="personal_task")cancelActivity(day);const result=scheduleChange(state,day,{type:"rest",allowStandardAction:true});state.notice=result.ok?`${DAYS[day]}已清空並改為休息`:result.message;if(result.ok)offerUndo(state.notice,snapshot);render()});
- document.querySelectorAll("[data-day]").forEach(x=>x.onclick=()=>{if(forced)return;state.selectedDay=Number(x.dataset.day);render()});
- document.querySelectorAll("[data-filter]").forEach(x=>x.onclick=()=>{if(forced)return;state.filter=x.dataset.filter;render()});
+ document.querySelectorAll("[data-day]").forEach(x=>x.onclick=()=>{if(forced)return;state.selectedDay=Number(x.dataset.day);renderUi()});
+ document.querySelectorAll("[data-filter]").forEach(x=>x.onclick=()=>{if(forced)return;state.filter=x.dataset.filter;renderUi()});
  document.querySelectorAll("[data-planner-sign-job]").forEach(x=>x.onclick=()=>{if(forced)return;const ok=signJob(x.dataset.plannerSignJob);state.notice=ok?"合約已成立；這份通告已加入下方「工作」清單。":"合約目前無法成立，請查看合作檔期。";state.filter="工作";render()});
  document.querySelectorAll("[data-planner-job]").forEach(x=>x.onclick=()=>{if(forced)return;const result=scheduleJobSession(x.dataset.plannerJob,Number(x.dataset.jobDay));state.notice=result.message;render()});
  document.querySelectorAll("[data-planner-focus-job]").forEach(x=>x.onclick=()=>{if(forced)return;state.filter="工作";const id=x.dataset.plannerFocusJob,job=state.activeJobs[id],preferred=jobScheduleOptions(id)[0]?.day;if(preferred!=null)state.selectedDay=preferred;state.notice=!job?"通告資料已失效。":preferred==null?"已切到工作分類，但本週沒有符合合約與共演檔期的空位。":"已切到工作分類並選好第一個可用日期。";render()});

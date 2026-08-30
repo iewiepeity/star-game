@@ -13,9 +13,12 @@ export function initialState() {
     tab: "planner",
     appOpen: null,
     appReturnContext: null,
-    appCloseConfirm: false,
+    confirmDialog: null,
+    saveStatus: "saved",
     appQuery: "",
     appCategory: "全部",
+    appLibraryExpanded: false,
+    recentAppIds: [],
     peopleSection: "contacts",
     peopleQuery: "",
     creativeDraftTitle: "",
@@ -40,7 +43,6 @@ export function initialState() {
     favoriteLocations: [],
     recentLocations: [],
     saveNotice: "",
-    saveConfirm: null,
     stats: {},
     hidden: {},
     luck: 0,
@@ -428,12 +430,14 @@ export function hydrateState(saved) {
   next.dockEditing = false;
   next.dockDraftIds = null;
   next.dockNotice = "";
-  next.saveConfirm = null;
+  next.confirmDialog = null;
+  next.saveStatus = "saved";
   next.appReturnContext = null;
-  next.appCloseConfirm = false;
   next.jobStatusFilter = ["all", "action", "active", "available"].includes(next.jobStatusFilter) ? next.jobStatusFilter : "all";
   next.jobSort = ["deadline", "stars", "title"].includes(next.jobSort) ? next.jobSort : "deadline";
   next.appCategory = ["全部", "規劃", "事業", "人物", "世界", "紀錄", "個人", "系統"].includes(next.appCategory) ? next.appCategory : "全部";
+  next.appLibraryExpanded = false;
+  next.recentAppIds = Array.isArray(next.recentAppIds) ? [...new Set(next.recentAppIds.filter((id) => typeof id === "string"))].slice(0, 6) : [];
   if (next.appOpen === "npc") {
     next.appOpen = "people";
     next.peopleSection = "profiles";

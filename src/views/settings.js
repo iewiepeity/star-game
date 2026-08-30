@@ -12,10 +12,8 @@ function section(kicker, title, description, content, className = "") {
 }
 
 export function settingsApp() {
-  const prefs = getPreferences(), seen = new Set(state.tutorialSeen || []), confirm = state.settingsConfirmReset;
-  const reset = confirm
-    ? `<div class="reset-confirm"><b>確定要結束 ${esc(state.name)} 的目前進度嗎？</b><p>自動存檔將被新的角色進度取代，但仍可從安全備份或手動槽位找回。</p><div><button data-cancel-reset>取消</button><button class="danger" data-confirm-reset>確認從頭開始</button></div></div>`
-    : `<button class="reset-game" data-request-reset>從頭開始建立角色</button>`;
+  const prefs = getPreferences(), seen = new Set(state.tutorialSeen || []);
+  const reset = `<button class="reset-game" data-request-reset>從頭開始建立角色</button>`;
   return `<div class="inside-page settings-page"><div class="inside-title"><div><span>GAME SETTINGS</span><h2>遊戲設定</h2></div><p>顯示與播放偏好會保留在這台裝置，不受讀檔影響</p></div>${state.saveNotice ? `<div class="wardrobe-notice">${esc(state.saveNotice)}</div>` : ""}
     ${section("DISPLAY", "字體大小", "全介面使用一致的中文黑體，敘事標題使用同一套中文襯線字。", `<div class="setting-options">${option("font-size", "standard", prefs.fontSize, "A", "標準", "原始排版")}${option("font-size", "comfortable", prefs.fontSize, "A+", "舒適", "內文至少 16px")}${option("font-size", "large", prefs.fontSize, "A++", "大字", "內文至少 18px")}</div>`)}
     ${section("THEME", "介面主題", "保留水彩素材，只調整平板、視窗與按鈕色調。", `<div class="setting-options themes">${option("theme", "warm", prefs.theme, "☀", "奶油晨光", "原始米白與珊瑚粉")}${option("theme", "rose", prefs.theme, "❀", "櫻花手帳", "柔粉紙張與莓果色")}${option("theme", "night", prefs.theme, "☾", "夜幕星光", "深藍灰低亮度介面")}</div>`)}

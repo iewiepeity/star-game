@@ -14,13 +14,14 @@ test("UI hardening stylesheet is loaded and available offline", async () => {
 });
 
 test("dialogs expose keyboard focus management and safe destructive defaults", async () => {
-  const [room, binding, focus] = await Promise.all([read("src/views/room.js"), read("src/bind/room.js"), read("src/core/dialog-focus.js")]);
-  assert.match(room, /role="alertdialog"/);
-  assert.match(room, /tabindex="-1"/);
+  const [dialog, binding, focus] = await Promise.all([read("src/views/confirm-dialog.js"), read("src/bind/room.js"), read("src/core/dialog-focus.js")]);
+  assert.match(dialog, /role="alertdialog"/);
+  assert.match(dialog, /tabindex="-1"/);
   assert.match(binding, /event\.key === "Escape"/);
   assert.match(binding, /trapDialogFocus/);
   assert.match(focus, /event\.shiftKey/);
-  assert.match(binding, /\[data-retire-cancel\]/);
+  assert.match(binding, /\[data-confirm-cancel\]/);
+  assert.match(dialog, /繼續交往/);
 });
 
 test("only the currently open app binds its interaction layer", async () => {
