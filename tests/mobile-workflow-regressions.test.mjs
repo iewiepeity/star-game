@@ -75,6 +75,6 @@ test("人物來源跳轉會明確開啟整合後的人物檔案分頁", async ()
   ]);
   for (const source of [jobs, timeline]) {
     assert.match(source, /peopleSection="profiles"/);
-    assert.match(source, /appOpen.*"people"/);
+    assert.match(source, /openApp\(state,/);
   }
 });

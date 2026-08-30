@@ -3,7 +3,7 @@ import{saveManualSlot,loadManualSlot,backupCurrent,loadBackup,exportSave,parseIm
 import{render,renderUi}from"../render.js";
 import{rememberDialogTrigger}from"../core/dialog-focus.js";
 
-function downloadSave(){const blob=new Blob([exportSave(state)],{type:"application/json"}),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download=`star-game-${state.name||"player"}-week-${state.week}.json`;link.click();URL.revokeObjectURL(url)}
+function downloadSave(){try{const blob=new Blob([exportSave(state)],{type:"application/json"}),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download=`star-game-${state.name||"player"}-week-${state.week}.json`;link.click();URL.revokeObjectURL(url);state.saveNotice="存檔已匯出下載。"}catch(error){state.saveNotice=`匯出失敗：${error.message||"無法建立存檔檔案"}`}renderUi()}
 function loadWithBackup(saved,message,returnApp="save"){if(!saved)return;backupCurrent(state,"讀檔前備份");hydrateState(saved);state.saveNotice=message;state.appOpen=returnApp;render()}
 
 export function bindSave(){

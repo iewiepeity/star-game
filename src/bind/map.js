@@ -4,6 +4,7 @@ import { state } from "../core/state.js";
 import { cancelAgencyInterview } from "../logic/agency.js";
 import { cancelActivity } from "../logic/scheduled-activities.js";
 import { render } from "../render.js";
+import { openApp } from "../core/app-navigation.js";
 export function bindMap() {
   document.querySelectorAll("[data-map-purpose]").forEach(x=>x.onclick=()=>{state.mapPurpose=x.dataset.mapPurpose;render()});
   document.querySelectorAll("[data-map-favorite]").forEach(x=>x.onclick=()=>{state.favoriteLocations??=[];const id=x.dataset.mapFavorite,index=state.favoriteLocations.indexOf(id);if(index>=0)state.favoriteLocations.splice(index,1);else state.favoriteLocations.unshift(id);render()});
@@ -28,7 +29,7 @@ export function bindMap() {
         state.scheduledActivityIds[day] = null;
         state.notice = `${DAYS[day]}將前往「${MAP_LOCATIONS[locationId].name}」${day === 6 ? "；游標已停在本週最後一天" : ""}`;
         state.selectedDay = Math.min(day + 1, 6);
-        state.appOpen = "planner";
+        openApp(state,"planner");
         render();
       }),
   );

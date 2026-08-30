@@ -58,3 +58,24 @@
     .save-status[data-save-status="saving"] i { animation: none; }
   }
 }
+
+@layer components {
+  :root[data-theme="night"] .save-status,
+  :root[data-theme="night"] .confirm-dialog,
+  :root[data-theme="night"] .job-next-step,
+  :root[data-theme="night"] .job-secondary-details,
+  :root[data-theme="night"] .disabled-action-guide .secondary {
+    border-color: var(--line);
+    background: color-mix(in srgb, var(--surface-raised) 94%, transparent);
+    color: var(--ink);
+  }
+  :root[data-theme="night"] .save-status[data-save-status="error"] {
+    border-color: color-mix(in srgb, var(--status-danger) 55%, var(--line));
+    background: color-mix(in srgb, var(--status-danger) 15%, var(--surface-raised));
+  }
+  :root[data-theme="night"] .confirm-dialog p { color: var(--text-muted); }
+  :root[data-theme="night"] .confirm-dialog button:not(.danger) {
+    background: var(--surface-muted);
+    color: var(--ink);
+  }
+}

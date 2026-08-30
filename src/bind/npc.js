@@ -1,5 +1,5 @@
-import{state}from"../core/state.js";import{NPCS}from"../data/npcs.js";import{NPC_INTERACTIONS}from"../data/npc-network.js";import{scheduleActivity}from"../logic/scheduled-activities.js";import{setRomanceVisibility}from"../logic/romance-engine.js";import{render,renderUi}from"../render.js";import{rememberDialogTrigger}from"../core/dialog-focus.js";
-function openNpc(id){state.selectedNpc=id;state.npcArtView="bust";state.peopleSection="profiles";for(const message of state.npcMessages||[])if(message.npcId===id)message.read=true;state.appOpen="people";render()}
+import{state}from"../core/state.js";import{NPCS}from"../data/npcs.js";import{NPC_INTERACTIONS}from"../data/npc-network.js";import{scheduleActivity}from"../logic/scheduled-activities.js";import{setRomanceVisibility}from"../logic/romance-engine.js";import{render,renderUi}from"../render.js";import{rememberDialogTrigger}from"../core/dialog-focus.js";import{openApp}from"../core/app-navigation.js";
+function openNpc(id){state.selectedNpc=id;state.npcArtView="bust";state.peopleSection="profiles";for(const message of state.npcMessages||[])if(message.npcId===id)message.read=true;openApp(state,"people");render()}
 export function bindNpc(){
  document.querySelectorAll("[data-select-npc]").forEach(x=>x.onclick=()=>openNpc(x.dataset.selectNpc));
  document.querySelectorAll("[data-npc-art]").forEach(x=>x.onclick=()=>{state.npcArtView=x.dataset.npcArt;render()});

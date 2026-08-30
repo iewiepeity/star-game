@@ -5,6 +5,7 @@ import{signJob,scheduleJobSession,jobScheduleOptions}from"../logic/job-engine.js
 import{scheduleChange}from"../logic/schedule-transaction.js";
 import{setUndo}from"../core/undo.js";
 import{capturePlannerTransaction,restoreStateFields}from"../core/state-transaction.js";
+import{openApp}from"../core/app-navigation.js";
 const scheduleSnapshot=()=>capturePlannerTransaction(state);
 const restoreSchedule=snapshot=>restoreStateFields(state,snapshot);
 const offerUndo=(message,snapshot)=>setUndo(message,()=>restoreSchedule(snapshot));
@@ -16,7 +17,7 @@ export function bindPlanner(){
  document.querySelectorAll("[data-planner-sign-job]").forEach(x=>x.onclick=()=>{if(forced)return;const ok=signJob(x.dataset.plannerSignJob);state.notice=ok?"合約已成立；這份通告已加入下方「工作」清單。":"合約目前無法成立，請查看合作檔期。";state.filter="工作";render()});
  document.querySelectorAll("[data-planner-job]").forEach(x=>x.onclick=()=>{if(forced)return;const result=scheduleJobSession(x.dataset.plannerJob,Number(x.dataset.jobDay));state.notice=result.message;render()});
  document.querySelectorAll("[data-planner-focus-job]").forEach(x=>x.onclick=()=>{if(forced)return;state.filter="工作";const id=x.dataset.plannerFocusJob,job=state.activeJobs[id],preferred=jobScheduleOptions(id)[0]?.day;if(preferred!=null)state.selectedDay=preferred;state.notice=!job?"通告資料已失效。":preferred==null?"已切到工作分類，但本週沒有符合合約與共演檔期的空位。":"已切到工作分類並選好第一個可用日期。";render()});
- document.querySelectorAll("[data-pick]").forEach(x=>x.onclick=()=>{if(forced)return;const id=x.dataset.pick,day=state.selectedDay;if(id==="free"){state.appOpen="map";render();return}if(state.agencyInterview&&state.agencyInterview.dayIndex===day)cancelAgencyInterview();if(state.schedule[day]==="personal_task")cancelActivity(day);const result=scheduleChange(state,day,{type:id,allowStandardAction:true});if(!result.ok){state.notice=result.message;render();return}state.notice=`${DAYS[day]}已安排「${ACTIONS[id].label}」${day===6?"；游標已停在本週最後一天":""}`;state.selectedDay=Math.min(day+1,6);render()});
+ document.querySelectorAll("[data-pick]").forEach(x=>x.onclick=()=>{if(forced)return;const id=x.dataset.pick,day=state.selectedDay;if(id==="free"){openApp(state,"map");render();return}if(state.agencyInterview&&state.agencyInterview.dayIndex===day)cancelAgencyInterview();if(state.schedule[day]==="personal_task")cancelActivity(day);const result=scheduleChange(state,day,{type:id,allowStandardAction:true});if(!result.ok){state.notice=result.message;render();return}state.notice=`${DAYS[day]}已安排「${ACTIONS[id].label}」${day===6?"；游標已停在本週最後一天":""}`;state.selectedDay=Math.min(day+1,6);render()});
  document.querySelectorAll("[data-focus]").forEach(x=>x.onclick=()=>{if(forced)return;state.focus=x.dataset.focus;state.notice=`本週策略改為「${FOCUSES[state.focus].label}」`;render()});
  document.querySelectorAll("[data-schedule-preset]").forEach(x=>x.onclick=()=>{if(forced)return;const snapshot=scheduleSnapshot(),result=applySchedulePreset(x.dataset.schedulePreset);state.notice=result.message;if(result.ok!==false)offerUndo(state.notice,snapshot);render()});
  document.querySelector("[data-schedule-work]")?.addEventListener("click",()=>{if(forced)return;const snapshot=scheduleSnapshot(),result=scheduleDueWork();state.notice=result.message;if(result.ok!==false)offerUndo(state.notice,snapshot);render()});

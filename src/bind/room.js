@@ -9,6 +9,7 @@ import { NPCS } from "../data/npcs.js";
 import { DEFAULT_DOCK_IDS, normalizeDockIds } from "../views/app-icons.js";
 import { activateDialog, rememberDialogTrigger, restoreDialogTrigger, trapDialogFocus } from "../core/dialog-focus.js";
 import { bindDeferredSearch } from "../core/deferred-search.js";
+import { openApp } from "../core/app-navigation.js";
 
 let dialogKeyHandler = null;
 let activeDialogIdentity = "";
@@ -26,7 +27,7 @@ function closeDialog(force=false) {
 function bindDialogKeyboard() {
   const dialog = document.querySelector(".confirm-dialog, .app-window");
   const identity = state.confirmDialog ? `confirm:${state.confirmDialog.type}` : state.appOpen || "";
-  if (dialog && identity !== activeDialogIdentity) activateDialog(dialog, { initial: dialog.classList.contains("confirm-dialog") ? "[data-retire-cancel]" : null });
+  if (dialog && identity !== activeDialogIdentity) activateDialog(dialog, { initial: dialog.classList.contains("confirm-dialog") ? "[data-confirm-cancel]" : null });
   activeDialogIdentity = dialog ? identity : "";
   if (dialogKeyHandler) document.removeEventListener("keydown", dialogKeyHandler);
   dialogKeyHandler = (event) => {
@@ -52,7 +53,7 @@ export function bindRoomShell() {
   document.querySelectorAll("[data-app-category]").forEach(button=>button.onclick=()=>{state.appCategory=button.dataset.appCategory;renderUi()});
   document.querySelector("[data-clear-app-filters]")?.addEventListener("click",()=>{state.appQuery="";state.appCategory="全部";renderUi()});
   document.querySelector("[data-app-library-toggle]")?.addEventListener("click",()=>{state.appLibraryExpanded=!state.appLibraryExpanded;if(!state.appLibraryExpanded){state.appQuery="";state.appCategory="全部"}renderUi()});
-  document.querySelector("[data-return-app]")?.addEventListener("click",(event)=>{state.appOpen=event.currentTarget.dataset.returnApp;state.appReturnContext=null;renderUi()});
+  document.querySelector("[data-return-app]")?.addEventListener("click",(event)=>{openApp(state,event.currentTarget.dataset.returnApp);renderUi()});
   document.querySelector("[data-dock-edit]")?.addEventListener("click", () => { state.dockEditing = true; state.dockDraftIds = [...normalizeDockIds(state.dockAppIds)]; state.dockNotice = ""; renderUi(); });
   document.querySelectorAll("[data-dock-toggle]").forEach((button) => button.onclick = () => {
     const id = button.dataset.dockToggle, current = [...(state.dockDraftIds || [])], index = current.indexOf(id);
@@ -77,13 +78,12 @@ export function bindRoomShell() {
     const hasAchievementNotices=target==="achievements"&&Boolean(state.achievementNotifications?.length),hasUnreadPeople=target==="people"&&(state.npcMessages||[]).some(message=>!message.read);
     if (target === "achievements") state.achievementNotifications = [];
     if (target === "people") { state.peopleSection = "contacts"; (state.npcMessages || []).forEach((message) => message.read = true); }
-    state.appReturnContext = null; state.confirmDialog=null; state.appOpen = target;
-    state.recentAppIds=[target,...(state.recentAppIds||[]).filter(id=>id!==target)].slice(0,6);
+    openApp(state,target);
     (hasAchievementNotices||hasUnreadPeople?render:renderUi)();
   });
   document.querySelectorAll("[data-close-app]").forEach((button) => button.onclick = ()=>closeDialog(false));
-  document.querySelector("[data-open-job]")?.addEventListener("click", (event) => { rememberDialogTrigger(event.currentTarget); state.appOpen = "jobs"; renderUi(); });
-  document.querySelector("[data-go-free]")?.addEventListener("click", () => { state.selectedDay = state.schedule.findIndex((id) => id === "rest"); if (state.selectedDay < 0) state.selectedDay = 6; state.appOpen = "map"; renderUi(); });
+  document.querySelector("[data-open-job]")?.addEventListener("click", (event) => { rememberDialogTrigger(event.currentTarget); openApp(state,"jobs"); renderUi(); });
+  document.querySelector("[data-go-free]")?.addEventListener("click", () => { state.selectedDay = state.schedule.findIndex((id) => id === "rest"); if (state.selectedDay < 0) state.selectedDay = 6; openApp(state,"map"); renderUi(); });
   document.querySelector("[data-retire]")?.addEventListener("click", (event) => { rememberDialogTrigger(event.currentTarget); state.confirmDialog = {type:"retire"}; renderUi(); });
   document.querySelectorAll("[data-confirm-cancel]").forEach(button=>button.onclick=()=>{state.confirmDialog=null;renderUi();Promise.resolve().then(restoreDialogTrigger)});
   document.querySelector("[data-confirm-accept]")?.addEventListener("click",()=>{

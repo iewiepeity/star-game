@@ -17,7 +17,7 @@ test("新手提示依目前介面出現且每則只顯示一次",()=>{
 
 test("人物教學只在真正認識 NPC 後出現",()=>{
  const state=initialState();
- Object.assign(state,{screen:"game",appOpen:"npc"});
+ Object.assign(state,{screen:"game",appOpen:"people",peopleSection:"profiles"});
  assert.equal(nextTutorial(state),null);
  state.knownPeople=["jiqing"];
  assert.equal(nextTutorial(state)?.id,"npc-basics");

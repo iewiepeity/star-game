@@ -36,7 +36,7 @@ export function activateDialog(dialog, { initial = null } = {}) {
     if (child !== dialog && !child.classList.contains("app-backdrop") && !child.classList.contains("confirm-backdrop")) child.inert = true;
   });
   const focusables = [...dialog.querySelectorAll(FOCUSABLE)];
-  const target = initial ? dialog.querySelector(initial) : focusables[0];
+  const target = (initial ? dialog.querySelector(initial) : null) || focusables[0];
   (target || dialog).focus({ preventScroll: true });
 }
 

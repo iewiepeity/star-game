@@ -64,11 +64,11 @@ test("home, dock and every app window render the shared icon system", () => {
   }
 });
 
-test("home defaults to six recent apps and expands to the complete library",()=>{
+test("home combines recent and favorite apps to keep six useful shortcuts",()=>{
  resetState();state.recentAppIds=["jobs","creative","people"];
  const compact=tabletHome();
- assert.match(compact,/RECENT APPS/);
- assert.equal((compact.match(/class="app-tile"/g)||[]).length,3);
+ assert.match(compact,/RECENT & FAVORITES/);
+ assert.equal((compact.match(/class="app-tile"/g)||[]).length,6);
  state.appLibraryExpanded=true;
  const expanded=tabletHome();
  assert.match(expanded,/APP LIBRARY/);

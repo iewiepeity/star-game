@@ -228,13 +228,14 @@ export function backupMeta() {
   return meta("backup", readRaw(BACKUP_KEY));
 }
 export function exportSave(state) {
-  assertGameState(state);
+  const snapshot = persistableState(state);
+  assertGameState(snapshot);
   return JSON.stringify(
     {
       game: "star-game",
       v: SAVE_VERSION,
       exportedAt: Date.now(),
-      state: persistableState(state),
+      state: snapshot,
     },
     null,
     2,
