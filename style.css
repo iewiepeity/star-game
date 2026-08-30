@@ -489,4 +489,3 @@ html[data-theme="night"] .people-hub-tabs{background:rgba(41,44,53,.96);border-c
 .journey-guide>div{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.journey-guide button{border:1px solid rgba(130,104,94,.18);background:rgba(255,255,255,.75);border-radius:999px;padding:7px 10px;font-size:11px}.journey-guide button i{margin-left:5px}
 .job-catalog-card u{text-decoration:none;font-size:10px;color:#8c6d58;background:rgba(181,143,111,.1);border-radius:999px;padding:3px 7px;justify-self:start}
 @media(max-width:760px){.journey-guide{align-items:flex-start;flex-direction:column}.journey-guide>div{justify-content:flex-start}}
-.confirm-backdrop{pointer-events:none!important}

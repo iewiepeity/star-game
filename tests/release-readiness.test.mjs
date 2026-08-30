@@ -26,7 +26,11 @@ test("部署只會在 CI 成功後發布乾淨 dist", async () => {
   assert.doesNotMatch(workflow, /path: \.$/m);
 });
 
-test("共用確認視窗背景不會攔截主要按鈕", async () => {
-  const css = await readFile(new URL("../style.css", import.meta.url), "utf8");
-  assert.match(css, /\.confirm-backdrop\{pointer-events:none!important\}/);
+test("共用確認視窗維持最上層互動與背景取消功能", async () => {
+  const [css, binding] = await Promise.all([
+    readFile(new URL("../style.css", import.meta.url), "utf8"),
+    readFile(new URL("../src/bind/room.js", import.meta.url), "utf8"),
+  ]);
+  assert.doesNotMatch(css, /\.confirm-backdrop\{pointer-events:none/);
+  assert.match(binding, /state\.confirmDialog \? "\.confirm-dialog" : "\.app-window"/);
 });
