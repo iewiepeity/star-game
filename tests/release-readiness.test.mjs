@@ -25,3 +25,8 @@ test("部署只會在 CI 成功後發布乾淨 dist", async () => {
   assert.match(workflow, /path: dist/);
   assert.doesNotMatch(workflow, /path: \.$/m);
 });
+
+test("共用確認視窗背景不會攔截主要按鈕", async () => {
+  const css = await readFile(new URL("../style.css", import.meta.url), "utf8");
+  assert.match(css, /\.confirm-backdrop\{pointer-events:none!important\}/);
+});
