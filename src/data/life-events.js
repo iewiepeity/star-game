@@ -14,10 +14,10 @@ export const LIFE_EVENTS={
   {id:"job_delay",title:"現場臨時大延誤",text:"器材出了問題，整組人只能乾等。有人開始抱怨，有人乾脆補眠。",choices:[{id:"network",label:"趁空檔和工作人員聊天",outcome:"你記住了幾張臉，也被幾張臉記住。",effect:{stat:"社交",value:2}},{id:"rest",label:"找角落補眠",outcome:"真正開工時，你至少還像個人。",effect:{fatigue:-3}}]},
   {id:"job_praise",title:"導演多看了一眼",text:"收工前，導演忽然把你叫住，問你下一個檔期到什麼時候。",kind:"職涯事件",effect:{rep:"業界評價",value:3}},
   {id:"job_rewrite",title:"開拍前五分鐘改稿",text:"新的台詞剛送到手上，連標點都還帶著修訂痕跡。",choices:[{id:"memorize",label:"先把內容穩穩記住",outcome:"至少正式拍攝沒有卡詞。",effect:{hidden:"抗壓",value:2}},{id:"ask",label:"先確認導演真正要的情緒",outcome:"你沒有死背，而是抓到了修改原因。",effects:[{hidden:"洞察",value:2},{rep:"業界評價",value:1}]}]},
-  {id:"job_coactor",title:"對手演員今天狀態很差",text:"連續幾次 NG 後，現場氣氛變得很僵。下一顆鏡頭是你們的對手戲。",choices:[{id:"support",label:"私下替對方穩一下",outcome:"下一次終於順利完成。",effect:{hidden:"共情",value:2}},{id:"focus",label:"先顧好自己的部分",outcome:"至少你沒有被現場情緒拖走。",effect:{hidden:"抗壓",value:2}}]},
+  {id:"job_coactor",title:"對手演員今天狀態很差",text:"連續幾次 NG 後，現場氣氛變得很僵。下一顆鏡頭是你們的對手戲。",choices:[{id:"support",label:"私下安撫對方的情緒",outcome:"下一次終於順利完成。",effect:{hidden:"共情",value:2}},{id:"focus",label:"先顧好自己的部分",outcome:"至少你沒有被現場情緒拖走。",effect:{hidden:"抗壓",value:2}}]},
   {id:"job_staff",title:"工作人員記得你的名字",text:"今天一到現場，燈光師遠遠就喊了你的名字。你才發現自己已經不是完全的陌生新人。",kind:"職涯事件",effect:{rep:"業界評價",value:2,mood:3}},
   {id:"job_extra_take",title:"導演想多拍一版",text:"原定內容已經過了，但導演說還有時間，想試一個完全不同的版本。",choices:[{id:"try",label:"當然試",outcome:"這一版最後真的被留下。",effect:{rep:"業界評價",value:3,fatigue:2}},{id:"safe",label:"維持已經成功的版本",outcome:"沒有驚喜，但也沒有把成果玩壞。",effect:{hidden:"自律",value:1}}]},
-  {id:"job_interview",title:"收工突然多了一個短訪",text:"宣傳組臨時問你能不能補錄兩分鐘幕後訪談。沒有題綱。",choices:[{id:"accept",label:"直接上",outcome:"一段自然的回答被剪進宣傳花絮。",effects:[{stat:"口才",value:2},{rep:"話題度",value:2}]},{id:"prepare",label:"先要三分鐘整理一下",outcome:"回答比較完整，也沒有說錯話。",effect:{rep:"可信度",value:2}}]},
+  {id:"job_interview",title:"收工突然多了一個短訪",text:"宣傳組臨時問你能不能補錄兩分鐘幕後訪談。沒有題綱。",choices:[{id:"accept",label:"當場回答",outcome:"一段自然的回答被剪進宣傳花絮。",effects:[{stat:"口才",value:2},{rep:"話題度",value:2}]},{id:"prepare",label:"先要三分鐘整理一下",outcome:"回答比較完整，也沒有說錯話。",effect:{rep:"可信度",value:2}}]},
   {id:"job_wrap_gift",title:"殺青前的小禮物",text:"劇組有人悄悄傳了一張卡片，上面簽滿這段時間一起工作的人。",kind:"人物事件",choices:[{id:"keep",label:"好好收起來",outcome:"你忽然覺得這份工作真的結束了。",effect:{mood:6}},{id:"post",label:"拍一角放上社群",outcome:"沒有洩漏內容，只留下了一點告別氣氛。",effect:{fans:8,rep:"話題度",value:1,mood:4}}]}
  ],
  life:[
