@@ -4,6 +4,7 @@ import{state,resetState}from"../src/core/state.js";
 import{CALENDAR_EVENTS}from"../src/data/calendar-events.js";
 import{LIFE_EVENTS}from"../src/data/life-events.js";
 import{resolveEvent}from"../src/logic/event-engine.js";
+import{assertGameState}from"../src/core/save-schema.js";
 
 test("自動存檔合併同一畫面重繪，關鍵進度則立即落盤",async()=>{
  const store=new Map,writes=[];
@@ -21,6 +22,14 @@ test("自動存檔合併同一畫面重繪，關鍵進度則立即落盤",async(
  assert.equal(JSON.parse(store.get("star-game-save")).state.week,2);
  assert.equal(persistence.backupLastAutoSave(),true);
  assert.equal(JSON.parse(store.get("star-game-save-backup")).state.week,2);
+});
+
+test("匯入存檔拒絕可逃逸 HTML attribute 的創作企劃",()=>{
+ resetState();
+ state.creativeProjects=[{id:'CP-1\" autofocus onfocus=\"alert(1)',type:"song",title:"惡意企劃",direction:"heart",status:"draft",team:[],roleAssignments:{}}];
+ assert.throws(()=>assertGameState(state),/creativeProjects\[0\]\.id 無效/);
+ state.creativeProjects=[{id:"CP-safe",type:"song",title:"<script>alert(1)<\/script>",direction:"heart",status:"draft",team:[],roleAssignments:{}}];
+ assert.throws(()=>assertGameState(state),/creativeProjects\[0\]\.title 無效/);
 });
 
 test("複合事件效果不再因重複 value 欄位互相覆蓋",()=>{

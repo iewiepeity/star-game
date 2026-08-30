@@ -45,6 +45,23 @@ const unsafeMarkup = (value) =>
   typeof value === "string" &&
   /(<script\b|javascript:|\son[a-z]+\s*=)/i.test(value);
 const validId = (value, max = 120) => value == null || safeString(value, max);
+const strictId = (value, max = 120) =>
+  typeof value === "string" &&
+  value.length <= max &&
+  /^[a-zA-Z0-9:_-]+$/.test(value);
+const creativeTypes = new Set(["song", "script", "show"]);
+const creativeStatuses = new Set([
+  "draft",
+  "revising",
+  "ready",
+  "rejected",
+  "contracted",
+  "production",
+  "ready_release",
+  "released",
+  "sold",
+]);
+const creativeBudgetTiers = new Set(["lean", "standard", "premium"]);
 const numericFields = {
   week: [1, 261],
   birthMonth: [1, 12],
@@ -139,11 +156,45 @@ export function validateGameState(s) {
       }
     }
   if (Array.isArray(s.creativeProjects))
-    for (const p of s.creativeProjects) {
+    for (const [index, p] of s.creativeProjects.entries()) {
+      const prefix = `creativeProjects[${index}]`;
+      if (!isObj(p)) {
+        errors.push(`${prefix} 無效`);
+        continue;
+      }
+      if (!strictId(p.id)) errors.push(`${prefix}.id 無效`);
+      if (!creativeTypes.has(p.type)) errors.push(`${prefix}.type 無效`);
+      if (!safeString(p.title, 100) || unsafeMarkup(p.title))
+        errors.push(`${prefix}.title 無效`);
+      if (!strictId(p.direction)) errors.push(`${prefix}.direction 無效`);
+      if (!creativeStatuses.has(p.status)) errors.push(`${prefix}.status 無效`);
+      if (p.budgetTier != null && !creativeBudgetTiers.has(p.budgetTier))
+        errors.push(`${prefix}.budgetTier 無效`);
+      if (p.acceptedCompanyId != null && !strictId(p.acceptedCompanyId))
+        errors.push(`${prefix}.acceptedCompanyId 無效`);
       if (!Array.isArray(p.team))
         errors.push(`creative team 無效：${p.id || "unknown"}`);
+      else if (p.team.some((id) => !strictId(id)))
+        errors.push(`${prefix}.team 無效`);
       if (!isObj(p.roleAssignments || {}))
         errors.push(`creative roles 無效：${p.id || "unknown"}`);
+      else
+        for (const [id, role] of Object.entries(p.roleAssignments || {}))
+          if (!strictId(id) || !safeString(role, 100) || unsafeMarkup(role))
+            errors.push(`${prefix}.roleAssignments 無效`);
+      for (const key of [
+        "progress",
+        "quality",
+        "revisions",
+        "productionProgress",
+        "productionSessions",
+        "requiredProductionSessions",
+        "budgetSpent",
+        "marketScore",
+        "revenue",
+      ])
+        if (p[key] != null && !finite(p[key], 0, 1e12))
+          errors.push(`${prefix}.${key} 無效`);
     }
   if (isObj(s.stats))
     for (const [key, value] of Object.entries(s.stats))
