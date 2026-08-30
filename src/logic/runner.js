@@ -34,6 +34,7 @@ import { render } from "../render.js";
 import { evaluateAchievements } from "./achievement-engine.js";
 import { finalizeWeekMemory } from "./career-memory.js";
 import { managerInteractionDecision } from "./manager.js";
+import { effectiveActionCost } from "./economy.js";
 let runnerTimer = null;
 function clearRunnerTimer() {
   if (runnerTimer) {
@@ -290,8 +291,9 @@ export function resolveDay(choice) {
     presentation = {};
   if (a.type === "train") {
     const multiplier = performanceMultiplier("training");
-    applyActivityLoad(a);
-    text = `課程順利結束；${performanceLabel("training")}使學習效率為 ${Math.round(multiplier * 100)}%，${applyGains(a.gains, multiplier)}。`;
+    const charged = effectiveActionCost(a, state.week);
+    applyActivityLoad({ ...a, cost: charged });
+    text = `課程順利結束；學費 $${charged.toLocaleString()}，${performanceLabel("training")}使學習效率為 ${Math.round(multiplier * 100)}%，${applyGains(a.gains, multiplier)}。`;
     state.trainingSessionsCompleted =
       (state.trainingSessionsCompleted || 0) + 1;
   } else if (id === "rest") {
@@ -394,6 +396,20 @@ export function resolveDay(choice) {
     const multiplier = performanceMultiplier("training");
     applyActivityLoad(a);
     text = `自主安排留下成果；效率 ${Math.round(multiplier * 100)}%，${applyGains(a.gains, multiplier)}。`;
+  } else if (a.guaranteed) {
+    applyActivityLoad(a);
+    const earned = randomInt(a.income[0], a.income[1]);
+    state.money += earned;
+    state.fame += id === "newcomer_gig" ? 1 : 0;
+    if (a.relief) {
+      state.flags.push({
+        week: state.week,
+        label: "新人緊急周轉",
+        note: "經紀人介紹一次救急短工，避免職涯因資金不足停擺。",
+      });
+    }
+    title = a.relief ? "救急短工完成" : "零工順利完成";
+    text = `完成${a.label}，收入＋$${earned.toLocaleString()}${id === "newcomer_gig" ? "、知名度＋1" : ""}。`;
   } else {
     const power =
         id === "audition"
@@ -427,10 +443,21 @@ export function resolveDay(choice) {
       const baseFame = id === "audition" ? 4 : 2,
         focusFame = state.focus === "fame" ? 2 : 0;
       state.fame += baseFame + focusFame;
+      const earned = a.income
+        ? randomInt(a.income[0], a.income[1]) +
+          randomInt(a.successIncome?.[0] || 0, a.successIncome?.[1] || 0)
+        : 0;
+      state.money += earned;
       text = `這次實戰順利留下印象；狀態修正後機會為${successRateLabel(pct)}。${focusFame ? ` <em class="focus-result">★ 策略「增加曝光」：成功率＋5%、知名度額外＋2</em>` : ""}`;
+      if (earned) text += ` 小費收入＋$${earned.toLocaleString()}。`;
     } else {
       title = "這次沒有成功";
       text = `機會擦身而過；狀態修正後機會為${successRateLabel(pct)}。`;
+      if (a.income) {
+        const earned = randomInt(a.income[0], a.income[1]);
+        state.money += earned;
+        text += ` 仍獲得保底小費 $${earned.toLocaleString()}。`;
+      }
     }
     text += gainContractReadiness(id, success);
   }
