@@ -1,5 +1,4 @@
-import{state,syncVisitedLocations}from"./core/state.js";
-import{scheduleSaveState}from"./core/persistence.js";
+import{state}from"./core/state.js";
 import{showFatalError}from"./core/error-recovery.js";
 import{createView}from"./views/create.js";
 import{prologueView}from"./views/prologue.js";
@@ -9,7 +8,6 @@ import{endingView}from"./views/ending.js";
 import{eventView}from"./views/event.js";
 import{roomView}from"./views/room.js";
 import{bind}from"./bind.js";
-import{evaluateAchievements}from"./logic/achievement-engine.js";
 import{markTutorialSeen,nextTutorial}from"./logic/tutorial.js";
 import{esc}from"./core/utils.js";
 import{syncAudio}from"./core/audio.js";
@@ -20,6 +18,7 @@ let toastTimer=null;
 let activeToast="";
 let guideTimer=null;
 let activeGuide="";
+let renderedMarkup="";
 const appScrollPositions={};
 
 function toastMarkup(message){
@@ -71,21 +70,20 @@ function renderUnsafe(){
  const activeKey=document.activeElement?.dataset?Object.entries(document.activeElement.dataset)[0]:null;
  const previousWindow=app.querySelector(".app-window"),previousBody=previousWindow?.querySelector(".window-body"),previousApp=state.appOpen;
  if(previousBody&&previousApp)appScrollPositions[previousApp]=previousBody.scrollTop;
- syncVisitedLocations();
- evaluateAchievements();
  const isCreate=state.screen==="create";
  const view=isCreate?createView():state.screen==="prologue"?prologueView():state.screen==="runner"?runnerView():state.screen==="summary"?summaryView():state.screen==="ending"?endingView():state.screen==="event"?eventView():roomView();
  const message=isCreate?"":String(state.notice||"").trim();
  const guide=!isCreate&&!message?nextTutorial(state):null;
- app.innerHTML=view+(message?toastMarkup(message):guide?guideMarkup(guide):"");
+ const markup=view+(message?toastMarkup(message):guide?guideMarkup(guide):""),domChanged=markup!==renderedMarkup;
+ if(domChanged){app.innerHTML=markup;renderedMarkup=markup}
  const nextBody=app.querySelector(".window-body");
  if(nextBody&&state.appOpen)nextBody.scrollTop=appScrollPositions[state.appOpen]||0;
  app.querySelectorAll(".mini-toast").forEach(node=>node.remove());
- bind();
+ if(domChanged)bind();
  syncAudio(state.screen==="game"?"room":state.screen);
  if(activeKey){const [key,value]=activeKey,attribute=key.replace(/[A-Z]/g,m=>`-${m.toLowerCase()}`);app.querySelector(`[data-${attribute}="${CSS.escape(value)}"]`)?.focus({preventScroll:true})}
- document.querySelector("[data-dismiss-guide]")?.addEventListener("click",()=>{if(guideTimer)clearTimeout(guideTimer);guideTimer=null;if(guide)markTutorialSeen(state,guide.id);activeGuide="";render()});
- scheduleSaveState(state);
+ if(domChanged)document.querySelector("[data-dismiss-guide]")?.addEventListener("click",()=>{if(guideTimer)clearTimeout(guideTimer);guideTimer=null;if(guide)markTutorialSeen(state,guide.id);activeGuide="";render()});
+ document.dispatchEvent(new CustomEvent("star-game:rendered"));
  syncToast(message);
  syncGuide(guide);
 }

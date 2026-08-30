@@ -1,5 +1,6 @@
 {
   "name": "star-game",
+  "version": "1.15.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -7,13 +8,18 @@
     "validate": "node scripts/validate-content.mjs && node scripts/verify-expanded-content.mjs && node scripts/validate-deepening.mjs",
     "serve": "python3 -m http.server 4173",
     "test:e2e": "playwright test",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write src/core/save-schema.js src/core/persistence.js src/logic/schedule-transaction.js tests/engineering-hardening.test.mjs scripts/audit-assets.mjs",
+    "format:check": "prettier --check src/core/save-schema.js src/core/persistence.js src/logic/schedule-transaction.js tests/engineering-hardening.test.mjs scripts/audit-assets.mjs",
+    "audit:assets": "node scripts/audit-assets.mjs",
+    "audit:pwa": "node scripts/audit-pwa.mjs",
     "audit:five-year": "node scripts/audit-five-year-play.mjs && node scripts/playtest-depth-v4.mjs",
     "audit:world-reactions": "node scripts/audit-world-reactions.mjs",
-    "check": "npm run lint && npm run validate && npm test && npm run audit:five-year && npm run audit:world-reactions"
+    "check": "npm run format:check && npm run lint && npm run validate && npm test && npm run audit:five-year && npm run audit:world-reactions && npm run audit:assets && npm run audit:pwa"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
-    "eslint": "^10.9.1"
+    "eslint": "^10.9.1",
+    "prettier": "^3.6.2"
   }
 }

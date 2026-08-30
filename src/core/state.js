@@ -439,6 +439,7 @@ export function visitedLocationThisWeek(locationId) {
     locationId,
   );
 }
+export function markVisitedLocation(locationId,week=state.week){if(!locationId)return false;const key=String(week),locations=state.visitedLocationsByWeek[key]||[];if(!locations.includes(locationId))locations.push(locationId);state.visitedLocationsByWeek[key]=locations;return true}
 export function syncVisitedLocations() {
   if (!state.lastVisitedLocation || !state.lastVisitedWeek) return;
   const week = String(state.lastVisitedWeek),

@@ -1,5 +1,5 @@
 import{state,hydrateState}from"./core/state.js";
-import{flushSaveState,loadState,migrateLegacyManualSlot}from"./core/persistence.js";
+import{flushSaveState,loadState,migrateLegacyManualSlot,scheduleSaveState}from"./core/persistence.js";
 import{rollStats}from"./core/stats.js";
 import{startDay}from"./logic/runner.js";
 import{ensureRngState}from"./core/rng.js";
@@ -10,6 +10,7 @@ import{enableAudio,playSfx}from"./core/audio.js";
 import{installGlobalErrorHandlers,showFatalError}from"./core/error-recovery.js";
 
 installGlobalErrorHandlers();
+document.addEventListener("star-game:rendered",()=>scheduleSaveState(state));
 window.addEventListener("pagehide",()=>flushSaveState());
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flushSaveState()});
 try{
