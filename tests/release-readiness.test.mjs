@@ -34,3 +34,14 @@ test("共用確認視窗維持最上層互動與背景取消功能", async () =>
   assert.doesNotMatch(css, /\.confirm-backdrop\{pointer-events:none/);
   assert.match(binding, /state\.confirmDialog \? "\.confirm-dialog" : "\.app-window"/);
 });
+
+test("瀏覽器分頁與 iOS 主畫面使用正式品牌圖示", async () => {
+  const [html, worker] = await Promise.all([
+    readFile(new URL("../index.html", import.meta.url), "utf8"),
+    readFile(new URL("../service-worker.js", import.meta.url), "utf8"),
+  ]);
+  assert.match(html, /rel="icon" href="\.\/assets\/icons\/app-icon\.svg"/);
+  assert.match(html, /rel="apple-touch-icon"/);
+  assert.match(worker, /app-icon\.svg/);
+  assert.match(worker, /apple-touch-icon\.png/);
+});

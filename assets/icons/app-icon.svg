@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">星途未定</title>
+  <defs>
+    <linearGradient id="paper" x1="64" y1="48" x2="448" y2="464" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f4b8b2"/>
+      <stop offset="1" stop-color="#a95768"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#6f3340" flood-opacity=".28"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#paper)"/>
+  <rect x="28" y="28" width="456" height="456" rx="94" fill="none" stroke="#fff7ea" stroke-opacity=".42" stroke-width="8"/>
+  <path d="M256 92c17 92 47 122 139 139-92 17-122 47-139 139-17-92-47-122-139-139 92-17 122-47 139-139Z" fill="#fff7e9" filter="url(#shadow)"/>
+  <path d="M382 101c5 29 15 39 44 44-29 5-39 15-44 44-5-29-15-39-44-44 29-5 39-15 44-44ZM126 337c6 35 18 47 53 53-35 6-47 18-53 53-6-35-18-47-53-53 35-6 47-18 53-53Z" fill="#f8d8a7"/>
+</svg>
