@@ -4,8 +4,9 @@ import{applySchedulePreset,scheduleDueWork}from"../logic/schedule-assistant.js";
 import{signJob,scheduleJobSession,jobScheduleOptions}from"../logic/job-engine.js";
 import{scheduleChange}from"../logic/schedule-transaction.js";
 import{setUndo}from"../core/undo.js";
-const scheduleSnapshot=()=>structuredClone({schedule:state.schedule,freeLocations:state.freeLocations,scheduledJobIds:state.scheduledJobIds,scheduledActivityIds:state.scheduledActivityIds,scheduledActivities:state.scheduledActivities,agencyInterview:state.agencyInterview,agencyApplications:state.agencyApplications,selectedDay:state.selectedDay});
-const restoreSchedule=snapshot=>{for(const[key,value]of Object.entries(snapshot))state[key]=structuredClone(value)};
+import{capturePlannerTransaction,restoreStateFields}from"../core/state-transaction.js";
+const scheduleSnapshot=()=>capturePlannerTransaction(state);
+const restoreSchedule=snapshot=>restoreStateFields(state,snapshot);
 const offerUndo=(message,snapshot)=>setUndo(message,()=>restoreSchedule(snapshot));
 export function bindPlanner(){
  const forced=state.forcedRestWeek===state.week;

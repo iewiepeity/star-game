@@ -11,7 +11,7 @@ import{installGlobalErrorHandlers,showFatalError}from"./core/error-recovery.js";
 import{markUpdateAvailable,updateIsApplying}from"./core/pwa-update.js";
 
 installGlobalErrorHandlers();
-document.addEventListener("star-game:rendered",()=>scheduleSaveState(state));
+document.addEventListener("star-game:state-changed",()=>scheduleSaveState(state));
 document.addEventListener("star-game:save-now",()=>flushSaveState());
 window.addEventListener("pagehide",()=>flushSaveState());
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flushSaveState()});
@@ -23,4 +23,4 @@ try{
  if(saved){hydrateState(saved);ensureRngState();if(state.screen==="runner"&&state.runnerPhase==="loading")startDay();else if(state.eventQueue.length&&!state.activeEvent){activateNextEvent();render()}else render()}else rollStats();
 }catch(error){showFatalError(error)}
 
-if("serviceWorker"in navigator)window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./service-worker.js");const offer=worker=>{if(!navigator.serviceWorker.controller||!worker)return;markUpdateAvailable(worker);render()};if(reg.waiting)offer(reg.waiting);reg.addEventListener("updatefound",()=>{const worker=reg.installing;worker?.addEventListener("statechange",()=>{if(worker.state==="installed")offer(reg.waiting||worker)})});reg.update().catch(()=>{});let reloading=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(reloading||!updateIsApplying())return;reloading=true;location.reload()})}catch{}});
+if("serviceWorker"in navigator)window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./service-worker.js");const offer=worker=>{if(!navigator.serviceWorker.controller||!worker)return;markUpdateAvailable(worker);render({persist:false})};if(reg.waiting)offer(reg.waiting);reg.addEventListener("updatefound",()=>{const worker=reg.installing;worker?.addEventListener("statechange",()=>{if(worker.state==="installed")offer(reg.waiting||worker)})});reg.update().catch(()=>{});let reloading=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(reloading||!updateIsApplying())return;reloading=true;location.reload()})}catch{}});

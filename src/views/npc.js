@@ -8,7 +8,7 @@ import{npcRelationshipStageBetween}from"../logic/npc-dynamics.js";
 import{affectionSignal,ensureRomanceFields,romanceEligibility,romanceRoute,romanceStageLabel,trustSignal}from"../logic/romance-engine.js";
 
 const row=(label,value)=>`<div><dt>${label}</dt><dd>${esc(value)}</dd></div>`;
-const section=(title,items,open=false)=>`<details class="npc-info-section" ${open?"open":""}><summary>${title}<span>展開</span></summary><dl>${items.map(([label,value])=>row(label,value)).join("")}</dl></details>`;
+const section=(title,items,open=false)=>`<details class="npc-info-section" data-disclosure-key="npc-section:${esc(title)}" ${open?"open":""}><summary>${title}<span>展開</span></summary><dl>${items.map(([label,value])=>row(label,value)).join("")}</dl></details>`;
 const trendLabel=t=>({up:"上升中",stable:"穩定",down:"低潮"}[t]||"穩定");
 const romanceRank=id=>["none","interested","ambiguous","dating","committed","engaged","married"].indexOf(id);
 const friendshipRank=id=>["acquaintance","familiar","friend","confidant","bonded"].indexOf(id);

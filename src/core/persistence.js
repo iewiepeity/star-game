@@ -108,7 +108,9 @@ export function scheduleSaveState(
   state,
   { delay = AUTO_SAVE_DELAY, force = false } = {},
 ) {
-  pendingAutoState = structuredClone(state);
+  // Keep the live state reference until the debounce expires. writeRaw creates the
+  // immutable snapshot once, avoiding a full game-state clone on every render.
+  pendingAutoState = state;
   const next = checkpoint(state),
     critical = !lastCheckpoint || next !== lastCheckpoint;
   if (force || critical) return flushSaveState();

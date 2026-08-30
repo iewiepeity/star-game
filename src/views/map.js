@@ -36,7 +36,7 @@ function locationCard(id, location, selected, favorites, overseas) {
   const hint = contextHint(id, location), favorite = favorites.has(id);
   return `<article class="map-place ${locked ? "locked" : ""} ${selected === id ? "selected" : ""}">
     <button class="map-favorite ${favorite ? "active" : ""}" data-map-favorite="${id}" aria-label="${favorite ? "取消收藏" : "收藏"}${location.name}" aria-pressed="${favorite}">${favorite ? "★" : "☆"}</button>
-    <div class="map-place-main"><i aria-hidden="true">${location.icon}</i><span><small>${location.area}・${location.category}</small><b>${location.name}</b><strong>${effect}</strong><details class="map-place-details"><summary>查看介紹與今日線索</summary><em>${location.note}</em><mark class="map-context">今日線索｜${hint}</mark></details></span><button class="map-go" ${locked ? "disabled" : ""} data-map-location="${id}">${locked ? "完成條件後開放" : location.industry ? "前往工作櫃台 →" : "選擇地點 →"}</button></div>
+    <div class="map-place-main"><i aria-hidden="true">${location.icon}</i><span><small>${location.area}・${location.category}</small><b>${location.name}</b><strong>${effect}</strong><details class="map-place-details" data-disclosure-key="map:${id}"><summary>查看介紹與今日線索</summary><em>${location.note}</em><mark class="map-context">今日線索｜${hint}</mark></details></span><button class="map-go" ${locked ? "disabled" : ""} data-map-location="${id}">${locked ? "完成條件後開放" : location.industry ? "前往工作櫃台 →" : "選擇地點 →"}</button></div>
   </article>`;
 }
 
@@ -49,7 +49,7 @@ export function mapApp() {
     <section class="map-purpose"><span>依目的找地點</span>${Object.entries(PURPOSES).map(([id, item]) => `<button class="${purpose === id ? "active" : ""}" data-map-purpose="${id}" aria-pressed="${purpose === id}">${item.label}</button>`).join("")}</section>
     ${recent.length ? `<section class="map-recent"><span>最近前往</span>${recent.map((id) => `<button data-map-location="${id}">${MAP_LOCATIONS[id].icon} ${MAP_LOCATIONS[id].name}</button>`).join("")}</section>` : ""}
     <nav class="map-filters" aria-label="地點分類">${MAP_CATEGORIES.map((category) => `<button class="${filter === category ? "active" : ""}" data-map-filter="${category}" aria-pressed="${filter === category}">${category}</button>`).join("")}</nav>
-    <div class="city-map">${locations.map(([id, location]) => locationCard(id, location, selected, favorites, overseas)).join("")}</div>
+    <div class="city-map" data-scroll-key="map-places">${locations.map(([id, location]) => locationCard(id, location, selected, favorites, overseas)).join("")}</div>
     <aside class="map-tip">產業地點會先進入該公司的工作櫃台；地圖只透露玩家當下能合理察覺的線索，不會用未相遇人物直接劇透。</aside>
   </div>`;
 }

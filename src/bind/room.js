@@ -4,6 +4,7 @@ import { render } from "../render.js";
 import { evaluateEnding } from "../logic/career.js";
 import { DEFAULT_DOCK_IDS, normalizeDockIds } from "../views/app-icons.js";
 import { activateDialog, rememberDialogTrigger, restoreDialogTrigger, trapDialogFocus } from "../core/dialog-focus.js";
+import { bindDeferredSearch } from "../core/deferred-search.js";
 
 let dialogKeyHandler = null;
 let activeDialogIdentity = "";
@@ -37,10 +38,10 @@ function bindDialogKeyboard() {
 
 export function bindRoomShell() {
   document.querySelectorAll("[data-people-section]").forEach((button) => button.onclick = () => { state.peopleSection = button.dataset.peopleSection; render(); });
-  document.querySelector(".people-hub-tabs")?.addEventListener("keydown",(event)=>{if(!["ArrowLeft","ArrowRight"].includes(event.key))return;event.preventDefault();const tabs=[...event.currentTarget.querySelectorAll('[role="tab"]')],index=tabs.indexOf(document.activeElement),next=tabs[(index+(event.key==="ArrowRight"?1:-1)+tabs.length)%tabs.length];next?.click();Promise.resolve().then(()=>document.querySelector(`[data-people-section="${next?.dataset.peopleSection}"]`)?.focus())});
-  document.querySelector("[data-people-query]")?.addEventListener("input",(event)=>{state.peopleQuery=event.currentTarget.value.trimStart().slice(0,200);render()});
+  document.querySelector(".people-hub-tabs")?.addEventListener("keydown",(event)=>{if(!["ArrowLeft","ArrowRight","Home","End"].includes(event.key))return;event.preventDefault();const tabs=[...event.currentTarget.querySelectorAll('[role="tab"]')],index=tabs.indexOf(document.activeElement),next=event.key==="Home"?tabs[0]:event.key==="End"?tabs.at(-1):tabs[(index+(event.key==="ArrowRight"?1:-1)+tabs.length)%tabs.length];next?.click();Promise.resolve().then(()=>document.querySelector(`[data-people-section="${next?.dataset.peopleSection}"]`)?.focus())});
+  bindDeferredSearch("[data-people-query]",(value)=>{state.peopleQuery=value},()=>render({persist:false}));
   document.querySelector("[data-clear-people-query]")?.addEventListener("click",()=>{state.peopleQuery="";render()});
-  document.querySelector("[data-app-query]")?.addEventListener("input",(event)=>{state.appQuery=event.currentTarget.value.trimStart().slice(0,200);render()});
+  bindDeferredSearch("[data-app-query]",(value)=>{state.appQuery=value},()=>render({persist:false}));
   document.querySelectorAll("[data-app-category]").forEach(button=>button.onclick=()=>{state.appCategory=button.dataset.appCategory;render()});
   document.querySelector("[data-clear-app-filters]")?.addEventListener("click",()=>{state.appQuery="";state.appCategory="全部";render()});
   document.querySelector("[data-return-app]")?.addEventListener("click",(event)=>{state.appOpen=event.currentTarget.dataset.returnApp;state.appReturnContext=null;render()});

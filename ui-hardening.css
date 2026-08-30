@@ -1,3 +1,4 @@
+@layer tokens {
 :root {
   --font-caption: 0.75rem;
   --font-body: 0.875rem;
@@ -14,6 +15,9 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
+}
+
+@layer overrides {
 
 button,
 [role="button"],
@@ -118,4 +122,6 @@ textarea { touch-action: manipulation; }
   .app-library,
   .window-bar,
   .week-check { backdrop-filter: none; background-color: var(--surface-raised); }
+}
+
 }

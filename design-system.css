@@ -45,7 +45,8 @@
   .list-tools output { grid-column: 1 / -1; }
 }
 
-/* Transitional unlayered overrides stay above the legacy unlayered sheet until it is migrated. */
+@layer overrides {
+/* Compatibility overrides for selectors that are not yet component-scoped. */
 .game-toast:has([data-undo-action]) { pointer-events: auto; }
 .window-bar > div:has(h2) { min-width: 0; flex: 1; }
 
@@ -55,4 +56,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
 }

@@ -4,9 +4,10 @@ import { jobSource } from "../logic/industry.js";
 import { applyForJob, scheduleJobAudition, signJob, scheduleJobSession, ensureJobState } from "../logic/job-engine.js";
 import { scheduleSequelSession } from "../logic/sequel-engine.js";
 import { render } from "../render.js";
+import { bindDeferredSearch } from "../core/deferred-search.js";
 
 export function bindJobs() {
-  document.querySelector("[data-job-query]")?.addEventListener("input",(event)=>{state.jobQuery=event.currentTarget.value.trimStart().slice(0,200);render()});
+  bindDeferredSearch("[data-job-query]",(value)=>{state.jobQuery=value},()=>render({persist:false}));
   document.querySelector("[data-job-sort]")?.addEventListener("change",(event)=>{state.jobSort=event.currentTarget.value;render()});
   document.querySelector("[data-job-status]")?.addEventListener("change",(event)=>{state.jobStatusFilter=event.currentTarget.value;render()});
   document.querySelector("[data-clear-job-filters]")?.addEventListener("click",()=>{state.jobQuery="";state.jobStatusFilter="all";state.jobSort="deadline";render()});

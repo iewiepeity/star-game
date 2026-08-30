@@ -25,30 +25,34 @@ const appScrollPositions={};
 const nestedScrollPositions={};
 const disclosureStates={};
 const NESTED_SCROLL_SELECTORS=[".job-catalog",".contact-list",".wardrobe-closet",".creative-phase",".picker-list",".map-place-list"];
+function uiKey(node,index,prefix){return node.dataset?.[prefix]||`${node.tagName.toLowerCase()}:${index}`}
 
 function rememberAppUi(appId,body){
  if(!appId||!body)return;
- nestedScrollPositions[appId]=Object.fromEntries(NESTED_SCROLL_SELECTORS.map(selector=>[selector,body.querySelector(selector)?.scrollTop||0]));
- disclosureStates[appId]=new Set([...body.querySelectorAll("details[open] > summary")].map(summary=>summary.textContent.trim()));
+ const marked=[...body.querySelectorAll("[data-scroll-key]")];
+ nestedScrollPositions[appId]=marked.length?Object.fromEntries(marked.map((node,index)=>[uiKey(node,index,"scrollKey"),node.scrollTop||0])):Object.fromEntries(NESTED_SCROLL_SELECTORS.map(selector=>[selector,body.querySelector(selector)?.scrollTop||0]));
+ disclosureStates[appId]=new Set([...body.querySelectorAll("details")].map((details,index)=>details.open?uiKey(details,index,"disclosureKey"):null).filter(Boolean));
 }
 
 function restoreAppUi(appId,body){
  if(!appId||!body)return;
- for(const[selector,top]of Object.entries(nestedScrollPositions[appId]||{})){const node=body.querySelector(selector);if(node)node.scrollTop=top}
+ const marked=[...body.querySelectorAll("[data-scroll-key]")];
+ for(const[key,top]of Object.entries(nestedScrollPositions[appId]||{})){const node=marked.length?marked.find((item,index)=>uiKey(item,index,"scrollKey")===key):body.querySelector(key);if(node)node.scrollTop=top}
  const open=disclosureStates[appId];
- if(open)for(const summary of body.querySelectorAll("details > summary"))if(open.has(summary.textContent.trim()))summary.parentElement.open=true;
+ if(open)for(const[index,details]of [...body.querySelectorAll("details")].entries())if(open.has(uiKey(details,index,"disclosureKey")))details.open=true;
 }
 
 function activeFocusSelector(){
  const node=document.activeElement;
  const wasInDialog=Boolean(node?.closest?.('[role="dialog"], [role="alertdialog"]'));
- if(!node?.dataset)return{selector:"",wasInDialog};
- if(node.dataset.focusKey)return{selector:`[data-focus-key="${CSS.escape(node.dataset.focusKey)}"]`,wasInDialog};
- if(node.id)return{selector:`#${CSS.escape(node.id)}`,wasInDialog};
+ const selection=typeof node?.selectionStart==="number"?{start:node.selectionStart,end:node.selectionEnd,direction:node.selectionDirection}:null;
+ if(!node?.dataset)return{selector:"",wasInDialog,selection};
+ if(node.dataset.focusKey)return{selector:`[data-focus-key="${CSS.escape(node.dataset.focusKey)}"]`,wasInDialog,selection};
+ if(node.id)return{selector:`#${CSS.escape(node.id)}`,wasInDialog,selection};
  const entry=Object.entries(node.dataset)[0];
- if(!entry)return{selector:"",wasInDialog};
+ if(!entry)return{selector:"",wasInDialog,selection};
  const [key,value]=entry,attribute=key.replace(/[A-Z]/g,m=>`-${m.toLowerCase()}`);
- return{selector:`[data-${attribute}="${CSS.escape(value)}"]`,wasInDialog};
+ return{selector:`[data-${attribute}="${CSS.escape(value)}"]`,wasInDialog,selection};
 }
 
 function toastMarkup(message){
@@ -97,12 +101,12 @@ function syncGuide(guide){
  activeGuide=id;
  guideTimer=setTimeout(()=>{
   guideTimer=null;
-  if(activeGuide===id){markTutorialSeen(state,id);activeGuide="";document.querySelector(`[data-guide-id="${CSS.escape(id)}"]`)?.remove();document.dispatchEvent(new CustomEvent("star-game:rendered"))}
+  if(activeGuide===id){markTutorialSeen(state,id);activeGuide="";document.querySelector(`[data-guide-id="${CSS.escape(id)}"]`)?.remove();document.dispatchEvent(new CustomEvent("star-game:rendered"));document.dispatchEvent(new CustomEvent("star-game:state-changed"))}
  },GUIDE_DURATION);
 }
 
-function renderUnsafe(){
- const {selector:focusSelector,wasInDialog}=activeFocusSelector();
+function renderUnsafe({persist=true}={}){
+ const {selector:focusSelector,wasInDialog,selection}=activeFocusSelector();
  const previousWindow=app.querySelector(".app-window"),previousBody=previousWindow?.querySelector(".window-body"),previousApp=state.appOpen;
  if(previousBody&&previousApp){appScrollPositions[previousApp]=previousBody.scrollTop;rememberAppUi(previousApp,previousBody)}
  const isCreate=state.screen==="create";
@@ -116,12 +120,13 @@ function renderUnsafe(){
  app.querySelectorAll(".mini-toast").forEach(node=>node.remove());
  if(domChanged)bind();
  syncAudio(state.screen==="game"?"room":state.screen);
- if(focusSelector&&(wasInDialog||!app.querySelector('[role="dialog"], [role="alertdialog"]')))app.querySelector(focusSelector)?.focus({preventScroll:true});
+ if(focusSelector&&(wasInDialog||!app.querySelector('[role="dialog"], [role="alertdialog"]'))){const next=app.querySelector(focusSelector);next?.focus({preventScroll:true});if(selection&&typeof next?.setSelectionRange==="function")next.setSelectionRange(selection.start,selection.end,selection.direction)}
  if(domChanged)document.querySelector("[data-dismiss-guide]")?.addEventListener("click",()=>{if(guideTimer)clearTimeout(guideTimer);guideTimer=null;if(guide)markTutorialSeen(state,guide.id);activeGuide="";render()});
  document.querySelector("[data-undo-action]")?.addEventListener("click",()=>{const action=consumeUndo(message);if(!action)return;action.run();state.notice=action.doneMessage;render()},{once:true});
  document.querySelector("[data-apply-update]")?.addEventListener("click",event=>{event.currentTarget.disabled=true;event.currentTarget.textContent="更新中…";document.dispatchEvent(new CustomEvent("star-game:save-now"));applyAvailableUpdate()},{once:true});
  document.dispatchEvent(new CustomEvent("star-game:rendered"));
+ if(persist)document.dispatchEvent(new CustomEvent("star-game:state-changed"));
  syncToast(message);
  syncGuide(guide);
 }
-export function render(){try{renderUnsafe();return true}catch(error){showFatalError(error);return false}}
+export function render(options){try{renderUnsafe(options);return true}catch(error){showFatalError(error);return false}}
