@@ -1,12 +1,176 @@
-import{JOB_BY_ID,JOB_CATALOG,JOB_CATEGORIES}from"../data/jobs.js";import{DAYS}from"../data/calendar.js";import{NPCS}from"../data/npcs.js";import{AGENCIES}from"../data/agencies.js";import{managerForAgency}from"../data/managers.js";import{state}from"../core/state.js";import{money,esc,outfitBonus}from"../core/utils.js";import{availableJobs,jobState,qualification,auditionScheduleOptions,jobScheduleOptions,selectedJobRole,marketAdjustedPay}from"../logic/job-engine.js";import{canAccessJob,jobSource}from"../logic/industry.js";import{brandRelation}from"../logic/brand-relations.js";import{jobStoryline}from"../data/job-storylines.js";import{sortJobs}from"../logic/job-list-model.js";
-export const jobWorkDaysText=(job=JOB_BY_ID[state.selectedJobId]||JOB_BY_ID.J001)=>job.workDays.map(i=>"一二三四五六日"[i]).join("、");
-function crewPanel(record){const crew=record.crew||[];if(!crew.length)return"";return`<section class="job-crew"><h3>本作幕後班底</h3><div>${crew.map(name=>{const contact=state.industryContacts?.[name];return`<span><b>${esc(name)}</b><small>${contact?.works?`合作 ${contact.works} 次・信任 ${contact.trust}`:"第一次合作"}</small></span>`}).join("")}</div><small>班底會記得合作品質；未來再次碰面時，不必從零開始。</small></section>`}
-function requirementRows(job){return qualification(job).rows.map(row=>{const bonus=outfitBonus(row.name);return`<span class="${row.met?"met":"unmet"}"><b>${row.name}</b><small>目前 ${row.current}${bonus?`（服裝＋${bonus}）`:""}／需求 ${row.required}</small><em>${row.met?"符合":"未達"}</em></span>`}).join("")}
-const sourceLabel=job=>{const s=jobSource(job);if(s.type==="agency")return`${managerForAgency(s.agencyId)?.name||AGENCIES[s.agencyId]?.shortName||"經紀人"}推薦`;if(s.type==="network")return`${NPCS[s.referrerId]?.name||"業界熟人"}引薦`;if(s.type==="direct")return"製作方指名邀約";return`${s.company?.name||"公開管道"}本週公開徵選`};
-function listCard(job){const record=jobState(job.id),selected=state.selectedJobId===job.id,status={available:"可接取",applied:"待排試鏡",audition:"試鏡中",audition_scheduled:"已排試鏡",failed:"未獲選",passed:"可簽約",active:"執行中",completed:"已完成",breached:"已違約"}[record.stage]||"處理中",role=selectedJobRole(job.id);return`<button class="job-catalog-card ${selected?"active":""}" data-select-job="${job.id}" data-job-stage="${record.stage}" aria-current="${selected}"><span>${"★".repeat(job.stars)}・${job.category}${["電影","電視劇"].includes(job.category)?`・${esc(role.label)}`:""}</span><b>${esc(job.title)}</b><small>${esc(job.client)}・${sourceLabel(job)}</small><em>${status}</em></button>`}
-function castPanel(record){if(!record.npcCast?.length)return"";return`<section class="job-cast"><h3>已確認合作陣容</h3><div>${record.npcCast.map(id=>{const n=NPCS[id];return n?`<button data-open-cast-npc="${id}"><img src="${n.head}" alt="" loading="lazy"><span><b>${esc(n.name)}</b><small>${esc(n.job)}</small></span></button>`:""}).join("")}</div><small>合作期間會影響好感、信任與後續人物事件，也會記錄進作品履歷。</small></section>`}
-function storyPanel(job,record){const story=jobStoryline(job.id),history=record.storyHistory||[];return`<section class="job-story-preview"><header><span>EXCLUSIVE STORY・${job.id}</span><h3>這份工作有自己的故事</h3><p>${esc(story?.audition?.arrival||job.audition.prompt)}</p></header><div>${["專屬試鏡","合約抉擇","製作轉折","市場回聲"].map((label,index)=>`<span class="${history.length>index?"done":""}"><i>${history.length>index?"✓":index+1}</i><b>${label}</b></span>`).join("")}</div>${history.length?`<details><summary>查看已發生的劇情</summary>${history.map(item=>`<article><small>第 ${item.week} 週・${esc(item.phase||"劇情")}</small><b>${esc(item.title)}</b><p>${esc(item.text)}</p></article>`).join("")}</details>`:""}</section>`}
-function sequelPanel(){const offers=(state.sequelOffers||[]).filter(o=>["active","completed"].includes(o.status));if(!offers.length)return"";return`<section class="qualification-panel"><div><h3>系列作品／續作</h3><p>成功作品可能收到原班人馬續作邀請；續作會真的占用玩家與共演者檔期。</p></div><div class="req-list">${offers.map(o=>`<span class="${o.status==="completed"?"met":""}"><b>${esc(o.title)}</b><small>${esc(o.category)}・${o.role?esc(o.role)+"・":""}${o.completedSessions||0}/${o.requiredSessions||0} 次${o.negotiated?"・已談加價":""}</small><em>${o.status==="completed"?"已完成":`<button data-sequel-schedule="${o.id}">安排製作</button>`}</em></span>`).join("")}</div></section>`}
-function auditionButtons(job,record){const cooldown=record.stage==="failed"&&record.lastAuditionWeek!=null&&state.week-record.lastAuditionWeek<2;if(cooldown)return`<button disabled>第 ${record.lastAuditionWeek+2} 週可再次爭取</button>`;const options=auditionScheduleOptions();return`<div class="contract-dashboard"><p>試鏡會占用一天；地點：<b>${esc(job.audition.venue)}</b></p>${options.map(o=>`<button data-job-action="schedule-audition" data-job-id="${job.id}" data-job-day="${o.day}">${o.label}前往試鏡</button>`).join("")||"本週沒有可用空檔，請先調整行程。"}</div>`}
-function actionPanel(job,record){const q=qualification(job),role=selectedJobRole(job.id);if(record.stage==="available")return`<button data-job-action="apply" data-job-id="${job.id}" ${q.met?"":"disabled"}>${jobSource(job).type==="direct"?`接受「${esc(role.label)}」邀約`:`登記「${esc(role.label)}」試鏡`}</button>`;if(["applied","failed"].includes(record.stage))return auditionButtons(job,record);if(record.stage==="audition_scheduled")return`<div class="contract-dashboard"><p><b>試鏡已排入第 ${record.auditionWeek} 週・${DAYS[record.auditionDay]}</b></p><small>請從行程表開始本週；選擇與結果會在當天出現。</small></div>`;if(record.stage==="passed")return`<button data-job-action="sign" data-job-id="${job.id}">簽署「${esc(role.label)}」演出合約</button>`;if(record.stage==="active"){const options=jobScheduleOptions(job.id);return`<div class="contract-dashboard"><p>演出：<b>${esc(role.label)}</b>・剩餘 <b>${record.remainingSessions}</b> 次・第 ${record.deadlineWeek} 週截止</p>${options.map(o=>`<button data-job-action="schedule" data-job-id="${job.id}" data-job-day="${o.day}">${o.label}</button>`).join("")||"指定工作日沒有玩家與共演陣容的共同空檔"}</div>`}return`<div class="contract-result"><h3>${record.stage==="completed"?"作品已完成":"通告已結束"}</h3><p>${esc(record.notice||"")}</p></div>`}
-export function jobsApp(){const unlocked=new Set(availableJobs().map(j=>j.id)),jobs=sortJobs(JOB_CATALOG.filter(j=>(unlocked.has(j.id)||state.activeJobs[j.id])&&canAccessJob(j).ok),state.jobSort),sequels=sequelPanel();if(!jobs.length&&!sequels)return`<div class="jobs-page"><h2>目前信箱裡沒有工作</h2><p>自由新人要在本週親自去電視台、電影公司、唱片公司或製作公司看公開徵選；人脈、經紀人與指名邀約則會直接送進信箱。</p></div>`;if(!jobs.length)return`<div class="jobs-page"><h2>目前只有續作合約</h2>${sequels}</div>`;const job=JOB_BY_ID[state.selectedJobId]&&jobs.some(j=>j.id===state.selectedJobId)?JOB_BY_ID[state.selectedJobId]:jobs[0],record=jobState(job.id),q=qualification(job),role=selectedJobRole(job.id),brand=brandRelation(job.client),brandLabel={new:"初次接觸",known:"合作過",trusted:"信任合作",preferred:"優先合作",avoid:"暫停往來"}[brand.status]||brand.status,pay=marketAdjustedPay(job);return`<div class="jobs-page multi-jobs"><aside class="job-catalog"><header><h3>工作信箱</h3><small>${jobs.length} 份目前可接觸工作・完整通告庫 ${JOB_CATALOG.length} 份</small></header><nav>${JOB_CATEGORIES.map(c=>`<span>${c}</span>`).join("")}</nav>${jobs.map(listCard).join("")}</aside><section class="job-detail"><div class="job-board-head"><div><span>${job.id}・${"★".repeat(job.stars)}・${job.category}</span><h2>${esc(job.title)}</h2><p>${sourceLabel(job)}・${esc(job.synopsis)}</p></div><strong>${money(pay)}${pay!==job.pay?`<small>・市場基準 ${money(job.pay)}</small>`:""}</strong></div><dl class="job-sheet"><div><dt>委託方</dt><dd>${esc(job.client)}</dd></div><div><dt>${["電影","電視劇"].includes(job.category)?"試鏡角色":"參與定位"}</dt><dd>${esc(role.label)}</dd></div><div><dt>品牌關係</dt><dd>${brandLabel}・信任 ${brand.trust}・合作 ${brand.works} 次</dd></div><div><dt>試鏡地點</dt><dd>${esc(job.audition.venue)}</dd></div><div><dt>指定工作日</dt><dd>每週${jobWorkDaysText(job)}</dd></div><div><dt>最低訓練</dt><dd>${q.training}／${q.trainingRequired} 次</dd></div></dl>${storyPanel(job,record)}${sequels}${castPanel(record)}${crewPanel(record)}<section class="qualification-panel"><div><h3>${q.met?`${esc(role.label)}資質完整`:`${esc(role.label)}仍有能力尚未達標`}</h3><p>${esc(job.audition.tip)}${["電影","電視劇"].includes(job.category)?" 角色位階會直接影響本通告的能力門檻與試鏡競爭強度。":""}</p></div><div class="req-list">${requirementRows(job)}</div></section>${record.notice?`<div class="job-notice">${esc(record.notice)}</div>`:""}<div class="job-action">${actionPanel(job,record)}</div></section></div>`}
+import { JOB_BY_ID, JOB_CATALOG, JOB_CATEGORIES } from "../data/jobs.js";
+import { DAYS } from "../data/calendar.js";
+import { NPCS } from "../data/npcs.js";
+import { AGENCIES } from "../data/agencies.js";
+import { managerForAgency } from "../data/managers.js";
+import { state } from "../core/state.js";
+import { money, esc, outfitBonus } from "../core/utils.js";
+import {
+  availableJobs,
+  jobState,
+  qualification,
+  auditionScheduleOptions,
+  jobScheduleOptions,
+  selectedJobRole,
+  marketAdjustedPay,
+} from "../logic/job-engine.js";
+import { canAccessJob, jobSource } from "../logic/industry.js";
+import { brandRelation } from "../logic/brand-relations.js";
+import { jobStoryline } from "../data/job-storylines.js";
+import { sortJobs } from "../logic/job-list-model.js";
+const JOB_STATUS_OPTIONS = [
+  ["all", "全部狀態"],
+  ["action", "需要處理"],
+  ["active", "執行中"],
+  ["available", "可接取"],
+];
+const stageMatches = (stage, filter) =>
+  filter === "all" ||
+  stage === filter ||
+  (filter === "action" &&
+    ["applied", "failed", "passed", "audition_scheduled"].includes(stage));
+const jobListTools = (shown, total) =>
+  `<div class="list-tools job-list-tools"><label><span class="sr-only">搜尋工作</span><input type="search" data-job-query data-focus-key="job-query" value="${esc(state.jobQuery || "")}" placeholder="搜尋工作、委託方或類型" aria-label="搜尋工作"></label><select data-job-status aria-label="工作狀態篩選">${JOB_STATUS_OPTIONS.map(([value, label]) => `<option value="${value}" ${state.jobStatusFilter === value ? "selected" : ""}>${label}</option>`).join("")}</select><select data-job-sort aria-label="工作排序"><option value="deadline" ${state.jobSort === "deadline" ? "selected" : ""}>目前順序</option><option value="stars" ${state.jobSort === "stars" ? "selected" : ""}>星等優先</option><option value="title" ${state.jobSort === "title" ? "selected" : ""}>名稱排序</option></select><output aria-live="polite">顯示 ${shown}／${total} 份</output></div>`;
+export const jobWorkDaysText = (
+  job = JOB_BY_ID[state.selectedJobId] || JOB_BY_ID.J001,
+) => job.workDays.map((i) => "一二三四五六日"[i]).join("、");
+function crewPanel(record) {
+  const crew = record.crew || [];
+  if (!crew.length) return "";
+  return `<section class="job-crew"><h3>本作幕後班底</h3><div>${crew
+    .map((name) => {
+      const contact = state.industryContacts?.[name];
+      return `<span><b>${esc(name)}</b><small>${contact?.works ? `合作 ${contact.works} 次・信任 ${contact.trust}` : "第一次合作"}</small></span>`;
+    })
+    .join(
+      "",
+    )}</div><small>班底會記得合作品質；未來再次碰面時，不必從零開始。</small></section>`;
+}
+function requirementRows(job) {
+  return qualification(job)
+    .rows.map((row) => {
+      const bonus = outfitBonus(row.name);
+      return `<span class="${row.met ? "met" : "unmet"}"><b>${row.name}</b><small>目前 ${row.current}${bonus ? `（服裝＋${bonus}）` : ""}／需求 ${row.required}</small><em>${row.met ? "符合" : "未達"}</em></span>`;
+    })
+    .join("");
+}
+const sourceLabel = (job) => {
+  const s = jobSource(job);
+  if (s.type === "agency")
+    return `${managerForAgency(s.agencyId)?.name || AGENCIES[s.agencyId]?.shortName || "經紀人"}推薦`;
+  if (s.type === "network")
+    return `${NPCS[s.referrerId]?.name || "業界熟人"}引薦`;
+  if (s.type === "direct") return "製作方指名邀約";
+  return `${s.company?.name || "公開管道"}本週公開徵選`;
+};
+function listCard(job) {
+  const record = jobState(job.id),
+    selected = state.selectedJobId === job.id,
+    status =
+      {
+        available: "可接取",
+        applied: "待排試鏡",
+        audition: "試鏡中",
+        audition_scheduled: "已排試鏡",
+        failed: "未獲選",
+        passed: "可簽約",
+        active: "執行中",
+        completed: "已完成",
+        breached: "已違約",
+      }[record.stage] || "處理中",
+    role = selectedJobRole(job.id);
+  return `<button class="job-catalog-card ${selected ? "active" : ""}" data-select-job="${job.id}" data-job-stage="${record.stage}" aria-current="${selected}"><span>${"★".repeat(job.stars)}・${job.category}${["電影", "電視劇"].includes(job.category) ? `・${esc(role.label)}` : ""}</span><b>${esc(job.title)}</b><small>${esc(job.client)}・${sourceLabel(job)}</small><em>${status}</em></button>`;
+}
+function castPanel(record) {
+  if (!record.npcCast?.length) return "";
+  return `<section class="job-cast"><h3>已確認合作陣容</h3><div>${record.npcCast
+    .map((id) => {
+      const n = NPCS[id];
+      return n
+        ? `<button data-open-cast-npc="${id}"><img src="${n.head}" alt="" loading="lazy"><span><b>${esc(n.name)}</b><small>${esc(n.job)}</small></span></button>`
+        : "";
+    })
+    .join(
+      "",
+    )}</div><small>合作期間會影響好感、信任與後續人物事件，也會記錄進作品履歷。</small></section>`;
+}
+function storyPanel(job, record) {
+  const story = jobStoryline(job.id),
+    history = record.storyHistory || [];
+  return `<section class="job-story-preview"><header><span>EXCLUSIVE STORY・${job.id}</span><h3>這份工作有自己的故事</h3><p>${esc(story?.audition?.arrival || job.audition.prompt)}</p></header><div>${["專屬試鏡", "合約抉擇", "製作轉折", "市場回聲"].map((label, index) => `<span class="${history.length > index ? "done" : ""}"><i>${history.length > index ? "✓" : index + 1}</i><b>${label}</b></span>`).join("")}</div>${history.length ? `<details><summary>查看已發生的劇情</summary>${history.map((item) => `<article><small>第 ${item.week} 週・${esc(item.phase || "劇情")}</small><b>${esc(item.title)}</b><p>${esc(item.text)}</p></article>`).join("")}</details>` : ""}</section>`;
+}
+function sequelPanel() {
+  const offers = (state.sequelOffers || []).filter((o) =>
+    ["active", "completed"].includes(o.status),
+  );
+  if (!offers.length) return "";
+  return `<section class="qualification-panel"><div><h3>系列作品／續作</h3><p>成功作品可能收到原班人馬續作邀請；續作會真的占用玩家與共演者檔期。</p></div><div class="req-list">${offers.map((o) => `<span class="${o.status === "completed" ? "met" : ""}"><b>${esc(o.title)}</b><small>${esc(o.category)}・${o.role ? esc(o.role) + "・" : ""}${o.completedSessions || 0}/${o.requiredSessions || 0} 次${o.negotiated ? "・已談加價" : ""}</small><em>${o.status === "completed" ? "已完成" : `<button data-sequel-schedule="${o.id}">安排製作</button>`}</em></span>`).join("")}</div></section>`;
+}
+function auditionButtons(job, record) {
+  const cooldown =
+    record.stage === "failed" &&
+    record.lastAuditionWeek != null &&
+    state.week - record.lastAuditionWeek < 2;
+  if (cooldown)
+    return `<button disabled>第 ${record.lastAuditionWeek + 2} 週可再次爭取</button>`;
+  const options = auditionScheduleOptions();
+  return `<div class="contract-dashboard"><p>試鏡會占用一天；地點：<b>${esc(job.audition.venue)}</b></p>${options.map((o) => `<button data-job-action="schedule-audition" data-job-id="${job.id}" data-job-day="${o.day}">${o.label}前往試鏡</button>`).join("") || "本週沒有可用空檔，請先調整行程。"}</div>`;
+}
+function actionPanel(job, record) {
+  const q = qualification(job),
+    role = selectedJobRole(job.id);
+  if (record.stage === "available")
+    return `<button data-job-action="apply" data-job-id="${job.id}" ${q.met ? "" : "disabled"}>${jobSource(job).type === "direct" ? `接受「${esc(role.label)}」邀約` : `登記「${esc(role.label)}」試鏡`}</button>`;
+  if (["applied", "failed"].includes(record.stage))
+    return auditionButtons(job, record);
+  if (record.stage === "audition_scheduled")
+    return `<div class="contract-dashboard"><p><b>試鏡已排入第 ${record.auditionWeek} 週・${DAYS[record.auditionDay]}</b></p><small>請從行程表開始本週；選擇與結果會在當天出現。</small></div>`;
+  if (record.stage === "passed")
+    return `<button data-job-action="sign" data-job-id="${job.id}">簽署「${esc(role.label)}」演出合約</button>`;
+  if (record.stage === "active") {
+    const options = jobScheduleOptions(job.id);
+    return `<div class="contract-dashboard"><p>演出：<b>${esc(role.label)}</b>・剩餘 <b>${record.remainingSessions}</b> 次・第 ${record.deadlineWeek} 週截止</p>${options.map((o) => `<button data-job-action="schedule" data-job-id="${job.id}" data-job-day="${o.day}">${o.label}</button>`).join("") || "指定工作日沒有玩家與共演陣容的共同空檔"}</div>`;
+  }
+  return `<div class="contract-result"><h3>${record.stage === "completed" ? "作品已完成" : "通告已結束"}</h3><p>${esc(record.notice || "")}</p></div>`;
+}
+export function jobsApp() {
+  const unlocked = new Set(availableJobs().map((j) => j.id)),
+    allJobs = JOB_CATALOG.filter(
+      (j) =>
+        (unlocked.has(j.id) || state.activeJobs[j.id]) && canAccessJob(j).ok,
+    ),
+    query = (state.jobQuery || "").trim().toLocaleLowerCase("zh-Hant"),
+    filtered = allJobs.filter(
+      (job) =>
+        stageMatches(jobState(job.id).stage, state.jobStatusFilter || "all") &&
+        (!query ||
+          `${job.title} ${job.client} ${job.category}`
+            .toLocaleLowerCase("zh-Hant")
+            .includes(query)),
+    ),
+    jobs = sortJobs(filtered, state.jobSort),
+    sequels = sequelPanel();
+  if (!allJobs.length && !sequels)
+    return `<div class="jobs-page"><h2>目前信箱裡沒有工作</h2><p>自由新人要在本週親自去電視台、電影公司、唱片公司或製作公司看公開徵選；人脈、經紀人與指名邀約則會直接送進信箱。</p></div>`;
+  if (!jobs.length)
+    return `<div class="jobs-page jobs-filter-empty">${jobListTools(0, allJobs.length)}<div class="tablet-empty"><span>⌕</span><h3>沒有符合條件的工作</h3><p>換個關鍵字或狀態，不用跟搜尋框硬碰硬。</p><button data-clear-job-filters>清除篩選</button></div>${sequels}</div>`;
+  const job =
+      JOB_BY_ID[state.selectedJobId] &&
+      jobs.some((j) => j.id === state.selectedJobId)
+        ? JOB_BY_ID[state.selectedJobId]
+        : jobs[0],
+    record = jobState(job.id),
+    q = qualification(job),
+    role = selectedJobRole(job.id),
+    brand = brandRelation(job.client),
+    brandLabel =
+      {
+        new: "初次接觸",
+        known: "合作過",
+        trusted: "信任合作",
+        preferred: "優先合作",
+        avoid: "暫停往來",
+      }[brand.status] || brand.status,
+    pay = marketAdjustedPay(job);
+  return `<div class="jobs-page multi-jobs"><aside class="job-catalog"><header><h3>工作信箱</h3><small>${allJobs.length} 份目前可接觸工作・完整通告庫 ${JOB_CATALOG.length} 份</small></header>${jobListTools(jobs.length, allJobs.length)}<nav>${JOB_CATEGORIES.map((c) => `<span>${c}</span>`).join("")}</nav>${jobs.map(listCard).join("")}</aside><section class="job-detail"><div class="job-board-head"><div><span>${job.id}・${"★".repeat(job.stars)}・${job.category}</span><h2>${esc(job.title)}</h2><p>${sourceLabel(job)}・${esc(job.synopsis)}</p></div><strong>${money(pay)}${pay !== job.pay ? `<small>・市場基準 ${money(job.pay)}</small>` : ""}</strong></div><dl class="job-sheet"><div><dt>委託方</dt><dd>${esc(job.client)}</dd></div><div><dt>${["電影", "電視劇"].includes(job.category) ? "試鏡角色" : "參與定位"}</dt><dd>${esc(role.label)}</dd></div><div><dt>品牌關係</dt><dd>${brandLabel}・信任 ${brand.trust}・合作 ${brand.works} 次</dd></div><div><dt>試鏡地點</dt><dd>${esc(job.audition.venue)}</dd></div><div><dt>指定工作日</dt><dd>每週${jobWorkDaysText(job)}</dd></div><div><dt>最低訓練</dt><dd>${q.training}／${q.trainingRequired} 次</dd></div></dl>${storyPanel(job, record)}${sequels}${castPanel(record)}${crewPanel(record)}<section class="qualification-panel"><div><h3>${q.met ? `${esc(role.label)}資質完整` : `${esc(role.label)}仍有能力尚未達標`}</h3><p>${esc(job.audition.tip)}${["電影", "電視劇"].includes(job.category) ? " 角色位階會直接影響本通告的能力門檻與試鏡競爭強度。" : ""}</p></div><div class="req-list">${requirementRows(job)}</div></section>${record.notice ? `<div class="job-notice">${esc(record.notice)}</div>` : ""}<div class="job-action">${actionPanel(job, record)}</div></section></div>`;
+}

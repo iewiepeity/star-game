@@ -8,22 +8,10 @@ import { activateDialog, rememberDialogTrigger, restoreDialogTrigger, trapDialog
 let dialogKeyHandler = null;
 let activeDialogIdentity = "";
 
-function enhancePeople() {
-  const list = document.querySelector(".contact-list");
-  if (!list || list.previousElementSibling?.classList.contains("list-tools")) return;
-  const tools = document.createElement("div");
-  tools.className = "list-tools";
-  tools.innerHTML = '<input type="search" placeholder="搜尋姓名、職業或關係" aria-label="搜尋聯絡人">';
-  list.before(tools);
-  tools.querySelector("input").oninput = (event) => {
-    const query = event.target.value.trim().toLowerCase();
-    list.querySelectorAll(".contact-card").forEach((card) => card.hidden = !card.textContent.toLowerCase().includes(query));
-  };
-}
-
 function closeDialog() {
   state.retireConfirm = false;
   state.appOpen = null;
+  state.appReturnContext = null;
   render();
   Promise.resolve().then(restoreDialogTrigger);
 }
@@ -48,8 +36,14 @@ function bindDialogKeyboard() {
 }
 
 export function bindRoomShell() {
-  enhancePeople();
   document.querySelectorAll("[data-people-section]").forEach((button) => button.onclick = () => { state.peopleSection = button.dataset.peopleSection; render(); });
+  document.querySelector(".people-hub-tabs")?.addEventListener("keydown",(event)=>{if(!["ArrowLeft","ArrowRight"].includes(event.key))return;event.preventDefault();const tabs=[...event.currentTarget.querySelectorAll('[role="tab"]')],index=tabs.indexOf(document.activeElement),next=tabs[(index+(event.key==="ArrowRight"?1:-1)+tabs.length)%tabs.length];next?.click();Promise.resolve().then(()=>document.querySelector(`[data-people-section="${next?.dataset.peopleSection}"]`)?.focus())});
+  document.querySelector("[data-people-query]")?.addEventListener("input",(event)=>{state.peopleQuery=event.currentTarget.value.trimStart().slice(0,200);render()});
+  document.querySelector("[data-clear-people-query]")?.addEventListener("click",()=>{state.peopleQuery="";render()});
+  document.querySelector("[data-app-query]")?.addEventListener("input",(event)=>{state.appQuery=event.currentTarget.value.trimStart().slice(0,200);render()});
+  document.querySelectorAll("[data-app-category]").forEach(button=>button.onclick=()=>{state.appCategory=button.dataset.appCategory;render()});
+  document.querySelector("[data-clear-app-filters]")?.addEventListener("click",()=>{state.appQuery="";state.appCategory="全部";render()});
+  document.querySelector("[data-return-app]")?.addEventListener("click",(event)=>{state.appOpen=event.currentTarget.dataset.returnApp;state.appReturnContext=null;render()});
   document.querySelector("[data-dock-edit]")?.addEventListener("click", () => { state.dockEditing = true; state.dockDraftIds = [...normalizeDockIds(state.dockAppIds)]; state.dockNotice = ""; render(); });
   document.querySelectorAll("[data-dock-toggle]").forEach((button) => button.onclick = () => {
     const id = button.dataset.dockToggle, current = [...(state.dockDraftIds || [])], index = current.indexOf(id);
@@ -73,7 +67,7 @@ export function bindRoomShell() {
     if (target === "agency" && !state.selectedAgencyId) state.selectedAgencyId = AGENCY_LIST[0].id;
     if (target === "achievements") state.achievementNotifications = [];
     if (target === "people") { state.peopleSection = "contacts"; (state.npcMessages || []).forEach((message) => message.read = true); }
-    state.appOpen = target; render();
+    state.appReturnContext = null; state.appOpen = target; render();
   });
   document.querySelectorAll("[data-close-app]").forEach((button) => button.onclick = closeDialog);
   document.querySelector("[data-open-job]")?.addEventListener("click", (event) => { rememberDialogTrigger(event.currentTarget); state.appOpen = "jobs"; render(); });

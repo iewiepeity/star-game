@@ -11,6 +11,8 @@ test("顯示偏好只接受既定字級與主題",()=>{
 });
 
 test("自動播放 x1 為十秒、x2 仍至少保留五秒",()=>{
+ setPreference("autoSpeed","manual");
+ assert.equal(autoAdvanceDelay(),null);
  setPreference("autoSpeed","x1");
  assert.equal(autoAdvanceDelay(),10000);
  setPreference("autoSpeed","x2");
@@ -25,6 +27,7 @@ test("設定頁包含存讀檔、顯示偏好、教學與二次確認",()=>{
  assert.match(html,/data-request-reset/);
  assert.match(html,/data-auto-speed="x1"/);
  assert.match(html,/data-auto-speed="x2"/);
+ assert.match(html,/data-auto-speed="manual"/);
 });
 
 test("開局公開文案不再殘留十八歲設定",()=>{

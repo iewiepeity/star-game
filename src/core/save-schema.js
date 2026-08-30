@@ -161,6 +161,8 @@ export function validateGameState(s) {
     }
   for (const key of [
     "jobQuery",
+    "peopleQuery",
+    "appQuery",
     "timelineQuery",
     "notice",
     "creativeDraftTitle",
@@ -181,6 +183,18 @@ export function validateGameState(s) {
     errors.push("timelineFilter 無效");
   if (s.timelineQuery != null && typeof s.timelineQuery !== "string")
     errors.push("timelineQuery 無效");
+  if (
+    s.jobStatusFilter != null &&
+    !["all", "action", "active", "available"].includes(s.jobStatusFilter)
+  )
+    errors.push("jobStatusFilter 無效");
+  if (s.jobSort != null && !["deadline", "stars", "title"].includes(s.jobSort))
+    errors.push("jobSort 無效");
+  if (
+    s.appCategory != null &&
+    !["全部", "行程", "事業", "人物", "收藏", "系統"].includes(s.appCategory)
+  )
+    errors.push("appCategory 無效");
   return { ok: errors.length === 0, errors };
 }
 export function assertGameState(s) {

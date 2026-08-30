@@ -1,7 +1,8 @@
-const CACHE="star-game-runtime-v1.15.1";
-const SHELL=["./","./index.html","./style.css","./ui-hardening.css","./a11y.css","./src/main.js","./assets/rookie-room.webp","./assets/icons/icon-192.webp","./assets/icons/icon-512.webp","./manifest.webmanifest"];
-self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting())));
+const CACHE="star-game-runtime-v1.16.0";
+const SHELL=["./","./index.html","./style.css","./ui-hardening.css","./design-system.css","./a11y.css","./src/main.js","./assets/rookie-room.webp","./assets/icons/icon-192.webp","./assets/icons/icon-512.webp","./manifest.webmanifest"];
+self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL))));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
+self.addEventListener("message",event=>{if(event.data?.type==="SKIP_WAITING")self.skipWaiting()});
 async function networkFirst(request){const cache=await caches.open(CACHE);try{const response=await fetch(request);if(response?.ok)cache.put(request,response.clone());return response}catch{const cached=await cache.match(request);if(cached)return cached;if(request.mode==="navigate")return cache.match("./index.html");throw new Error("offline")}}
 async function staleWhileRevalidate(request,event){const cache=await caches.open(CACHE),cached=await cache.match(request),refresh=fetch(request).then(async response=>{if(response?.ok)await cache.put(request,response.clone());return response}).catch(()=>null);if(cached){event.waitUntil(refresh);return cached}const response=await refresh;if(response)return response;throw new Error("offline")}
 self.addEventListener("fetch",event=>{if(event.request.method!=="GET")return;const url=new URL(event.request.url);if(url.origin!==self.location.origin)return;const dynamic=event.request.mode==="navigate"||["script","style"].includes(event.request.destination)||url.pathname.endsWith(".json");event.respondWith(dynamic?networkFirst(event.request):staleWhileRevalidate(event.request,event))});

@@ -1,0 +1,58 @@
+@layer tokens, components, utilities;
+
+@layer tokens {
+  :root {
+    --surface-raised: color-mix(in srgb, var(--paper) 96%, transparent);
+    --surface-muted: color-mix(in srgb, var(--cream) 82%, white);
+    --text-muted: color-mix(in srgb, var(--ink) 68%, transparent);
+    --accent-solid: #b96571;
+    --focus-ring: 0 0 0 3px color-mix(in srgb, var(--pink) 30%, transparent);
+    --radius-control: 12px;
+  }
+}
+
+@layer components {
+  .list-tools label,
+  .app-library-tools label { display: flex; min-width: 0; flex: 1; }
+  .list-tools output { align-self: center; color: var(--text-muted); font-size: 12px; white-space: nowrap; }
+  .people-list-tools { max-width: 760px; }
+  .app-library-tools { display: grid; gap: 9px; margin: 10px 0 4px; }
+  .app-library-tools input { width: 100%; min-height: 44px; padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--surface-raised); }
+  .app-library-tools nav { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
+  .app-library-tools button { min-height: 38px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-raised); white-space: nowrap; }
+  .app-library-tools button.active { border-color: var(--accent-solid); background: var(--accent-solid); color: white; }
+  .app-library-empty { display: grid; place-items: center; gap: 8px; min-height: 120px; color: var(--text-muted); }
+  .app-library-empty button,
+  .tablet-empty.compact button { min-height: 42px; padding: 8px 13px; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--surface-raised); }
+  .window-return { min-height: 38px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-raised); font-weight: 800; }
+  .game-toast:has([data-undo-action]) { pointer-events: auto; }
+  .game-toast [data-undo-action] { min-height: 36px; padding: 6px 12px; border: 1px solid #ffffff88; border-radius: 999px; background: #ffffff22; color: white; font-weight: 900; }
+  .pwa-update { position: fixed; z-index: 140; right: max(18px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 14px; max-width: min(520px, calc(100vw - 32px)); padding: 13px 14px; border: 1px solid color-mix(in srgb, var(--pink) 35%, var(--line)); border-radius: 16px; background: var(--surface-raised); box-shadow: var(--shadow); }
+  .pwa-update div { display: grid; gap: 3px; }
+  .pwa-update span { color: var(--text-muted); font-size: 12px; }
+  .pwa-update button { min-height: 42px; padding: 8px 13px; border: 0; border-radius: var(--radius-control); background: var(--accent-solid); color: white; font-weight: 900; white-space: nowrap; }
+  .jobs-filter-empty { padding: 24px; }
+}
+
+@layer utilities {
+  :where(button, input, select):focus-visible { outline: 0; box-shadow: var(--focus-ring); }
+}
+
+@media (max-width: 760px) {
+  .window-return { max-width: 112px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pwa-update { left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); display: grid; }
+  .pwa-update button { width: 100%; }
+  .list-tools output { grid-column: 1 / -1; }
+}
+
+/* Transitional unlayered overrides stay above the legacy unlayered sheet until it is migrated. */
+.game-toast:has([data-undo-action]) { pointer-events: auto; }
+.window-bar > div:has(h2) { min-width: 0; flex: 1; }
+
+@media (max-width: 760px) {
+  .window-bar > div:has(h2) h2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}

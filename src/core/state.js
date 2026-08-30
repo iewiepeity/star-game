@@ -12,7 +12,11 @@ export function initialState() {
     createStep: 1,
     tab: "planner",
     appOpen: null,
+    appReturnContext: null,
+    appQuery: "",
+    appCategory: "全部",
     peopleSection: "contacts",
+    peopleQuery: "",
     creativeDraftTitle: "",
     gallerySelection: null,
     galleryFilter: "all",
@@ -122,6 +126,7 @@ export function initialState() {
     selectedJobId: "J001",
     jobQuery: "",
     jobSort: "deadline",
+    jobStatusFilter: "all",
     activeJobs: {},
     jobHistory: [],
     completedWorks: [],
@@ -421,6 +426,10 @@ export function hydrateState(saved) {
   next.dockEditing = false;
   next.dockDraftIds = null;
   next.dockNotice = "";
+  next.appReturnContext = null;
+  next.jobStatusFilter = ["all", "action", "active", "available"].includes(next.jobStatusFilter) ? next.jobStatusFilter : "all";
+  next.jobSort = ["deadline", "stars", "title"].includes(next.jobSort) ? next.jobSort : "deadline";
+  next.appCategory = ["全部", "行程", "事業", "人物", "收藏", "系統"].includes(next.appCategory) ? next.appCategory : "全部";
   if (next.appOpen === "npc") {
     next.appOpen = "people";
     next.peopleSection = "profiles";
