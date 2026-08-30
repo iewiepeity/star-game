@@ -10,6 +10,11 @@ import { activityForDay } from "../logic/scheduled-activities.js";
 import { weeklyTaskInfo } from "../logic/weekly-task.js";
 import { SCHEDULE_PRESETS } from "../logic/schedule-assistant.js";
 import { jobScheduleOptions } from "../logic/job-engine.js";
+import {
+  effectiveActionCost,
+  newcomerSubsidyActive,
+  reliefGigAvailable,
+} from "../logic/economy.js";
 
 function activeJobAlerts() {
   return Object.values(state.activeJobs || {})
@@ -41,7 +46,7 @@ export function budget() {
   return state.schedule.reduce(
     (s, id, i) =>
       s +
-      (ACTIONS[id]?.cost || 0) +
+      effectiveActionCost(ACTIONS[id], state.week) +
       (id === "personal_task" ? activityForDay(i)?.cost || 0 : 0),
     0,
   );
@@ -118,7 +123,10 @@ export function plannerApp() {
     ).length,
     task = weeklyTaskInfo(),
     focus = FOCUSES[state.focus] || FOCUSES.growth;
-  return `<div class="planner-app">${plannerCommandBar(fat, spend)}${
+  const subsidy = newcomerSubsidyActive(state.week)
+    ? `<div class="mini-toast">🎓 新人培訓補助生效中：第 1～8 週訓練費七折，行程預算已自動套用。</div>`
+    : "";
+  return `<div class="planner-app">${plannerCommandBar(fat, spend)}${subsidy}${
     forced
       ? `<div class="forced-rest-banner"><i>✚</i><div><span>MEDICAL RECOVERY WEEK</span><b>本週為強制休養週</b><p>七天行程已由醫療安排鎖定為休息，不能替換、複製或插入其他活動。完成本週後才會恢復正常排程。</p></div></div>`
       : `${activeJobAlerts()}<div class="week-brief"><div><span>本週任務</span><b>${task.label}</b><small>${task.desc}</small></div><strong>獎勵<br><b>${task.rewardText}</b></strong></div><section class="focus-panel"><div class="focus-row"><span>本週策略</span>${Object.entries(
@@ -151,13 +159,15 @@ export function calendarDay(id, i, forced = false) {
           record.stage === "active" &&
           JOB_BY_ID[record.jobId]?.workDays.includes(i),
       );
-  return `<button class="calendar-cell ${!forced && state.selectedDay === i ? "selected" : ""} ${dueDay ? "due-day" : ""} ${id === "agency_interview" || id === "personal_task" ? "important-day" : ""}" data-day="${i}" aria-pressed="${!forced && state.selectedDay === i}" aria-label="${DAYS[i]}：${forced ? "強制休養" : assignedJob ? assignedJob.title : personal?.label || interviewLabel || freePlace || a.short}" ${forced ? "disabled" : ""}><span>${i + 1}<small>週${SHORT[i]}</small></span><i class="${a.type}" aria-hidden="true">${a.icon}</i><b>${forced ? "強制休養" : assignedJob ? assignedJob.title : personal?.label || interviewLabel || freePlace || a.short}</b><em>${forced ? "醫療鎖定" : assignedJob ? "正式通告" : personal ? `${personal.cost ? money(personal.cost) : "已預約"}` : id === "agency_interview" ? "不收費・重要行程" : a.cost ? money(a.cost) : "免費"}</em></button>`;
+  const actionCost = effectiveActionCost(a, state.week);
+  return `<button class="calendar-cell ${!forced && state.selectedDay === i ? "selected" : ""} ${dueDay ? "due-day" : ""} ${id === "agency_interview" || id === "personal_task" ? "important-day" : ""}" data-day="${i}" aria-pressed="${!forced && state.selectedDay === i}" aria-label="${DAYS[i]}：${forced ? "強制休養" : assignedJob ? assignedJob.title : personal?.label || interviewLabel || freePlace || a.short}" ${forced ? "disabled" : ""}><span>${i + 1}<small>週${SHORT[i]}</small></span><i class="${a.type}" aria-hidden="true">${a.icon}</i><b>${forced ? "強制休養" : assignedJob ? assignedJob.title : personal?.label || interviewLabel || freePlace || a.short}</b><em>${forced ? "醫療鎖定" : assignedJob ? "正式通告" : personal ? `${personal.cost ? money(personal.cost) : "已預約"}` : id === "agency_interview" ? "不收費・重要行程" : actionCost ? money(actionCost) : "免費"}</em></button>`;
 }
 export function activityPicker() {
   const entries = Object.entries(ACTIONS).filter(
     ([id, a]) =>
       !a.hidden &&
       id !== "agency_interview" &&
+      (id !== "relief_gig" || reliefGigAvailable(state)) &&
       (state.filter === "全部" || a.group === state.filter),
   );
   const showJobs = ["全部", "工作"].includes(state.filter),
@@ -197,5 +207,5 @@ export function activityPicker() {
     .join(
       "",
     )}</div><button class="schedule-work-all" data-schedule-work>依截止日排入本週正式通告</button><p>範本不會覆蓋已排定的通告、試鏡、創作或人物約會。</p></details>`;
-  return `${assistant}<div class="planner-day-actions"><button class="planner-clear-day" data-clear-day="${selectedDay}" ${state.schedule[selectedDay] === "rest" ? "disabled" : ""}>清除${DAYS[selectedDay]}行程</button></div><section class="activity-picker"><header><div><span>接下來排入</span><b>${DAYS[state.selectedDay]}</b></div><nav>${["全部", "訓練", "工作", "生活", "休息"].map((f) => `<button class="${state.filter === f ? "active" : ""}" data-filter="${f}" aria-pressed="${state.filter === f}">${f}</button>`).join("")}</nav></header><div class="picker-list" data-scroll-key="planner-picker">${jobEntries}${entries.map(([id, a]) => `<button class="${state.schedule[state.selectedDay] === id ? "active" : ""}" data-pick="${id}" aria-pressed="${state.schedule[state.selectedDay] === id}"><i class="${a.type}" aria-hidden="true">${a.icon}</i><span><b>${a.label}</b><small>${a.note}</small></span><em>${a.cost ? money(a.cost) : "免費"}<small>疲勞 ${a.fatigue > 0 ? "+" : ""}${a.fatigue}</small></em></button>`).join("")}</div></section>`;
+  return `${assistant}<div class="planner-day-actions"><button class="planner-clear-day" data-clear-day="${selectedDay}" ${state.schedule[selectedDay] === "rest" ? "disabled" : ""}>清除${DAYS[selectedDay]}行程</button></div><section class="activity-picker"><header><div><span>接下來排入</span><b>${DAYS[state.selectedDay]}</b></div><nav>${["全部", "訓練", "工作", "生活", "休息"].map((f) => `<button class="${state.filter === f ? "active" : ""}" data-filter="${f}" aria-pressed="${state.filter === f}">${f}</button>`).join("")}</nav></header><div class="picker-list" data-scroll-key="planner-picker">${jobEntries}${entries.map(([id, a]) => { const cost = effectiveActionCost(a, state.week); return `<button class="${state.schedule[state.selectedDay] === id ? "active" : ""}" data-pick="${id}" aria-pressed="${state.schedule[state.selectedDay] === id}"><i class="${a.type}" aria-hidden="true">${a.icon}</i><span><b>${a.label}</b><small>${a.note}</small></span><em>${cost ? money(cost) : a.income ? `收入 ${money(a.income[0])} 起` : "免費"}<small>疲勞 ${a.fatigue > 0 ? "+" : ""}${a.fatigue}</small></em></button>`; }).join("")}</div></section>`;
 }
