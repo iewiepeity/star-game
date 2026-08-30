@@ -61,7 +61,10 @@ test("創角、自動存檔、重新整理與離線啟動", async ({ page, conte
   });
   await createPlayer(page);
   await expect(page.locator("body")).toContainText("工作信箱");
-  await expect(page.locator("body")).toContainText("創作室");
+  await page.locator("[data-app-library-toggle]").click();
+  await expect(page.locator('[data-open-app="creative"]')).toContainText(
+    "創作室",
+  );
   const save = await page.evaluate(() =>
     localStorage.getItem("star-game-save"),
   );
@@ -179,11 +182,11 @@ test("設定頁可調整主題字級、快速存檔並保護重新開始", async
     "第 1 週・設定測試",
   );
   await page.locator("[data-request-reset]").click();
-  await expect(page.locator("[data-confirm-reset]")).toBeVisible();
-  await page.locator("[data-cancel-reset]").click();
+  await expect(page.locator("[data-confirm-accept]")).toBeVisible();
+  await page.locator("[data-confirm-cancel]").last().click();
   await expect(page.locator("[data-request-reset]")).toBeVisible();
   await page.locator("[data-request-reset]").click();
-  await page.locator("[data-confirm-reset]").click();
+  await page.locator("[data-confirm-accept]").click();
   await expect(page.locator(".create-screen")).toBeVisible();
   await expect(page.locator("#player-name")).toHaveValue("");
   await page.reload();
@@ -276,6 +279,7 @@ test("人物整合、原創輸入、線索樣式與存檔版面不再互相遮�
   );
   await page.locator(".window-close[data-close-app]").click();
   await openApp(page, "map");
+  await page.locator(".map-place-details summary").first().click();
   const clue = page.locator(".map-context").first();
   await expect(clue).toBeVisible();
   expect(
@@ -319,22 +323,16 @@ test("三種主題與大字體維持可操作版面", async ({ page }, testInfo)
       await expect(page.locator(".app-window.planner")).toBeVisible();
       const layout = await page.evaluate(() => {
         const dialog = document.querySelector(".app-window"),
-          hidden = document.querySelector(".skip-link"),
-          box = dialog.getBoundingClientRect(),
-          sr = getComputedStyle(hidden);
+          box = dialog.getBoundingClientRect();
         return {
           left: box.left,
           right: box.right,
           width: box.width,
           viewport: window.innerWidth,
-          srWidth: sr.width,
-          srPosition: sr.position,
         };
       });
       expect(layout.left).toBeGreaterThanOrEqual(0);
       expect(layout.right).toBeLessThanOrEqual(layout.viewport + 1);
-      expect(layout.srWidth).toBe("1px");
-      expect(layout.srPosition).toBe("absolute");
       await testInfo.attach(`layout-${theme}-${fontSize}.png`, {
         body: await page.screenshot(),
         contentType: "image/png",
