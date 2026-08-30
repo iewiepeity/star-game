@@ -1,5 +1,7 @@
 # 星途未定
 
+目前發行候選版本：**v1.21.0 Beta**。正式頁面只部署通過 Core 與桌機／手機 E2E 的 commit；版本紀錄、發布流程與真人盲測規格見 [`CHANGELOG.md`](./CHANGELOG.md)、[`RELEASE.md`](./RELEASE.md)、[`BETA-PLAYTEST.md`](./BETA-PLAYTEST.md)。
+
 純規則版繁體中文娛樂圈五年成長模擬遊戲。玩家從新人租屋處出發，自訂角色、訓練能力、投遞經紀公司、參加試鏡、完成作品、經營人際與戀愛、面對輿論與市場，最後依五年留下的作品、獎項、關係、財產與公眾位置進入結算。遊戲不需要 AI／API Key，也不需要登入；GitHub Pages 開啟後即可在瀏覽器單機遊玩。
 
 ## 目前版本重點
@@ -209,6 +211,7 @@ npm install
 npm run validate
 npm test
 npm run test:e2e
+npm run build
 ```
 
 也可使用：
@@ -216,6 +219,8 @@ npm run test:e2e
 ```bash
 npm run check
 ```
+
+`npm run build` 會產生只含遊戲 runtime 與素材的 `dist/`；GitHub Pages 不直接發布整個 repository。
 
 `npm run validate` 目前會依序執行：
 

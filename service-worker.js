@@ -1,5 +1,6 @@
-const CACHE="star-game-runtime-v1.20.0";
-const SHELL=["./","./index.html","./cascade.css","./style.css","./ui-hardening.css","./design-system.css","./components-feedback.css","./a11y.css","./runner-flow.css","./src/main.js","./assets/rookie-room.webp","./assets/icons/icon-192.webp","./assets/icons/icon-512.webp","./manifest.webmanifest"];
+const CACHE="star-game-runtime-v1.21.0";
+const AUDIO_SHELL=["tap","open","close","back","confirm","schedule","warning","reward","message","paper","scroll","select","switch","tick"].map(name=>`./assets/audio/kenney-interface/${name}.ogg`);
+const SHELL=["./","./index.html","./cascade.css","./style.css","./ui-hardening.css","./design-system.css","./components-feedback.css","./a11y.css","./runner-flow.css","./audio.css","./src/main.js","./assets/rookie-room.webp","./assets/icons/icon-192.webp","./assets/icons/icon-512.webp","./manifest.webmanifest",...AUDIO_SHELL];
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL))));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 self.addEventListener("message",event=>{if(event.data?.type==="SKIP_WAITING")self.skipWaiting()});

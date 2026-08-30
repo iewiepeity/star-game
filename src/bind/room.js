@@ -41,7 +41,9 @@ function closeDialog(force = false) {
 }
 
 function bindDialogKeyboard() {
-  const dialog = document.querySelector(".confirm-dialog, .app-window");
+  const dialog = document.querySelector(
+    state.confirmDialog ? ".confirm-dialog" : ".app-window",
+  );
   const identity = state.confirmDialog
     ? `confirm:${state.confirmDialog.type}`
     : state.appOpen || "";
@@ -55,7 +57,9 @@ function bindDialogKeyboard() {
   if (dialogKeyHandler)
     document.removeEventListener("keydown", dialogKeyHandler);
   dialogKeyHandler = (event) => {
-    const current = document.querySelector(".confirm-dialog, .app-window");
+    const current = document.querySelector(
+      state.confirmDialog ? ".confirm-dialog" : ".app-window",
+    );
     if (!current) return;
     if (event.key === "Escape") {
       event.preventDefault();
