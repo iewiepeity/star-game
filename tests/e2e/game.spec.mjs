@@ -183,7 +183,7 @@ test("設定頁可調整主題字級、快速存檔並保護重新開始", async
   );
   await page.locator("[data-request-reset]").click();
   await expect(page.locator("[data-confirm-accept]")).toBeVisible();
-  await page.locator("[data-confirm-cancel]").last().click();
+  await page.keyboard.press("Escape");
   await expect(page.locator("[data-request-reset]")).toBeVisible();
   await page.locator("[data-request-reset]").click();
   await page.locator("[data-confirm-accept]").click();
