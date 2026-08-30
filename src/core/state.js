@@ -25,6 +25,7 @@ export function initialState() {
     creativeDraftTitle: "",
     gallerySelection: null,
     galleryFilter: "all",
+    seenGalleryItemIds: [],
     dockAppIds: ["planner", "timeline", "gallery", "stats", "people", "log"],
     dockEditing: false,
     dockDraftIds: null,
@@ -309,6 +310,7 @@ export function hydrateState(saved) {
     "recentLocations",
     "unlockedAchievements",
     "achievementNotifications",
+    "seenGalleryItemIds",
     "endingHistory",
     "managerAdviceHistory",
     "dockAppIds",
@@ -442,6 +444,11 @@ export function hydrateState(saved) {
   next.appCategory = ["全部", "規劃", "事業", "人物", "世界", "紀錄", "個人", "系統"].includes(next.appCategory) ? next.appCategory : "全部";
   next.appLibraryExpanded = false;
   next.recentAppIds = Array.isArray(next.recentAppIds) ? [...new Set(next.recentAppIds.filter((id) => typeof id === "string"))].slice(0, 6) : [];
+  next.seenGalleryItemIds = [
+    ...new Set(
+      next.seenGalleryItemIds.filter((id) => typeof id === "string"),
+    ),
+  ];
   if (next.appOpen === "npc") {
     next.appOpen = "people";
     next.peopleSection = "profiles";

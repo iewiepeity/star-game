@@ -23,8 +23,7 @@ import { creativeApp } from "./creative.js";
 import { achievementsApp } from "./achievements.js";
 import { worldApp } from "./world.js";
 import { timelineApp } from "./timeline.js";
-import { galleryApp, galleryUnlocked } from "./gallery.js";
-import { CG_GALLERY_ITEMS } from "../data/story-art.js";
+import { galleryApp, unreadGalleryItems } from "./gallery.js";
 import {
   APP_META,
   APP_LIBRARY_IDS,
@@ -216,7 +215,7 @@ function appBadge(id) {
       ).length || ""
     );
   if (id === "gallery")
-    return CG_GALLERY_ITEMS.filter(galleryUnlocked).length || "";
+    return unreadGalleryItems().length || "";
   if (id === "achievements")
     return (state.achievementNotifications || []).length || "";
   if (id === "agency") return state.agencyOffer ? "!" : "";
