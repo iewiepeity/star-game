@@ -22,8 +22,19 @@ test("部署只會在 CI 成功後發布乾淨 dist", async () => {
   );
   assert.match(workflow, /workflow_run:/);
   assert.match(workflow, /workflow_run\.conclusion == 'success'/);
+  assert.match(workflow, /workflow_run\.event == 'push'/);
+  assert.match(workflow, /workflow_run\.head_branch == 'main'/);
+  assert.match(workflow, /persist-credentials: false/);
   assert.match(workflow, /path: dist/);
   assert.doesNotMatch(workflow, /path: \.$/m);
+});
+
+test("網頁提供基本 CSP，阻擋任意腳本、外掛與 base URL 注入", async () => {
+  const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+  assert.match(html, /http-equiv="Content-Security-Policy"/);
+  assert.match(html, /script-src 'self'/);
+  assert.match(html, /object-src 'none'/);
+  assert.match(html, /base-uri 'self'/);
 });
 
 test("共用確認視窗維持最上層互動與背景取消功能", async () => {
