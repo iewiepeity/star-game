@@ -1,4 +1,4 @@
-export const APP_IDS = Object.freeze(["planner","timeline","gallery","stats","people","log","world","map","jobs","creative","social","forum","wardrobe","agency","achievements","save","settings"]);
+export const APP_IDS = Object.freeze(["planner","timeline","gallery","stats","people","log","world","map","jobs","creative","creator","social","forum","wardrobe","agency","achievements","save","settings"]);
 const APP_ID_SET = new Set(APP_IDS);
 export const isAppId = (appId) => APP_ID_SET.has(appId === "npc" ? "people" : appId);
 

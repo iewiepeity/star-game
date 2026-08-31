@@ -14,6 +14,7 @@ import { bindWardrobe } from "./bind/wardrobe.js";
 import { bindSave } from "./bind/save.js";
 import { bindForum } from "./bind/forum.js";
 import { bindSocial } from "./bind/social.js";
+import { bindCreator } from "./bind/creator.js";
 import { bindCreative } from "./bind/creative.js";
 import { bindPrologueScreen } from "./bind/prologue.js";
 import { bindSettings } from "./bind/settings.js";
@@ -62,6 +63,7 @@ export function bind() {
     settings: [bindSettings, bindSave],
     forum: [bindForum],
     social: [bindSocial],
+    creator: [bindCreator],
     creative: [bindCreative, bindCreativeDirections, bindCreativeDistribution],
     timeline: [bindTimeline],
     gallery: [bindGallery],

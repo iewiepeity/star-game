@@ -13,6 +13,7 @@ import { completeSequelSession } from "./sequel-engine.js";
 import { resolveNpcInteraction } from "./npc-interaction-engine.js";
 import { managerInteract } from "./manager.js";
 import { resolveScheduledJobAudition } from "./job-engine.js";
+import { resolveCreatorContent } from "./creator.js";
 const COMMENTS = [
   "第一天追蹤！",
   "慢慢來，我們會看著你成長。",
@@ -128,5 +129,6 @@ export function resolvePersonalTask(task, choice = null) {
     return { ok: r.ok, title: r.title, text: r.message };
   }
   if (task.kind === "social_post") return doSocial(task.payload.type,task.payload);
+  if (task.kind === "creator_content") return resolveCreatorContent(task.payload);
   return { ok: false, text: "未知的個人安排。" };
 }

@@ -178,6 +178,12 @@ export function initialState() {
     socialPosts: [],
     likedSocialPosts: [],
     socialNotice: "",
+    creatorProfile: null,
+    creatorVideos: [],
+    creatorNotice: "",
+    creatorFormat: "short",
+    creatorTopic: "daily",
+    creatorInvestment: "basic",
     endingType: null,
     endingResult: null,
     endingSnapshot: null,
@@ -321,9 +327,14 @@ export function hydrateState(saved) {
     "seenGalleryItemIds",
     "endingHistory",
     "managerAdviceHistory",
+    "creatorVideos",
     "dockAppIds",
   ])
     next[key] = Array.isArray(next[key]) ? next[key] : [];
+  next.creatorProfile =
+    next.creatorProfile && typeof next.creatorProfile === "object"
+      ? next.creatorProfile
+      : null;
   for (const key of [
     "npcEventProgress",
     "npcCareers",
