@@ -17,7 +17,7 @@ function common(job,index){const beat=CATEGORY_BEATS[job.category]||CATEGORY_BEA
 function genericStory(job,index){
  const{beat,pressure,detail,steady,bold}=common(job,index);
  return Object.freeze({id:job.id,depth:"C",
-  audition:{arrival:`你抵達${job.audition.venue}。${job.audition.prompt}`,steady:`你選擇「${steady.label}」，評審記住的是準備完整與判斷清楚。`,bold:`你選擇「${bold.label}」，現場氣氛因此改變，也讓風險被放到最大。`,passed:`製作方沒有只說通過，而是指出你讓《${job.title}》的${detail}真正成立。`,failed:`這次名單沒有你的名字；回饋特別提到「${job.audition.tip}」，成為下次再爭取時的準備方向。`},
+  audition:{arrival:`你抵達${job.audition.venue}。${job.audition.prompt}`,steady:`你選擇「${steady.label}」，評審記住的是準備完整與判斷清楚。`,bold:`你選擇「${bold.label}」，現場氣氛因此改變，也讓風險被放到最大。`,passed:`「《${job.title}》，我們要你。」你笑了，攥緊的手才終於鬆開。${detail}，真的被記住了。`,failed:`《${job.title}》的名單翻到底，沒有你。你把螢幕按黑。那句「${job.audition.tip}」卻還留在眼前。`},
   contract:{title:`《${job.title}》合約桌上的最後一頁`,text:`${job.client}確認由你參與這份${job.tagline}企劃。${job.synopsis} 合約同時寫明 ${job.sessions} 次工作與第 {deadline} 週前完成；${pressure}。`},
   production:Object.freeze([
    {label:"開工",title:`《${job.title}》第一次正式進場`,text:`${beat.arrival}。團隊重新提起試鏡時的選擇，確認你會如何把它帶進正式製作。`},
