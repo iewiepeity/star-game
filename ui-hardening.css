@@ -77,8 +77,12 @@ textarea { touch-action: manipulation; }
 
 @media (max-width: 760px) {
   body { min-width: 0; font-size: var(--font-reading); }
-  .room-screen { min-height: 100dvh; padding-top: calc(96px + var(--safe-top)); padding-bottom: var(--safe-bottom); }
-  .room-hud { top: max(8px, var(--safe-top)); }
+  /* Keep a full-width room view below the HUD, including when its text wraps. */
+  .room-screen { display: grid; grid-template-rows: auto 120px auto; min-height: 100dvh; padding-top: max(8px, var(--safe-top)); padding-bottom: var(--safe-bottom); }
+  .room-hud { grid-row: 1; position: relative; top: auto; left: auto; right: auto; margin: 0 8px; }
+  .room-bg { grid-row: 2; position: relative; height: 120px; object-position: center top; }
+  .room-screen:after { background: none; }
+  .room-screen > .tablet { grid-row: 3; }
   .tablet { height: calc(100dvh - 112px - var(--safe-top) - var(--safe-bottom)); min-height: 520px; }
   .app-window { inset: max(8px, var(--safe-top)) 8px max(8px, var(--safe-bottom)); height: auto; }
   .window-bar { min-height: 72px; height: auto; }
