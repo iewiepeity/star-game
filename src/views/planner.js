@@ -16,6 +16,22 @@ import {
   reliefGigAvailable,
 } from "../logic/economy.js";
 
+// Disclosure state belongs to the DOM, not the game state or saved data.
+if (typeof document !== "undefined") {
+  document.addEventListener(
+    "toggle",
+    (event) => {
+      const disclosure = event.target;
+      if (!disclosure.matches?.("details.planner-command-bar")) return;
+      disclosure.querySelector("summary").setAttribute(
+        "aria-expanded",
+        String(disclosure.open),
+      );
+    },
+    true,
+  );
+}
+
 function activeJobAlerts() {
   return Object.values(state.activeJobs || {})
     .filter((record) => ["passed", "active"].includes(record.stage))
@@ -111,7 +127,7 @@ function plannerCommandBar(fat, spend) {
           : spend > state.money
             ? "本週預算不足"
             : "排程目前可執行";
-  return `<section class="planner-command-bar"><header><span>WEEK CONTROL</span><b>${risk}</b></header><div><span>健康 <b>${state.health}</b></span><span>體力 <b>${state.stamina}</b></span><span>心情 <b>${state.mood}</b></span><span>疲勞趨勢 <b>${fatigueTrend(fat)}</b></span><span>剩餘資金 <b>${money(state.money - spend)}</b></span></div>${conflict ? `<strong class="planner-conflict">⚠ ${esc(conflict)}</strong>` : ""}<small>先看期限衝突與狀態趨勢，再點日期排入行程；不顯示成功骰值，只提醒你能合理預見的風險。</small></section>`;
+  return `<details class="planner-command-bar"><summary aria-expanded="false" aria-controls="planner-status-details"><span>疲勞趨勢 <b class="${fat >= 85 ? "planner-risk" : ""}">${fatigueTrend(fat)}</b>・剩餘 ${money(state.money - spend)}</span><span class="planner-disclosure-label"><span class="when-collapsed">展開</span><span class="when-expanded">收合</span><i aria-hidden="true">⌄</i></span></summary><div id="planner-status-details" class="planner-status-details"><header><span>WEEK CONTROL</span><b>${risk}</b></header><div class="planner-status-cards"><span>健康 <b>${state.health}</b></span><span>體力 <b>${state.stamina}</b></span><span>心情 <b>${state.mood}</b></span><span>疲勞趨勢 <b>${fatigueTrend(fat)}</b></span><span>剩餘資金 <b>${money(state.money - spend)}</b></span></div>${conflict ? `<strong class="planner-conflict">⚠ ${esc(conflict)}</strong>` : ""}<small>先看期限衝突與狀態趨勢，再點日期排入行程；不顯示成功骰值，只提醒你能合理預見的風險。</small></div></details>`;
 }
 export function plannerApp() {
   const forced = state.forcedRestWeek === state.week,
@@ -129,7 +145,7 @@ export function plannerApp() {
   return `<div class="planner-app">${plannerCommandBar(fat, spend)}${subsidy}${
     forced
       ? `<div class="forced-rest-banner"><i>✚</i><div><span>MEDICAL RECOVERY WEEK</span><b>本週為強制休養週</b><p>七天行程已由醫療安排鎖定為休息，不能替換、複製或插入其他活動。完成本週後才會恢復正常排程。</p></div></div>`
-      : `${activeJobAlerts()}<div class="week-brief"><div><span>本週任務</span><b>${task.label}</b><small>${task.desc}</small></div><strong>獎勵<br><b>${task.rewardText}</b></strong></div><section class="focus-panel"><div class="focus-row"><span>本週策略</span>${Object.entries(
+      : `<section class="focus-panel"><div class="focus-row"><span>本週策略</span>${Object.entries(
           FOCUSES,
         )
           .map(
@@ -138,7 +154,7 @@ export function plannerApp() {
           )
           .join(
             "",
-          )}</div><div class="focus-explainer"><i>${focus.icon}</i><span><small>已套用到本週所有相關結算・${focus.badge}</small><b>${focus.label}</b><em>${focus.note}</em></span><strong>${state.focus === "growth" ? "例：訓練原本＋5，本週會變＋6" : state.focus === "fame" ? "例：公開試鏡成功率直接＋5%，成功再多 2 知名度" : "例：初次認識與正向互動會額外增加關係"}</strong></div></section>`
+          )}</div><div class="focus-explainer"><i>${focus.icon}</i><span><small>已套用到本週所有相關結算・${focus.badge}</small><b>${focus.label}</b><em>${focus.note}</em></span><strong>${state.focus === "growth" ? "例：訓練原本＋5，本週會變＋6" : state.focus === "fame" ? "例：公開試鏡成功率直接＋5%，成功再多 2 知名度" : "例：初次認識與正向互動會額外增加關係"}</strong></div></section>${activeJobAlerts()}<div class="week-brief"><div><span>本週任務</span><b>${task.label}</b><small>${task.desc}</small></div><strong>獎勵<br><b>${task.rewardText}</b></strong></div>`
   }<div class="calendar-head"><div><b>第 ${state.week} 週</b><small>${forced ? "身體正在恢復；本週所有行程固定為休息。" : "創作、投稿、NPC 約會與正式社群更新也會占用一天；一週真的只有七天。"}</small></div>${forced ? "" : `<div><button id="copy" ${state.lastSchedule ? "" : "disabled"}>複製上週</button><button id="rest-all">全部休息</button></div>`}</div><div class="ipad-calendar ${forced ? "forced-rest-calendar" : ""}">${state.schedule.map((id, i) => calendarDay(id, i, forced)).join("")}</div><div class="week-check"><span>訓練 <b>${train}/2</b></span><span>工作 <b>${work}/1</b></span><span>疲勞趨勢 <b class="${fat > 60 ? "bad" : ""}">${fatigueTrend(fat)}</b></span><span>本週支出 <b class="${spend > state.money ? "bad" : ""}">${money(spend)}</b></span><em>${forced ? "醫療休養中・行程不可修改" : spend > state.money ? "預算不足，請調整行程" : fat > 60 ? "高疲勞可能拖累本週表現" : "本週任務條件可達成"}</em></div>${state.notice ? `<div class="mini-toast">✓ ${esc(state.notice)}</div>` : ""}${forced ? `<section class="forced-rest-lock"><b>🔒 本週排程已鎖定</b><p>按「開始這週」後會依序完成七天休養；不計算一般週任務。</p></section>` : activityPicker()}</div>`;
 }
 export function calendarDay(id, i, forced = false) {
