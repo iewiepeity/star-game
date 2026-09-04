@@ -1,3 +1,4 @@
+import { titleTag } from "../core/utils.js";
 import { state } from "../core/state.js";
 import { JOB_BY_ID } from "../data/jobs.js";
 import { jobSource } from "../logic/industry.js";
@@ -23,5 +24,5 @@ export function bindJobs() {
     record.notice = record.notice || "";
     render();
   });
-  document.querySelectorAll("[data-open-cast-npc]").forEach((button) => button.onclick = () => { const job=JOB_BY_ID[state.selectedJobId];state.selectedNpc=button.dataset.openCastNpc;state.peopleSection="profiles";state.npcArtView="bust";openApp(state,"people",{returnContext:{app:"jobs",label:job?`返回《${job.title}》`:"返回工作信箱"}});render(); });
+  document.querySelectorAll("[data-open-cast-npc]").forEach((button) => button.onclick = () => { const job=JOB_BY_ID[state.selectedJobId];state.selectedNpc=button.dataset.openCastNpc;state.peopleSection="profiles";state.npcArtView="bust";openApp(state,"people",{returnContext:{app:"jobs",label:job?`返回${titleTag(job.title)}`:"返回工作信箱"}});render(); });
 }

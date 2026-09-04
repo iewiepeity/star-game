@@ -1,3 +1,4 @@
+import { titleTag } from "../core/utils.js";
 import { state } from "../core/state.js";
 import {
   createCreativeProject,
@@ -79,7 +80,7 @@ export function bindCreative() {
         queue(
           "creative_work",
           { projectId: p.id },
-          `${p.status === "rejected" ? "修改" : "創作"}《${p.title}》`,
+          `${p.status === "rejected" ? "修改" : "創作"}${titleTag(p.title)}`,
           { fatigue: 6, stamina: 6 },
         );
       }),
@@ -110,7 +111,7 @@ export function bindCreative() {
         queue(
           "creative_submit",
           { projectId: p.id, companyId: company.id },
-          `向${company.name}投稿《${p.title}》`,
+          `向${company.name}投稿${titleTag(p.title)}`,
           { fatigue: 3, stamina: 3 },
         );
       }),
@@ -179,7 +180,7 @@ export function bindCreative() {
         queue(
           "creative_production",
           { projectId: p.id },
-          `製作《${p.title}》`,
+          `製作${titleTag(p.title)}`,
           { fatigue: 10, stamina: 10 },
           { reserveTeam: true },
         );
@@ -192,7 +193,7 @@ export function bindCreative() {
           (x) => x.id === b.dataset.creativeRelease,
         );
         if (p && creativeActionState(p, "release").ok)
-          queue("creative_release", { projectId: p.id }, `發行《${p.title}》`, {
+          queue("creative_release", { projectId: p.id }, `發行${titleTag(p.title)}`, {
             fatigue: 7,
             stamina: 7,
           });
@@ -234,7 +235,7 @@ export function bindCreativeDistribution() {
         queue(
           "creative_sale",
           { projectId: project.id, companyId: company.id },
-          `前往${company.name}洽售《${project.title}》`,
+          `前往${company.name}洽售${titleTag(project.title)}`,
           { fatigue: 3, stamina: 3 },
         );
       }),

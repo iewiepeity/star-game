@@ -1,3 +1,4 @@
+import { titleTag } from "../core/utils.js";
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
 import { NPC_INVITATION_POOLS } from "../data/invitation-content.js";
@@ -37,7 +38,7 @@ function referenceText(){
  const award=[...(state.awards||[])].reverse()[0];
  if(award)return`對方先提到你在「${award.name||award.title||"頒獎季"}」留下的那一刻，接著才說今天找你的真正原因。`;
  const work=[...(state.completedWorks||[])].reverse()[0];
- if(work)return`《${work.title}》完成後，你們已經有一陣子只在工作消息裡看見彼此。`;
+ if(work)return`${titleTag(work.title)}完成後，你們已經有一陣子只在工作消息裡看見彼此。`;
  return"這次邀請沒有通告、曝光或人脈交換；它只占用你願不願意留給一個人的時間。";
 }
 

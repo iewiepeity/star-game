@@ -1,3 +1,4 @@
+import { titleTag } from "../core/utils.js";
 import { state } from "../core/state.js";
 import { SOCIAL_POST_TEMPLATES } from "../data/social.js";
 import {
@@ -61,7 +62,7 @@ export function resolvePersonalTask(task, choice = null) {
     return r
       ? {
           ok: true,
-          text: `完成《${p.title}》的創作工作；目前完成度 ${p.progress}%・品質 ${p.quality}。`,
+          text: `完成${titleTag(p.title)}的創作工作；目前完成度 ${p.progress}%・品質 ${p.quality}。`,
         }
       : { ok: false, text: "這份創作目前無法繼續。" };
   }
@@ -74,8 +75,8 @@ export function resolvePersonalTask(task, choice = null) {
       ? {
           ok: true,
           text: r.accepted
-            ? `${r.company.name}採用了《${r.project.title}》，作品進入正式製作！`
-            : `${r.company.name}退回《${r.project.title}》，之後可以修改再投。`,
+            ? `${r.company.name}採用了${titleTag(r.project.title)}，作品進入正式製作！`
+            : `${r.company.name}退回${titleTag(r.project.title)}，之後可以修改再投。`,
         }
       : { ok: false, text: "投稿條件已失效。" };
   }
@@ -87,7 +88,7 @@ export function resolvePersonalTask(task, choice = null) {
     return r
       ? {
           ok: true,
-          text: `${r.company.name}以 $${r.value.toLocaleString()} 買下《${r.project.title}》企劃權；成品主導權正式移交。`,
+          text: `${r.company.name}以 $${r.value.toLocaleString()} 買下${titleTag(r.project.title)}企劃權；成品主導權正式移交。`,
         }
       : { ok: false, text: "洽售條件已失效。" };
   }
@@ -99,13 +100,13 @@ export function resolvePersonalTask(task, choice = null) {
     if (r?.error === "budget")
       return {
         ok: false,
-        text: `《${r.project.title}》原訂製作規格需要 $${r.cost.toLocaleString()}，但執行當天資金不足。`,
+        text: `${titleTag(r.project.title)}原訂製作規格需要 $${r.cost.toLocaleString()}，但執行當天資金不足。`,
       };
     if (r && p) completeCreativeTeamDay(p, state.week, state.runnerDay);
     return r
       ? {
           ok: true,
-          text: `《${r.project.title}》完成一次製作進度，目前 ${r.project.productionProgress}%（${r.project.productionSessions}/${r.project.requiredProductionSessions} 次）；合作團隊檔期同步完成。`,
+          text: `${titleTag(r.project.title)}完成一次製作進度，目前 ${r.project.productionProgress}%（${r.project.productionSessions}/${r.project.requiredProductionSessions} 次）；合作團隊檔期同步完成。`,
         }
       : { ok: false, text: "這部作品目前無法進行製作。" };
   }
@@ -114,7 +115,7 @@ export function resolvePersonalTask(task, choice = null) {
     return r
       ? {
           ok: true,
-          text: `《${r.project.title}》正式發行！市場評分 ${r.score}、收入＋$${r.revenue.toLocaleString()}、粉絲＋${r.fanGain}。`,
+          text: `${titleTag(r.project.title)}正式發行！市場評分 ${r.score}、收入＋$${r.revenue.toLocaleString()}、粉絲＋${r.fanGain}。`,
         }
       : { ok: false, text: "這部作品目前還不能發行。" };
   }

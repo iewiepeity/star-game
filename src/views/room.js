@@ -1,6 +1,6 @@
 import { AGENCIES, AGENCY_LIST } from "../data/agencies.js";
 import { state } from "../core/state.js";
-import { esc, money, yearOf, weekInYear } from "../core/utils.js";
+import {titleTag, esc, money, yearOf, weekInYear } from "../core/utils.js";
 import { portraitThumbAsset } from "../data/wardrobe.js";
 import {
   isAgencyContractActive,
@@ -95,7 +95,7 @@ function weeklyCommandCenter() {
     urgentTitle = "身體正在拉警報";
     urgentText = "這週繼續塞滿行程，後面的工作反而更容易一起出事";
   } else if (job) {
-    urgentTitle = `《${esc(job.title)}》第 ${urgent.deadlineWeek} 週截止`;
+    urgentTitle = `${titleTag(esc(job.title))}第 ${urgent.deadlineWeek} 週截止`;
     urgentText = `還有 ${urgent.remainingSessions} 次工作・距期限 ${Math.max(0, urgent.deadlineWeek - state.week)} 週`;
   } else if (queued) {
     urgentTitle = `${queued} 件劇情／世界回聲等待處理`;

@@ -1,5 +1,5 @@
 import { state, resetState } from "../core/state.js";
-import { money, esc } from "../core/utils.js";
+import {titleTag, money, esc } from "../core/utils.js";
 import { rollStats } from "../core/stats.js";
 import { evaluateEnding } from "../logic/career.js";
 import { NPCS } from "../data/npcs.js";
@@ -14,7 +14,7 @@ function retrospective(result) {
         /正式簽約|完成作品|原創發行|獎|關係|住院/.test(flag.label),
       )
       .slice(-8);
-  return `<section class="ending-retrospective"><header><span>FIVE-YEAR RETROSPECTIVE</span><h2>這五年，不只是一張成績單</h2></header><div class="ending-highlight-grid"><article><small>代表作</small><b>${bestWork ? `《${esc(bestWork.title)}》` : "仍在等待命名"}</b><p>${bestWork ? `${esc(bestWork.category)}・品質 ${bestWork.quality}・第 ${bestWork.completedWeek} 週完成` : "有些人的代表作，會在下一輪才真正出現。"}</p></article><article><small>最重要的羈絆</small><b>${npc ? esc(npc.name) : "一路走來的自己"}</b><p>${npc ? `在工作之外，${esc(npc.name)}也記得真正的你。` : "沒有固定答案，不代表這五年是獨自白走。"}</p></article></div>${milestones.length ? `<div class="ending-timeline">${milestones.map((flag) => `<article><i>${flag.week}</i><div><b>${esc(flag.label)}</b><p>${esc(flag.note)}</p></div></article>`).join("")}</div>` : ""}</section>`;
+  return `<section class="ending-retrospective"><header><span>FIVE-YEAR RETROSPECTIVE</span><h2>這五年，不只是一張成績單</h2></header><div class="ending-highlight-grid"><article><small>代表作</small><b>${bestWork ? `${titleTag(esc(bestWork.title))}` : "仍在等待命名"}</b><p>${bestWork ? `${esc(bestWork.category)}・品質 ${bestWork.quality}・第 ${bestWork.completedWeek} 週完成` : "有些人的代表作，會在下一輪才真正出現。"}</p></article><article><small>最重要的羈絆</small><b>${npc ? esc(npc.name) : "一路走來的自己"}</b><p>${npc ? `在工作之外，${esc(npc.name)}也記得真正的你。` : "沒有固定答案，不代表這五年是獨自白走。"}</p></article></div>${milestones.length ? `<div class="ending-timeline">${milestones.map((flag) => `<article><i>${flag.week}</i><div><b>${esc(flag.label)}</b><p>${esc(flag.note)}</p></div></article>`).join("")}</div>` : ""}</section>`;
 }
 function baseEndingView() {
   const result = state.endingResult || evaluateEnding(state.endingType),
