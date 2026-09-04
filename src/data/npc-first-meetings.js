@@ -1,3 +1,4 @@
+import { titleTag } from "../core/utils.js";
 // 初次相遇不是一句「認識了」帶過，而是人物線真正的第一幕。
 export const NPC_FIRST_MEETINGS={
  jiqing:{title:"沒有播出的三分鐘",scene:"廣播節目散場後，你在走廊邊整理被退回的新人資料。喬映澄停下腳步，沒有先問你的經歷，只把剛才來賓遺落的溫水遞給你。她聽完你的自我介紹，笑著說：『名字我記住了。下次見面，希望是在麥克風前。』"},
@@ -30,5 +31,5 @@ const WORK_FIRST_LINES={
 
 export function workFirstMeetingFor(id,workTitle="這次通告"){
  const base=firstMeetingFor(id),line=WORK_FIRST_LINES[id];
- return{title:`《${workTitle}》的第一次照面`,scene:line?`《${workTitle}》第一次開工時，工作人員把你介紹給這次的合作對象。${line}`:base.scene};
+ return{title:`${titleTag(workTitle)}的第一次照面`,scene:line?`${titleTag(workTitle)}第一次開工時，工作人員把你介紹給這次的合作對象。${line}`:base.scene};
 }

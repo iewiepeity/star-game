@@ -4,7 +4,7 @@ import { AGENCIES } from "../data/agencies.js";
 import { MAP_LOCATIONS } from "../data/map-locations.js";
 import { DAYS, SHORT } from "../data/calendar.js";
 import { state } from "../core/state.js";
-import { esc, money } from "../core/utils.js";
+import {titleTag, esc, money } from "../core/utils.js";
 import { JOB_BY_ID } from "../data/jobs.js";
 import { activityForDay } from "../logic/scheduled-activities.js";
 import { weeklyTaskInfo } from "../logic/weekly-task.js";
@@ -103,11 +103,11 @@ function contractConflictPreview() {
     ).length;
     if (record.remainingSessions > scheduled + open)
       risks.push(
-        `《${job.title}》即使把本週可用指定日全排滿，仍可能需要下週立刻處理`,
+        `${titleTag(job.title)}即使把本週可用指定日全排滿，仍可能需要下週立刻處理`,
       );
     else if (record.remainingSessions > scheduled)
       risks.push(
-        `《${job.title}》還需要 ${record.remainingSessions - scheduled} 次，本週仍有 ${open} 個可排指定日`,
+        `${titleTag(job.title)}還需要 ${record.remainingSessions - scheduled} 次，本週仍有 ${open} 個可排指定日`,
       );
   }
   return risks[0] || null;
@@ -195,7 +195,7 @@ export function activityPicker() {
           const job = JOB_BY_ID[record.jobId];
           if (!job) return "";
           if (record.stage === "passed")
-            return `<button class="planner-job-entry contract-ready" data-planner-sign-job="${job.id}"><i class="job">✎</i><span><b>簽署《${esc(job.title)}》</b><small>${esc(job.client)}・試鏡已通過，簽約後即可排工作</small></span><em>簽約<small>不占一天</small></em></button>`;
+            return `<button class="planner-job-entry contract-ready" data-planner-sign-job="${job.id}"><i class="job">✎</i><span><b>簽署${titleTag(esc(job.title))}</b><small>${esc(job.client)}・試鏡已通過，簽約後即可排工作</small></span><em>簽約<small>不占一天</small></em></button>`;
           const allowed = jobScheduleOptions(job.id).some(
               (option) => option.day === selectedDay,
             ),
@@ -209,7 +209,7 @@ export function activityPicker() {
               : job.workDays.includes(selectedDay)
                 ? "這天已有行程或共演檔期衝突"
                 : `指定${job.workDays.map((day) => `週${SHORT[day]}`).join("、")}`;
-          return `<button class="planner-job-entry ${alreadyHere ? "active" : ""}" data-planner-job="${job.id}" data-job-day="${selectedDay}" ${allowed ? "" : "disabled"}><i class="job">🎥</i><span><b>《${esc(job.title)}》正式通告</b><small>剩餘 ${record.remainingSessions} 次・第 ${record.deadlineWeek} 週截止</small></span><em>${reason}</em></button>`;
+          return `<button class="planner-job-entry ${alreadyHere ? "active" : ""}" data-planner-job="${job.id}" data-job-day="${selectedDay}" ${allowed ? "" : "disabled"}><i class="job">🎥</i><span><b>${titleTag(esc(job.title))}正式通告</b><small>剩餘 ${record.remainingSessions} 次・第 ${record.deadlineWeek} 週截止</small></span><em>${reason}</em></button>`;
         })
         .join("")
     : "";

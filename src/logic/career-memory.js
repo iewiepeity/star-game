@@ -1,3 +1,4 @@
+import { titleTag } from "../core/utils.js";
 import{state}from"../core/state.js";
 import{FOCUSES}from"../data/focuses.js";
 import{NPCS}from"../data/npcs.js";
@@ -49,7 +50,7 @@ export function finalizeWeekMemory({hospitalized=false}={}){
   newFlags:state.flags.slice(start.flagCount||0),newEvents:state.eventHistory.slice(start.eventCount||0),
   newWorks:state.completedWorks.slice(start.workCount||0),newAwards:state.awards.slice(start.awardCount||0)
  };
- memory.headline=hospitalized?"身體替這週按下暫停":memory.newWorks.length?`《${memory.newWorks.at(-1).title}》成為履歷新頁`:memory.relationships.length?`和${memory.relationships[0].name}的關係有了變化`:memory.newEvents.length?memory.newEvents.at(-1).title:`以「${memory.focusLabel}」走完這一週`;
+ memory.headline=hospitalized?"身體替這週按下暫停":memory.newWorks.length?`${titleTag(memory.newWorks.at(-1).title)}成為履歷新頁`:memory.relationships.length?`和${memory.relationships[0].name}的關係有了變化`:memory.newEvents.length?memory.newEvents.at(-1).title:`以「${memory.focusLabel}」走完這一週`;
  state.careerMemories??=[];
  const index=state.careerMemories.findIndex(item=>item.week===state.week);
  if(index>=0)state.careerMemories[index]=memory;else state.careerMemories.push(memory);

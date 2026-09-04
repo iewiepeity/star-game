@@ -1,3 +1,4 @@
+import { titleTag } from "../core/utils.js";
 import { state } from "../core/state.js";
 import { enqueueVisibleEvent } from "./event-engine.js";
 import { JOB_BY_ID } from "../data/jobs.js";
@@ -33,7 +34,7 @@ export function tickCrossEventChains() {
     const key = `creative-after-${creative.id}`;
     const sold = creative.status === "sold";
     return queue(key, {
-      title: sold ? `《${creative.title}》被改成了另一種樣子` : `《${creative.title}》第一批真實評價`,
+      title: sold ? `${titleTag(creative.title)}被改成了另一種樣子` : `${titleTag(creative.title)}第一批真實評價`,
       text: sold ? "買方公開的新版本偏離你原本的創作方向。合約合法，但觀眾仍把作品和你的名字連在一起。" : "作品發行後，核心觀眾與大眾數據出現不同答案。你必須決定下一輪要聽誰的。",
       choices: sold ? [
         { id: "credit", label: "接受改編並保留署名", outcome: "你承認出售權利的代價，也讓更多人看見原始企劃。", effect: { rep: "商業價值", value: 8 } },

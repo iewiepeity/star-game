@@ -1,3 +1,4 @@
+import { titleTag } from "../core/utils.js";
 // 逐日行程預設自動往下一天；只有需要玩家選擇的 decision 才停住。按鈕保留作為「立即跳過等待」的快捷鍵。
 import {
   resolveDay,
@@ -38,7 +39,7 @@ export function bindRunnerScreen() {
         }
         if (state.runnerResult?.venue)
           state.runnerResult.venue.notice = ok
-            ? `已在現場登記《${JOB_BY_ID[id].title}》；到「行程與工作」即可安排試鏡日期。`
+            ? `已在現場登記${titleTag(JOB_BY_ID[id].title)}；到「行程與工作」即可安排試鏡日期。`
             : record.notice || "目前無法登記這份試鏡。";
         render();
       }),
@@ -50,7 +51,7 @@ export function bindRunnerScreen() {
         ok = signJob(id),
         job = JOB_BY_ID[id];
       state.notice = ok
-        ? `已正式簽署《${job.title}》，通告現在可直接排入行程。`
+        ? `已正式簽署${titleTag(job.title)}，通告現在可直接排入行程。`
         : ensureJobState(id).notice || "合約目前無法成立。";
       if (ok && state.runnerResult)
         state.runnerResult.text = state.runnerResult.text.replace(

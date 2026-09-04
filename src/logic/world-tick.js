@@ -1,3 +1,4 @@
+import { titleTag } from "../core/utils.js";
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
 import { checkAgencyContractExpiry } from "./agency.js";
@@ -46,7 +47,7 @@ function queueAwardCeremony(awards) {
   const wins = awards.filter((award) => award.result !== "入圍"),
     titles = awards.map((award) => {
       const work = state.completedWorks.find((item) => item.id === award.workId);
-      return `《${work?.title || "作品"}》${award.result}`;
+      return `${titleTag(work?.title || "作品")}${award.result}`;
     }).join("、");
   const event = {
     id: `award-ceremony-${state.week}`,

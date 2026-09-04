@@ -1,3 +1,4 @@
+import { titleTag } from "../core/utils.js";
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
 import { JOB_CATALOG } from "../data/jobs.js";
@@ -79,7 +80,7 @@ function captureWorkEchoes() {
     queued.push(queueWorldEcho({
       id: `work-echo:${work.id}`,
       dueWeek: Math.max(state.week + 1, (work.completedWeek || state.week) + 2),
-      title: `《${work.title}》沒有在殺青那天結束`,
+      title: `${titleTag(work.title)}沒有在殺青那天結束`,
       text: flag.publicEcho,
       kind: "作品長尾",
       source: work.jobId,
@@ -95,7 +96,7 @@ function captureWorkEchoes() {
     queued.push(queueWorldEcho({
       id: `breach-echo:${key}`,
       dueWeek: Math.max(state.week + 1, (entry.week || state.week) + 2),
-      title: `《${job.title}》的空缺後來仍被提起`,
+      title: `${titleTag(job.title)}的空缺後來仍被提起`,
       text: `${job.client}重新排好了檔期，但那次未完成仍留在合作紀錄裡。之後的邀約不會只看能力，也會看你怎麼處理承諾。`,
       kind: "履約回聲",
       source: job.id,

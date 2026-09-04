@@ -1,3 +1,4 @@
+import { titleTag } from "../core/utils.js";
 import{JOB_CATALOG}from"./jobs.js";
 import{FLAGSHIP_JOB_BEATS,jobDepthTier}from"./deepening-content.js";
 import{FEATURE_JOB_BEATS,isFeatureJob}from"./job-feature-beats.js";
@@ -17,17 +18,17 @@ function common(job,index){const beat=CATEGORY_BEATS[job.category]||CATEGORY_BEA
 function genericStory(job,index){
  const{beat,pressure,detail,steady,bold}=common(job,index);
  return Object.freeze({id:job.id,depth:"C",
-  audition:{arrival:`你抵達${job.audition.venue}。${job.audition.prompt}`,steady:`你選擇「${steady.label}」，評審記住的是準備完整與判斷清楚。`,bold:`你選擇「${bold.label}」，現場氣氛因此改變，也讓風險被放到最大。`,passed:`「《${job.title}》，我們要你。」你笑了，攥緊的手才終於鬆開。${detail}，真的被記住了。`,failed:`《${job.title}》的名單翻到底，沒有你。你把螢幕按黑。那句「${job.audition.tip}」卻還留在眼前。`},
-  contract:{title:`《${job.title}》合約桌上的最後一頁`,text:`${job.client}確認由你參與這份${job.tagline}企劃。${job.synopsis} 合約同時寫明 ${job.sessions} 次工作與第 {deadline} 週前完成；${pressure}。`},
+  audition:{arrival:`你抵達${job.audition.venue}。${job.audition.prompt}`,steady:`你選擇「${steady.label}」，評審記住的是準備完整與判斷清楚。`,bold:`你選擇「${bold.label}」，現場氣氛因此改變，也讓風險被放到最大。`,passed:`「${titleTag(job.title)}，我們要你。」你笑了，攥緊的手才終於鬆開。${detail}，真的被記住了。`,failed:`${titleTag(job.title)}的名單翻到底，沒有你。你把螢幕按黑。那句「${job.audition.tip}」卻還留在眼前。`},
+  contract:{title:`${titleTag(job.title)}合約桌上的最後一頁`,text:`${job.client}確認由你參與這份${job.tagline}企劃。${job.synopsis} 合約同時寫明 ${job.sessions} 次工作與第 {deadline} 週前完成；${pressure}。`},
   production:Object.freeze([
-   {label:"開工",title:`《${job.title}》第一次正式進場`,text:`${beat.arrival}。團隊重新提起試鏡時的選擇，確認你會如何把它帶進正式製作。`},
-   {label:"磨合",title:`《${job.title}》開始偏離企劃書`,text:`${beat.friction}。${pressure}，你必須決定哪些準備要守住、哪些反應要重新長出來。`},
-   {label:"關鍵場次",title:`《${job.title}》不能重來的那一段`,text:`${detail}成為今天的核心。${job.synopsis} 此刻不再只是簡介，而是所有部門必須共同完成的承諾。`},
-   {label:"完成",title:`《${job.title}》留下的最後一格`,text:`${beat.turn}。${job.client}把成品交給市場，而你在這份作品裡留下了只有這次合作才會出現的版本。`}
+   {label:"開工",title:`${titleTag(job.title)}第一次正式進場`,text:`${beat.arrival}。團隊重新提起試鏡時的選擇，確認你會如何把它帶進正式製作。`},
+   {label:"磨合",title:`${titleTag(job.title)}開始偏離企劃書`,text:`${beat.friction}。${pressure}，你必須決定哪些準備要守住、哪些反應要重新長出來。`},
+   {label:"關鍵場次",title:`${titleTag(job.title)}不能重來的那一段`,text:`${detail}成為今天的核心。${job.synopsis} 此刻不再只是簡介，而是所有部門必須共同完成的承諾。`},
+   {label:"完成",title:`${titleTag(job.title)}留下的最後一格`,text:`${beat.turn}。${job.client}把成品交給市場，而你在這份作品裡留下了只有這次合作才會出現的版本。`}
   ]),
   completion:{steady:`從試鏡到完成，你維持了「${steady.label}」的選擇；作品因此被評為穩定、可信且能承擔長期合作。`,bold:`從試鏡到完成，你延續了「${bold.label}」的冒險；成品辨識度更高，也引來更兩極但更強烈的討論。`},
-  breach:{title:`《${job.title}》停在未完成的位置`,text:`${beat.breach}。${job.client}記住的不是單純少了 ${job.sessions} 次工作，而是這次缺口如何影響了整個團隊。`},
-  legacy:{title:`《${job.title}》後來仍被提起`,text:`作品公開後，${detail}成為觀眾與業界最常提到的部分。這份回聲會影響${job.client}是否再次把機會交到你手上。`}
+  breach:{title:`${titleTag(job.title)}停在未完成的位置`,text:`${beat.breach}。${job.client}記住的不是單純少了 ${job.sessions} 次工作，而是這次缺口如何影響了整個團隊。`},
+  legacy:{title:`${titleTag(job.title)}後來仍被提起`,text:`作品公開後，${detail}成為觀眾與業界最常提到的部分。這份回聲會影響${job.client}是否再次把機會交到你手上。`}
  });
 }
 function featureStory(job,index){
@@ -35,10 +36,10 @@ function featureStory(job,index){
  if(!feature)return base;
  return Object.freeze({...base,depth:isFoundationFeatureJob(job.id)?"C":"B",production:Object.freeze([
   base.production[0],
-  {label:"專屬磨合",title:`《${job.title}》出現只有這份企劃才會遇到的問題`,text:feature.friction},
-  {label:"專屬關鍵場次",title:`《${job.title}》真正留下辨識度的那一段`,text:feature.pivot},
+  {label:"專屬磨合",title:`${titleTag(job.title)}出現只有這份企劃才會遇到的問題`,text:feature.friction},
+  {label:"專屬關鍵場次",title:`${titleTag(job.title)}真正留下辨識度的那一段`,text:feature.pivot},
   base.production[3]
- ]),legacy:{title:`《${job.title}》公開後的回聲`,text:feature.echo}});
+ ]),legacy:{title:`${titleTag(job.title)}公開後的回聲`,text:feature.echo}});
 }
 function flagshipStory(job,index){
  const base=genericStory(job,index),flag=FLAGSHIP_JOB_BEATS[job.id];
@@ -47,13 +48,13 @@ function flagshipStory(job,index){
  return Object.freeze({...base,depth:"A",theme:flag.theme,
   contract:{...base.contract,text:`${base.contract.text} 企劃核心被標註為「${flag.theme}」；這份工作會一路追問你要留下哪一種版本。`},
   production:Object.freeze([
-   {label:"開工",title:`《${job.title}》・${flag.theme}`,text:flag.opening},
-   {label:"危機",title:`《${job.title}》出現原本沒寫在企劃裡的問題`,text:flag.crisis},
-   {label:"關鍵選擇",title:`《${job.title}》真正決定成品的那一刻`,text:flag.pivot},
-   {label:"完成",title:`《${job.title}》最後留下的版本`,text:flag.wrap}
+   {label:"開工",title:`${titleTag(job.title)}・${flag.theme}`,text:flag.opening},
+   {label:"危機",title:`${titleTag(job.title)}出現原本沒寫在企劃裡的問題`,text:flag.crisis},
+   {label:"關鍵選擇",title:`${titleTag(job.title)}真正決定成品的那一刻`,text:flag.pivot},
+   {label:"完成",title:`${titleTag(job.title)}最後留下的版本`,text:flag.wrap}
   ]),
   completion:{steady:`你把試鏡時「${steady.label}」的判斷帶到最後。${flag.wrap}`,bold:`你一路延續「${bold.label}」帶來的風險與辨識度。${flag.wrap}`},
-  legacy:{title:`《${job.title}》離開片場／錄音室之後`,text:flag.publicEcho}
+  legacy:{title:`${titleTag(job.title)}離開片場／錄音室之後`,text:flag.publicEcho}
  });
 }
 function build(job,index){if(jobDepthTier(job.id)==="A")return flagshipStory(job,index);if(isFeatureJob(job.id)||isFoundationFeatureJob(job.id))return featureStory(job,index);return genericStory(job,index)}
