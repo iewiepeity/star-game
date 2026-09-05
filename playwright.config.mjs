@@ -17,6 +17,7 @@ export default defineConfig({
         "**/city-life.spec.mjs",
         "**/work-progression.spec.mjs",
         "**/scene-city.spec.mjs",
+        "**/playback-speed.spec.mjs",
       ],
       use: {
         browserName: "chromium",
@@ -32,6 +33,7 @@ export default defineConfig({
         "**/city-life.spec.mjs",
         "**/work-progression.spec.mjs",
         "**/scene-city.spec.mjs",
+        "**/playback-speed.spec.mjs",
       ],
       use: {
         browserName: "webkit",
@@ -48,6 +50,7 @@ export default defineConfig({
         "**/city-life.spec.mjs",
         "**/work-progression.spec.mjs",
         "**/scene-city.spec.mjs",
+        "**/playback-speed.spec.mjs",
       ],
       use: {
         browserName: "webkit",
@@ -63,6 +66,7 @@ export default defineConfig({
         "**/city-life.spec.mjs",
         "**/work-progression.spec.mjs",
         "**/scene-city.spec.mjs",
+        "**/playback-speed.spec.mjs",
       ],
       use: { browserName: "firefox", viewport: { width: 1366, height: 900 } },
     },
