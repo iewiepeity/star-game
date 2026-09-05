@@ -1,3 +1,4 @@
+import { cityMap } from "./city-map.js";
 import { MAP_LOCATIONS, MAP_CATEGORIES } from "../data/map-locations.js";
 import { DAYS } from "../data/calendar.js";
 import { NPCS } from "../data/npcs.js";
@@ -46,7 +47,7 @@ export function mapApp() {
   const locations = Object.entries(MAP_LOCATIONS).filter(([, location]) => (filter === "全部" || location.category === filter) && (PURPOSES[purpose]?.test(location) ?? true));
   const available = Object.entries(MAP_LOCATIONS).filter(([id, location]) => !location.locked || (id === "airport" && overseas.unlocked)).length;
   const recent = (state.recentLocations || []).filter((id) => MAP_LOCATIONS[id]).slice(0, 4);
-  return `<div class="map-page"><div class="map-intro"><div><span>STARWISH CITY・${available} 個可探索地點</span><h2>${DAYS[state.selectedDay]}想完成什麼？</h2><p>先選目的，再挑地點；收藏與最近去過的地方會留在最容易找到的位置。</p></div><b>基本交通費 $300</b></div>
+  return `<div class="map-page">${cityMap()}<div class="map-intro"><div><span>STARWISH CITY・${available} 個可探索地點</span><h2>${DAYS[state.selectedDay]}想完成什麼？</h2><p>先選目的，再挑地點；收藏與最近去過的地方會留在最容易找到的位置。</p></div><b>基本交通費 $300</b></div>
     <section class="map-purpose"><span>依目的找地點</span>${Object.entries(PURPOSES).map(([id, item]) => `<button class="${purpose === id ? "active" : ""}" data-map-purpose="${id}" aria-pressed="${purpose === id}">${item.label}</button>`).join("")}</section>
     ${recent.length ? `<section class="map-recent"><span>最近前往</span>${recent.map((id) => `<button data-map-location="${id}">${MAP_LOCATIONS[id].icon} ${MAP_LOCATIONS[id].name}</button>`).join("")}</section>` : ""}
     <nav class="map-filters" aria-label="地點分類">${MAP_CATEGORIES.map((category) => `<button class="${filter === category ? "active" : ""}" data-map-filter="${category}" aria-pressed="${filter === category}">${category}</button>`).join("")}</nav>

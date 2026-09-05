@@ -1,6 +1,6 @@
 import{TUTORIALS}from"./tutorial.js";
 
-export const PROLOGUE_LAST_STEP=3;
+export const PROLOGUE_LAST_STEP=5;
 
 export function startPrologue(game){
  game.screen="prologue";

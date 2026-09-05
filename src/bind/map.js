@@ -1,3 +1,4 @@
+import { bindCityMap } from "./city-map.js";
 import { state } from "../core/state.js";
 import { replacePlannerDay } from "../logic/planner-edit.js";
 import { setUndo } from "../core/undo.js";
@@ -6,6 +7,7 @@ import { restoreStateFields } from "../core/state-transaction.js";
 import { render } from "../render.js";
 import { openApp } from "../core/app-navigation.js";
 export function bindMap() {
+  bindCityMap();
   document.querySelectorAll("[data-map-purpose]").forEach(
     (x) =>
       (x.onclick = () => {

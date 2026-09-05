@@ -29,6 +29,7 @@ const files = [
   "runner-flow.css",
   "audio.css",
   "browser-flow.css",
+  "city-life.css",
 ];
 
 await rm(dist, { recursive: true, force: true });

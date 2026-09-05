@@ -6,7 +6,7 @@ import { tabletHome, tabletDock, appWindow } from "../src/views/room.js";
 import { peopleHubApp } from "../src/views/people.js";
 
 test("tablet app library exposes every playable app with one icon contract", () => {
-  assert.equal(APP_LIBRARY_IDS.length, 17);
+  assert.equal(APP_LIBRARY_IDS.length, 18);
   assert.equal(new Set(APP_LIBRARY_IDS).size, APP_LIBRARY_IDS.length);
   for (const id of APP_LIBRARY_IDS) {
     const meta = APP_META[id];
@@ -52,7 +52,7 @@ test("home, dock and every app window render the shared icon system", () => {
   state.name = "測試玩家";
   state.appLibraryExpanded = true;
   const home = tabletHome();
-  assert.equal((home.match(/class="app-tile"/g) || []).length, 17);
+  assert.equal((home.match(/class="app-tile"/g) || []).length, 18);
   assert.equal((tabletDock().match(/class="mini-app-icon/g) || []).length, 6);
   for (const id of APP_LIBRARY_IDS) {
     assert.match(home, new RegExp(`data-open-app="${id}"`));
@@ -72,7 +72,7 @@ test("home combines recent and favorite apps to keep six useful shortcuts",()=>{
  state.appLibraryExpanded=true;
  const expanded=tabletHome();
  assert.match(expanded,/APP LIBRARY/);
- assert.equal((expanded.match(/class="app-tile"/g)||[]).length,17);
+ assert.equal((expanded.match(/class="app-tile"/g)||[]).length,18);
 });
 
 test("contacts and dossiers are two tabs in one people app",()=>{

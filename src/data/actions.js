@@ -14,7 +14,7 @@ job_session:{group:"工作",icon:"🎥",label:"正式通告執行",short:"通告
 personal_task:{group:"生活",icon:"✦",label:"個人安排",short:"個人安排",note:"創作、投稿、社交或社群經營等已預約事項",type:"personal",fatigue:0,stamina:0,cost:0,hidden:true},
 street:{group:"工作",icon:"🎸",label:"街頭演出",short:"街頭演出",note:"保底小費 $400～$700；成功演出另有加成",type:"work",fatigue:12,stamina:12,cost:0,income:[400,700],successIncome:[600,900]},
 newcomer_gig:{group:"工作",icon:"🎪",label:"新人活動零工",short:"活動零工",note:"展場、暖場或臨演工作；穩定賺取 $1,200～$2,000",type:"work",fatigue:10,stamina:10,cost:0,income:[1200,2000],guaranteed:true},
-relief_gig:{group:"工作",icon:"🛟",label:"經紀人介紹的救急短工",short:"救急短工",note:"資金低於 $1,500 時限一次；完成可得 $3,000",type:"work",fatigue:8,stamina:8,cost:0,income:[3000,3000],guaranteed:true,relief:true},
+relief_gig:{group:"工作",icon:"🛟",label:"新人服務台的救急短工",short:"救急短工",note:"資金低於 $1,500 時限一次；完成可得 $3,000",type:"work",fatigue:8,stamina:8,cost:0,income:[3000,3000],guaranteed:true,relief:true},
 free:{group:"生活",icon:"☀",label:"自由活動",short:"自由活動",note:"探索星望市，可能遇見新人物",type:"life",fatigue:3,stamina:4,cost:300},
 styling:{group:"生活",icon:"✧",label:"造型研究",short:"造型研究",note:"提升時尚與外貌管理",type:"life",gains:[["時尚",3,6],["外貌",1,2]],fatigue:3,stamina:3,cost:600},
 study:{group:"生活",icon:"📖",label:"在家研究",short:"在家研究",note:"提升學識與創作靈感",type:"life",gains:[["學識",3,6],["靈感",1,2]],fatigue:2,stamina:2,cost:0},

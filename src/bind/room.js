@@ -1,3 +1,5 @@
+import { MAP_LOCATIONS } from "../data/map-locations.js";
+import { districtFor } from "../data/city-map.js";
 import { AGENCY_LIST } from "../data/agencies.js";
 import { hydrateState, resetState, state } from "../core/state.js";
 import { render, renderUi } from "../render.js";
@@ -228,6 +230,8 @@ export function bindRoomShell() {
     state.dockNotice = "";
     render();
   });
+  document.querySelectorAll("[data-city-shortcut]").forEach(button => button.onclick = () => { const id=button.dataset.cityShortcut;if(!MAP_LOCATIONS[id])return;state.citySelection=id;state.cityDistrict=districtFor(id)||"all";openApp(state,"map");renderUi(); });
+  document.querySelectorAll("[data-phone-open]").forEach(button => button.onclick = () => { openApp(state,button.dataset.phoneOpen,{returnContext:{app:"phone",label:"手機"}});renderUi(); });
   document.querySelectorAll("[data-open-app]").forEach(
     (button) =>
       (button.onclick = () => {

@@ -16,6 +16,7 @@ import { persistableState } from "../src/core/persistence.js";
 
 test("沿用上週與休息整理都保留本週的重要預約", () => {
   resetState();
+  state.visitedLocationsByWeek[state.week] = ["recording", "rehearsal", "dance"];
   state.schedule = [
     "personal_task",
     "agency_interview",

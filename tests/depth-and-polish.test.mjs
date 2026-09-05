@@ -16,7 +16,7 @@ const fresh=()=>{resetState();state.schedule=Array(7).fill("rest");state.freeLoc
 
 test("週記憶會保留實際數值、事件、作品與關係後果",()=>{fresh();captureWeekStart();state.fame+=7;state.stats.演技=5;state.eventHistory.push({title:"選擇留下",choiceLabel:"面對",outcome:"事情有了後續"});state.completedWorks.push({title:"測試作品"});const memory=finalizeWeekMemory();assert.equal(memory.metrics.find(x=>x.key==="fame").value,7);assert.equal(memory.stats.find(x=>x.key==="演技").value,5);assert.equal(memory.newEvents[0].title,"選擇留下");assert.equal(memory.newWorks[0].title,"測試作品")});
 
-test("排程範本保留正式預約，只改動空白行程",()=>{fresh();state.schedule[2]="personal_task";state.scheduledActivityIds[2]="A-1";const result=applySchedulePreset("actor");assert.equal(result.ok,true);assert.equal(state.schedule[2],"personal_task");assert.equal(state.scheduledActivityIds[2],"A-1");assert.equal(state.schedule[0],"acting")});
+test("排程範本保留正式預約，只改動空白行程",()=>{fresh();state.visitedLocationsByWeek[state.week]=["rehearsal"];state.schedule[2]="personal_task";state.scheduledActivityIds[2]="A-1";const result=applySchedulePreset("actor");assert.equal(result.ok,true);assert.equal(state.schedule[2],"personal_task");assert.equal(state.scheduledActivityIds[2],"A-1");assert.equal(state.schedule[0],"acting")});
 
 test("海外發展有明確門檻，解鎖後會產生職涯成果",()=>{fresh();assert.equal(overseasEligibility().unlocked,false);state.week=53;state.fame=80;state.completedWorks=Array(3).fill({title:"作品"});state.money=10000;assert.equal(overseasEligibility().unlocked,true);const before=state.fame;const result=resolveOverseasVisit("festival");assert.match(result.text,/影展|作品/);assert.equal(state.money,5000);assert.ok(state.fame>before);assert.equal(state.overseasVisits,1)});
 

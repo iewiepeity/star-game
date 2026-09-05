@@ -48,7 +48,7 @@ test("創角後可閱讀童年卡片序章並接到平板教學", async ({ page 
   await page.locator("#to-stats").click();
   await page.locator("#start").click();
   await expect(page.locator(".childhood-card")).toContainText("要當明星");
-  for (let i = 0; i < 4; i++)
+  for (let i = 0; i < 6; i++)
     await page.locator(".prologue-dialogue [data-prologue-next]").click();
   await expect(page.locator(".room-screen")).toBeVisible();
   await expect(page.locator(".guide-toast")).toBeVisible({ timeout: 10000 });
@@ -153,6 +153,7 @@ test("正式通告執行週會自動逐日結算，不點下一天也能進週�
   expect(result.works).toBeGreaterThan(0);
   expect(result.stage).toBe("completed");
   expect(result.results).toBe(7);
+  await expect(page.locator(".summary-paper > p").first()).toContainText("需要探訪 1 次");
 });
 test("需要玩家選擇時自動播放會暫停，選完後才繼續", async ({ page }) => {
   await createPlayer(page, "選擇測試");

@@ -26,6 +26,7 @@ async function readLegacyCss() {
 
 test("手機公司選擇提供明確提示且不要求左右滑動", () => {
   resetState();
+  state.visitedLocationsByWeek[state.week] = ["business"];
   const html = agencyApp();
   assert.match(html, /先選一間公司/);
   assert.match(html, /不需要左右滑動/);

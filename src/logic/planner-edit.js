@@ -1,3 +1,4 @@
+import { trainingAccess } from "./city-progression.js";
 import { state } from "../core/state.js";
 import { ACTIONS } from "../data/actions.js";
 import { MAP_LOCATIONS } from "../data/map-locations.js";
@@ -38,6 +39,8 @@ export function replacePlannerDay(
     (id === "free" && !MAP_LOCATIONS[locationId])
   )
     return { ok: false, message: "這個活動目前無法排入。" };
+  const access = trainingAccess(state, id);
+  if (!access.unlocked) return { ok: false, message: access.message };
   if (signature && signature !== plannerDaySignature(day))
     return { ok: false, message: "這天的安排已改變，請重新選擇活動。" };
   const important = [

@@ -1,3 +1,4 @@
+import { trainingAccess } from "../logic/city-progression.js";
 import { ACTIONS } from "../data/actions.js";
 import { FOCUSES } from "../data/focuses.js";
 import { AGENCIES } from "../data/agencies.js";
@@ -7,7 +8,7 @@ import { state } from "../core/state.js";
 import { titleTag, esc, money } from "../core/utils.js";
 import { JOB_BY_ID } from "../data/jobs.js";
 import { activityForDay } from "../logic/scheduled-activities.js";
-import { weeklyTaskInfo } from "../logic/weekly-task.js";
+import { weeklyTaskInfo, newcomerWeek } from "../logic/weekly-task.js";
 import { SCHEDULE_PRESETS } from "../logic/schedule-assistant.js";
 import { jobScheduleOptions } from "../logic/job-engine.js";
 import {
@@ -140,6 +141,7 @@ export function plannerApp() {
   const work = state.schedule.filter((id) =>
     ["work", "job"].includes(ACTIONS[id]?.type),
   ).length;
+  const orientation = newcomerWeek(), visits = state.schedule.filter(id => id === "free").length;
   return `<div class="planner-app browser-planner">
     <header class="planner-intro"><div><span>第 ${state.week} 週・把時間留給重要的事</span><b>${forced ? "先照顧好自己" : task.label}</b></div><small>${forced ? "本週依醫囑休養" : "點日期，再選擇當天活動"}</small></header>
     ${plannerCommandBar(fat, spend)}
@@ -147,7 +149,7 @@ export function plannerApp() {
     ${forced ? '<div class="forced-rest-banner"><b>本週為強制休養週</b><p>七天行程已鎖定為休息，不能替換、複製或插入其他活動。</p></div>' : ""}
     <div class="calendar-head"><div><b>七天行程</b><small>每一天只安排一件主要活動</small></div>${forced ? "" : '<div><button id="copy" ' + (state.lastSchedule ? "" : "disabled") + '>沿用上週</button><button id="rest-all">例行改休息</button></div>'}</div>
     <div class="ipad-calendar ${forced ? "forced-rest-calendar" : ""}">${state.schedule.map((id, i) => calendarDay(id, i, forced)).join("")}</div>
-    <div class="week-check"><span>訓練 <b>${train}/2</b></span><span>工作 <b>${work}/1</b></span><span>疲勞趨勢 <b class="${fat > 60 ? "bad" : ""}">${fatigueTrend(fat)}</b></span><span>本週支出 <b class="${spend > state.money ? "bad" : ""}">${money(spend)}</b></span><em>${forced ? "醫療休養中・行程不可修改" : spend > state.money ? "預算不足，請調整行程" : fat > 60 ? "高疲勞可能拖累本週表現" : train >= 2 && work >= 1 ? "本週任務條件可達成" : "可自由安排，尚未滿足本週任務條件"}</em></div>
+    <div class="week-check"><span>${orientation ? "探訪" : "訓練"} <b>${orientation ? `${visits}/1` : `${train}/2`}</b></span><span>工作 <b>${work}/1</b></span><span>疲勞趨勢 <b class="${fat > 60 ? "bad" : ""}">${fatigueTrend(fat)}</b></span><span>本週支出 <b class="${spend > state.money ? "bad" : ""}">${money(spend)}</b></span><em>${forced ? "醫療休養中・行程不可修改" : spend > state.money ? "預算不足，請調整行程" : fat > 60 ? "高疲勞可能拖累本週表現" : (orientation ? visits >= 1 : train >= 2) && work >= 1 ? "本週任務條件可達成" : "可自由安排，尚未滿足本週任務條件"}</em></div>
     ${state.plannerReplacement ? `<section class="planner-replacement" role="alert"><b>${DAYS[state.plannerReplacement.day]}已有重要預約</b><p>替換會取消這天原本的安排；正式通告仍須在期限內完成。</p><button data-cancel-planner-edit>保留原預約</button><button data-confirm-planner-edit>確認替換為${esc(ACTIONS[state.plannerReplacement.id]?.label || "新活動")}</button></section>` : ""}
     ${forced ? '<section class="forced-rest-lock"><b>本週排程已鎖定</b><p>按「開始這週」完成七天休養。</p></section>' : activityPicker()}
     ${
@@ -234,7 +236,8 @@ export function activityPicker() {
     )}</div><button class="schedule-work-all" data-schedule-work>依截止日排入本週正式通告</button><p>範本不會覆蓋已排定的通告、試鏡、創作或人物約會。</p></details>`;
   return `<div class="planner-day-actions"><button class="planner-clear-day" data-clear-day="${selectedDay}" ${state.schedule[selectedDay] === "rest" ? "disabled" : ""}>清除${DAYS[selectedDay]}行程</button></div><section class="activity-picker" id="planner-activities" aria-label="活動選擇"><header><div><span>接下來排入</span><b>${DAYS[state.selectedDay]}</b></div><nav>${["全部", "訓練", "工作", "生活", "休息"].map((f) => `<button class="${state.filter === f ? "active" : ""}" data-filter="${f}" aria-pressed="${state.filter === f}">${f}</button>`).join("")}</nav></header><div class="picker-list" data-scroll-key="planner-picker">${jobEntries}${entries
     .map(([id, a]) => {
-      const cost = effectiveActionCost(a, state.week);
+      const cost = effectiveActionCost(a, state.week), access = trainingAccess(state, id);
+      if (!access.unlocked) return `<button class="training-discovery" data-discover-training="${access.venue}"><i aria-hidden="true">⌖</i><span><b>${a.label}・尚未開放</b><small>${access.message}</small></span><em>在地圖查看</em></button>`;
       return `<button class="${state.schedule[state.selectedDay] === id ? "active" : ""}" data-pick="${id}" aria-pressed="${state.schedule[state.selectedDay] === id}"><i class="${a.type}" aria-hidden="true">${a.icon}</i><span><b>${a.label}</b><small>${a.note}</small></span><em>${cost ? money(cost) : a.income ? `收入 ${money(a.income[0])} 起` : "免費"}<small>疲勞 ${a.fatigue > 0 ? "+" : ""}${a.fatigue}</small></em></button>`;
     })
     .join("")}</div></section>${assistant}`;

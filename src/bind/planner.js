@@ -124,6 +124,7 @@ export function bindPlanner() {
         render();
       }),
   );
+  document.querySelectorAll("[data-discover-training]").forEach(button => button.onclick = () => { state.citySelection = button.dataset.discoverTraining; state.cityDistrict = "all"; openApp(state, "map"); render(); });
   document.querySelectorAll("[data-pick]").forEach(
     (x) =>
       (x.onclick = () => {

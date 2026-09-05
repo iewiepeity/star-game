@@ -1,3 +1,4 @@
+import { cityMap } from "./city-map.js";
 // 畫面層：逐日事件畫面。一般行程會自動從 loading → result → 下一天；需要選擇時才暫停。
 import { ACTIONS } from "../data/actions.js";
 import { DAYS, SHORT } from "../data/calendar.js";
@@ -74,7 +75,7 @@ function venueBoard(venue) {
 }
 export function decisionView() {
   const d = state.runnerDecision;
-  return `<div class="decision ${d.kind === "npc_interaction" ? "npc-interaction-decision" : ""}">${npcArt(d)}<div class="runner-scene-copy"><span>CHOICE・自動播放暫停</span><h2>${esc(d.title)}</h2><p>${esc(d.text)}</p><div>${d.choices.map((c) => `<button data-choice="${esc(c.id)}"><b>${esc(c.label)}</b><small>${esc(c.note)}</small></button>`).join("")}</div></div></div>`;
+  return `${state.schedule[state.runnerDay] === "free" ? `<details class="runner-city-map" ${state.runnerCityMapOpen ? "open" : ""}><summary>打開星望市地圖・更換今日目的地</summary>${cityMap({runner:true})}</details>` : ""}<div class="decision ${d.kind === "npc_interaction" ? "npc-interaction-decision" : ""}">${npcArt(d)}<div class="runner-scene-copy"><span>CHOICE・自動播放暫停</span><h2>${esc(d.title)}</h2><p>${esc(d.text)}</p><div>${d.choices.map((c) => `<button data-choice="${esc(c.id)}"><b>${esc(c.label)}</b><small>${esc(c.note)}</small></button>`).join("")}</div></div></div>`;
 }
 export function resultView() {
   const r = state.runnerResult,

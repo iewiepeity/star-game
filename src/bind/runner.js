@@ -1,3 +1,7 @@
+import { bindCityMap } from "./city-map.js";
+import { decisionFor } from "../logic/runner.js";
+import { MAP_LOCATIONS } from "../data/map-locations.js";
+import { overseasEligibility } from "../logic/overseas.js";
 import { titleTag } from "../core/utils.js";
 // 逐日行程預設自動往下一天；只有需要玩家選擇的 decision 才停住。按鈕保留作為「立即跳過等待」的快捷鍵。
 import {
@@ -12,6 +16,9 @@ import { applyForJob, ensureJobState, signJob } from "../logic/job-engine.js";
 import { jobSource } from "../logic/industry.js";
 import { render } from "../render.js";
 export function bindRunnerScreen() {
+  bindCityMap();
+  document.querySelector(".runner-city-map")?.addEventListener("toggle", event => { state.runnerCityMapOpen = event.currentTarget.open; });
+  document.querySelector('[data-city-travel]')?.addEventListener('click',()=>{ const id=state.citySelection,location=MAP_LOCATIONS[id];if(state.runnerPhase!=="decision"||state.schedule[state.runnerDay]!=="free"||!location||(location.locked&&!(id==="airport"&&overseasEligibility().unlocked)))return;state.freeLocations[state.runnerDay]=id;state.runnerDecision=decisionFor("free");render(); });
   document
     .querySelectorAll("[data-choice]")
     .forEach((x) => (x.onclick = () => resolveDay(x.dataset.choice)));
