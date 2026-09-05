@@ -28,6 +28,7 @@ const files = [
   "a11y.css",
   "runner-flow.css",
   "audio.css",
+  "browser-flow.css",
 ];
 
 await rm(dist, { recursive: true, force: true });

@@ -1,6 +1,8 @@
+import { firstWorkJourney } from "../logic/first-work.js";
+import { workArtFor } from "../data/work-art.js";
 import { AGENCIES, AGENCY_LIST } from "../data/agencies.js";
 import { state } from "../core/state.js";
-import {titleTag, esc, money, yearOf, weekInYear } from "../core/utils.js";
+import { titleTag, esc, money, yearOf, weekInYear } from "../core/utils.js";
 import { portraitThumbAsset } from "../data/wardrobe.js";
 import {
   isAgencyContractActive,
@@ -139,42 +141,15 @@ function baseTabletHome() {
   const tools = state.dockEditing
     ? `<div class="dock-editor-actions"><span>快捷列 ${selected.length}／6</span><button data-dock-reset>恢復預設</button><button data-dock-cancel>取消</button><button class="primary" data-dock-save ${selected.length === 6 ? "" : "disabled"}>完成</button></div>`
     : `<div class="app-library-actions"><button data-app-library-toggle>${expanded ? "收合" : "查看全部 App"}</button>${expanded ? `<button data-dock-edit>編輯快捷列</button>` : ""}</div>`;
-  return `<div class="tablet-home"><header><span>第 ${yearOf()} 年・第 ${weekInYear()} 週</span><b>${esc(playerRealName(state))}，早安！</b><small>${esc(phase.label)}・${esc(phase.goal)}</small></header>${agencyHomeCard()}${weeklyCommandCenter()}${guidedJourney()}<button class="next-action" data-open-app="planner"><span>本週主要行動</span><b>安排第 ${state.week} 週行程</b><small>預計支出 ${money(budget())}</small><i aria-hidden="true">→</i></button><section class="app-library ${state.dockEditing ? "editing" : ""} ${expanded ? "expanded" : "compact"}"><header><div><span>${state.dockEditing ? "CUSTOMIZE DOCK" : expanded ? "APP LIBRARY" : "RECENT & FAVORITES"}</span><b>${state.dockEditing ? "挑選六個常用 App" : expanded ? "全部 App" : "最近使用"}</b></div>${tools}</header>${state.dockEditing ? `<p class="dock-editor-note">點選 App 加入或移出下方快捷列；排列順序就是你加入的順序。${state.dockNotice ? `<strong>${esc(state.dockNotice)}</strong>` : ""}</p>` : expanded ? `<div class="app-library-tools"><label><span class="sr-only">搜尋 App</span><input type="search" data-app-query data-focus-key="app-query" value="${esc(state.appQuery || "")}" placeholder="搜尋 App 或功能" aria-label="搜尋 App"></label><nav aria-label="App 分類">${APP_CATEGORY_LABELS.map((category) => `<button data-app-category="${category}" aria-pressed="${appCategory === category}" class="${appCategory === category ? "active" : ""}">${category}</button>`).join("")}</nav></div>` : ""}<div class="home-launchers">${(state.dockEditing ? APP_LIBRARY_IDS : visibleApps).map(appTile).join("")}</div>${expanded && !state.dockEditing && !visibleApps.length ? `<div class="app-library-empty"><b>沒有找到符合的 App</b><button data-clear-app-filters>清除搜尋與分類</button></div>` : ""}</section></div>`;
+  return `<div class="tablet-home"><header><span>第 ${yearOf()} 年・第 ${weekInYear()} 週</span><b>${esc(playerRealName(state))}，早安！</b><small>${esc(phase.label)}・${esc(phase.goal)}</small></header>${guidedJourney()}${weeklyCommandCenter()}${agencyHomeCard()}<button class="next-action" data-open-app="planner"><span>本週主要行動</span><b>安排第 ${state.week} 週行程</b><small>預計支出 ${money(budget())}</small><i aria-hidden="true">→</i></button><section class="app-library ${state.dockEditing ? "editing" : ""} ${expanded ? "expanded" : "compact"}"><header><div><span>${state.dockEditing ? "CUSTOMIZE DOCK" : expanded ? "APP LIBRARY" : "RECENT & FAVORITES"}</span><b>${state.dockEditing ? "挑選六個常用 App" : expanded ? "全部 App" : "最近使用"}</b></div>${tools}</header>${state.dockEditing ? `<p class="dock-editor-note">點選 App 加入或移出下方快捷列；排列順序就是你加入的順序。${state.dockNotice ? `<strong>${esc(state.dockNotice)}</strong>` : ""}</p>` : expanded ? `<div class="app-library-tools"><label><span class="sr-only">搜尋 App</span><input type="search" data-app-query data-focus-key="app-query" value="${esc(state.appQuery || "")}" placeholder="搜尋 App 或功能" aria-label="搜尋 App"></label><nav aria-label="App 分類">${APP_CATEGORY_LABELS.map((category) => `<button data-app-category="${category}" aria-pressed="${appCategory === category}" class="${appCategory === category ? "active" : ""}">${category}</button>`).join("")}</nav></div>` : ""}<div class="home-launchers">${(state.dockEditing ? APP_LIBRARY_IDS : visibleApps).map(appTile).join("")}</div>${expanded && !state.dockEditing && !visibleApps.length ? `<div class="app-library-empty"><b>沒有找到符合的 App</b><button data-clear-app-filters>清除搜尋與分類</button></div>` : ""}</section></div>`;
 }
 function guidedJourney() {
-  const hasAgency = Boolean(state.currentAgencyId),
-    hasWork = Boolean(state.completedWorks?.length),
-    run = state.runCount || 1;
-  const stage = !hasAgency
-    ? {
-        label: "新人起步",
-        text: "先安排訓練，再到城市與經紀公司尋找第一個機會。",
-        apps: [
-          ["planner", "安排一週"],
-          ["map", "探索城市"],
-          ["agency", "投遞公司"],
-        ],
-      }
-    : !hasWork
-      ? {
-          label: "第一份履歷",
-          text: "簽約只是起點；準備試鏡並完成第一份作品。",
-          apps: [
-            ["jobs", "查看工作"],
-            ["planner", "安排試鏡"],
-            ["people", "經營人脈"],
-          ],
-        }
-      : {
-          label: "建立代表作",
-          text: "作品已開始被世界記住，接下來經營創作、關係與長期定位。",
-          apps: [
-            ["timeline", "回顧後果"],
-            ["creative", "發展原創"],
-            ["world", "查看市場"],
-          ],
-        };
-  return `<section class="journey-guide"><header><span>${run > 1 ? `NEW GAME＋・第 ${run} 輪` : "CAREER GUIDE"}</span><b>${stage.label}</b><p>${stage.text}${run > 1 ? " 排程小幫手已自動展開，方便快速安排。" : ""}</p></header><div>${stage.apps.map(([id, label]) => `<button data-open-app="${id}">${label}<i>→</i></button>`).join("")}</div></section>`;
+  const journey = firstWorkJourney(state);
+  if (journey.work) {
+    const art = workArtFor(journey.work);
+    return `<button class="first-work-keepsake" data-open-app="log">${art ? `<img src="${art.src}" alt="${esc(art.alt)}">` : '<i aria-hidden="true">✦</i>'}<span><small>房間裡的第一份紀念</small><b>${esc(journey.work.title)}</b><small>第一份作品・翻開履歷 →</small></span></button>`;
+  }
+  return `<section class="journey-guide"><header><span>CAREER GUIDE・第一份作品</span><b>${journey.label}</b><p>${journey.text}</p></header><div><button data-open-app="${journey.app}">${journey.action}<i>→</i></button></div></section>`;
 }
 export function tabletHome() {
   return baseTabletHome().replace("最近使用", "最近與常用");
