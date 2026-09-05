@@ -1,3 +1,4 @@
+import { routineGains, routineRest } from "./routine-rules.js";
 import { workAccess, recordPartTimeShift } from "./work-progression.js";
 import { trainingAccess } from "./city-progression.js";
 import { ACTIONS } from "../data/actions.js";
@@ -132,13 +133,9 @@ export function decisionFor(id) {
   return null;
 }
 export function applyGains(gains, multiplier = 1) {
-  const out = [];
-  for (const [n, min, max] of gains || []) {
-    const base = randomInt(min, max) + (state.focus === "growth" ? 1 : 0),
-      gain = Math.max(1, Math.round(base * multiplier));
-    state.stats[n] = Math.min(1000, (state.stats[n] || 0) + gain);
-    out.push(`<b>${n}＋${gain}</b>`);
-  }
+  const out = routineGains(state, gains, randomInt, multiplier).map(
+    ({ name, amount }) => `<b>${name}＋${amount}</b>`,
+  );
   return (
     out.join("、") +
     (state.focus === "growth" && out.length
@@ -331,11 +328,7 @@ export function resolveDay(choice) {
     state.trainingSessionsCompleted =
       (state.trainingSessionsCompleted || 0) + 1;
   } else if (id === "rest") {
-    const reduced = Math.min(state.fatigue, 18);
-    state.fatigue -= reduced;
-    state.stamina = Math.min(100, state.stamina + 24);
-    state.mood = Math.min(100, state.mood + 3);
-    state.health = Math.min(100, state.health + 3);
+    const reduced = routineRest(state);
     text = `體力＋24、疲勞－${reduced}、健康＋3。`;
   } else if (id === "free") {
     state.money = Math.max(0, state.money - (a.cost || 0));

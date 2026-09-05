@@ -380,6 +380,7 @@ export function createWorld(controller) {
           return;
         }
         down = null;
+        controller.takeover?.();
         const pt = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
         const npc = [...this.actors.values()]
           .filter((a) => a.id !== "player")
@@ -430,6 +431,7 @@ export function createWorld(controller) {
           ].includes(e.key)
         ) {
           e.preventDefault();
+          controller.takeover?.();
           this.cancelActivity();
           this.keys.add(e.key.toLowerCase());
           this.player.path = [];
@@ -508,7 +510,7 @@ export function createWorld(controller) {
         this.keys.clear();
         return;
       }
-      const dt = Math.min(delta, 80) / 1000,
+      const dt = (Math.min(delta, 80) / 1000) * (controller.speed?.() || 1),
         state = controller.state();
       state.elapsed += dt;
       this.syncNpcs();
@@ -535,16 +537,21 @@ export function createWorld(controller) {
         if (
           state.activity.elapsed >= ACTIVITY_TYPES[state.activity.kind].duration
         ) {
-          const kind = state.activity.kind;
+          const { kind, itemId } = state.activity;
           this.cancelActivity();
-          controller.activityDone(kind);
+          controller.activityDone(kind, itemId);
         }
       } else if (dx || dy) {
-        const factor = (150 * dt) / Math.hypot(dx, dy),
-          x = this.player.x + dx * factor,
-          y = this.player.y + dy * factor;
-        if (walkable(this.room, { x, y: this.player.y })) this.player.x = x;
-        if (walkable(this.room, { x: this.player.x, y })) this.player.y = y;
+        // Substep direct input as well as path-following at accelerated speed;
+        // a large frame may never jump across a furniture collision polygon.
+        const factor = (150 * dt) / Math.hypot(dx, dy);
+        const steps = Math.max(1, Math.ceil(factor / (WORLD.grid / 2)));
+        for (let i = 0; i < steps; i++) {
+          const x = this.player.x + (dx * factor) / steps;
+          const y = this.player.y + (dy * factor) / steps;
+          if (walkable(this.room, { x, y: this.player.y })) this.player.x = x;
+          if (walkable(this.room, { x: this.player.x, y })) this.player.y = y;
+        }
         this.player.facing =
           Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : dy < 0 ? 3 : 0;
         moved = true;

@@ -1,9 +1,10 @@
+import { createLifeUI } from "./life-ui.js";
+import { menuIcon } from "./menu-icons.js";
 import {
   ROOMS,
   outfits,
   PEOPLE,
   CONVERSATIONS,
-  itinerary,
   ACTIVITY_TYPES,
 } from "./data.js";
 import { initialPixelState, createStorage, objectives } from "./model.js";
@@ -69,6 +70,7 @@ function changed() {
     $("activity-progress").value =
       activity.elapsed / ACTIVITY_TYPES[activity.kind].duration;
   }
+  lifeUI.changed();
 }
 function setDialogueVisible(visible) {
   $("dialogue").hidden = !visible;
@@ -80,6 +82,7 @@ function setDialogueVisible(visible) {
 }
 function show(type, html) {
   panelType = type;
+  panel.dataset.view = type;
   setDialogueVisible(false);
   $("panel-content").innerHTML = html;
   if (!panel.open) {
@@ -128,24 +131,24 @@ function goTo(sceneId, itemId) {
   else world.transition(sceneId, () => world.interact(itemId));
 }
 function menu() {
-  const next = objectives(state).find((g) => !g.done);
   show(
     "menu",
-    `${heading("MY LIFE · 日常選單", "我的生活", next?.label || "今天的小事，都好好完成了。")}<nav class="menu-grid" aria-label="遊戲功能">${[
-      ["phone", "▯", "手機", "人物與聯絡"],
-      ["schedule", "▤", "今日安排", "練習與生活"],
-      ["travel", "↗", "出門", "在城市走走"],
-      ["closet", "♧", "衣櫃", "回家換衣服"],
-      ["profile", "♡", "玩家資訊", "今天的自己"],
-      ["nearby", "⌖", "附近物件", "場景裡能做的事"],
-      ["saves", "▣", "存檔", "留下這個時刻"],
-      ["settings", "⚙", "設定", "視角與操作"],
+    `${heading("STARLIGHT DAYS", "我的生活")}<nav class="command-menu" aria-label="遊戲功能">${[
+      ["schedule", "本週行程", "安排生活與成長"],
+      ["travel", "城市地圖", "走進每一個地方"],
+      ["creative", "創作筆記", "把靈感變成作品"],
+      ["phone", "手機", "社群與聯絡人"],
+      ["profile", "我的角色", "能力、衣櫃與名字"],
+      ["nearby", "附近物件", "看看身邊有什麼"],
+      ["settings", "系統設定", "存檔、速度與視角"],
     ]
       .map(
-        ([id, icon, name, note]) =>
-          `<button data-ui="${id}" ${id === "saves" ? 'aria-label="存檔與讀檔"' : ""}><span aria-hidden="true">${icon}</span><strong>${name}</strong><small>${note}</small></button>`,
+        ([id, name, note]) =>
+          `<button ${id === "creative" ? 'data-life="creative"' : `data-ui="${id}"`}><i>${menuIcon(id)}</i><span><strong>${name}</strong><small>${note}</small></span><b>›</b></button>`,
       )
-      .join("")}</nav>`,
+      .join(
+        "",
+      )}</nav><div class="menu-tail"><button data-ui="saves">${menuIcon("saves")} 存讀檔</button><button data-ui="close">返回 ▶</button></div>`,
   );
 }
 function nearby() {
@@ -158,20 +161,14 @@ function nearby() {
 function settings() {
   show(
     "settings",
-    `${heading("TAKE IT EASY · 設定", "照自己的步調")}<div class="settings-controls"><button data-ui="zoom-in" aria-label="放大場景">＋ 放大</button><button data-ui="zoom-out" aria-label="縮小場景">− 縮小</button><button data-ui="center" aria-label="鏡頭回到主角">◎ 找回主角</button><button data-ui="pause" id="pause" aria-label="${paused ? "繼續世界" : "暫停世界"}">${paused ? "▷ 繼續世界" : "Ⅱ 暫停世界"}</button><button data-ui="help" aria-label="操作說明">操作說明</button></div>`,
+    `${heading("TAKE IT EASY · 設定", "照自己的步調")}<div class="settings-controls"><button data-ui="saves">存檔與讀檔</button><button data-life="speed">速度 ${state.life.speed}× · 點按切換</button><button data-ui="zoom-in" aria-label="放大場景">＋ 放大</button><button data-ui="zoom-out" aria-label="縮小場景">− 縮小</button><button data-ui="center" aria-label="鏡頭回到主角">◎ 找回主角</button><button data-ui="pause" id="pause" aria-label="${paused ? "繼續世界" : "暫停世界"}">${paused ? "▷ 繼續世界" : "Ⅱ 暫停世界"}</button><button data-ui="help" aria-label="操作說明">操作說明</button></div>`,
   );
 }
 function schedule() {
-  show(
-    "schedule",
-    `${heading("TODAY · 今日安排", "今天想做的事", "選好一件事，就慢慢走過去吧。")}<div class="schedule-cards"><button data-go="rehearsal:practice"><strong>鏡前練習</strong><small>舞步或朗讀 · 星望排練室</small><span>前往 →</span></button><button data-go="cafe:window"><strong>在窗邊坐一會</strong><small>留一點空白 · 晨星咖啡館</small><span>前往 →</span></button><button data-go="home:bed"><strong>回家好好休息</strong><small>床鋪與自己的時間</small><span>前往 →</span></button></div><div class="buttons"><button data-ui="journal">查看生活手帳</button></div>`,
-  );
+  lifeUI.schedule();
 }
 function phone() {
-  show(
-    "phone",
-    `${heading("MY PHONE · 手機", "新的城市，新的日常")}<ul class="checklist">${state.knownPeople.length ? state.knownPeople.map((id) => `<li>${PEOPLE[id].name}<br><small>${itinerary(id, state.elapsed).status}</small></li>`).join("") : "<li>通訊錄還是空白。去城市裡認識一個人吧。</li>"}</ul>`,
-  );
+  lifeUI.phone();
 }
 
 function heading(kicker, title, description = "") {
@@ -180,13 +177,13 @@ function heading(kicker, title, description = "") {
 function welcome() {
   show(
     "welcome",
-    `${heading("CHAPTER 01 · 來到星望市", "先讓生活走起來", "行李才剛放下，新的生活就從房間裡開始。")}<div class="help-lines"><div><b>換件衣服</b><span>點衣櫃，選今天想穿的樣子。</span></div><div><b>走出家門</b><span>到排練室試試身手，或去咖啡館坐坐。</span></div><div><b>認識城市</b><span>點畫面上的人物，走近後和她聊聊。</span></div></div><div class="buttons"><button class="primary" data-ui="begin">開始我的一天 →</button></div><p class="tiny-note">第一階段像素體驗 · 三個場景、三套服裝、兩位 NPC。使用獨立進度。</p>`,
+    `${heading("CHAPTER 01 · 來到星望市", "第一週，先在城市站穩腳步", "行李才剛放下。先去排練室了解報名，再找一份零工，替夢想留一點生活費。")}<div class="help-lines"><div><b>看看本週行程</b><span>已替你擬好第一週的安排；每天一件事，也可以自己調整。</span></div><div><b>先認識場地</b><span>在現場完成一天的探訪，才會開放課程與公司工作。</span></div><div><b>照自己的步調</b><span>親自走過去，或讓角色依行程自動執行；遇到選擇會停下來。</span></div></div><div class="buttons"><button class="primary" data-ui="begin">開始我的一天 →</button></div><p class="tiny-note">第二階段 · 五個場景、完整七日養成。像素生活使用獨立進度。</p>`,
   );
 }
 function travel() {
   show(
     "travel",
-    `${heading("CITY WALK · 星望市", "今天想去哪裡？", "選好目的地，角色會先走到門口再出發。")}<div class="route-cards">${Object.entries(
+    `${heading("CITY WALK · 星望市", "今天想去哪裡？", "先走到門口再出發。走訪場景不消耗天數；在現場辦理一天的探訪，才會解鎖服務。")}<div class="route-cards">${Object.entries(
       ROOMS,
     )
       .map(
@@ -199,13 +196,17 @@ function travel() {
 function wardrobe() {
   show(
     "wardrobe",
-    `${heading("MY WARDROBE · 衣櫃", "換上今天的心情", "挑一套衣服，場景裡的你也會一起換裝。")}<div class="wardrobe-grid">${outfits.map((o) => `<button class="outfit-card" data-outfit="${o.id}" aria-pressed="${o.id === state.outfitId}"><img src="${o.portrait}" alt="${o.name}的原版立繪"><strong>${o.name}</strong><small>${o.id === state.outfitId ? "穿著中 ✓" : "換上這套"}</small></button>`).join("")}</div><div class="buttons"><button class="primary" data-ui="close">穿好了，出發</button></div>`,
+    `${heading("MY WARDROBE · 衣櫃", "換上今天的心情", "挑一套衣服，場景裡的你也會一起換裝。")}<div class="wardrobe-grid">${outfits.map((o) => `<button class="outfit-card" data-outfit="${o.id}" aria-pressed="${o.id === state.outfitId}" ${state.life.game.ownedOutfits.raven.includes(o.id) ? "" : "disabled"}><img src="${o.portrait}" alt="${o.name}的原版立繪"><strong>${o.name}</strong><small>${o.id === state.outfitId ? "穿著中 ✓" : state.life.game.ownedOutfits.raven.includes(o.id) ? "換上這套" : "到服飾店購買"}</small></button>`).join("")}</div><div class="buttons"><button class="primary" data-ui="close">穿好了，出發</button></div>`,
   );
 }
 function profile() {
   show(
     "profile",
-    `${heading("THIS IS ME · 玩家資訊", "我的小小起點")}<div class="player-profile"><img src="${portrait()}" alt="目前穿著的原版立繪"><div><label>角色名字<input id="name-input" maxlength="16" value="${escape(state.playerName)}" autocomplete="off"></label><p>${escape(outfits.find((o) => o.id === state.outfitId).name)}<br><span class="tiny-note">夜櫻系 · 未簽約新人</span></p><button class="primary" data-ui="name">儲存名字</button><p class="tiny-note">${state.visited.length} 個足跡 · ${state.knownPeople.length} 位新朋友</p></div></div>`,
+    `${heading("THIS IS ME · 玩家資訊", "我的小小起點")}<div class="player-profile"><img src="${portrait()}" alt="目前穿著的原版立繪"><div><label>角色名字<input id="name-input" maxlength="16" value="${escape(state.playerName)}" autocomplete="off"></label><p>${escape(outfits.find((o) => o.id === state.outfitId).name)}<br><span class="tiny-note">夜櫻系 · 未簽約新人</span></p><button class="primary" data-ui="name">儲存名字</button><p class="tiny-note">${state.visited.length} 個足跡 · ${state.knownPeople.length} 位新朋友</p><button data-ui="closet">前往衣櫃</button></div></div><div class="ability-grid">${Object.entries(
+      state.life.game.stats,
+    )
+      .map(([name, v]) => `<div><small>${name}</small><b>${v}</b></div>`)
+      .join("")}</div>`,
   );
 }
 function journal() {
@@ -226,7 +227,7 @@ function journal() {
 function help() {
   show(
     "help",
-    `${heading("HOW TO PLAY · 操作", "慢慢逛，也可以很順手")}<div class="help-lines"><div><b>走動</b><span>點空地自動走過去；電腦也可用方向鍵或 WASD。</span></div><div><b>互動</b><span>點家具或人物本身。也可從「選單 → 附近物件」選擇，角色會先走近。</span></div><div><b>看場景</b><span>拖曳畫面平移；選單的「設定」可以縮放或找回主角。</span></div><div><b>閱讀</b><span>開啟視窗會暫停世界；也可從「選單 → 設定」暫停。</span></div><div><b>進度</b><span>自動存檔，另外提供五格手動存讀檔。</span></div></div><p class="tiny-note">像素版第一階段：先完成走動、場景、人物、換裝與存檔。訓練數值、工作、每週行程與戀愛養成會在後續階段接入。</p>`,
+    `${heading("HOW TO PLAY · 操作", "慢慢逛，也可以很順手")}<div class="help-lines"><div><b>走動</b><span>點空地自動走過去；電腦也可用方向鍵或 WASD。</span></div><div><b>互動</b><span>點家具或人物本身。也可從「選單 → 附近物件」選擇，角色會先走近。</span></div><div><b>看場景</b><span>拖曳畫面平移；選單的「設定」可以縮放或找回主角。</span></div><div><b>閱讀</b><span>開啟視窗會暫停世界；也可從「選單 → 設定」暫停。</span></div><div><b>進度</b><span>自動存檔，另外提供五格手動存讀檔。</span></div></div><p class="tiny-note">每天一件主要安排，走路與查看手機不消耗天數。先到訪排練室／電視台，再報名課程／工作。1× 到 16× 只改變演出速度，成果相同。</p>`,
   );
 }
 function saves() {
@@ -298,6 +299,7 @@ function nextDialogue() {
   if (!d) return;
   if (d.reply) {
     if (!state.knownPeople.includes(d.npcId)) state.knownPeople.push(d.npcId);
+    lifeUI.meeting(d.npcId);
     endDialogue();
     toast("這座城市，多了一個認識的人");
     return;
@@ -324,6 +326,7 @@ function selectObject(item) {
   );
 }
 function interact(item) {
+  if (lifeUI.interact(item)) return;
   switch (item.action) {
     case "wardrobe":
       wardrobe();
@@ -379,7 +382,10 @@ const controller = {
   changed,
   interact,
   selectObject,
-  activityDone: (kind) => {
+  speed: () => state.life.speed,
+  takeover: () => lifeUI.takeover(),
+  activityDone: (kind, itemId) => {
+    if (lifeUI.activityDone(kind, itemId)) return;
     const data = ACTIVITY_TYPES[kind];
     if (data.flag) state.flags[data.flag] = true;
     checkpoint();
@@ -409,9 +415,23 @@ const controller = {
     checkpoint();
   },
 };
+const lifeUI = createLifeUI({
+  state: () => state,
+  world: () => world,
+  show,
+  heading,
+  escape,
+  checkpoint,
+  toast,
+  leaveOverlay,
+  paused: () =>
+    paused || panel.open || !!state.dialogue || controller.transitioning,
+});
+setInterval(() => lifeUI.tick(0.1), 100);
 document.addEventListener("click", (event) => {
   const target = event.target.closest("button");
   if (!target || !world) return;
+  if (lifeUI.handle(target)) return;
   if (target.dataset.object) {
     leaveOverlay();
     world.interact(target.dataset.object);
@@ -438,6 +458,9 @@ document.addEventListener("click", (event) => {
     return;
   }
   if (target.dataset.outfit) {
+    if (!state.life.game.ownedOutfits.raven.includes(target.dataset.outfit))
+      return;
+    state.life.game.outfitId = target.dataset.outfit;
     state.outfitId = target.dataset.outfit;
     state.flags.changed = true;
     world.setOutfit(state.outfitId);
@@ -501,6 +524,7 @@ document.addEventListener("click", (event) => {
     case "name":
       state.playerName =
         $("name-input").value.trim().slice(0, 16) || "星途新人";
+      state.life.game.name = state.playerName;
       checkpoint();
       changed();
       close();
@@ -530,6 +554,7 @@ document.addEventListener("click", (event) => {
       endDialogue();
       break;
     case "stop-activity":
+      lifeUI.takeover();
       world.cancelActivity();
       checkpoint();
       break;

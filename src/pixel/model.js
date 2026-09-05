@@ -1,3 +1,4 @@
+import { initialLife, normalizeLife, recordMeeting } from "./life.js";
 import {
   ROOMS,
   OUTFIT_IDS,
@@ -20,6 +21,7 @@ export const initialPixelState = () => ({
   flags: {},
   dialogue: null,
   activity: null,
+  life: initialLife(),
 });
 export function validatePixelState(raw) {
   if (
@@ -106,6 +108,9 @@ export function validatePixelState(raw) {
       ),
     };
   }
+  state.life = normalizeLife(raw.life, state.outfitId);
+  if (!raw.life)
+    for (const id of state.knownPeople) recordMeeting(state.life, id);
   return state;
 }
 export function createStorage(storage) {
@@ -139,10 +144,21 @@ export function createStorage(storage) {
   return { read, write };
 }
 export function objectives(state) {
+  const game = state.life.game;
+  const visits = Object.values(game.visitedLocationsByWeek).flat();
   return [
-    { done: !!state.flags.changed, label: "在家換一套衣服" },
-    { done: !!state.flags.practiced, label: "到排練室試著練習" },
+    { done: visits.includes("rehearsal"), label: "完成排練室登記" },
+    { done: game.trainingSessionsCompleted > 0, label: "上完第一堂表演課" },
+    {
+      done: state.life.ledger.some((r) =>
+        ["tv_assistant", "newcomer_gig"].includes(r.assignment.id),
+      ),
+      label: "賺到第一份零工收入",
+    },
     { done: state.knownPeople.length > 0, label: "認識一位城市裡的人" },
-    { done: state.visited.includes("cafe"), label: "去晨星咖啡館坐坐" },
+    {
+      done: game.creativeProjects.some((p) => p.progress > 0),
+      label: "讓一個靈感成為作品草稿",
+    },
   ];
 }

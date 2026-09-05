@@ -1,9 +1,18 @@
+import { initialPixelState } from "../../src/pixel/model.js";
 import { test, expect } from "@playwright/test";
 test.use({ actionTimeout: 12000 });
 test.setTimeout(60000);
 const read = (page) => page.evaluate(() => window.__pixelRead());
 const close = (page) => page.getByRole("button", { name: "關閉視窗" }).click();
 async function start(page) {
+  // Visual regression fixture: acquisition has its own phase-two browser test.
+  const fixture = initialPixelState();
+  fixture.life.game.ownedOutfits.raven = ["newcomer", "practice", "audition"];
+  await page.addInitScript((state) => {
+    const key = "star-game-pixel-phase-one-v1";
+    if (!localStorage.getItem(key))
+      localStorage.setItem(key, JSON.stringify({ state }));
+  }, fixture);
   await page.goto("/pixel.html");
   await page.getByRole("button", { name: "開始我的一天 →" }).click();
 }
@@ -142,9 +151,9 @@ test("unified menu, camera drag and bottom dialogue checkpoint remain usable", a
 }) => {
   test.setTimeout(50000);
   await start(page);
-  await expect(page.locator(".bottom-bar button")).toHaveCount(1);
+  await expect(page.locator(".bottom-bar button")).toHaveCount(5);
   await menu(page);
-  await expect(page.locator(".menu-grid button")).toHaveCount(8);
+  await expect(page.locator(".command-menu button")).toHaveCount(7);
   await page.locator('[data-ui="settings"]').click();
   await page.getByRole("button", { name: "放大場景" }).click();
   await close(page);
@@ -240,6 +249,7 @@ test("bed, sofa and rehearsal have distinct poses; interrupted activity safely r
   test.setTimeout(50000);
   await start(page);
   await object(page, "bed");
+  await page.locator('[data-activity="rest"]').click();
   await activity(page, "rest");
   await page.waitForTimeout(550);
   const bed = await read(page);
@@ -351,6 +361,7 @@ test("the actual furniture replaces floating buttons; touch selects before walki
     expect((await read(page)).player.moving).toBe(false);
     await page.getByRole("button", { name: "走近看看 →" }).click();
   } else await page.mouse.click(x, y);
+  await page.locator('[data-activity="rest"]').click();
   await activity(page, "rest");
   await expect(page.locator("#panel")).not.toBeVisible();
 });

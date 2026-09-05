@@ -1,0 +1,177 @@
+import { test, expect } from "@playwright/test";
+test.setTimeout(110000);
+const read = (page) => page.evaluate(() => window.__pixelRead());
+const close = (page) => page.getByRole("button", { name: "關閉視窗" }).click();
+async function start(page) {
+  await page.goto("/pixel.html");
+  await page.getByRole("button", { name: "開始我的一天 →" }).click();
+}
+async function menu(page, id) {
+  await page.getByRole("button", { name: "開啟選單" }).click();
+  if (id) await page.locator(`#panel [data-ui="${id}"]`).click();
+}
+async function fast(page) {
+  for (let i = 0; i < 4; i++) await page.locator("#speed-label").click();
+}
+async function waitResult(page) {
+  await expect
+    .poll(async () => (await read(page)).state.life.pending?.phase, {
+      timeout: 15000,
+    })
+    .toBe("result");
+}
+async function advance(page) {
+  await page.locator('[data-life="advance"]').click();
+}
+
+test("a real week: first visits stop auto, actual classes and shifts settle once, then next week", async ({
+  page,
+}) => {
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await start(page);
+  await fast(page);
+  await menu(page, "schedule");
+  await expect(page.locator('[data-plan="acting"]')).toBeDisabled();
+  expect((await read(page)).state.life.game.visitedLocationsByWeek).toEqual({});
+  await close(page);
+  await page.locator("#auto-control").click();
+  await expect(page.locator('[data-visit="focus"]')).toBeVisible();
+  expect((await read(page)).state.life.auto).toBe(false);
+  await page.locator('[data-visit="focus"]').click();
+  await waitResult(page);
+  const saved = (await read(page)).state.life;
+  await page.reload();
+  await expect(page.locator("#loading")).toBeHidden();
+  expect((await read(page)).state.life.game.money).toBe(saved.game.money);
+  await page.locator("#run-label").click();
+  await advance(page);
+  await page.locator("#auto-control").click();
+  await expect(page.locator('[data-visit="focus"]')).toBeVisible({
+    timeout: 20000,
+  });
+  expect((await read(page)).state.life.game.trainingSessionsCompleted).toBe(1);
+  await page.locator('[data-visit="focus"]').click();
+  await waitResult(page);
+  await advance(page);
+  await page.locator("#auto-control").click();
+  await expect(page.locator('[data-life="next-week"]')).toBeVisible({
+    timeout: 25000,
+  });
+  const complete = (await read(page)).state.life;
+  expect(complete.ledger).toHaveLength(7);
+  expect(complete.game.partTimeShifts.tv_assistant).toBe(1);
+  expect(complete.weekSummary.reward.money).toBe(1500);
+  await page.locator('[data-life="next-week"]').click();
+  expect((await read(page)).state.life.game.week).toBe(2);
+  expect((await read(page)).state.life.day).toBe(0);
+  expect(errors).toEqual([]);
+});
+
+test("create twice in one week, publish a social post, and inspect responsive menu/phone", async ({
+  page,
+}) => {
+  await start(page);
+  await fast(page);
+  await menu(page);
+  await page.locator('#panel [data-life="creative"]').click();
+  await page.locator("#project-title").fill("寄給明天的我");
+  await page.getByRole("button", { name: "建立草稿" }).click();
+  await page.locator('[data-offer="creative"]').click();
+  await page.locator("[data-start]").click();
+  await waitResult(page);
+  await advance(page);
+  const first = (await read(page)).state.life.game.creativeProjects[0].progress;
+  await menu(page);
+  await page.locator('#panel [data-life="creative"]').click();
+  await page.locator('[data-offer="creative"]').click();
+  await page.locator("[data-start]").click();
+  await waitResult(page);
+  await advance(page);
+  expect(
+    (await read(page)).state.life.game.creativeProjects[0].progress,
+  ).toBeGreaterThan(first);
+  await menu(page, "phone");
+  await expect(page.locator(".social-feed")).toBeVisible();
+  await page.locator('[data-offer="social"]').click();
+  await page.locator("[data-start]").click();
+  await waitResult(page);
+  await advance(page);
+  await menu(page, "phone");
+  expect((await read(page)).state.life.game.socialPosts).toHaveLength(1);
+  await expect(page.locator(".social-feed article").first()).toContainText(
+    "星途新人",
+  );
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > window.innerWidth,
+  );
+  expect(overflow).toBe(false);
+});
+
+test("shop requires a settled visit, buys original outfit and changes illustrated and pixel look", async ({
+  page,
+}) => {
+  await start(page);
+  await fast(page);
+  await menu(page, "travel");
+  await page.locator('[data-room="shop"]').click();
+  await expect
+    .poll(async () => (await read(page)).scene, { timeout: 15000 })
+    .toBe("shop");
+  expect((await read(page)).state.life.game.visitedLocationsByWeek).toEqual({});
+  await menu(page, "nearby");
+  await page.locator('[data-object="checkout"]').click();
+  await page.locator('[data-offer="visit_shop"]').click();
+  await page.locator("[data-start]").click();
+  await page.locator('[data-visit="focus"]').click();
+  await waitResult(page);
+  await advance(page);
+  await menu(page, "nearby");
+  await page.locator('[data-object="checkout"]').click();
+  const before = (await read(page)).state.life.game.money;
+  await page.locator('[data-buy="practice"]').click();
+  expect((await read(page)).state.life.game.money).toBe(before - 1200);
+  await expect(page.locator('[data-buy="practice"]')).toBeDisabled();
+  await close(page);
+  await menu(page, "profile");
+  await page.locator('[data-ui="closet"]').click();
+  await page.locator('[data-outfit="practice"]').click();
+  expect((await read(page)).player.outfit).toBe("raven-practice");
+  await expect(page.locator("#player-head")).toHaveAttribute(
+    "src",
+    "./assets/avatars/raven-practice.webp",
+  );
+});
+
+test("taking over a daily action cannot turn a furniture preview into a reward", async ({
+  page,
+}) => {
+  await start(page);
+  await menu(page, "schedule");
+  await page.locator('[data-plan="study"]').click();
+  await close(page);
+  await page.locator("#run-label").click();
+  await page.locator("[data-start]").click();
+  await expect
+    .poll(async () => (await read(page)).state.activity?.kind, {
+      timeout: 15000,
+    })
+    .toBe("read");
+  await menu(page, "nearby");
+  await page.locator('[data-object="sofa"]').click();
+  await expect
+    .poll(async () => (await read(page)).state.activity?.kind, {
+      timeout: 12000,
+    })
+    .toBe("sit");
+  await expect
+    .poll(async () => (await read(page)).state.activity, { timeout: 9000 })
+    .toBe(null);
+  expect((await read(page)).state.life.ledger).toHaveLength(0);
+  expect((await read(page)).state.life.pending.phase).toBe("travel");
+  await fast(page);
+  await page.locator("#run-label").click();
+  await waitResult(page);
+  expect((await read(page)).state.life.ledger).toHaveLength(1);
+  expect((await read(page)).state.life.pending.result.label).toBe("在家研究");
+});
