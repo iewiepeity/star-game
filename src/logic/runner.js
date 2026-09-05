@@ -1,3 +1,4 @@
+import { workAccess, recordPartTimeShift } from "./work-progression.js";
 import { trainingAccess } from "./city-progression.js";
 import { ACTIONS } from "../data/actions.js";
 import { AGENCIES } from "../data/agencies.js";
@@ -292,7 +293,11 @@ export function resolveDay(choice) {
     text = "",
     success = true,
     presentation = {};
-  if (a.type === "train" && !trainingAccess(state, id).unlocked) {
+  if (!workAccess(state, id).unlocked) {
+    title = "還沒取得這份工作的登記管道";
+    text = workAccess(state, id).message + "今天不收費，也沒有獲得工作收入或經驗。";
+    success = false;
+  } else if (a.type === "train" && !trainingAccess(state, id).unlocked) {
     title = "還沒完成課程報名";
     text = trainingAccess(state, id).message + "今天未扣學費，也沒有獲得訓練成長。";
     success = false;
@@ -412,11 +417,12 @@ export function resolveDay(choice) {
       state.flags.push({
         week: state.week,
         label: "新人緊急周轉",
-        note: "經紀人介紹一次救急短工，避免職涯因資金不足停擺。",
+        note: "市民服務台介紹一次救急短工，避免職涯因資金不足停擺。",
       });
     }
     title = a.relief ? "救急短工完成" : "零工順利完成";
     text = `完成${a.label}，收入＋$${earned.toLocaleString()}${id === "newcomer_gig" ? "、知名度＋1" : ""}。`;
+    if (a.shiftGains) text += applyGains(a.shiftGains) + "。" + recordPartTimeShift(state, id);
   } else {
     const power =
         id === "audition"
@@ -468,7 +474,7 @@ export function resolveDay(choice) {
     }
     text += gainContractReadiness(id, success);
   }
-  if (trainingAccess(state, id).unlocked) {
+  if (trainingAccess(state, id).unlocked && workAccess(state, id).unlocked) {
     if (!["free", "personal_task"].includes(id)) text += resolveScheduleEvent(id);
     if (id !== "personal_task") maybeQueueLifeEvent(a);
   } else state.pendingRandomEvent = null;

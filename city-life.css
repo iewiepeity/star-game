@@ -69,3 +69,17 @@
 
 /* Stable measured sections prevent scroll-driven pointer displacement. */
 .npc-info-section { content-visibility: visible; contain-intrinsic-size: none; }
+.work-discovery { margin: 20px 0; padding: 18px; border: 1px solid #dac8b9; border-radius: 16px; background: #fff9f0; }
+.work-discovery h3 { margin: 6px 0; }
+.work-discovery header > span { color: #a35f6e; font-size: 12px; }
+.work-discovery p { color: #76685d; font-size: 13px; line-height: 1.8; }
+.work-discovery > div { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.work-discovery article { display: flex; flex-direction: column; padding: 15px; background: #f3e9de; border-radius: 12px; gap: 6px; }
+.work-discovery article > b { color: #8f5d64; font-size: 13px; }
+.work-discovery article small { font-size: 12px; color: #75665e; }
+.work-discovery article p { margin: 4px 0; }
+.work-discovery button { margin-top: auto; min-height: 44px; border: 1px solid #cbaa9d; border-radius: 9px; background: #fffaf3; color: #82535e; padding: 10px; font: inherit; font-size: 13px; cursor: pointer; }
+@media(max-width:760px) { .work-discovery { padding: 12px; } .work-discovery > div { grid-template-columns: 1fr; } }
+
+.work-directory > summary { padding: 14px; min-height: 44px; border: 1px solid #dac8b9; border-radius: 10px; color: #8c5b65; background: #fff9f0; cursor: pointer; font-size: 14px; }
+.work-directory { margin-bottom: 16px; }

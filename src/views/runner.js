@@ -70,7 +70,7 @@ function venueBoard(venue) {
             return `<article class="venue-job-card"><div><span>${"★".repeat(job.stars)}・${esc(job.category)}</span><b>${esc(job.title)}</b><small>${esc(job.client)}・報酬 ${money(job.pay)}</small><em>${esc(status)}</em></div><button data-venue-apply="${job.id}" ${!available || !q.met ? "disabled" : ""}>${record.stage === "applied" ? "已登記" : available ? "登記試鏡" : "已處理"}</button></article>`;
           })
           .join("")
-      : `<div class="venue-empty"><b>今天沒有適合目前階段的公開徵選</b><small>公司已經記錄在通告信箱；之後有新案時會出現在那裡。</small></div>`
+      : `<div class="venue-empty"><b>今天沒有適合目前階段的公開徵選</b><small>你已取得打工登記管道。先累積三次同公司打工，窗口才會持續提供後續徵選資訊。</small></div>`
   }</div></section>`;
 }
 export function decisionView() {

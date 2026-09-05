@@ -15,6 +15,7 @@ export default defineConfig({
         "**/browser-playability.spec.mjs",
         "**/wardrobe-system.spec.mjs",
         "**/city-life.spec.mjs",
+        "**/work-progression.spec.mjs",
       ],
       use: {
         browserName: "chromium",
@@ -28,6 +29,7 @@ export default defineConfig({
         "**/browser-playability.spec.mjs",
         "**/wardrobe-system.spec.mjs",
         "**/city-life.spec.mjs",
+        "**/work-progression.spec.mjs",
       ],
       use: {
         browserName: "webkit",
@@ -42,6 +44,7 @@ export default defineConfig({
         "**/browser-playability.spec.mjs",
         "**/wardrobe-system.spec.mjs",
         "**/city-life.spec.mjs",
+        "**/work-progression.spec.mjs",
       ],
       use: {
         browserName: "webkit",
@@ -55,6 +58,7 @@ export default defineConfig({
         "**/browser-playability.spec.mjs",
         "**/wardrobe-system.spec.mjs",
         "**/city-life.spec.mjs",
+        "**/work-progression.spec.mjs",
       ],
       use: { browserName: "firefox", viewport: { width: 1366, height: 900 } },
     },

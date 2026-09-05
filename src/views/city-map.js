@@ -1,3 +1,4 @@
+import { workAt, companyShifts } from "../logic/work-progression.js";
 import { state } from "../core/state.js";
 import { MAP_LOCATIONS } from "../data/map-locations.js";
 import { CITY_DISTRICTS } from "../data/city-map.js";
@@ -42,7 +43,7 @@ export function cityMap({ runner = false } = {}) {
                 .map((id) => ACTIONS[id].label)
                 .join("、")}</p>`
             : ""
-        }<div><b>交通 ${money(300)}${location.extraCost ? `＋現場支出 ${money(location.extraCost)}` : ""}</b>${runner ? "" : `<label>安排日期<select data-city-day>${DAYS.map((day, i) => `<option value="${i}" ${i === state.selectedDay ? "selected" : ""}>${day}・${ACTIONS[state.schedule[i]]?.short || "已安排"}</option>`).join("")}</select></label>`}<button ${locked ? "disabled" : ""} ${runner ? "data-city-travel" : `data-map-location="${selected}"`}>${locked ? "尚未開放" : runner ? "改為這個目的地" : "安排這次自由活動"}</button></div></section>`
+        }${workAt(selected).map(([, job])=>`<p class="city-unlock">${visited ? "已登記打工" : "首次到訪可登記"}：${job.label}・日薪 ${money(job.income[0])}～${money(job.income[1])}。已完成 ${companyShifts(state,job.companyId)} 次；三次後獲得持續徵選資訊。</p>`).join("")}<div><b>交通 ${money(300)}${location.extraCost ? `＋現場支出 ${money(location.extraCost)}` : ""}</b>${runner ? "" : `<label>安排日期<select data-city-day>${DAYS.map((day, i) => `<option value="${i}" ${i === state.selectedDay ? "selected" : ""}>${day}・${ACTIONS[state.schedule[i]]?.short || "已安排"}</option>`).join("")}</select></label>`}<button ${locked ? "disabled" : ""} ${runner ? "data-city-travel" : `data-map-location="${selected}"`}>${locked ? "尚未開放" : runner ? "改為這個目的地" : "安排這次自由活動"}</button></div></section>`
       : '<p class="city-map-hint">先選街區，再選一個想去的地方。也可使用下方完整地點清單。</p>'
   }</section>`;
 }

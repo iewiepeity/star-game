@@ -52,6 +52,7 @@ export function initialState() {
     wardrobeCategory: "all",
     savedLooks: {},
     visitedLocationsByWeek: {},
+    partTimeShifts: {},
     mapFilter: "全部",
     mapPurpose: "全部",
     favoriteLocations: [],
@@ -284,6 +285,7 @@ export function hydrateState(saved) {
     next.outfitId = "newcomer";
   next.savedLooks = normalizeSavedLooks(next, saved.savedLooks);
   next.wardrobePreview = null;
+  next.partTimeShifts = Object.fromEntries(Object.entries(saved.partTimeShifts || {}).filter(([, count]) => Number.isInteger(count) && count >= 0));
   const rawVisits =
     saved.visitedLocationsByWeek &&
     typeof saved.visitedLocationsByWeek === "object"

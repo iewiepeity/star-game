@@ -1,3 +1,4 @@
+import { workAt } from "./work-progression.js";
 import { coursesAt, hasVisited } from "./city-progression.js";
 import { ACTIONS } from "../data/actions.js";
 import{MAP_LOCATIONS}from"../data/map-locations.js";
@@ -15,6 +16,9 @@ export function resolveExploration(locationId,choice){
  const location=MAP_LOCATIONS[locationId]||MAP_LOCATIONS.park,out=[];let venue=null;
  const firstVisit = !hasVisited(state, locationId);
  markVisitedLocation(locationId);
+ if (firstVisit && workAt(locationId).length) out.push(`你向人事窗口完成臨時人員登記，行程表已開放：${workAt(locationId).map(([,job])=>job.label).join("、")}。打工會累積這間公司的實務經驗`);
+ if (firstVisit && locationId === "tv_company") out.push("你也記下了新人公開試鏡的報名方式，之後可從行程表安排");
+ if (firstVisit && locationId === "park") out.push("你向管理站確認演出區域與時段，之後可從行程表安排街頭演出");
  if (firstVisit && coursesAt(locationId).length) out.push(`你向櫃檯詢問了報名方式，已開放：${coursesAt(locationId).map(id => ACTIONS[id].label).join("、")}。之後可在行程表直接報名`);
  if (firstVisit && locationId === "business") out.push("服務台給了你一份經紀公司新人招募名錄，現在可以查看公開簡介並準備投遞；正式條件會在面談通過後提供");state.fatigue+=3+(location.extraFatigue||0);state.stamina=Math.max(0,state.stamina-4-(location.extraFatigue||0));
  if(location.extraCost){state.money-=location.extraCost;out.push(`<b>花費－${money(location.extraCost)}</b>`)}

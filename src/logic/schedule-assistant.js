@@ -1,3 +1,4 @@
+import { workAccess } from "./work-progression.js";
 import { trainingAccess } from "./city-progression.js";
 import { state } from "../core/state.js";
 import { ACTIONS } from "../data/actions.js";
@@ -55,7 +56,7 @@ export function applySchedulePreset(id) {
   for (let i = 0; i < 7; i++) {
     if (protectedDay(i)) continue;
     const action = preset.plan[i];
-    if (!ACTIONS[action] || !trainingAccess(state, action).unlocked) continue;
+    if (!ACTIONS[action] || !trainingAccess(state, action).unlocked || !workAccess(state, action).unlocked) continue;
     state.schedule[i] = action;
     state.freeLocations[i] =
       action === "free" ? preset.locations?.[i] || "park" : null;
@@ -66,7 +67,7 @@ export function applySchedulePreset(id) {
   return {
     ok: true,
     changed,
-    message: `已套用「${preset.label}」；保留 ${7 - changed} 天重要預約或尚未解鎖課程的原安排。`,
+    message: `已套用「${preset.label}」；保留 ${7 - changed} 天重要預約或尚未解鎖活動的原安排。`,
   };
 }
 
@@ -123,7 +124,7 @@ export function copyRoutineWeek() {
       !["agency_interview", "personal_task", "job_session"].includes(previous)
         ? previous
         : "rest";
-    if (!trainingAccess(state, id).unlocked) { kept++; continue; }
+    if (!trainingAccess(state, id).unlocked || !workAccess(state, id).unlocked) { kept++; continue; }
     state.schedule[day] = id;
     state.freeLocations[day] =
       id === "free" ? state.lastFreeLocations?.[day] || "park" : null;
