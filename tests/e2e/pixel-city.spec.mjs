@@ -74,7 +74,7 @@ test("whole-city map supports touch search, zoom and direct entry with a visible
   ).toBe(true);
 });
 
-test("four protagonists remain one actor, and a new outfit keeps its identity during furniture actions", async ({
+test("same-gender appearances remain one actor, and a new outfit keeps its identity during furniture actions", async ({
   page,
 }) => {
   test.setTimeout(90000);
@@ -85,7 +85,9 @@ test("four protagonists remain one actor, and a new outfit keeps its identity du
     s.life.game.ownedOutfits[a].push("practice");
   await start(page, s);
   await menu(page, "profile");
-  for (const a of ["sunny", "noir", "sage", "sunny"]) {
+  await expect(page.locator("[data-avatar]")).toHaveCount(2);
+  await expect(page.locator('[data-avatar="noir"]')).toHaveCount(0);
+  for (const a of ["sunny", "raven", "sunny"]) {
     await page.locator(`[data-avatar="${a}"]`).click();
     await expect
       .poll(async () => (await read(page)).player.outfit, { timeout: 15000 })

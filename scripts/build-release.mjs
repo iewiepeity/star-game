@@ -10,6 +10,7 @@ const files = [
   "index.html",
   "pixel.html",
   "pixel.css",
+  "pixel-ui.css",
   "manifest.webmanifest",
   "service-worker.js",
   ".nojekyll",

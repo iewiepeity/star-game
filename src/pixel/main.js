@@ -1,3 +1,13 @@
+import { pixelPreferences, applyPixelTheme } from "./preferences.js";
+import { settingsMarkup } from "./settings-ui.js";
+import {
+  avatarsForGender,
+  selectAvatar,
+  lockIdentity,
+  changeGenderAtClinic,
+  genderChangeReason,
+  GENDER_CHANGE_COST,
+} from "./identity.js";
 import { createCityUI } from "./city-ui.js";
 import { CITY_CATALOG } from "./city-catalog.js";
 import { arriveAt } from "./life.js";
@@ -24,7 +34,14 @@ const escape = (value) =>
         c
       ],
   );
-let storage;
+let storage, preferences;
+try {
+  preferences = pixelPreferences(window.localStorage);
+} catch {
+  preferences = pixelPreferences(null);
+}
+applyPixelTheme(preferences.get().theme);
+let appearanceBusy = false;
 try {
   storage = createStorage(window.localStorage);
 } catch {
@@ -45,12 +62,14 @@ const panel = $("panel");
 let previousFocus = null;
 const portrait = () => portraitAsset(state.avatarId, state.outfitId);
 function toast(message) {
+  (panel.open ? panel : document.body).append($("toast"));
   $("toast").textContent = message;
   $("toast").classList.add("visible");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => $("toast").classList.remove("visible"), 3300);
 }
 function checkpoint(slot = "auto") {
+  if (appearanceBusy) return false;
   if (world) {
     state.position = { x: world.player.x, y: world.player.y };
   }
@@ -82,6 +101,7 @@ function changed() {
   lifeUI.changed();
 }
 function setDialogueVisible(visible) {
+  if (visible) $("toast").classList.remove("visible");
   $("dialogue").hidden = !visible;
   document.body.classList.toggle("conversation-open", visible);
   for (const element of document.querySelectorAll(
@@ -99,6 +119,7 @@ function show(type, html) {
     previousFocus = document.activeElement;
     panel.showModal();
   }
+  if ($("toast").classList.contains("visible")) panel.append($("toast"));
   panel.scrollTop = 0;
   world?.keys.clear();
   for (const hotspot of world?.hotspots || []) {
@@ -106,8 +127,10 @@ function show(type, html) {
   }
 }
 function close() {
+  if (appearanceBusy) return;
+  document.body.append($("toast"));
   cityUI.cancelRoute();
-  if (panelType === "welcome") state.flags.intro = true;
+  if (panelType === "welcome") lockIdentity(state);
   panel.close();
   panelType = "";
   if (state.dialogue) renderDialogue();
@@ -130,6 +153,7 @@ function endDialogue() {
   $("world").focus();
 }
 function leaveOverlay() {
+  document.body.append($("toast"));
   panel.close();
   state.dialogue = null;
   setDialogueVisible(false);
@@ -153,7 +177,7 @@ function menu() {
       ["phone", "手機", "社群與聯絡人"],
       ["profile", "我的角色", "能力、衣櫃與名字"],
       ["nearby", "附近物件", "看看身邊有什麼"],
-      ["settings", "系統設定", "存檔、速度與視角"],
+      ["settings", "系統設定", "主題、速度與視角"],
     ]
       .map(
         ([id, name, note]) =>
@@ -174,8 +198,70 @@ function nearby() {
 function settings() {
   show(
     "settings",
-    `${heading("TAKE IT EASY · 設定", "照自己的步調")}<div class="settings-controls"><button data-ui="saves">存檔與讀檔</button><button data-life="speed">速度 ${state.life.speed}× · 點按切換</button><button data-ui="zoom-in" aria-label="放大場景">＋ 放大</button><button data-ui="zoom-out" aria-label="縮小場景">− 縮小</button><button data-ui="center" aria-label="鏡頭回到主角">◎ 找回主角</button><button data-ui="pause" id="pause" aria-label="${paused ? "繼續世界" : "暫停世界"}">${paused ? "▷ 繼續世界" : "Ⅱ 暫停世界"}</button><button data-ui="help" aria-label="操作說明">操作說明</button></div>`,
+    `${heading("YOUR LITTLE WORLD", "照自己的步調")}${settingsMarkup({ theme: preferences.get().theme, speed: state.life.speed, paused })}`,
   );
+}
+function clinic() {
+  if (state.sceneId !== "clinic") {
+    cityUI.route("clinic", clinic);
+    return;
+  }
+  const gender = state.identity.gender === "女性" ? "男性" : "女性";
+  show(
+    "clinic",
+    `${heading("STARWISH CLINIC", "性別變更服務", "這是屬於你的決定。先看看費用與外型，確認後才會辦理。")}
+    <div class="clinic-intro"><i>${menuIcon("clinic")}</i><div><small>目前性別</small><b>${state.identity.gender}</b><span>變性手術 · $${GENDER_CHANGE_COST.toLocaleString()}</span></div></div>
+    <p class="tiny-note">確認後當場辦理，不另占行程天數；現有服裝會保留在各自外型的衣櫃。</p>
+    <div class="avatar-choices" role="group" aria-label="術後人物外型">${avatarsForGender(
+      gender,
+    )
+      .map(
+        (a) =>
+          `<button data-request-gender="${a.id}" ${genderChangeReason(state, a.id) ? "disabled" : ""}><img src="${portraitAsset(a.id, "newcomer")}" alt="${a.name}"><strong>${a.name}</strong><small>${a.gender}</small></button>`,
+      )
+      .join("")}</div>
+    <p class="result-note">${escape(genderChangeReason(state, avatarsForGender(gender)[0].id) || "選擇外型後，會再列出變更內容與費用供你確認。")}</p>
+    <button data-ui="close">先不變更，回到場景</button>`,
+  );
+}
+async function applyAppearance(id, surgery = false) {
+  const before = structuredClone(state);
+  const error = surgery
+    ? genderChangeReason(state, id)
+    : state.identity.locked && AVATARS[id].gender !== state.identity.gender
+      ? "性別已固定，請到診所辦理變更。"
+      : "";
+  if (error) {
+    toast(error);
+    return;
+  }
+  appearanceBusy = true;
+  lifeUI.takeover();
+  const r = surgery
+    ? changeGenderAtClinic(state, id)
+    : { ok: !selectAvatar(state, id) };
+  if (!r.ok) {
+    Object.assign(state, before);
+    appearanceBusy = false;
+    toast(r.reason || "無法更換外型");
+    return;
+  }
+  try {
+    await world.setOutfit(state.outfitId);
+  } catch {
+    Object.assign(state, before);
+    appearanceBusy = false;
+    toast("人物載入失敗，原外型與金錢已保留，請再試一次。");
+    return;
+  }
+  appearanceBusy = false;
+  checkpoint();
+  changed();
+  if (surgery) {
+    profile();
+    toast(`變更已完成，目前性別為${state.identity.gender}。`);
+  } else if (panelType === "welcome") welcome();
+  else profile();
 }
 function schedule() {
   lifeUI.schedule();
@@ -190,15 +276,15 @@ function heading(kicker, title, description = "") {
 function welcome() {
   show(
     "welcome",
-    `${heading("CHAPTER 01 · 來到星望市", "第一週，先在城市站穩腳步", "行李才剛放下。打開城市地圖，走進想去的地方。第一週的生活，由你自己安排。")}<div class="help-lines"><div><b>看看本週行程</b><span>已替你擬好第一週的安排；每天一件事，也可以自己調整。</span></div><div><b>走進城市</b><span>點地圖進入每個空間。到店就能購物，到教室就能上課，不需額外登記。</span></div><div><b>照自己的步調</b><span>親自走過去，或讓角色依行程自動執行；遇到選擇會停下來。</span></div></div>${avatarChoices()}<div class="buttons"><button class="primary" data-ui="begin">開始我的一天 →</button></div><p class="tiny-note">每一個地點，都有屬於它的人與日常。</p>`,
+    `${heading("CHAPTER 01 · 來到星望市", "第一週，先在城市站穩腳步", "行李才剛放下。打開城市地圖，走進想去的地方。第一週的生活，由你自己安排。")}<div class="help-lines"><div><b>看看本週行程</b><span>已替你擬好第一週的安排；每天一件事，也可以自己調整。</span></div><div><b>走進城市</b><span>點地圖進入每個空間。到店就能購物，到教室就能上課，不需額外登記。</span></div><div><b>照自己的步調</b><span>親自走過去，或讓角色依行程自動執行；遇到選擇會停下來。</span></div></div><div class="identity-picker"><span>先決定主角性別</span><div role="group" aria-label="主角性別">${["女性", "男性"].map((g) => `<button data-create-gender="${g}" aria-pressed="${state.identity.gender === g}">${g}</button>`).join("")}</div><small>開始旅程後固定性別，同性別外型仍可切換。</small></div>${avatarChoices()}<div class="buttons"><button class="primary" data-ui="begin">開始我的一天 →</button></div><p class="tiny-note">每一個地點，都有屬於它的人與日常。</p>`,
   );
 }
 function travel() {
   cityUI.show();
 }
 function avatarChoices() {
-  return `<div class="avatar-choices" role="group" aria-label="主角外型">${Object.values(
-    AVATARS,
+  return `<div class="avatar-choices" role="group" aria-label="主角外型">${avatarsForGender(
+    state.identity.gender,
   )
     .map(
       (a) =>
@@ -215,7 +301,7 @@ function wardrobe() {
 function profile() {
   show(
     "profile",
-    `${heading("THIS IS ME · 玩家資訊", "我的角色")}<div class="player-profile"><img src="${portrait()}" alt="目前穿著的原版立繪"><div><label>角色名字<input id="name-input" maxlength="16" value="${escape(state.playerName)}" autocomplete="off"></label><p>${escape(outfits.find((o) => o.id === state.outfitId).name)}<br><span class="tiny-note">${AVATARS[state.avatarId].name} · ${AGENCIES[state.life.game.currentAgencyId]?.name || "自由藝人"}</span></p><button class="primary" data-ui="name">儲存名字</button><p class="tiny-note">${state.visited.length} 個足跡 · ${state.knownPeople.length} 位新朋友</p><button data-ui="closet">前往衣櫃</button></div></div>${avatarChoices()}<div class="ability-grid">${Object.entries(
+    `${heading("THIS IS ME · 玩家資訊", "我的角色")}<div class="player-profile"><img src="${portrait()}" alt="目前穿著的原版立繪"><div><label>角色名字<input id="name-input" maxlength="16" value="${escape(state.playerName)}" autocomplete="off"></label><p>${escape(outfits.find((o) => o.id === state.outfitId).name)}<br><span class="tiny-note">${AVATARS[state.avatarId].name} · ${AGENCIES[state.life.game.currentAgencyId]?.name || "自由藝人"}</span></p><button class="primary" data-ui="name">儲存名字</button><p class="tiny-note">${state.visited.length} 個足跡 · ${state.knownPeople.length} 位新朋友</p><button data-ui="closet">前往衣櫃</button></div></div><div class="identity-caption"><b>${state.identity.gender} · 同性別外型</b><button data-ui="clinic">診所性別變更服務 →</button></div>${avatarChoices()}<div class="ability-grid">${Object.entries(
       state.life.game.stats,
     )
       .map(([name, v]) => `<div><small>${name}</small><b>${v}</b></div>`)
@@ -463,6 +549,9 @@ const controller = {
   loading: (percent) =>
     ($("load-progress").textContent = `整理房間與行李… ${percent}%`),
   loadError: (key) => {
+    // After startup, the requesting action handles failures and restores state.
+    // Do not cover a recoverable outfit/room error with the startup screen.
+    if (world) return;
     $("loading").hidden = false;
     $("load-progress").textContent = `場景載入失敗（${key}），請重新整理重試。`;
   },
@@ -519,6 +608,7 @@ document.addEventListener("click", async (event) => {
   const target = event.target.closest("button");
   if (!target || !world) return;
   if (cityUI.handle(target)) return;
+  if (appearanceBusy) return;
   if (lifeUI.handle(target)) return;
   if (target.dataset.object) {
     leaveOverlay();
@@ -539,36 +629,56 @@ document.addEventListener("click", async (event) => {
     beginActivity(target.dataset.item, target.dataset.activity);
     return;
   }
-  if (target.dataset.avatar && AVATARS[target.dataset.avatar]) {
-    if (controller.transitioning) return;
-    lifeUI.takeover();
-    const avatar = target.dataset.avatar,
-      oldAvatar = state.avatarId,
-      oldOutfit = state.outfitId;
-    state.avatarId = avatar;
-    state.life.game.avatarId = avatar;
-    state.life.game.gender = AVATARS[avatar].gender;
-    state.outfitId = state.life.game.ownedOutfits[avatar].includes(
-      state.outfitId,
-    )
-      ? state.outfitId
-      : "newcomer";
-    state.life.game.outfitId = state.outfitId;
-    try {
-      toast("正在整理造型…");
-      await world.setOutfit(state.outfitId);
-    } catch {
-      state.avatarId = oldAvatar;
-      state.outfitId = oldOutfit;
-      state.life.game.avatarId = oldAvatar;
-      state.life.game.outfitId = oldOutfit;
-      state.life.game.gender = AVATARS[oldAvatar].gender;
-      toast("人物載入失敗，請再試一次");
+  if (target.dataset.pixelTheme) {
+    const value = preferences.setTheme(target.dataset.pixelTheme);
+    applyPixelTheme(value.theme);
+    settings();
+    document
+      .querySelector(`button[data-pixel-theme="${value.theme}"]`)
+      ?.focus();
+    if (!value.saved) toast("配色已套用，但這個瀏覽器暫時無法記住設定。");
+    return;
+  }
+  if (target.dataset.setSpeed) {
+    const n = Number(target.dataset.setSpeed);
+    if ([1, 2, 4, 8, 16].includes(n)) {
+      state.life.speed = n;
+      checkpoint();
+      changed();
+      settings();
+      document.querySelector(`[data-set-speed="${n}"]`)?.focus();
+    }
+    return;
+  }
+  if (
+    target.dataset.createGender &&
+    panelType === "welcome" &&
+    !state.identity.locked
+  ) {
+    const avatar = avatarsForGender(target.dataset.createGender)[0];
+    if (avatar) await applyAppearance(avatar.id);
+    return;
+  }
+  if (target.dataset.requestGender) {
+    const id = target.dataset.requestGender,
+      reason = genderChangeReason(state, id);
+    if (reason) {
+      toast(reason);
       return;
     }
-    checkpoint();
-    changed();
-    panelType === "welcome" ? welcome() : profile();
+    show(
+      "clinic-confirm",
+      `${heading("A CHOICE OF YOUR OWN", "確認這次性別變更？")}<div class="clinic-confirm-portrait"><img src="${portraitAsset(id, "newcomer")}" alt="預定外型"><div><b>${state.identity.gender} → ${AVATARS[id].gender}</b><p>${AVATARS[id].name}</p><p>費用 $${GENDER_CHANGE_COST.toLocaleString()}</p><small>既有服裝、作品與關係會保留；穿著會換成新外型已擁有的服裝。</small></div></div><div class="panel-actions"><button data-ui="clinic">再想一想</button><button class="primary" data-confirm-gender="${id}">確認辦理 · $${GENDER_CHANGE_COST.toLocaleString()}</button></div>`,
+    );
+    return;
+  }
+  if (target.dataset.confirmGender) {
+    await applyAppearance(target.dataset.confirmGender, true);
+    return;
+  }
+  if (target.dataset.avatar && AVATARS[target.dataset.avatar]) {
+    if (controller.transitioning) return;
+    await applyAppearance(target.dataset.avatar);
     return;
   }
   if (target.dataset.outfit) {
@@ -638,7 +748,7 @@ document.addEventListener("click", async (event) => {
       close();
       break;
     case "begin":
-      state.flags.intro = true;
+      lockIdentity(state);
       close();
       break;
     case "help":
@@ -646,6 +756,9 @@ document.addEventListener("click", async (event) => {
       break;
     case "saves":
       saves();
+      break;
+    case "clinic":
+      clinic();
       break;
     case "profile":
       profile();

@@ -1,32 +1,34 @@
-# Pixel phase one
+# Pixel life · v0.6.0
 
-Entry: `/pixel.html`. The stable `/index.html` runtime and save schema remain separate.
+Entry: `/pixel.html`. Original `/index.html` progress and the pixel save namespace remain separate. This is a playable migration with remaining feature gaps, not full parity with the original UI.
 
-- `data.js`: three room layouts, collision and occlusion polygons, object targets, original wardrobe/NPC identifiers, short encounters, deterministic NPC itineraries.
-- `navigation.js`: grid construction, A* routing, corner and furniture clearance.
-- `world.js`: Phaser scene lifecycle, one player, autonomous NPCs, camera/pointer/keyboard input and actor depth.
-- `sprites.js`: source sheet import, chroma-key texture decoding, frame extents and facing exceptions.
-- `model.js`: strict prototype save schema, independent namespace, five slots and backups.
-- `main.js`: accessible DOM overlays, portrait/wardrobe synchronization, controller event boundary, checkpointing.
+## Modules
 
-The canvas stays mounted when overlays update. Both pointer targets and DOM object shortcuts route through the same movement/arrival method. Browser tests use only the read-only `window.__pixelRead()` snapshot and real UI inputs.
+- `data.js`, `city-rooms.js`, `city-catalog.js`: 27 map entrances, 32 spaces, furniture geometry, service targets and story gates.
+- `navigation.js`, `world.js`: four-direction routing, one player, moving NPCs, per-furniture poses, collision/occlusion, camera and pointer/keyboard input.
+- `sprites.js`, `expanded-sprites.js`: source atlas geometry and memory-bounded sprite loading; 15 outfits per avatar, preserving original illustrations for portraits.
+- `life.js`, `life-ui.js`: seven-day planning from the first week, training/work/rest/creative/social actions, daily costs/results and weekly review. Directly entering services does not require a separate registration day.
+- `career.js`, `career-ui.js`, `core-bridge.js`: original job auditions/contracts, agency applications/interviews, NPC appointments, production, weekly stories, awards, sequels, overseas and endings.
+- `cast.js`, `city-ui.js`: city navigation, connected interiors and daily NPC itineraries respecting reserved appointments.
+- `model.js`: independent pixel autosave, five manual slots and backups. Original saves are not automatically imported.
+- `identity.js`: gender lock at the start, compatible old-save inference, same-gender appearance changes and confirmed clinic changes using the original $60,000 fee.
+- `preferences.js`, `settings-ui.js`, `pixel-ui.css`: device-level palette preferences and a shared visual system for the existing pixel screens.
+- `main.js`: persistent canvas plus DOM menu/bottom dialogue, portrait synchronization, controller boundary and transactional appearance changes.
 
-Phase two can replace controller action handlers with adapters to the existing training, work, creative and week-runner logic. The simulation must remain the sole owner of rewards and time advancement; scene animation must not duplicate those effects. A separate migration needs to be designed before connecting stable saves to the pixel runtime.
+The simulation owns costs, rewards and time; animation does not duplicate settlement. Choices pause auto playback. Menus, hidden tabs and dialogue pause world movement. A read-only `window.__pixelRead()` snapshot supports browser tests without mutating game state.
 
-The current prototype has flavor interactions, not the full training/economy/week/romance loop. NPC time pauses in overlays or hidden tabs; it does not simulate offline progress. Pixel progress is local to the browser origin.
+## UI and identity
 
-Verification: `npm run check` and `npx playwright test pixel-phase-one`. The normal release build includes the optional pixel entry, the runtime and its assets. A standalone preview can serve only the pixel entry/modules, shared NPC/wardrobe data and referenced portraits.
+Five palettes cover the chrome, panels and dialogue while preserving scene and portrait artwork. Preferences use `star-game-pixel-preferences-v1`, independent of all game slots. Toasts appear near the center, inside a native dialog's top layer when required, and disappear when a story starts.
 
-## Interaction refinement
+New games choose gender before locking it. Existing v0.5 saves keep their currently worn avatar's gender. Same-gender appearances can be swapped; another gender requires being at the clinic with sufficient funds and explicit in-game confirmation. All wardrobe ownership survives. A failed sprite load restores the previous state and does not charge or persist a partial change. The original clinic transaction is immediate and does not consume a schedule day.
 
-The main chrome now has one menu entry. Phone, nearby objects, travel, wardrobe, profile, settings, saves and today's activity shortcuts live there. Today's activity shortcuts route the player to an actual object; they are not yet the full weekly planner.
+## Remaining parity work
 
-Conversation uses a bottom-docked DOM dialog and shoulder portraits. The world remains visible and pauses, while background controls become inert. Closing a save/menu panel returns to the same conversation; Escape or the conversation's close action ends it. Dialogue focus is trapped independently of the native utility dialog.
+The original full NPC dossier/network, manual romance visibility/breakup controls, complete social and forum interactions, timeline, CG gallery, achievement UI, some agency negotiation/manager tools, audio, export/import/backup management, original full character creation/prologue and several settings are not yet migrated. Weekly simulation/data alone is not considered a completed player-facing feature.
 
-Furniture is hit-tested against its painted polygon. Desktop hover shows an unboxed name and a pointer cursor, with no furniture outline; touch first opens a compact object choice. No permanent floating object markers or bottom shortcut clutter remain. Keyboard-accessible object shortcuts are in the menu.
+See `PIXEL-UI-REFRESH.md` and `PIXEL-FEATURE-PARITY.md` for the current release and detailed inventory. Historical phase documents describe the scope at those earlier versions.
 
-Routing is four-neighbor A*, with cardinal bridges from continuous actor positions and direction changes retained during path compression. Keyboard input chooses one axis when two direction keys are held. Four-facing actor art therefore never travels diagonally.
+## Verification and packaging
 
-`state.activity` optionally saves `{kind,itemId,elapsed}`. Old prototype saves default it to null. Animations keep the logical actor on a walkable approach point and render at the furniture anchor, so cancellation/restore cannot leave the actor trapped inside furniture. Completion sets only a flavor objective flag; this prototype does not award training or economy stats. Menus, conversations and hidden tabs freeze animation progress. Walking cancels the current action.
-
-Seating uses dedicated front/rear direction sheets and per-outfit pelvis origins. The seat's facing and cushion contact point belong to scene data, while chair-back occlusion is reconstructed with the active seat. Dialogue loads original NPC portraits instead of enlarging head thumbnails. Both changes preserve the existing prototype save schema.
+Run `npm run check` for the original and pixel domain checks and production build. Run `npx playwright test pixel-phase-one pixel-life pixel-city pixel-career pixel-polish` for browser flow coverage. The build must copy **both** `pixel.css` and `pixel-ui.css`, the pixel modules and all referenced assets. The optional pixel entry does not yet promise a complete offline/install/update experience.

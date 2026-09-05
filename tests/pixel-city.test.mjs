@@ -102,6 +102,7 @@ for (const avatar of Object.keys(AVATARS))
           );
         const s = initialPixelState();
         s.avatarId = avatar;
+        s.identity.gender = AVATARS[avatar].gender;
         s.outfitId = outfit;
         s.life.game.ownedOutfits[avatar].push(outfit);
         const restored = validatePixelState(s);

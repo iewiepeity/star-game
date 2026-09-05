@@ -1,3 +1,4 @@
+import { normalizeIdentity } from "./identity.js";
 import { AVATARS } from "../data/wardrobe.js";
 import { initialLife, normalizeLife, recordMeeting, arriveAt } from "./life.js";
 import {
@@ -15,6 +16,7 @@ export const initialPixelState = () => ({
   position: { ...ROOMS.home.entry },
   outfitId: "newcomer",
   avatarId: "raven",
+  identity: { gender: "女性", locked: false, changes: [] },
   playerName: "星途新人",
   elapsed: 0,
   visited: ["home"],
@@ -112,9 +114,7 @@ export function validatePixelState(raw) {
     };
   }
   state.life = normalizeLife(raw.life, state.outfitId);
-  state.life.game.avatarId = state.avatarId;
-  state.life.game.gender = AVATARS[state.avatarId].gender;
-  state.life.game.outfitId = state.outfitId;
+  normalizeIdentity(state, raw);
   for (const id of state.visited) arriveAt(state.life, id);
   if (!raw.life)
     for (const id of state.knownPeople) recordMeeting(state.life, id);
