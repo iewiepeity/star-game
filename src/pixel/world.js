@@ -1,13 +1,33 @@
 import * as Phaser from "../../assets/vendor/phaser.esm.min.js";
-import { ROOMS, WORLD, PEOPLE, itinerary } from "./data.js";
-import { buildGrid, findPath, nearest, walkable } from "./navigation.js";
-import { importSprites, actorFrame } from "./sprites.js";
+import {
+  ROOMS,
+  WORLD,
+  PEOPLE,
+  itinerary,
+  ACTIVITY_TYPES,
+  ACTIVITY_SPOTS,
+  activityAllowed,
+} from "./data.js";
+import {
+  buildGrid,
+  findPath,
+  nearest,
+  walkable,
+  inside,
+} from "./navigation.js";
+import { importSprites, actorFrame, activityFrame } from "./sprites.js";
 const SPRITES = [
   "raven-newcomer",
   "raven-practice",
   "raven-audition",
   "jiqing",
   "sufei",
+  "raven-newcomer-actions",
+  "raven-newcomer-rest-actions",
+  "raven-practice-actions",
+  "raven-audition-actions",
+  "jiqing-actions",
+  "sufei-actions",
 ];
 export function createWorld(controller) {
   class PixelWorld extends Phaser.Scene {
@@ -81,41 +101,32 @@ export function createWorld(controller) {
         .setDepth(950);
       this.hotspots = [];
       for (const item of this.room.objects) {
-        const circle = this.add
-          .circle(item.x, item.y, 13, 0xfffaf1, 0.96)
-          .setStrokeStyle(1, 0xb99b7c)
-          .setDepth(1000);
-        const label = this.add
-          .text(item.x, item.y, item.icon, {
-            fontFamily: "serif",
-            fontSize: "17px",
-            color: "#976672",
-          })
-          .setOrigin(0.5)
-          .setDepth(1001);
+        const highlight = this.add.graphics().setDepth(998).setVisible(false);
+        highlight.lineStyle(1.5, 0xfdf0c8, 0.9).strokePoints(item.hit, true);
         const title = this.add
-          .text(item.x, item.y - 29, item.name, {
+          .text(item.x, item.y - 28, item.name, {
             fontFamily: "sans-serif",
-            fontSize: "12px",
-            color: "#584b3d",
-            backgroundColor: "#fffaf1",
-            padding: { x: 8, y: 5 },
+            fontSize: "13px",
+            color: "#594c40",
+            backgroundColor: "#fff9ed",
+            padding: { x: 9, y: 6 },
           })
           .setOrigin(0.5)
           .setDepth(1300)
+          .setResolution(2)
           .setVisible(false);
-        circle
-          .setInteractive(
-            new Phaser.Geom.Circle(13, 13, 24),
-            Phaser.Geom.Circle.Contains,
-          )
-          .on("pointerover", () => title.setVisible(true))
-          .on("pointerout", () => title.setVisible(false));
-        this.hotspots.push({ item, circle, label, title });
+        this.hotspots.push({ item, highlight, title });
       }
       this.manualPan = false;
       this.resizeView();
       this.syncNpcs(true);
+      if (state.activity)
+        activityFrame(
+          this.player,
+          state.activity.kind,
+          state.activity.elapsed,
+          ACTIVITY_SPOTS[state.sceneId][state.activity.itemId],
+        );
       controller.changed();
     }
     addActor(id, key, pos) {
@@ -165,8 +176,9 @@ export function createWorld(controller) {
         if (this.heldNpc === id) continue;
         if (plan.scene !== controller.state().sceneId) {
           if (actor) {
+            if (!actor.exiting)
+              actor.path = findPath(this.grid, actor, this.room.entry);
             actor.exiting = true;
-            actor.path = findPath(this.grid, actor, this.room.entry);
             if (
               Math.hypot(
                 actor.x - this.room.entry.x,
@@ -211,6 +223,7 @@ export function createWorld(controller) {
         controller.toast("先關閉視窗或繼續世界，再走動吧");
         return;
       }
+      this.cancelActivity();
       this.releaseNpc();
       this.pending = callback || null;
       this.player.path = findPath(this.grid, this.player, point);
@@ -231,9 +244,12 @@ export function createWorld(controller) {
         controller.toast("她剛離開，晚一點再碰面吧");
         return;
       }
-      this.go(nearest(this.grid, { x: actor.x + 30, y: actor.y + 14 }), () =>
-        controller.talk(id),
-      );
+      this.go(nearest(this.grid, { x: actor.x + 50, y: actor.y + 12 }), () => {
+        this.player.facing = this.player.x > actor.x ? 1 : 2;
+        actor.facing = this.player.x > actor.x ? 2 : 1;
+        actorFrame(actor, false, controller.state().elapsed);
+        controller.talk(id);
+      });
       this.heldNpc = id;
       actor.path = [];
     }
@@ -252,7 +268,7 @@ export function createWorld(controller) {
       this.player.key = `raven-${id}`;
       actorFrame(this.player, false, 0);
     }
-    transition(id) {
+    transition(id, after) {
       this.go(this.room.objects.find((o) => o.id === "door").target, () => {
         controller.transitioning = true;
         this.cameras.main.fadeOut(180, 250, 245, 235);
@@ -263,6 +279,7 @@ export function createWorld(controller) {
           this.cameras.main.fadeIn(230, 250, 245, 235);
           controller.transitioning = false;
           controller.checkpoint();
+          after?.();
         });
       });
     }
@@ -311,6 +328,25 @@ export function createWorld(controller) {
         dragged = false;
       });
       this.input.on("pointermove", (pointer) => {
+        if (!pointer.isDown && !this.paused) {
+          const pt = this.cameras.main.getWorldPoint(pointer.x, pointer.y),
+            selected = this.hotspots.findLast((h) => inside(pt, h.item.hit));
+          for (const h of this.hotspots) {
+            h.highlight.setVisible(h === selected);
+            h.title
+              .setVisible(h === selected)
+              .setScale(1 / this.cameras.main.zoom);
+          }
+          this.hoveredNpc = [...this.actors.values()].find(
+            (a) =>
+              a.id !== "player" &&
+              Math.abs(a.x - pt.x) < 25 &&
+              pt.y > a.y - 78 &&
+              pt.y < a.y + 8,
+          )?.id;
+          this.game.canvas.style.cursor =
+            selected || this.hoveredNpc ? "pointer" : "default";
+        }
         if (!down || !pointer.isDown || this.paused) return;
         if (Math.hypot(pointer.x - down.x, pointer.y - down.y) > 9)
           dragged = true;
@@ -339,11 +375,10 @@ export function createWorld(controller) {
           this.talk(npc.id);
           return;
         }
-        const object = this.hotspots.find(
-          (h) => Math.hypot(h.item.x - pt.x, h.item.y - pt.y) < 25,
-        );
+        const object = this.hotspots.findLast((h) => inside(pt, h.item.hit));
         if (object) {
-          this.interact(object.item.id);
+          if (pointer.wasTouch) controller.selectObject(object.item);
+          else this.interact(object.item.id);
           return;
         }
         if (!walkable(this.room, pt)) {
@@ -379,6 +414,7 @@ export function createWorld(controller) {
           ].includes(e.key)
         ) {
           e.preventDefault();
+          this.cancelActivity();
           this.keys.add(e.key.toLowerCase());
           this.player.path = [];
           this.pending = null;
@@ -440,6 +476,8 @@ export function createWorld(controller) {
           actor.y = target.y;
           actor.path.shift();
           remaining -= distance;
+          const next = actor.path[0];
+          if (next && (dx !== 0) !== (next.x - actor.x !== 0)) break;
         } else {
           actor.x += (dx / distance) * remaining;
           actor.y += (dy / distance) * remaining;
@@ -459,13 +497,33 @@ export function createWorld(controller) {
       state.elapsed += dt;
       this.syncNpcs();
       let moved = false;
-      const dx =
+      let dx =
         Number(this.keys.has("d") || this.keys.has("arrowright")) -
         Number(this.keys.has("a") || this.keys.has("arrowleft"));
-      const dy =
+      let dy =
         Number(this.keys.has("s") || this.keys.has("arrowdown")) -
         Number(this.keys.has("w") || this.keys.has("arrowup"));
-      if (dx || dy) {
+      if (dx && dy) {
+        const last = [...this.keys].at(-1);
+        if (["a", "d", "arrowleft", "arrowright"].includes(last)) dy = 0;
+        else dx = 0;
+      }
+      if (state.activity) {
+        state.activity.elapsed += dt;
+        activityFrame(
+          this.player,
+          state.activity.kind,
+          state.activity.elapsed,
+          ACTIVITY_SPOTS[state.sceneId][state.activity.itemId],
+        );
+        if (
+          state.activity.elapsed >= ACTIVITY_TYPES[state.activity.kind].duration
+        ) {
+          const kind = state.activity.kind;
+          this.cancelActivity();
+          controller.activityDone(kind);
+        }
+      } else if (dx || dy) {
         const factor = (150 * dt) / Math.hypot(dx, dy),
           x = this.player.x + dx * factor,
           y = this.player.y + dy * factor;
@@ -477,13 +535,33 @@ export function createWorld(controller) {
       } else {
         const was = this.player.path.length;
         moved = this.moveActor(this.player, dt, 165);
-        if (was && !this.player.path.length) this.arrive();
+        if (was && !this.player.path.length) {
+          moved = false;
+          this.arrive();
+        }
       }
-      actorFrame(this.player, moved, state.elapsed);
+      if (!state.activity) actorFrame(this.player, moved, state.elapsed);
       state.position = { x: this.player.x, y: this.player.y };
       for (const actor of this.actors.values())
         if (actor.id !== "player") {
-          actorFrame(actor, this.moveActor(actor, dt, 42), state.elapsed);
+          const walking = this.moveActor(actor, dt, 42);
+          if (!walking && !actor.exiting && this.heldNpc !== actor.id)
+            activityFrame(
+              actor,
+              actor.id === "sufei" &&
+                state.sceneId === "rehearsal" &&
+                actor.status === "暖身中"
+                ? "dance"
+                : "read",
+              state.elapsed,
+            );
+          else actorFrame(actor, walking, state.elapsed);
+          actor.label.setVisible(
+            this.hoveredNpc === actor.id ||
+              this.heldNpc === actor.id ||
+              Math.hypot(actor.x - this.player.x, actor.y - this.player.y) <
+                125,
+          );
           state.npcPositions[actor.id] = {
             sceneId: state.sceneId,
             x: actor.x,
@@ -491,11 +569,38 @@ export function createWorld(controller) {
           };
         }
       if (!this.manualPan && this.cropped)
-        this.cameras.main.centerOn(this.player.x, this.player.y - 55);
+        this.cameras.main.centerOn(
+          this.player.sprite.x,
+          this.player.sprite.y - 55,
+        );
       if (!this.uiTick || state.elapsed - this.uiTick > 1) {
         this.uiTick = state.elapsed;
         controller.changed();
       }
+    }
+    startActivity(itemId, kind) {
+      const state = controller.state();
+      if (!activityAllowed(state.sceneId, itemId, kind)) return false;
+      this.player.path = [];
+      this.pending = null;
+      this.targetRing.setVisible(false);
+      state.activity = { itemId, kind, elapsed: 0 };
+      activityFrame(
+        this.player,
+        kind,
+        0,
+        ACTIVITY_SPOTS[state.sceneId][itemId],
+      );
+      controller.checkpoint();
+      controller.changed();
+      return true;
+    }
+    cancelActivity() {
+      const state = controller.state();
+      if (!state.activity) return;
+      state.activity = null;
+      actorFrame(this.player, false, state.elapsed);
+      controller.changed();
     }
     snapshot() {
       return {
@@ -512,6 +617,10 @@ export function createWorld(controller) {
           outfit: this.player.key,
           moving: this.player.path.length > 0,
           facing: this.player.facing,
+          pose: controller.state().activity?.kind || "standing",
+          frame: this.player.sprite.frame.name,
+          visual: { x: this.player.sprite.x, y: this.player.sprite.y },
+          route: this.player.path.map((p) => ({ x: p.x, y: p.y })),
         },
         npcs: [...this.actors.values()]
           .filter((a) => a.id !== "player")
@@ -523,6 +632,7 @@ export function createWorld(controller) {
             moving: !!a.path.length,
             exiting: !!a.exiting,
           })),
+        markerCount: 0,
         paused: this.paused,
         zoom: this.cameras.main.zoom,
       };

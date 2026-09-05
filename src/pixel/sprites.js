@@ -15,9 +15,12 @@ export function importSprites(scene, key) {
   }
   context.putImageData(pixels, 0, 0);
   texture.refresh();
-  const xs = [0, 465, 780, 1090, image.width],
-    ys = [0, 342, 662, image.height];
-  for (let row = 0; row < 3; row++)
+  const actionSheet = key.endsWith("-actions");
+  const xs = actionSheet
+      ? [0, 420, 800, 1140, image.width]
+      : [0, 465, 780, 1090, image.width],
+    ys = actionSheet ? [0, 512, image.height] : [0, 342, 662, image.height];
+  for (let row = 0; row < ys.length - 1; row++)
     for (let col = 0; col < 4; col++) {
       let left = xs[col + 1],
         right = xs[col],
@@ -62,7 +65,12 @@ export function actorFrame(actor, moving, elapsed) {
       flip = row !== 2;
     }
   }
-  actor.sprite.setTexture(actor.key, `${row}-${col}`).setFlipX(flip);
+  actor.sprite
+    .setTexture(actor.key, `${row}-${col}`)
+    .setFlipX(flip)
+    .setAlpha(1)
+    .setRotation(0);
+  actor.shadow.setVisible(true);
   const frame = actor.sprite.frame;
   actor.sprite
     .setScale(76 / frame.height)
@@ -74,4 +82,55 @@ export function actorFrame(actor, moving, elapsed) {
     ?.setPosition(actor.x, actor.y - 86)
     .setDepth(1200)
     .setScale(1 / actor.sprite.scene.cameras.main.zoom);
+}
+
+export function activityFrame(actor, kind, elapsed, spot = {}) {
+  const sheet =
+      actor.key === "raven-newcomer" && kind === "rest"
+        ? "raven-newcomer-rest-actions"
+        : `${actor.key}-actions`,
+    phase = Math.floor(elapsed * (kind === "dance" ? 2.8 : 1.3)) % 2;
+  let row = 0,
+    col = 0;
+  const gettingIntoBed = kind === "rest" && (elapsed < 0.4 || elapsed > 4.6);
+  if (kind === "rest") col = gettingIntoBed ? 2 : phase;
+  else if (kind === "sit") col = 2;
+  else if (kind === "coffee") col = 2 + phase;
+  else {
+    row = 1;
+    col = kind === "dance" ? phase : 2 + phase;
+  }
+  const sprite = actor.sprite;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  sprite
+    .setTexture(sheet, `${row}-${col}`)
+    .setFlipX(
+      (actor.key === "raven-practice" &&
+        (kind === "sit" || kind === "coffee")) ||
+        (actor.key === "raven-newcomer" && kind === "rest" && !gettingIntoBed),
+    )
+    .setRotation(0)
+    .setAlpha(1);
+  const ref = sprite.scene.textures.get(sheet).get("1-2");
+  const scale =
+    (kind === "rest" ? 83 : kind === "sit" || kind === "coffee" ? 70 : 76) /
+    ref.height;
+  const x = spot.x ?? actor.x,
+    y = spot.y ?? actor.y;
+  const bounce =
+    !reduced && kind === "dance" ? Math.abs(Math.sin(elapsed * 8)) * 3 : 0;
+  const breathe = !reduced && kind === "rest" ? Math.sin(elapsed * 2) * 0.6 : 0;
+  sprite
+    .setScale(scale)
+    .setOrigin(0.5, spot.center && !gettingIntoBed ? 0.5 : 1)
+    .setPosition(x, y - bounce + breathe + (gettingIntoBed ? 22 : 0))
+    .setDepth(spot.depth ?? actor.y);
+  actor.shadow
+    .setVisible(!["rest", "sit", "coffee"].includes(kind))
+    .setPosition(x, y - 1)
+    .setDepth((spot.depth ?? actor.y) - 1);
+  actor.label
+    ?.setPosition(x, y - 84)
+    .setDepth(1200)
+    .setScale(1 / sprite.scene.cameras.main.zoom);
 }

@@ -26,7 +26,7 @@ export function buildGrid(room) {
   for (let y = 0; y < rows; y++)
     for (let x = 0; x < cols; x++) {
       const pt = { x: x * size + size / 2, y: y * size + size / 2 };
-      // Give feet a small clearance so diagonals never graze the furniture.
+      // Leave enough foot clearance along furniture edges.
       if (
         [
           [0, 0],
@@ -57,57 +57,95 @@ export function nearest(grid, point) {
     null,
   );
 }
+const distance = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+function segmentClear(room, a, b) {
+  const steps = Math.max(1, Math.ceil(distance(a, b) / 2));
+  for (let i = 0; i <= steps; i++)
+    if (
+      !walkable(room, {
+        x: a.x + ((b.x - a.x) * i) / steps,
+        y: a.y + ((b.y - a.y) * i) / steps,
+      })
+    )
+      return false;
+  return true;
+}
+function bridge(room, from, to) {
+  for (const corner of [
+    { x: to.x, y: from.y },
+    { x: from.x, y: to.y },
+  ]) {
+    if (segmentClear(room, from, corner) && segmentClear(room, corner, to))
+      return [corner, to].filter(
+        (p, i, arr) => distance(i ? arr[i - 1] : from, p) > 0.01,
+      );
+  }
+  return null;
+}
 export function findPath(grid, from, to) {
-  const start = nearest(grid, from),
-    end = nearest(grid, to);
+  const candidates = [...grid.nodes].sort(
+    (a, b) => distance(a, from) - distance(b, from),
+  );
+  let start = null,
+    lead = null;
+  for (const node of candidates) {
+    lead = bridge(grid.room, from, node);
+    if (lead) {
+      start = node;
+      break;
+    }
+  }
+  const end = nearest(grid, to);
   if (!start || !end) return [];
   const open = new Set([start.id]),
     came = new Map(),
     cost = new Map([[start.id, 0]]),
-    score = new Map([[start.id, Math.hypot(start.x - end.x, start.y - end.y)]]);
+    score = new Map([[start.id, distance(start, end)]]);
   while (open.size) {
     const current = [...open].reduce((a, b) =>
       score.get(a) < score.get(b) ? a : b,
     );
     if (current === end.id) {
-      const path = [];
+      const route = [];
       let id = current;
       while (id !== start.id) {
-        path.unshift(grid.byId.get(id));
+        route.unshift(grid.byId.get(id));
         id = came.get(id);
       }
-      if (Math.hypot(from.x - start.x, from.y - start.y) > 1)
-        path.unshift(start);
-      return path;
+      const path = [...lead, ...route];
+      // Merge straight runs; every corner is retained and every segment is cardinal.
+      return path.filter((point, i) => {
+        const prev = i ? path[i - 1] : from,
+          next = path[i + 1];
+        return (
+          !next ||
+          !(
+            (prev.x === point.x && point.x === next.x) ||
+            (prev.y === point.y && point.y === next.y)
+          )
+        );
+      });
     }
     open.delete(current);
-    const node = grid.byId.get(current);
+    const node = grid.byId.get(current),
+      previous = grid.byId.get(came.get(current));
     for (const [dx, dy] of [
       [1, 0],
       [-1, 0],
       [0, 1],
       [0, -1],
-      [1, 1],
-      [-1, -1],
-      [1, -1],
-      [-1, 1],
     ]) {
       const id = (node.gy + dy) * grid.cols + node.gx + dx,
         next = grid.byId.get(id);
       if (!next || next.gx !== node.gx + dx || next.gy !== node.gy + dy)
         continue;
-      if (
-        dx &&
-        dy &&
-        (!grid.byId.has(node.gy * grid.cols + node.gx + dx) ||
-          !grid.byId.has((node.gy + dy) * grid.cols + node.gx))
-      )
-        continue;
-      const value = cost.get(current) + Math.hypot(dx, dy) * grid.size;
+      const turn =
+        previous && (node.x - previous.x !== 0) !== (dx !== 0) ? 2 : 0;
+      const value = cost.get(current) + grid.size + turn;
       if (value >= (cost.get(id) ?? Infinity)) continue;
       came.set(id, current);
       cost.set(id, value);
-      score.set(id, value + Math.hypot(next.x - end.x, next.y - end.y));
+      score.set(id, value + distance(next, end));
       open.add(id);
     }
   }

@@ -220,6 +220,185 @@ export const ROOMS = {
     route: [p(810, 676), p(1160, 667), p(854, 515)],
   },
 };
+// Visual hit areas cover the furniture itself; idle scenes have no floating icons.
+const HIT_AREAS = {
+  home: {
+    wardrobe: [
+      [493, 92],
+      [685, 104],
+      [685, 363],
+      [493, 363],
+    ],
+    desk: [
+      [692, 277],
+      [996, 348],
+      [1000, 465],
+      [696, 418],
+    ],
+    bed: [
+      [109, 285],
+      [312, 250],
+      [537, 435],
+      [531, 504],
+      [337, 586],
+      [110, 493],
+    ],
+    door: [
+      [1248, 659],
+      [1370, 594],
+      [1370, 792],
+      [1248, 847],
+    ],
+    sofa: [
+      [1050, 404],
+      [1147, 386],
+      [1368, 477],
+      [1366, 562],
+      [1287, 609],
+      [1050, 518],
+    ],
+    "desk-seat": [
+      [701, 349],
+      [780, 370],
+      [810, 417],
+      [798, 467],
+      [704, 443],
+    ],
+  },
+  rehearsal: {
+    practice: [
+      [104, 396],
+      [568, 146],
+      [569, 342],
+      [107, 601],
+    ],
+    notice: [
+      [1151, 279],
+      [1320, 360],
+      [1320, 440],
+      [1152, 361],
+    ],
+    script: [
+      [935, 255],
+      [1065, 296],
+      [1091, 375],
+      [951, 406],
+    ],
+    door: [
+      [1322, 623],
+      [1420, 564],
+      [1422, 743],
+      [1324, 798],
+    ],
+    bench: [
+      [1132, 353],
+      [1321, 442],
+      [1320, 493],
+      [1134, 425],
+    ],
+  },
+  cafe: {
+    counter: [
+      [187, 323],
+      [558, 138],
+      [866, 254],
+      [864, 420],
+      [433, 543],
+      [185, 493],
+    ],
+    window: [
+      [1090, 453],
+      [1188, 418],
+      [1193, 525],
+      [1115, 557],
+      [1080, 508],
+    ],
+    chair: [
+      [658, 593],
+      [750, 551],
+      [757, 645],
+      [704, 692],
+      [653, 649],
+    ],
+    door: [
+      [888, 806],
+      [1047, 807],
+      [1049, 920],
+      [888, 929],
+    ],
+  },
+};
+ROOMS.home.objects.push(
+  object("sofa", "沙發", "", 1200, 493, 1150, 657, "sit"),
+  object("desk-seat", "書桌椅", "", 750, 411, 833, 535, "sit"),
+);
+ROOMS.rehearsal.objects.push(
+  object("bench", "休息長椅", "", 1220, 440, 1180, 554, "sit"),
+);
+ROOMS.cafe.objects.push(
+  object("chair", "咖啡座位", "", 697, 608, 804, 703, "sit"),
+);
+for (const [id, room] of Object.entries(ROOMS))
+  for (const item of room.objects) {
+    item.hit = poly(HIT_AREAS[id][item.id]);
+  }
+export const ACTIVITY_TYPES = {
+  rest: {
+    label: "躺下休息",
+    duration: 5,
+    flag: "rested",
+    done: "休息了一會兒，肩膀也放鬆了。",
+  },
+  sit: { label: "坐一會兒", duration: 5, done: "讓自己慢一點，也很好。" },
+  coffee: {
+    label: "慢慢喝一杯",
+    duration: 5,
+    flag: "coffee",
+    done: "熱飲暖暖的，今天可以慢慢來。",
+  },
+  dance: {
+    label: "跟著節拍練習",
+    duration: 6,
+    flag: "practiced",
+    done: "記住了這一段舞步，下次再練習。",
+  },
+  read: {
+    label: "練習朗讀",
+    duration: 6,
+    flag: "practiced",
+    done: "把台詞慢慢說完整，感覺更有把握了。",
+  },
+};
+export const ACTIVITY_SPOTS = {
+  home: {
+    bed: {
+      kinds: ["rest"],
+      ...p(309, 418),
+      center: true,
+      width: 108,
+      depth: 390,
+    },
+    sofa: { kinds: ["sit"], ...p(1185, 556), height: 62, depth: 390 },
+    "desk-seat": { kinds: ["sit"], ...p(759, 459), height: 61, depth: 345 },
+  },
+  rehearsal: {
+    practice: { kinds: ["dance", "read"] },
+    script: { kinds: ["read"] },
+    bench: { kinds: ["sit"], ...p(1205, 479), height: 62, depth: 340 },
+  },
+  cafe: {
+    window: {
+      kinds: ["sit", "coffee"],
+      ...p(1138, 527),
+      height: 62,
+      depth: 355,
+    },
+    chair: { kinds: ["sit", "coffee"], ...p(701, 649), height: 62, depth: 440 },
+  },
+};
+export function activityAllowed(sceneId, itemId, kind) {
+  return !!ACTIVITY_SPOTS[sceneId]?.[itemId]?.kinds.includes(kind);
+}
 export const OUTFIT_IDS = ["newcomer", "practice", "audition"];
 export const outfits = OUTFIT_IDS.map((id) => ({
   ...OUTFITS[id],
@@ -228,7 +407,13 @@ export const outfits = OUTFIT_IDS.map((id) => ({
 export const PEOPLE = Object.fromEntries(
   ["sufei", "jiqing"].map((id) => [
     id,
-    { id, name: NPCS[id].name, job: NPCS[id].job, portrait: NPCS[id].portrait },
+    {
+      id,
+      name: NPCS[id].name,
+      job: NPCS[id].job,
+      portrait: NPCS[id].portrait,
+      head: NPCS[id].head,
+    },
   ]),
 );
 // One shared itinerary per person, regardless of the room the player is viewing.

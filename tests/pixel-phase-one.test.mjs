@@ -22,6 +22,10 @@ for (const [id, room] of Object.entries(ROOMS))
       );
       let previous = room.entry;
       for (const step of path) {
+        assert.ok(
+          step.x === previous.x || step.y === previous.y,
+          "walking sprites must never travel diagonally",
+        );
         for (let t = 0; t <= 1; t += 0.1)
           assert.ok(
             walkable(room, {
@@ -41,6 +45,49 @@ test("home: crossing the central table takes a detour", () => {
   );
   assert.ok(path.length > 0);
   assert.ok(path.some((p) => p.y < 360 || p.y > 468));
+});
+test("off-grid starts keep every route segment cardinal", () => {
+  for (const room of Object.values(ROOMS)) {
+    const start = { x: room.entry.x + 1.7, y: room.entry.y - 0.6 };
+    for (const object of room.objects) {
+      const path = findPath(buildGrid(room), start, object.target);
+      assert.ok(path.length > 0);
+      let previous = start;
+      for (const next of path) {
+        assert.ok(next.x === previous.x || next.y === previous.y);
+        previous = next;
+      }
+    }
+  }
+});
+test("legacy pixel saves load without activities; only room-compatible poses resume", () => {
+  const state = initialPixelState();
+  delete state.activity;
+  assert.equal(validatePixelState(state).activity, null);
+  const rest = { itemId: "bed", kind: "rest", elapsed: 2.25 };
+  assert.deepEqual(
+    validatePixelState({ ...state, activity: rest }).activity,
+    rest,
+  );
+  assert.deepEqual(
+    validatePixelState({ ...state, activity: { ...rest, elapsed: 900 } })
+      .activity,
+    { ...rest, elapsed: 5 },
+  );
+  for (const activity of [
+    { ...rest, kind: "dance" },
+    { ...rest, itemId: "missing" },
+    { ...rest, elapsed: NaN },
+  ])
+    assert.equal(validatePixelState({ ...state, activity }).activity, null);
+  assert.equal(
+    validatePixelState({ ...state, sceneId: "cafe", activity: rest }).activity,
+    null,
+  );
+  assert.equal(
+    validatePixelState({ ...state, activity: rest }).flags.rested,
+    undefined,
+  );
 });
 test("NPC itineraries have one location, and contain both travel and activity", () => {
   assert.deepEqual(Object.keys(PEOPLE).sort(), ["jiqing", "sufei"]);

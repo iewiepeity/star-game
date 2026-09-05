@@ -1,4 +1,11 @@
-import { ROOMS, OUTFIT_IDS, PEOPLE, CONVERSATIONS } from "./data.js";
+import {
+  ROOMS,
+  OUTFIT_IDS,
+  PEOPLE,
+  CONVERSATIONS,
+  ACTIVITY_TYPES,
+  activityAllowed,
+} from "./data.js";
 export const SAVE_KEY = "star-game-pixel-phase-one-v1";
 export const initialPixelState = () => ({
   version: 1,
@@ -12,6 +19,7 @@ export const initialPixelState = () => ({
   npcPositions: {},
   flags: {},
   dialogue: null,
+  activity: null,
 });
 export function validatePixelState(raw) {
   if (
@@ -83,6 +91,21 @@ export function validatePixelState(raw) {
       index: d.index,
       reply: typeof d.reply === "string" ? d.reply.slice(0, 200) : null,
     };
+  const activity = raw.activity;
+  if (
+    activity &&
+    activityAllowed(state.sceneId, activity.itemId, activity.kind) &&
+    Number.isFinite(activity.elapsed)
+  ) {
+    state.activity = {
+      kind: activity.kind,
+      itemId: activity.itemId,
+      elapsed: Math.max(
+        0,
+        Math.min(ACTIVITY_TYPES[activity.kind].duration, activity.elapsed),
+      ),
+    };
+  }
   return state;
 }
 export function createStorage(storage) {

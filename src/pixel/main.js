@@ -1,4 +1,11 @@
-import { ROOMS, outfits, PEOPLE, CONVERSATIONS, itinerary } from "./data.js";
+import {
+  ROOMS,
+  outfits,
+  PEOPLE,
+  CONVERSATIONS,
+  itinerary,
+  ACTIVITY_TYPES,
+} from "./data.js";
 import { initialPixelState, createStorage, objectives } from "./model.js";
 import { createWorld } from "./world.js";
 const $ = (id) => document.getElementById(id);
@@ -54,35 +61,26 @@ function changed() {
   $("outfit-label").textContent = outfit.name;
   if (!$("player-head").src.endsWith(outfit.portrait.replace("./", "")))
     $("player-head").src = outfit.portrait;
-  const goals = objectives(state),
-    done = goals.filter((g) => g.done).length;
-  $("goal-count").textContent = `${done} / ${goals.length}`;
-  $("goal-label").textContent =
-    goals.find((g) => !g.done)?.label || "今天的小事，都好好完成了";
-  const actorIds = world
-    ? [...world.actors.keys()].filter((id) => id !== "player")
-    : [];
-  const signature = `${state.sceneId}|${actorIds.join(",")}`;
-  if ($("nearby").dataset.signature !== signature) {
-    $("nearby").dataset.signature = signature;
-    $("nearby").innerHTML =
-      room.objects
-        .filter((o) => o.id !== "door")
-        .map(
-          (o) =>
-            `<button data-object="${o.id}"><span aria-hidden="true">${o.icon}</span>${o.name}</button>`,
-        )
-        .join("") +
-      actorIds
-        .map(
-          (id) =>
-            `<button class="npc-button" data-npc="${id}"><img src="${PEOPLE[id].portrait}" alt="">${PEOPLE[id].name}</button>`,
-        )
-        .join("");
+
+  const activity = state.activity;
+  $("activity-strip").hidden = !activity;
+  if (activity) {
+    $("activity-label").textContent = ACTIVITY_TYPES[activity.kind].label;
+    $("activity-progress").value =
+      activity.elapsed / ACTIVITY_TYPES[activity.kind].duration;
   }
+}
+function setDialogueVisible(visible) {
+  $("dialogue").hidden = !visible;
+  document.body.classList.toggle("conversation-open", visible);
+  for (const element of document.querySelectorAll(
+    ".topbar,#world-shell,.bottom-bar",
+  ))
+    element.inert = visible;
 }
 function show(type, html) {
   panelType = type;
+  setDialogueVisible(false);
   $("panel-content").innerHTML = html;
   if (!panel.open) {
     previousFocus = document.activeElement;
@@ -90,18 +88,93 @@ function show(type, html) {
   }
   panel.scrollTop = 0;
   world?.keys.clear();
+  for (const hotspot of world?.hotspots || []) {
+    hotspot.title.setVisible(false);
+    hotspot.highlight.setVisible(false);
+  }
 }
 function close() {
   if (panelType === "welcome") state.flags.intro = true;
   panel.close();
   panelType = "";
-  world?.releaseNpc();
-  // Closing dialogue ends this encounter; explicit save/load keeps its current line.
-  state.dialogue = null;
+  if (state.dialogue) renderDialogue();
+  else {
+    setDialogueVisible(false);
+    world?.releaseNpc();
+    previousFocus?.focus?.();
+  }
   checkpoint();
   changed();
-  previousFocus?.focus?.();
 }
+function endDialogue() {
+  state.dialogue = null;
+  setDialogueVisible(false);
+  panelType = "";
+  world?.releaseNpc();
+  checkpoint();
+  changed();
+  $("world").focus();
+}
+function leaveOverlay() {
+  panel.close();
+  state.dialogue = null;
+  setDialogueVisible(false);
+  panelType = "";
+  world?.releaseNpc();
+  paused = false;
+}
+function goTo(sceneId, itemId) {
+  leaveOverlay();
+  if (sceneId === state.sceneId) world.interact(itemId);
+  else world.transition(sceneId, () => world.interact(itemId));
+}
+function menu() {
+  const next = objectives(state).find((g) => !g.done);
+  show(
+    "menu",
+    `${heading("MY LIFE · 日常選單", "我的生活", next?.label || "今天的小事，都好好完成了。")}<nav class="menu-grid" aria-label="遊戲功能">${[
+      ["phone", "▯", "手機", "人物與聯絡"],
+      ["schedule", "▤", "今日安排", "練習與生活"],
+      ["travel", "↗", "出門", "在城市走走"],
+      ["closet", "♧", "衣櫃", "回家換衣服"],
+      ["profile", "♡", "玩家資訊", "今天的自己"],
+      ["nearby", "⌖", "附近物件", "場景裡能做的事"],
+      ["saves", "▣", "存檔", "留下這個時刻"],
+      ["settings", "⚙", "設定", "視角與操作"],
+    ]
+      .map(
+        ([id, icon, name, note]) =>
+          `<button data-ui="${id}" ${id === "saves" ? 'aria-label="存檔與讀檔"' : ""}><span aria-hidden="true">${icon}</span><strong>${name}</strong><small>${note}</small></button>`,
+      )
+      .join("")}</nav>`,
+  );
+}
+function nearby() {
+  const actors = [...world.actors.keys()].filter((id) => id !== "player");
+  show(
+    "nearby",
+    `${heading("AROUND ME · 附近", "看看身邊有什麼")}<nav id="nearby" aria-label="場景互動物件">${ROOMS[state.sceneId].objects.map((item) => `<button data-object="${item.id}">${item.name}<span>走近 →</span></button>`).join("")}${actors.map((id) => `<button data-npc="${id}"><img src="${PEOPLE[id].head}" alt="">${PEOPLE[id].name}<span>聊聊 →</span></button>`).join("")}</nav>`,
+  );
+}
+function settings() {
+  show(
+    "settings",
+    `${heading("TAKE IT EASY · 設定", "照自己的步調")}<div class="settings-controls"><button data-ui="zoom-in" aria-label="放大場景">＋ 放大</button><button data-ui="zoom-out" aria-label="縮小場景">− 縮小</button><button data-ui="center" aria-label="鏡頭回到主角">◎ 找回主角</button><button data-ui="pause" id="pause" aria-label="${paused ? "繼續世界" : "暫停世界"}">${paused ? "▷ 繼續世界" : "Ⅱ 暫停世界"}</button><button data-ui="help" aria-label="操作說明">操作說明</button></div>`,
+  );
+}
+function schedule() {
+  show(
+    "schedule",
+    `${heading("TODAY · 今日安排", "今天想做的事", "選好一件事，就慢慢走過去吧。")}<div class="schedule-cards"><button data-go="rehearsal:practice"><strong>鏡前練習</strong><small>舞步或朗讀 · 星望排練室</small><span>前往 →</span></button><button data-go="cafe:window"><strong>在窗邊坐一會</strong><small>留一點空白 · 晨星咖啡館</small><span>前往 →</span></button><button data-go="home:bed"><strong>回家好好休息</strong><small>床鋪與自己的時間</small><span>前往 →</span></button></div><div class="buttons"><button data-ui="journal">查看生活手帳</button></div>`,
+  );
+}
+function phone() {
+  show(
+    "phone",
+    `${heading("MY PHONE · 手機", "新的城市，新的日常")}<ul class="checklist">${state.knownPeople.length ? state.knownPeople.map((id) => `<li>${PEOPLE[id].name}<br><small>${itinerary(id, state.elapsed).status}</small></li>`).join("") : "<li>通訊錄還是空白。去城市裡認識一個人吧。</li>"}</ul>`,
+  );
+}
+
 function heading(kicker, title, description = "") {
   return `<span class="eyebrow">${kicker}</span><h2 id="panel-title">${title}</h2>${description ? `<p class="lede">${description}</p>` : ""}`;
 }
@@ -154,7 +227,7 @@ function journal() {
 function help() {
   show(
     "help",
-    `${heading("HOW TO PLAY · 操作", "慢慢逛，也可以很順手")}<div class="help-lines"><div><b>走動</b><span>點空地自動走過去；電腦也可用方向鍵或 WASD。</span></div><div><b>互動</b><span>點場景的小標記、NPC，或下方物件按鈕。角色會先走近。</span></div><div><b>看場景</b><span>拖曳畫面平移；＋／− 縮放，◎ 找回主角。</span></div><div><b>閱讀</b><span>開啟視窗會暫停世界；也可用 Ⅱ 隨時暫停。</span></div><div><b>進度</b><span>自動存檔，另外提供五格手動存讀檔。</span></div></div><p class="tiny-note">像素版第一階段：先完成走動、場景、人物、換裝與存檔。訓練數值、工作、每週行程與戀愛養成會在後續階段接入。</p>`,
+    `${heading("HOW TO PLAY · 操作", "慢慢逛，也可以很順手")}<div class="help-lines"><div><b>走動</b><span>點空地自動走過去；電腦也可用方向鍵或 WASD。</span></div><div><b>互動</b><span>點家具或人物本身。也可從「選單 → 附近物件」選擇，角色會先走近。</span></div><div><b>看場景</b><span>拖曳畫面平移；選單的「設定」可以縮放或找回主角。</span></div><div><b>閱讀</b><span>開啟視窗會暫停世界；也可從「選單 → 設定」暫停。</span></div><div><b>進度</b><span>自動存檔，另外提供五格手動存讀檔。</span></div></div><p class="tiny-note">像素版第一階段：先完成走動、場景、人物、換裝與存檔。訓練數值、工作、每週行程與戀愛養成會在後續階段接入。</p>`,
   );
 }
 function saves() {
@@ -182,6 +255,7 @@ function restore(slot) {
     return;
   }
   state = saved.state;
+  setDialogueVisible(false);
   panel.close();
   panelType = "";
   world.events.emit("room-clear");
@@ -212,17 +286,20 @@ function renderDialogue() {
     player = node.speaker === "player" && !d.reply;
   const name = player ? state.playerName : PEOPLE[d.npcId].name,
     text = d.reply || node.text;
-  show(
-    "dialogue",
-    `${heading("ENCOUNTER · 城市偶遇", escape(name))}<div class="conversation"><figure><img src="${player ? portrait() : PEOPLE[d.npcId].portrait}" alt="${escape(name)}的插畫立繪"></figure><div class="speech"><span class="speaker">${player ? "剛到星望市的你" : PEOPLE[d.npcId].job}</span><p>${escape(text)}</p><div class="choices">${node.choices && !d.reply ? node.choices.map((choice, i) => `<button data-choice="${i}">${choice.label} →</button>`).join("") : `<button class="primary" data-ui="next-dialogue">${d.reply ? "下次見" : "繼續 →"}</button>`}</div><p class="tiny-note">世界暫停中 · 好好說完這段話</p><button data-ui="saves">保存這段相遇</button></div></div>`,
-  );
+  panel.close();
+  panelType = "dialogue";
+  $("dialogue").innerHTML =
+    `<div class="conversation"><figure class="dialogue-portrait ${player ? "player-crop" : "npc-crop"}"><img src="${player ? portrait() : PEOPLE[d.npcId].head}" alt="${escape(name)}的肩上肖像"></figure><div class="speech"><div class="dialogue-heading"><h2 id="dialogue-name">${escape(name)}</h2><span>${player ? "剛到星望市的你" : PEOPLE[d.npcId].job}</span></div><p id="dialogue-text">${escape(text)}</p><div class="choices">${node.choices && !d.reply ? node.choices.map((choice, i) => `<button data-choice="${i}">${choice.label}</button>`).join("") : `<button class="primary" data-ui="next-dialogue">${d.reply ? "下次見" : "繼續 →"}</button>`}</div></div><div class="dialogue-tools"><button data-ui="saves" aria-label="保存這段相遇">存檔</button><button data-ui="menu">選單</button><button data-ui="end-dialogue" aria-label="結束對話">×</button></div></div>`;
+  setDialogueVisible(true);
+  world?.keys.clear();
+  $("dialogue").querySelector(".choices button")?.focus();
 }
 function nextDialogue() {
   const d = state.dialogue;
   if (!d) return;
   if (d.reply) {
     if (!state.knownPeople.includes(d.npcId)) state.knownPeople.push(d.npcId);
-    close();
+    endDialogue();
     toast("這座城市，多了一個認識的人");
     return;
   }
@@ -236,6 +313,17 @@ function simple(title, text, button = "知道了") {
     `${heading("A LITTLE MOMENT · 生活片刻", title)}<p>${text}</p><div class="buttons"><button class="primary" data-ui="close">${button}</button></div>`,
   );
 }
+function beginActivity(itemId, kind) {
+  leaveOverlay();
+  world.startActivity(itemId, kind);
+  changed();
+}
+function selectObject(item) {
+  show(
+    "object",
+    `${heading("A LITTLE MOMENT · 身邊的事", item.name)}<div class="buttons"><button class="primary" data-object="${item.id}">走近看看 →</button><button data-ui="close">再逛逛</button></div>`,
+  );
+}
 function interact(item) {
   switch (item.action) {
     case "wardrobe":
@@ -245,18 +333,21 @@ function interact(item) {
       travel();
       break;
     case "desk":
-      show(
-        "desk",
-        `${heading("MY DESK · 書桌", "留一點時間給自己", "新城市的生活，慢慢記進手帳裡。")}<div class="buttons"><button data-ui="journal">✎ 打開生活手帳</button><button data-ui="phone">▯ 看看手機</button></div>`,
-      );
+      menu();
+      break;
+    case "rest":
+      beginActivity(item.id, "rest");
+      break;
+    case "sit":
+      beginActivity(item.id, "sit");
+      break;
+    case "script":
+      beginActivity(item.id, "read");
       break;
     case "practice":
-      state.flags.practiced = true;
-      world.player.facing = 3;
-      simple(
-        "第一次站到鏡子前",
-        '你調整呼吸，把一句台詞慢慢說完整。第一次不必完美，願意再練一次就有意義。<br><span class="tiny-note">已記下今天的練習。養成數值會在下一階段接入。</span>',
-        "收好這份小小的勇氣",
+      show(
+        "practice",
+        `${heading("REHEARSAL · 鏡前練習", "今天想怎麼練習？")}<div class="practice-choices"><button data-activity="dance" data-item="${item.id}"><span>♫</span><strong>舞步練習</strong><small>跟著節拍，動動身體</small></button><button data-activity="read" data-item="${item.id}"><span>▤</span><strong>朗讀台詞</strong><small>把一句話說進心裡</small></button></div>`,
       );
       break;
     case "notice":
@@ -266,30 +357,13 @@ function interact(item) {
         "你記下排練室的開放時段，和初學者課程的報名方式。這裡會是你往後練習表演的地方。",
       );
       break;
-    case "script":
-      simple(
-        "一份攤開的劇本",
-        "頁角寫著：「她不是不想說話，是還沒找到能相信的人。」你試著從角色的處境，重新理解這句台詞。",
-      );
-      break;
-    case "rest":
-      state.flags.rested = true;
-      simple(
-        "允許自己慢一點",
-        "你放下行李，在床邊坐了一會兒。房間很小，卻是這座城市裡第一個真正屬於你的角落。",
-      );
-      break;
     case "coffee":
-      state.flags.coffee = true;
-      simple(
-        "熱飲的溫度",
-        "你捧著一杯熱飲，看著窗外的人來人往。今天還有很多不知道的事，但此刻不用急著找到答案。",
-      );
+      goTo("cafe", "window");
       break;
     case "window":
-      simple(
-        "窗外的星望市",
-        "街口有人正趕往工作，有人停下來等朋友。你忽然覺得，自己也開始成為這座城市的一部分。",
+      show(
+        "seat",
+        `${heading("A WINDOW SEAT · 窗邊座位", "給自己一杯咖啡的時間")}<div class="buttons"><button class="primary" data-activity="coffee" data-item="${item.id}">坐下喝一杯</button><button data-activity="sit" data-item="${item.id}">靜靜坐一會</button></div>`,
       );
       break;
   }
@@ -298,12 +372,21 @@ function interact(item) {
 }
 const controller = {
   state: () => state,
-  paused: () => paused || panel.open || controller.transitioning,
+  paused: () =>
+    paused || panel.open || !!state.dialogue || controller.transitioning,
   transitioning: false,
   toast,
   checkpoint,
   changed,
   interact,
+  selectObject,
+  activityDone: (kind) => {
+    const data = ACTIVITY_TYPES[kind];
+    if (data.flag) state.flags[data.flag] = true;
+    checkpoint();
+    changed();
+    toast(data.done);
+  },
   talk: startDialogue,
   loading: (percent) =>
     ($("load-progress").textContent = `整理房間與行李… ${percent}%`),
@@ -314,6 +397,7 @@ const controller = {
   enterRoom: (id) => {
     state.sceneId = id;
     state.position = { ...ROOMS[id].entry };
+    state.activity = null;
     if (!state.visited.includes(id)) state.visited.push(id);
   },
   ready: (scene) => {
@@ -330,21 +414,27 @@ document.addEventListener("click", (event) => {
   const target = event.target.closest("button");
   if (!target || !world) return;
   if (target.dataset.object) {
+    leaveOverlay();
     world.interact(target.dataset.object);
     return;
   }
   if (target.dataset.npc) {
+    leaveOverlay();
     world.talk(target.dataset.npc);
+    return;
+  }
+  if (target.dataset.go) {
+    const [room, item] = target.dataset.go.split(":");
+    goTo(room, item);
+    return;
+  }
+  if (target.dataset.activity) {
+    beginActivity(target.dataset.item, target.dataset.activity);
     return;
   }
   if (target.dataset.room) {
     const id = target.dataset.room;
-    close();
-    if (paused) {
-      paused = false;
-      $("pause").textContent = "Ⅱ";
-      $("pause").setAttribute("aria-pressed", "false");
-    }
+    leaveOverlay();
     world.transition(id);
     return;
   }
@@ -419,11 +509,30 @@ document.addEventListener("click", (event) => {
     case "journal":
       journal();
       break;
+    case "menu":
+      menu();
+      break;
+    case "nearby":
+      nearby();
+      break;
+    case "settings":
+      settings();
+      break;
+    case "schedule":
+      schedule();
+      break;
+    case "closet":
+      goTo("home", "wardrobe");
+      break;
     case "phone":
-      show(
-        "phone",
-        `${heading("MY PHONE · 手機", "新的城市，新的日常")}<ul class="checklist">${state.knownPeople.length ? state.knownPeople.map((id) => `<li>${PEOPLE[id].name}<br><small>${itinerary(id, state.elapsed).status}</small></li>`).join("") : "<li>通訊錄還是空白。試著去城市裡認識一個人吧。</li>"}</ul><p class="tiny-note">這裡先記下已認識的人，社群與訊息會在後續階段接入。</p>`,
-      );
+      phone();
+      break;
+    case "end-dialogue":
+      endDialogue();
+      break;
+    case "stop-activity":
+      world.cancelActivity();
+      checkpoint();
       break;
     case "travel":
       travel();
@@ -442,10 +551,8 @@ document.addEventListener("click", (event) => {
       break;
     case "pause":
       paused = !paused;
-      $("pause").textContent = paused ? "▷" : "Ⅱ";
-      $("pause").setAttribute("aria-pressed", String(paused));
-      $("pause").setAttribute("aria-label", paused ? "繼續世界" : "暫停世界");
-      toast(paused ? "世界暫停了，慢慢想下一步" : "繼續今天的生活");
+      settings();
+      toast(paused ? "世界暫停了" : "繼續今天的生活");
       break;
   }
 });
@@ -469,3 +576,22 @@ window.__pixelRead = () =>
     ? { ...world.snapshot(), state: structuredClone(state), panel: panelType }
     : null;
 createWorld(controller);
+
+$("dialogue").addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    endDialogue();
+  }
+  if (event.key === "Tab") {
+    const buttons = [...$("dialogue").querySelectorAll("button")],
+      first = buttons[0],
+      last = buttons.at(-1);
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+});
