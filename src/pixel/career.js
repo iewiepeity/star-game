@@ -4,6 +4,7 @@ import { JOB_BY_ID } from "../data/jobs.js";
 import { AGENCIES } from "../data/agencies.js";
 import { INDUSTRY_COMPANIES } from "../data/industry.js";
 import { ACTIONS } from "../data/actions.js";
+import { socialDrafts } from "../logic/social-drafts.js";
 import { NPC_INTERACTIONS } from "../data/npc-network.js";
 import {
   applyToAgency,
@@ -23,6 +24,7 @@ import {
   jobScheduleOptions,
 } from "../logic/job-engine.js";
 import {
+  scheduleActivity,
   cancelActivity,
   markActivityDone,
 } from "../logic/scheduled-activities.js";
@@ -154,14 +156,16 @@ export function careerDefinition(game, a) {
                     game.sequelOffers?.find((x) => x.id === p.offerId)
                       ?.category,
                   )
-                : "home";
+                : task?.kind === "manager_interact"
+                  ? `agency_${game.currentAgencyId}`
+                  : "home";
   }
   return {
     ...def,
     room,
     label,
     item: def.item || serviceAt(room),
-    pose: "read",
+    pose: room === "cafe" ? "coffee" : "read",
   };
 }
 export function careerCost(life, a) {
@@ -310,6 +314,44 @@ export function bookCareer(life, definitions, kind, payload, day) {
     if (kind === "job") return scheduleJobSession(payload.jobId, day);
     if (kind === "sequel") return scheduleSequelSession(payload.offerId);
     if (kind === "npc") return inviteNpc(payload.npcId, payload.type, day);
+    if (kind === "social_post") {
+      const draft = socialDrafts()[payload.type];
+      if (!draft) return { ok: false, message: "這份草稿已不存在，請重新選擇" };
+      if (
+        Object.values(game.scheduledActivities).some(
+          (t) =>
+            t.kind === kind && t.week === game.week && t.status === "scheduled",
+        )
+      )
+        return {
+          ok: false,
+          message: "本週已有待發布的正式更新，請先完成或取消",
+        };
+      return scheduleActivity(
+        kind,
+        { type: payload.type, text: draft.text, label: draft.label },
+        `社群更新：${draft.label}`,
+        { fatigue: 2, stamina: 2, preferredDay: day },
+      );
+    }
+    if (kind === "manager_interact") {
+      if (
+        !game.currentAgencyId ||
+        !game.managerState ||
+        !["chat", "career", "apologize"].includes(payload.type)
+      )
+        return { ok: false, message: "簽約並有經紀人後，才能安排會談" };
+      return scheduleActivity(
+        kind,
+        payload,
+        {
+          chat: "和經紀人聊近況",
+          career: "經紀人職涯會談",
+          apologize: "危機後溝通",
+        }[payload.type],
+        { fatigue: 2, stamina: 2, preferredDay: day },
+      );
+    }
     if (kind === "interview") {
       const app = game.agencyApplications[payload.agencyId];
       if (

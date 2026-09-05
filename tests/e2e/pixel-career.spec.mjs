@@ -83,9 +83,9 @@ test("an invitation enters the agreed space and shows a sharp shoulder portrait 
     s.knownPeople = ["sufei"];
   });
   await menu(page, "phone");
-  await page.locator('[data-phone="contacts"]').click();
-  await page.locator('[data-contact="sufei"]').click();
-  await page.locator('[data-book="npc"][data-extra="meal"]').click();
+  await page.locator('[data-pixel-app="people"]').last().click();
+  await page.locator('[data-select-npc="sufei"]').first().click();
+  await page.locator('[data-npc-interact="meal"]').click();
   await page.locator('[data-book-day="0"]').click();
   await today(page);
   await expect(page.locator("[data-career-decision]").first()).toBeVisible({

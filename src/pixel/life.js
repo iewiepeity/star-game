@@ -16,14 +16,15 @@ import { initialState } from "../core/state.js";
 import { withCore } from "./core-bridge.js";
 export { withCore } from "./core-bridge.js";
 import { randomInt, setSeed } from "../core/rng.js";
-import { ABILITIES } from "../data/abilities.js";
+import { maybeQueueLifeEvent } from "../logic/life-events.js";
+import { ABILITIES, HIDDEN_TRAITS } from "../data/abilities.js";
 import { ACTIONS } from "../data/actions.js";
 import { OUTFITS, AVATARS } from "../data/wardrobe.js";
 import { MAP_LOCATIONS } from "../data/map-locations.js";
 import { TRAINING_VENUES, hasVisited } from "../logic/city-progression.js";
 import { recordPartTimeShift } from "../logic/work-progression.js";
 import { COMPANY_PART_TIME } from "../data/part-time.js";
-import { effectiveActionCost } from "../logic/economy.js";
+import { effectiveActionCost, reliefGigAvailable } from "../logic/economy.js";
 import {
   applyActivityLoad,
   healthPressure,
@@ -54,6 +55,22 @@ export const DAY_NAMES = [
 ];
 export const SPEEDS = [1, 2, 4, 8, 16];
 export const CHOICES = {
+  styling: {
+    label: "造型研究",
+    group: "生活",
+    action: "styling",
+    room: "shop",
+    item: "mirror",
+    pose: "read",
+  },
+  relief_gig: {
+    label: "新人服務台救急短工",
+    group: "工作",
+    action: "relief_gig",
+    room: "business",
+    item: "service",
+    pose: "read",
+  },
   visit_rehearsal: {
     label: "排練室自由活動",
     group: "探訪",
@@ -238,11 +255,19 @@ export function initialLife(seed = `pixel-${Date.now()}`) {
   withCore(life, (game) => {
     game.screen = "game";
     game.name = "星途新人";
+    game.realName = "星途新人";
     game.focus = "growth";
     setSeed(seed);
     game.stats = Object.fromEntries(
       ABILITIES.map((name) => [name, randomInt(0, 150)]),
     );
+    game.hidden = Object.fromEntries(
+      HIDDEN_TRAITS.map((n) => [
+        n,
+        350 + randomInt(1, 100) + randomInt(1, 100) + randomInt(1, 100),
+      ]),
+    );
+    game.luck = 200 + randomInt(1, 200) + randomInt(1, 200) + randomInt(1, 200);
     captureWeekStart();
   });
   return life;
@@ -268,6 +293,18 @@ export function normalizeLife(raw, legacyOutfit = "newcomer") {
   )
     throw new Error("養成進度格式不完整");
   for (const a of life.plan) if (!CHOICES[a?.id]) throw new Error("行程不存在");
+  if (!Object.keys(life.game.hidden || {}).length)
+    withCore(life, (game) => {
+      game.hidden = Object.fromEntries(
+        HIDDEN_TRAITS.map((n) => [
+          n,
+          350 + randomInt(1, 100) + randomInt(1, 100) + randomInt(1, 100),
+        ]),
+      );
+      if (!game.luck)
+        game.luck =
+          200 + randomInt(1, 200) + randomInt(1, 200) + randomInt(1, 200);
+    });
   life.speed = SPEEDS.includes(raw.speed) ? raw.speed : 1;
   life.auto = false; // A reload always gives control back before continuing a route.
   life.ledger ||= [];
@@ -302,6 +339,8 @@ export function access(life, assignment, day = life.day) {
     CAREER_CHOICES[assignment.id] && careerAccess(life, assignment, day);
   if (careerReason) return careerReason;
   const game = life.game;
+  if (assignment.id === "relief_gig" && !reliefGigAvailable(game))
+    return "資金低於 $1,500 時可接一次救急短工";
   // Services are public destinations. A schedule can include the first trip;
   // dispatch still walks through the city map and arrives before performing.
   if (assignment.id === "creative") {
@@ -376,10 +415,19 @@ export function settleDay(life, choice = "focus") {
     } else if (def.action === "rest") {
       routineRest(game);
       notes.push("睡了一個好覺，明天繼續。");
-    } else if (COMPANY_PART_TIME[def.action] || def.action === "newcomer_gig") {
+    } else if (
+      COMPANY_PART_TIME[def.action] ||
+      ["newcomer_gig", "relief_gig"].includes(def.action)
+    ) {
       applyActivityLoad(ACTIONS[def.action], game);
       game.money += randomInt(...ACTIONS[def.action].income);
       if (def.action === "newcomer_gig") game.fame += 1;
+      if (def.action === "relief_gig")
+        game.flags.push({
+          week: game.week,
+          label: "新人緊急周轉",
+          note: "完成服務台提供的一次救急短工",
+        });
       routineGains(game, ACTIONS[def.action].shiftGains, randomInt);
       notes.push(
         COMPANY_PART_TIME[def.action]?.note || "引導來賓，並協助公開活動撤場。",
@@ -387,10 +435,10 @@ export function settleDay(life, choice = "focus") {
           ? recordPartTimeShift(game, def.action)
           : "完成了今天的公開零工。",
       );
-    } else if (def.action === "study") {
+    } else if (def.action === "study" || def.action === "styling") {
       const multiplier = performanceMultiplier("training", game);
-      applyActivityLoad(ACTIONS.study, game);
-      routineGains(game, ACTIONS.study.gains, randomInt, multiplier);
+      applyActivityLoad(ACTIONS[def.action], game);
+      routineGains(game, ACTIONS[def.action].gains, randomInt, multiplier);
     } else if (def.action === "free") {
       const location = MAP_LOCATIONS[def.venue];
       applyActivityLoad(ACTIONS.free, game);
@@ -452,6 +500,9 @@ export function settleDay(life, choice = "focus") {
       if (game.socialPosts[0]) game.socialPosts[0].id = `pixel-${pending.id}`;
       notes.push(plain(r.text));
     }
+    maybeQueueLifeEvent(
+      ACTIONS[def.action] || { type: "life", label: def.label },
+    );
     const health = healthPressure(game);
     if (health === "death") lockEnding("death");
     if (health === "hospital") {
@@ -534,6 +585,7 @@ export function advanceDay(life) {
 }
 export function nextWeek(life) {
   if (life.day !== 7 || !life.weekSummary) return false;
+  life.previousPlan = structuredClone(life.plan);
   advanceCareerWeek(life);
   life.day = 0;
   life.weekSummary = null;

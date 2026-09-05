@@ -1,0 +1,16 @@
+{
+  "id": "./pixel.html",
+  "name": "星途未定 · 像素生活",
+  "short_name": "星途未定",
+  "description": "在星望市寫下自己的明星人生",
+  "lang": "zh-Hant",
+  "start_url": "./pixel.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fffaf2",
+  "theme_color": "#fffaf2",
+  "icons": [
+    {"src":"./assets/icons/icon-192.webp","sizes":"192x192","type":"image/webp"},
+    {"src":"./assets/icons/icon-512.webp","sizes":"512x512","type":"image/webp"}
+  ]
+}

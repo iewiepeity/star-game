@@ -1,6 +1,6 @@
 {
   "name": "star-game",
-  "version": "1.29.0",
+  "version": "1.30.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -15,7 +15,7 @@
     "audit:pwa": "node scripts/audit-pwa.mjs",
     "audit:five-year": "node scripts/audit-five-year-play.mjs && node scripts/playtest-depth-v4.mjs",
     "audit:world-reactions": "node scripts/audit-world-reactions.mjs",
-    "build": "node scripts/build-release.mjs",
+    "build": "node scripts/build-pixel-offline.mjs && node scripts/build-release.mjs",
     "check": "npm run format:check && npm run lint && npm run validate && npm test && npm run audit:five-year && npm run audit:world-reactions && npm run audit:assets && npm run audit:pwa && npm run build"
   },
   "devDependencies": {

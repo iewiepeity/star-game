@@ -1,6 +1,6 @@
-# Pixel life · v0.6.0
+# Pixel life · v0.7.0
 
-Entry: `/pixel.html`. Original `/index.html` progress and the pixel save namespace remain separate. This is a playable migration with remaining feature gaps, not full parity with the original UI.
+Entry: `/pixel.html`. Original `/index.html` progress and the pixel save namespace remain separate. The original 18 app entry points and the previously listed missing interactions are now accessible inside the pixel world. See the parity inventory for supported operations and limits.
 
 ## Modules
 
@@ -23,12 +23,19 @@ Five palettes cover the chrome, panels and dialogue while preserving scene and p
 
 New games choose gender before locking it. Existing v0.5 saves keep their currently worn avatar's gender. Same-gender appearances can be swapped; another gender requires being at the clinic with sufficient funds and explicit in-game confirmation. All wardrobe ownership survives. A failed sprite load restores the previous state and does not charge or persist a partial change. The original clinic transaction is immediate and does not consume a schedule day.
 
-## Remaining parity work
+## Feature integration
 
-The original full NPC dossier/network, manual romance visibility/breakup controls, complete social and forum interactions, timeline, CG gallery, achievement UI, some agency negotiation/manager tools, audio, export/import/backup management, original full character creation/prologue and several settings are not yet migrated. Weekly simulation/data alone is not considered a completed player-facing feature.
+- `feature-ui.js` + `pixel-apps.css`: original pure views within a themed pixel panel, with explicit handlers. Never import the original renderer or bind modules. Formal actions use the pixel booking flow.
+- `planner-tools.js`: five presets, previous-week reuse, due-job scheduling and guarded undo; later reservations or resource changes invalidate old snapshots.
+- `save-transfer.js`, `storage-ui.js`: validated original/pixel import, preview and transactional replacement, export, rollback, deletion recovery, new runs and retirement.
+- `onboarding.js`, `tutorial-ui.js`: original prologue, identity fields, ability rolls and contextual pixel tutorials.
+- `preferences.js`: palette, font size, volume and tutorial preferences independent of game slots. Audio uses an injected preference reader without changing original defaults.
+- `offline.js`: shared service-worker registration, explicit full-pack download, install and update controls. `scripts/build-pixel-offline.mjs` includes atlas JSON as well as image/code/audio assets.
 
-See `PIXEL-UI-REFRESH.md` and `PIXEL-FEATURE-PARITY.md` for the current release and detailed inventory. Historical phase documents describe the scope at those earlier versions.
+See `PIXEL-COMPLETION.md` and `PIXEL-FEATURE-PARITY.md`. Historical phase documents describe those earlier versions. Cross-device transfer is file-based, not cloud synchronization.
 
 ## Verification and packaging
 
-Run `npm run check` for the original and pixel domain checks and production build. Run `npx playwright test pixel-phase-one pixel-life pixel-city pixel-career pixel-polish` for browser flow coverage. The build must copy **both** `pixel.css` and `pixel-ui.css`, the pixel modules and all referenced assets. The optional pixel entry does not yet promise a complete offline/install/update experience.
+Run `npm run check` for original and pixel domain checks and the production build. Run `npx playwright test 'pixel-.*\.spec\.mjs' --workers=3` for the six browser/viewport projects. Download an offline pack and test reloading/entering an unvisited room with the network disabled. Asset-failure tests block service workers so cached responses cannot bypass intentional request failures.
+
+Package the **entire `dist/`** folder, including original shell files, all pixel styles, manifests, modules and assets. This allows the shared service worker to install successfully. Version query strings must retain the pixel HTML fallback while offline.

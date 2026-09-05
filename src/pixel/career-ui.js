@@ -231,8 +231,9 @@ export function createCareerUI(api) {
     );
   }
   function book(kind, id, extra) {
-    const payload =
-      kind === "npc"
+    const payload = ["social_post", "manager_interact"].includes(kind)
+      ? { type: id }
+      : kind === "npc"
         ? { npcId: id, type: extra }
         : kind === "interview"
           ? { agencyId: id }
@@ -323,7 +324,7 @@ export function createCareerUI(api) {
     show(
       "career-project",
       p.title,
-      `<div class="career-feature">${roomIllustration(ROOMS[p.type === "song" ? "recording" : p.type === "show" ? "tv" : "studio"])}<div><b>${{ draft: "創作中", rejected: "修改後可再投", ready: "草稿完成", contracted: "準備製作", production: "製作中", ready_release: "準備發行", released: "正式發行", sold: "已售企劃權" }[p.status] || p.status}</b><p>草稿 ${p.progress}% · 製作 ${p.productionProgress}%</p><p>品質 ${p.quality} · 團隊 ${p.team.length} 人</p></div></div><div class="command-list">${actions}</div>${
+      `<div class="buttons"><button data-pixel-app="creative">完整作品資料與製作分工</button></div><div class="career-feature">${roomIllustration(ROOMS[p.type === "song" ? "recording" : p.type === "show" ? "tv" : "studio"])}<div><b>${{ draft: "創作中", rejected: "修改後可再投", ready: "草稿完成", contracted: "準備製作", production: "製作中", ready_release: "準備發行", released: "正式發行", sold: "已售企劃權" }[p.status] || p.status}</b><p>草稿 ${p.progress}% · 製作 ${p.productionProgress}%</p><p>品質 ${p.quality} · 團隊 ${p.team.length} 人</p></div></div><div class="command-list">${actions}</div>${
         ["draft", "rejected", "ready"].includes(p.status)
           ? `<details><summary>作品方向</summary>${Object.entries(
               CREATIVE_DIRECTIONS[p.type],
@@ -417,7 +418,7 @@ export function createCareerUI(api) {
     show(
       "career-portfolio",
       "作品履歷與獎櫃",
-      `<div class="career-dashboard"><div><small>正式作品</small><strong>${g.completedWorks.length}</strong></div><div><small>獎項／入圍</small><strong>${g.awards.length}</strong></div><div><small>知名度</small><strong>${g.fame}</strong></div></div><div class="career-card-list">${
+      `<div class="buttons"><button data-pixel-app="log">完整作品與生涯紀錄</button><button data-pixel-app="achievements">永久成就</button><button data-pixel-app="timeline">人生時間線</button></div><div class="career-dashboard"><div><small>正式作品</small><strong>${g.completedWorks.length}</strong></div><div><small>獎項／入圍</small><strong>${g.awards.length}</strong></div><div><small>知名度</small><strong>${g.fame}</strong></div></div><div class="career-card-list">${
         g.completedWorks
           .slice()
           .reverse()
@@ -440,7 +441,7 @@ export function createCareerUI(api) {
     show(
       "career-ending",
       e.title,
-      `<div class="career-feature">${roomIllustration(ROOMS.home)}<div><span>${esc(e.rank)}</span><h3>${esc(e.route)}</h3><p>${e.portfolio.works} 部作品 · ${e.awardWins} 座獎 · ${e.score} 分</p></div></div><p>${esc(e.summary)}</p><div class="panel-actions">${btn("保存這段人生", 'data-ui="saves"')}${btn("查看作品", 'data-career="portfolio"')}</div>`,
+      `<div class="career-feature">${roomIllustration(ROOMS.home)}<div><span>${esc(e.rank)}</span><h3>${esc(e.route)}</h3><p>${e.portfolio.works} 部作品 · ${e.awardWins} 座獎 · ${e.score} 分</p></div></div><p>${esc(e.summary)}</p><div class="panel-actions">${btn("保存這段人生", 'data-ui="saves"')}${btn("查看作品", 'data-pixel-app="log"')}${btn("開啟下一段人生", 'data-storage="new"')}</div>`,
       "這段旅程的作品、選擇與關係已保存。",
     );
   }
@@ -561,6 +562,7 @@ export function createCareerUI(api) {
     return false;
   }
   return {
+    book,
     hub,
     agency,
     board,

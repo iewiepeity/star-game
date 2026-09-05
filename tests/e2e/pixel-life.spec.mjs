@@ -5,6 +5,7 @@ const close = (page) => page.getByRole("button", { name: "關閉視窗" }).click
 async function start(page) {
   await page.goto("/pixel.html");
   await page.getByRole("button", { name: "開始我的一天 →" }).click();
+  await page.locator('[data-onboarding="skip"]').click();
 }
 async function menu(page, id) {
   await page.getByRole("button", { name: "開啟選單" }).click();
@@ -20,8 +21,29 @@ async function waitResult(page) {
     })
     .toBe("result");
 }
+async function finishStories(page) {
+  for (let i = 0; i < 60; i++) {
+    const next = page.locator("#career-page-next"),
+      choice = page.locator("[data-story-choice]:not([disabled])").first(),
+      done = page.locator("[data-story-done]");
+    if (await next.isVisible()) await next.click();
+    else if (await choice.isVisible()) await choice.click();
+    else if (await done.isVisible()) await done.click();
+    else {
+      const g = (await read(page)).state.life.game;
+      if (!g.activeEvent && !g.eventOutcome && !g.eventQueue.length) return;
+      if (await page.locator("#panel").isVisible()) await close(page);
+      else await page.locator("#run-label").click();
+    }
+  }
+  throw new Error("Story queue did not finish");
+}
 async function advance(page) {
+  await finishStories(page);
+  if (!(await page.locator('[data-life="advance"]').isVisible()))
+    await page.locator("#run-label").click();
   await page.locator('[data-life="advance"]').click();
+  await finishStories(page);
 }
 
 test("first week schedules immediately and all seven days complete without registration", async ({
@@ -48,9 +70,18 @@ test("first week schedules immediately and all seven days complete without regis
   await page.locator("#run-label").click();
   await advance(page);
   await page.locator("#auto-control").click();
-  await expect(page.locator('[data-life="next-week"]')).toBeVisible({
-    timeout: 40000,
-  });
+  const deadline = Date.now() + 55000;
+  while ((await read(page)).state.life.day < 7 && Date.now() < deadline) {
+    const l = (await read(page)).state.life;
+    if (l.game.activeEvent || l.game.eventOutcome || l.game.eventQueue.length) {
+      await finishStories(page);
+    } else if (!l.auto && l.pending?.phase === "result") await advance(page);
+    else if (!l.auto) {
+      if (await page.locator("#panel").isVisible()) await close(page);
+      await page.locator("#auto-control").click();
+    } else await page.waitForTimeout(200);
+  }
+  await expect(page.locator('[data-life="next-week"]')).toBeVisible();
   const complete = (await read(page)).state.life;
   expect(complete.ledger).toHaveLength(7);
   expect(complete.game.partTimeShifts.tv_assistant).toBe(1);
@@ -85,12 +116,16 @@ test("create twice in one week, publish a social post, and inspect responsive me
     (await read(page)).state.life.game.creativeProjects[0].progress,
   ).toBeGreaterThan(first);
   await menu(page, "phone");
-  await expect(page.locator(".social-feed")).toBeVisible();
-  await page.locator('[data-offer="social"]').click();
+  await page.locator('[data-pixel-app="social"]').last().click();
+  await page.locator(".social-compose summary").click();
+  await page.locator('[data-social-post="daily"]').click();
+  await page.locator('[data-book-day="2"]').click();
+  await page.locator('#panel [data-life="today"]').click();
   await page.locator("[data-start]").click();
   await waitResult(page);
   await advance(page);
   await menu(page, "phone");
+  await page.locator('[data-pixel-app="social"]').last().click();
   expect((await read(page)).state.life.game.socialPosts).toHaveLength(1);
   await expect(page.locator(".social-feed article").first()).toContainText(
     "星途新人",
@@ -126,6 +161,7 @@ test("enter the shop on Monday, buy immediately and synchronize illustration and
   await menu(page, "profile");
   await page.locator('[data-ui="closet"]').click();
   await page.locator('[data-map-enter="home"]').click();
+  await page.locator('[data-fitting="practice"]').click();
   await page.locator('[data-outfit="practice"]').click();
   await expect
     .poll(async () => (await read(page)).player.outfit)

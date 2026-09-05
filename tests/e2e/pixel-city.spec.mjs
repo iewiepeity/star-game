@@ -95,6 +95,7 @@ test("same-gender appearances remain one actor, and a new outfit keeps its ident
     expect((await read(page)).playerCount).toBe(1);
   }
   await page.locator('[data-ui="closet"]').click();
+  await page.locator('[data-fitting="practice"]').click();
   await page.locator('[data-outfit="practice"]').click();
   await expect
     .poll(async () => (await read(page)).player.outfit)

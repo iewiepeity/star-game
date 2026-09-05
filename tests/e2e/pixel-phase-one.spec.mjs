@@ -15,6 +15,7 @@ async function start(page) {
   }, fixture);
   await page.goto("/pixel.html");
   await page.getByRole("button", { name: "開始我的一天 →" }).click();
+  await page.locator('[data-onboarding="skip"]').click();
 }
 async function menu(page, item) {
   await page.getByRole("button", { name: "開啟選單" }).click();
@@ -56,6 +57,7 @@ test("walk, dress, enter every room, meet an NPC and reload the same save", asyn
   });
   const initial = await read(page);
   await object(page, "wardrobe");
+  await page.locator('[data-fitting="practice"]').click();
   await page.locator('[data-outfit="practice"]').click();
   expect((await read(page)).player.x).not.toBe(initial.player.x);
   await expect(page.locator("#player-head")).toHaveAttribute(
@@ -95,10 +97,19 @@ test("walk, dress, enter every room, meet an NPC and reload the same save", asyn
   await close(page);
   await travel(page, "home");
   await object(page, "wardrobe");
+  await page.locator('[data-fitting="audition"]').click();
   await page.locator('[data-outfit="audition"]').click();
+  await expect(page.locator("#toast")).toContainText(
+    "立繪與像素人物已一起換裝",
+  );
   await close(page);
   await menu(page, "saves");
   await page.locator('[data-load="1"]').click();
+  await expect(page.locator("#loading")).toBeHidden({ timeout: 20000 });
+  await expect
+    .poll(async () => (await read(page))?.scene, { timeout: 12000 })
+    .toBe("cafe");
+  await expect(page.locator("#loading")).toBeHidden();
   const restored = await read(page);
   expect(restored.scene).toBe("cafe");
   expect(restored.player.outfit).toBe("raven-practice");
@@ -106,7 +117,10 @@ test("walk, dress, enter every room, meet an NPC and reload the same save", asyn
   expect(restored.playerCount).toBe(1);
   expect(restored.state.flags.practiced).toBe(true);
   await page.reload();
-  await expect.poll(async () => (await read(page))?.scene).toBe("cafe");
+  await expect(page.locator("#loading")).toBeHidden({ timeout: 20000 });
+  await expect
+    .poll(async () => (await read(page))?.scene, { timeout: 12000 })
+    .toBe("cafe");
   expect((await read(page)).player.outfit).toBe("raven-practice");
   expect(
     await page.evaluate(() => localStorage.getItem("star-game-save")),

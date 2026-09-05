@@ -58,6 +58,7 @@ test("five palette themes apply across settings, gameplay, and reload without mo
     "data-pixel-theme",
     "night",
   );
+  await expect(page.locator("#loading")).toBeHidden();
   expect((await read(page)).state.life.game.money).toBe(18000);
   expect(
     await page.evaluate(
@@ -140,6 +141,7 @@ test("new game gender selection narrows portraits before the journey starts", as
   await expect(page.locator('[data-avatar="noir"]')).toBeVisible();
   await expect(page.locator('[data-avatar="raven"]')).toHaveCount(0);
   await page.locator('[data-ui="begin"]').click();
+  await page.locator('[data-onboarding="skip"]').click();
   await menu(page, "profile");
   expect((await read(page)).state.identity.locked).toBe(true);
   await expect(page.locator('[data-avatar="sunny"]')).toHaveCount(0);
@@ -147,31 +149,38 @@ test("new game gender selection narrows portraits before the journey starts", as
 });
 
 // A failed paid appearance load must be recoverable without charging the save.
-test("clinic sprite load failure preserves gender, money and the playable screen", async ({
-  page,
-}) => {
-  await start(page, (s) => {
-    s.sceneId = "clinic";
-    s.life.game.money = 100000;
+test.describe("failed asset recovery", () => {
+  test.use({ serviceWorkers: "block" });
+  test("clinic sprite load failure preserves gender, money and the playable screen", async ({
+    page,
+  }) => {
+    await start(page, (s) => {
+      s.sceneId = "clinic";
+      s.life.game.money = 100000;
+    });
+    await menu(page, "profile");
+    await page.locator('[data-ui="clinic"]').click();
+    await page.locator('[data-request-gender="noir"]').click();
+    await page.route("**/wardrobe/*noir-0.webp", (route) => route.abort());
+    await page.locator('[data-confirm-gender="noir"]').click();
+    await expect(page.locator("#toast")).toContainText("原外型與金錢已保留", {
+      timeout: 15000,
+    });
+    await expect(page.locator("#loading")).toBeHidden();
+    const s = (await read(page)).state;
+    expect(s.life.game.money).toBe(100000);
+    expect(s.identity.gender).toBe("女性");
+    expect(s.avatarId).toBe("raven");
+    expect(s.identity.changes).toHaveLength(0);
+    await page.unroute("**/wardrobe/*noir-0.webp");
+    await page.locator('[data-confirm-gender="noir"]').click();
+    await expect(page.locator("#panel")).toHaveAttribute(
+      "data-view",
+      "profile",
+      {
+        timeout: 15000,
+      },
+    );
+    expect((await read(page)).state.life.game.money).toBe(40000);
   });
-  await menu(page, "profile");
-  await page.locator('[data-ui="clinic"]').click();
-  await page.locator('[data-request-gender="noir"]').click();
-  await page.route("**/wardrobe/*noir-0.webp", (route) => route.abort());
-  await page.locator('[data-confirm-gender="noir"]').click();
-  await expect(page.locator("#toast")).toContainText("原外型與金錢已保留", {
-    timeout: 15000,
-  });
-  await expect(page.locator("#loading")).toBeHidden();
-  const s = (await read(page)).state;
-  expect(s.life.game.money).toBe(100000);
-  expect(s.identity.gender).toBe("女性");
-  expect(s.avatarId).toBe("raven");
-  expect(s.identity.changes).toHaveLength(0);
-  await page.unroute("**/wardrobe/*noir-0.webp");
-  await page.locator('[data-confirm-gender="noir"]').click();
-  await expect(page.locator("#panel")).toHaveAttribute("data-view", "profile", {
-    timeout: 15000,
-  });
-  expect((await read(page)).state.life.game.money).toBe(40000);
 });

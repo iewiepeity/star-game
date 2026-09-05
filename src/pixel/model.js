@@ -115,6 +115,9 @@ export function validatePixelState(raw) {
   }
   state.life = normalizeLife(raw.life, state.outfitId);
   normalizeIdentity(state, raw);
+  if (!state.life.game.realName && !state.life.game.stageName)
+    state.life.game.realName = state.playerName;
+  state.life.game.name = state.life.game.stageName || state.life.game.realName;
   for (const id of state.visited) arriveAt(state.life, id);
   if (!raw.life)
     for (const id of state.knownPeople) recordMeeting(state.life, id);
@@ -148,7 +151,68 @@ export function createStorage(storage) {
       return false;
     }
   }
-  return { read, write };
+  function backup(state) {
+    try {
+      storage.setItem(
+        `${SAVE_KEY}-transfer-backup`,
+        JSON.stringify({
+          state: validatePixelState(state),
+          savedAt: new Date().toISOString(),
+        }),
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  function readBackup(slot = "transfer") {
+    try {
+      const raw = JSON.parse(
+        storage.getItem(
+          slot === "transfer"
+            ? `${SAVE_KEY}-transfer-backup`
+            : `${key(slot)}-backup`,
+        ),
+      );
+      return raw
+        ? { state: validatePixelState(raw.state), savedAt: raw.savedAt }
+        : { state: null };
+    } catch {
+      return { state: null, error: "備份無法讀取" };
+    }
+  }
+  function remove(slot) {
+    if (![1, 2, 3, 4, 5].includes(Number(slot))) return false;
+    try {
+      const raw = storage.getItem(key(slot));
+      if (!raw) return false;
+      storage.setItem(`${key(slot)}-deleted`, raw);
+      storage.removeItem(key(slot));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  function deleted(slot) {
+    try {
+      const raw = JSON.parse(storage.getItem(`${key(slot)}-deleted`));
+      return raw
+        ? { state: validatePixelState(raw.state), savedAt: raw.savedAt }
+        : { state: null };
+    } catch {
+      return { state: null };
+    }
+  }
+  function restoreDeleted(slot) {
+    const r = deleted(slot);
+    if (!r.state || read(slot).state) return false;
+    if (!write(r.state, slot)) return false;
+    try {
+      storage.removeItem(`${key(slot)}-deleted`);
+    } catch {}
+    return true;
+  }
+  return { read, write, backup, readBackup, remove, deleted, restoreDeleted };
 }
 export function objectives(state) {
   const game = state.life.game;

@@ -1,3 +1,4 @@
+import { applyPlannerTool, plannerToolsMarkup } from "./planner-tools.js";
 import { createCareerUI } from "./career-ui.js";
 import { careerDecision } from "./career.js";
 import { ACTIONS } from "../data/actions.js";
@@ -112,7 +113,7 @@ export function createLifeUI(api) {
       .join("");
     show(
       "schedule",
-      `${heading("WEEKLY PLAN", "我的一週", "第一週就能自由改排。課程與工作會帶你前往場地，不需先花一天登記。")}<div class="week-strip" role="group" aria-label="七日行程">${l.plan.map((a, i) => `<button data-day="${i}" class="${i === selectedDay ? "selected" : ""}" ${i < l.day ? "disabled" : ""}><small>週${"一二三四五六日"[i]}</small><strong>${escape(label(a))}</strong><span>${i < l.day ? "已完成" : i === l.day ? "今天" : "可調整"}</span></button>`).join("")}</div><div class="section-heading"><b>安排 ${DAY_NAMES[selectedDay]}</b><span>餘下學費／外出費 ${money(estimate)}</span></div><nav class="schedule-filters" aria-label="行程類型">${["全部", "訓練", "工作", "探訪", "生活", "創作", "休息"].map((f) => `<button data-schedule-filter="${f}" aria-pressed="${filter === f}">${f}</button>`).join("")}</nav><div class="action-catalog">${cards}</div><div class="panel-actions"><button data-ui="menu">◀ 選單</button><button data-life="auto" ${l.pending ? "disabled" : ""}>自動執行行程</button><button class="primary" data-life="today">開始今天 →</button></div>`,
+      `${heading("WEEKLY PLAN", "我的一週", "第一週就能自由改排。課程與工作會帶你前往場地，不需先花一天登記。")}${plannerToolsMarkup(l)}<div class="week-strip" role="group" aria-label="七日行程">${l.plan.map((a, i) => `<button data-day="${i}" class="${i === selectedDay ? "selected" : ""}" ${i < l.day ? "disabled" : ""}><small>週${"一二三四五六日"[i]}</small><strong>${escape(label(a))}</strong><span>${i < l.day ? "已完成" : i === l.day ? "今天" : "可調整"}</span></button>`).join("")}</div><div class="section-heading"><b>安排 ${DAY_NAMES[selectedDay]}</b><span>餘下學費／外出費 ${money(estimate)}</span></div><nav class="schedule-filters" aria-label="行程類型">${["全部", "訓練", "工作", "探訪", "生活", "創作", "休息"].map((f) => `<button data-schedule-filter="${f}" aria-pressed="${filter === f}">${f}</button>`).join("")}</nav><div class="action-catalog">${cards}</div><div class="panel-actions"><button data-ui="menu">◀ 選單</button><button data-life="auto" ${l.pending ? "disabled" : ""}>自動執行行程</button><button class="primary" data-life="today">開始今天 →</button></div>`,
     );
   }
   function offer(assignment) {
@@ -170,7 +171,7 @@ export function createLifeUI(api) {
     if (!world().startActivity(d.item, d.pose)) {
       p.phase = "travel";
       life().auto = false;
-      toast("先走到活動物件旁邊再繼續");
+      toast("這個位置暫時無法演出此動作，請重新點選今日行動");
     }
     checkpoint();
     changed();
@@ -369,7 +370,7 @@ export function createLifeUI(api) {
     const projects = life().game.creativeProjects;
     show(
       "creative",
-      `${heading("MY STUDIO", "創作筆記", "一個想法，慢慢成為自己的作品。創作可排入每個尚未使用的日子。")}<form id="project-form"><div class="project-fields"><label>作品類型<select id="project-type">${Object.entries(
+      `${heading("MY STUDIO", "創作筆記", "一個想法，慢慢成為自己的作品。創作可排入每個尚未使用的日子。")}<button data-pixel-app="creative">開啟完整創作工作室</button><form id="project-form"><div class="project-fields"><label>作品類型<select id="project-type">${Object.entries(
         CREATIVE_TYPES,
       )
         .map(([id, v]) => `<option value="${id}">${v.label}</option>`)
@@ -475,6 +476,14 @@ export function createLifeUI(api) {
     if (careerUI.handle(target)) return true;
     const d = target.dataset,
       l = life();
+    if (d.plannerTool) {
+      const r = applyPlannerTool(life(), d.plannerTool);
+      checkpoint();
+      changed();
+      schedule();
+      toast(r.message);
+      return true;
+    }
     if (d.careerDecision) {
       const p = l.pending;
       if (
@@ -590,7 +599,12 @@ export function createLifeUI(api) {
     schedule,
     phone,
     creative,
-    afterStory: () => (life().day === 7 ? summary() : changed()),
+    afterStory: () =>
+      life().day === 7
+        ? summary()
+        : life().pending?.phase === "result"
+          ? result()
+          : changed(),
   });
   function resumeNarrative() {
     if (life().game.activeEvent || life().game.eventOutcome) {

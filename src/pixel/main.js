@@ -1,4 +1,28 @@
-import { pixelPreferences, applyPixelTheme } from "./preferences.js";
+import { setupPixelOffline } from "./offline.js";
+import { tutorialMarkup, dismissTutorial } from "./tutorial-ui.js";
+import {
+  configureAudioPreferences,
+  enableAudio,
+  syncAudio,
+  playSfx,
+  suspendAudio,
+  resumeAudio,
+} from "../core/audio.js";
+import {
+  creationFields,
+  editCreation,
+  finishCreation,
+  rerollCreation,
+  prologueData,
+  advanceOpening,
+} from "./onboarding.js";
+import { createStorageUI } from "./storage-ui.js";
+import { createFeatureUI } from "./feature-ui.js";
+import {
+  pixelPreferences,
+  applyPixelTheme,
+  applyPixelFont,
+} from "./preferences.js";
 import { settingsMarkup } from "./settings-ui.js";
 import {
   avatarsForGender,
@@ -10,7 +34,7 @@ import {
 } from "./identity.js";
 import { createCityUI } from "./city-ui.js";
 import { CITY_CATALOG } from "./city-catalog.js";
-import { arriveAt } from "./life.js";
+import { arriveAt, CHOICES, planDay, access } from "./life.js";
 import { AGENCIES } from "../data/agencies.js";
 import { AVATARS, portraitAsset } from "../data/wardrobe.js";
 import { repeatLine } from "./cast.js";
@@ -41,6 +65,9 @@ try {
   preferences = pixelPreferences(null);
 }
 applyPixelTheme(preferences.get().theme);
+applyPixelFont(preferences.get().fontSize);
+configureAudioPreferences(() => preferences.get());
+let audioUnlocked = false;
 let appearanceBusy = false;
 try {
   storage = createStorage(window.localStorage);
@@ -99,6 +126,17 @@ function changed() {
       activity.elapsed / ACTIVITY_TYPES[activity.kind].duration;
   }
   lifeUI.changed();
+  if (audioUnlocked)
+    syncAudio(
+      state.sceneId === "home"
+        ? "room"
+        : state.sceneId === "cafe"
+          ? "social"
+          : state.sceneId.includes("agency")
+            ? "industry"
+            : "planning",
+      state.life.game,
+    );
 }
 function setDialogueVisible(visible) {
   if (visible) $("toast").classList.remove("visible");
@@ -114,7 +152,12 @@ function show(type, html) {
   panelType = type;
   panel.dataset.view = type;
   setDialogueVisible(false);
-  $("panel-content").innerHTML = html;
+  $("panel-content").innerHTML =
+    (preferences.get().tutorials ? tutorialMarkup(state, type) : "") + html;
+  if (!$("panel-title")) {
+    const title = $("panel-content").querySelector("h2");
+    if (title) title.id = "panel-title";
+  }
   if (!panel.open) {
     previousFocus = document.activeElement;
     panel.showModal();
@@ -198,7 +241,7 @@ function nearby() {
 function settings() {
   show(
     "settings",
-    `${heading("YOUR LITTLE WORLD", "照自己的步調")}${settingsMarkup({ theme: preferences.get().theme, speed: state.life.speed, paused })}`,
+    `${heading("YOUR LITTLE WORLD", "照自己的步調")}${settingsMarkup({ theme: preferences.get().theme, speed: state.life.speed, paused, preferences: preferences.get() })}`,
   );
 }
 function clinic() {
@@ -267,7 +310,7 @@ function schedule() {
   lifeUI.schedule();
 }
 function phone() {
-  lifeUI.phone();
+  featureUI.open("phone");
 }
 
 function heading(kicker, title, description = "") {
@@ -276,7 +319,7 @@ function heading(kicker, title, description = "") {
 function welcome() {
   show(
     "welcome",
-    `${heading("CHAPTER 01 · 來到星望市", "第一週，先在城市站穩腳步", "行李才剛放下。打開城市地圖，走進想去的地方。第一週的生活，由你自己安排。")}<div class="help-lines"><div><b>看看本週行程</b><span>已替你擬好第一週的安排；每天一件事，也可以自己調整。</span></div><div><b>走進城市</b><span>點地圖進入每個空間。到店就能購物，到教室就能上課，不需額外登記。</span></div><div><b>照自己的步調</b><span>親自走過去，或讓角色依行程自動執行；遇到選擇會停下來。</span></div></div><div class="identity-picker"><span>先決定主角性別</span><div role="group" aria-label="主角性別">${["女性", "男性"].map((g) => `<button data-create-gender="${g}" aria-pressed="${state.identity.gender === g}">${g}</button>`).join("")}</div><small>開始旅程後固定性別，同性別外型仍可切換。</small></div>${avatarChoices()}<div class="buttons"><button class="primary" data-ui="begin">開始我的一天 →</button></div><p class="tiny-note">每一個地點，都有屬於它的人與日常。</p>`,
+    `${heading("CHAPTER 01 · 來到星望市", "第一週，先在城市站穩腳步", "行李才剛放下。打開城市地圖，走進想去的地方。第一週的生活，由你自己安排。")}<div class="help-lines"><div><b>看看本週行程</b><span>已替你擬好第一週的安排；每天一件事，也可以自己調整。</span></div><div><b>走進城市</b><span>點地圖進入每個空間。到店就能購物，到教室就能上課，不需額外登記。</span></div><div><b>照自己的步調</b><span>親自走過去，或讓角色依行程自動執行；遇到選擇會停下來。</span></div></div><div class="identity-picker"><span>先決定主角性別</span><div role="group" aria-label="主角性別">${["女性", "男性"].map((g) => `<button data-create-gender="${g}" aria-pressed="${state.identity.gender === g}">${g}</button>`).join("")}</div><small>開始旅程後固定性別，同性別外型仍可切換。</small></div>${avatarChoices()}${creationFields(state, escape)}<div class="buttons"><button class="primary" data-ui="begin">開始我的一天 →</button></div><p class="tiny-note">每一個地點，都有屬於它的人與日常。</p>`,
   );
 }
 function travel() {
@@ -293,15 +336,13 @@ function avatarChoices() {
     .join("")}</div>`;
 }
 function wardrobe() {
-  show(
-    "wardrobe",
-    `${heading("MY WARDROBE · 衣櫃", "換上今天的心情", "挑一套衣服，場景裡的你也會一起換裝。")}<div class="wardrobe-grid">${outfits.map((o) => `<button class="outfit-card" data-outfit="${o.id}" aria-pressed="${o.id === state.outfitId}" ${state.life.game.ownedOutfits[state.avatarId].includes(o.id) ? "" : "disabled"}><img src="${portraitAsset(state.avatarId, o.id)}" alt="${o.name}的原版立繪"><strong>${o.name}</strong><small>${o.id === state.outfitId ? "穿著中 ✓" : state.life.game.ownedOutfits[state.avatarId].includes(o.id) ? "換上這套" : "到服飾店購買"}</small></button>`).join("")}</div><div class="buttons"><button class="primary" data-ui="close">穿好了，出發</button></div>`,
-  );
+  featureUI.wardrobe();
 }
+
 function profile() {
   show(
     "profile",
-    `${heading("THIS IS ME · 玩家資訊", "我的角色")}<div class="player-profile"><img src="${portrait()}" alt="目前穿著的原版立繪"><div><label>角色名字<input id="name-input" maxlength="16" value="${escape(state.playerName)}" autocomplete="off"></label><p>${escape(outfits.find((o) => o.id === state.outfitId).name)}<br><span class="tiny-note">${AVATARS[state.avatarId].name} · ${AGENCIES[state.life.game.currentAgencyId]?.name || "自由藝人"}</span></p><button class="primary" data-ui="name">儲存名字</button><p class="tiny-note">${state.visited.length} 個足跡 · ${state.knownPeople.length} 位新朋友</p><button data-ui="closet">前往衣櫃</button></div></div><div class="identity-caption"><b>${state.identity.gender} · 同性別外型</b><button data-ui="clinic">診所性別變更服務 →</button></div>${avatarChoices()}<div class="ability-grid">${Object.entries(
+    `${heading("THIS IS ME · 玩家資訊", "我的角色")}<div class="player-profile"><img src="${portrait()}" alt="目前穿著的原版立繪"><div><label>本名<input id="real-name-input" maxlength="16" value="${escape(state.life.game.realName || state.playerName)}" autocomplete="name"></label><label>藝名（選填）<input id="name-input" maxlength="16" value="${escape(state.life.game.stageName || "")}" autocomplete="nickname"></label><p>${escape(outfits.find((o) => o.id === state.outfitId).name)}<br><span class="tiny-note">${AVATARS[state.avatarId].name} · ${AGENCIES[state.life.game.currentAgencyId]?.name || "自由藝人"}</span></p><button class="primary" data-ui="name">儲存名字</button><p class="tiny-note">${state.visited.length} 個足跡 · ${state.knownPeople.length} 位新朋友</p><button data-ui="closet">前往衣櫃</button></div></div><div class="identity-caption"><b>${state.identity.gender} · 同性別外型</b><button data-ui="clinic">診所性別變更服務 →</button></div>${avatarChoices()}<div class="buttons"><button data-pixel-app="stats">完整能力與健康</button><button data-pixel-app="achievements">成就收藏</button><button data-pixel-app="log">生涯紀錄</button></div><div class="ability-grid">${Object.entries(
       state.life.game.stats,
     )
       .map(([name, v]) => `<div><small>${name}</small><b>${v}</b></div>`)
@@ -344,7 +385,42 @@ function saves() {
         const saved = storage.read(slot);
         return `<div class="save-row"><div><b>${slot === "auto" ? "自動存檔" : `手動位置 ${slot}`}</b><small>${saved.state ? `${ROOMS[saved.state.sceneId].name} · ${new Date(saved.savedAt).toLocaleString("zh-TW", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}` : saved.error || "還沒有留下足跡"}</small></div>${slot !== "auto" ? `<button data-save="${slot}">儲存</button>` : ""}<button data-load="${slot}" ${!saved.state ? "disabled" : ""}>讀取</button></div>`;
       })
-      .join("")}</div>`,
+      .join("")}</div>${storageUI.extras()}`,
+  );
+}
+async function replaceState(next, kind = "load") {
+  if (appearanceBusy || controller.transitioning)
+    throw new Error("請等場景載入完成再讀取");
+  if (!storage.backup(state))
+    throw new Error("無法建立還原備份，請先匯出目前進度再釋出空間");
+  const previous = structuredClone(state);
+  appearanceBusy = true;
+  lifeUI.takeover();
+  leaveOverlay();
+  state = next;
+  try {
+    await world.restoreRoom();
+  } catch {
+    state = previous;
+    try {
+      await world.restoreRoom();
+    } catch {
+      /* The loading overlay offers retry. */
+    }
+    appearanceBusy = false;
+    throw new Error("場景載入失敗，原本的旅程已保留，請重試");
+  }
+  appearanceBusy = false;
+  checkpoint();
+  changed();
+  if (kind === "new" || !state.flags.intro) welcome();
+  else if (state.life.game.pixelPrologueActive) narrate(prologueData(state));
+  else if (state.dialogue) renderDialogue();
+  else lifeUI.resumeNarrative();
+  toast(
+    kind === "new"
+      ? "新的旅程從這裡開始"
+      : "已接續旅程，讀取前進度保留在備份中",
   );
 }
 async function restore(slot) {
@@ -353,16 +429,13 @@ async function restore(slot) {
     toast(saved.error || "這格還沒有存檔");
     return;
   }
-  state = saved.state;
-  setDialogueVisible(false);
-  panel.close();
-  panelType = "";
-  await world.restoreRoom();
-  changed();
-  if (state.dialogue) renderDialogue();
-  checkpoint();
-  toast("回到剛才留下的時刻");
+  try {
+    await replaceState(saved.state);
+  } catch (e) {
+    toast(e.message);
+  }
 }
+
 function startDialogue(id) {
   if (state.knownPeople.includes(id)) {
     state.dialogue = {
@@ -571,6 +644,7 @@ const controller = {
     arriveAt(state.life, state.sceneId);
     if (state.dialogue) renderDialogue();
     else if (!state.flags.intro) welcome();
+    else if (state.life.game.pixelPrologueActive) narrate(prologueData(state));
     else lifeUI.resumeNarrative();
     checkpoint();
   },
@@ -603,12 +677,178 @@ const lifeUI = createLifeUI({
     panelType === "career-dialogue" ||
     controller.transitioning,
 });
+const offlineUI = setupPixelOffline({
+  heading,
+  show,
+  settings,
+  toast,
+  checkpoint,
+});
+const storageUI = createStorageUI({
+  state: () => state,
+  storage,
+  show,
+  heading,
+  escape,
+  toast,
+  checkpoint,
+  saves,
+  replace: replaceState,
+  ending: () => lifeUI.career.ending(),
+});
+document.addEventListener("change", (event) => storageUI.file(event));
+document.addEventListener(
+  "pointerdown",
+  async () => {
+    if (!audioUnlocked) {
+      audioUnlocked = true;
+      try {
+        await enableAudio();
+        changed();
+      } catch {
+        audioUnlocked = false;
+      }
+    }
+  },
+  { passive: true },
+);
+document.addEventListener("click", (event) => {
+  if (audioUnlocked && event.target.closest("button")) playSfx("tap");
+});
+document.addEventListener("input", (event) => {
+  if (event.target.dataset.volume) {
+    preferences.set(event.target.dataset.volume, Number(event.target.value));
+    if (audioUnlocked) syncAudio("room", state.life.game);
+  }
+});
+const featureUI = createFeatureUI({
+  state: () => state,
+  escape,
+  heading,
+  show,
+  checkpoint,
+  changed,
+  toast,
+  book: (...args) => lifeUI.career.book(...args),
+  planWork: (id) => {
+    if (!CHOICES[id]) return;
+    show(
+      "plan-work",
+      `${heading("WORK DAYS", `安排${CHOICES[id].label}`)}<div class="career-date-list">${state.life.plan.map((a, i) => `<button data-work-day="${i}" data-work-action="${id}" ${access(state.life, { id }, i) || a.id.startsWith("career_") || (i === state.life.day && state.life.pending) ? "disabled" : ""}><b>星期${"一二三四五六日"[i]}</b><small>${i < state.life.day ? "已完成" : CHOICES[a.id]?.label || "正式約定"}</small></button>`).join("")}</div>`,
+    );
+  },
+  cityRoute: (venue) => {
+    const id =
+      Object.keys(ROOMS).find((id) => ROOMS[id].venue === venue) || venue;
+    if (ROOMS[id]) cityUI.route(id, () => lifeUI.services(id));
+    else travel();
+  },
+  shopRoute: () => cityUI.route("shop", () => lifeUI.shop()),
+  native: {
+    planner: schedule,
+    map: travel,
+    save: saves,
+    settings,
+  },
+});
+document.addEventListener("input", (event) => {
+  if (event.target.dataset.createField)
+    editCreation(state, event.target.dataset.createField, event.target.value);
+  if (event.target.matches(".pixel-app input")) featureUI.input(event);
+});
+document.addEventListener("change", (event) => {
+  if (event.target.matches(".pixel-app select")) featureUI.input(event);
+});
+document.addEventListener(
+  "error",
+  (event) => {
+    if (event.target.matches?.(".pixel-app img[data-remove-on-error]"))
+      event.target.remove();
+  },
+  true,
+);
+document.addEventListener("keydown", (event) => {
+  const list = event.target.closest?.(".pixel-app .people-hub-tabs");
+  if (!list || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key))
+    return;
+  event.preventDefault();
+  const tabs = [...list.querySelectorAll('[role="tab"]')],
+    index = tabs.indexOf(document.activeElement),
+    next =
+      event.key === "Home"
+        ? tabs[0]
+        : event.key === "End"
+          ? tabs.at(-1)
+          : tabs[
+              (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) %
+                tabs.length
+            ],
+    id = next?.dataset.peopleSection;
+  next?.click();
+  document.querySelector(`[data-people-section="${id}"]`)?.focus();
+});
 setInterval(() => lifeUI.tick(0.1), 100);
 document.addEventListener("click", async (event) => {
   const target = event.target.closest("button");
   if (!target || !world) return;
   if (cityUI.handle(target)) return;
   if (appearanceBusy) return;
+  if (target.dataset.onboarding || target.dataset.chooseAspiration) {
+    if (target.dataset.onboarding === "reroll") {
+      rerollCreation(state);
+      welcome();
+      document.querySelector(".creation-stats").open = true;
+    } else if (
+      advanceOpening(state, {
+        skip: target.dataset.onboarding === "skip",
+        aspiration: target.dataset.chooseAspiration,
+      })
+    )
+      narrate(prologueData(state));
+    else {
+      leaveOverlay();
+      checkpoint();
+      changed();
+      toast("打開城市地圖，為自己的第一週選一個起點。");
+    }
+    return;
+  }
+  if (target.dataset.dismissTutorial) {
+    dismissTutorial(state, target.dataset.dismissTutorial);
+    target.closest(".pixel-tutorial").remove();
+    checkpoint();
+    return;
+  }
+  if (target.dataset.tutorialReset !== undefined) {
+    state.life.game.tutorialSeen = [];
+    preferences.set("tutorials", true);
+    checkpoint();
+    help();
+    return;
+  }
+  if (target.dataset.pixelPref) {
+    const d = target.dataset,
+      v = ["audioMuted", "tutorials"].includes(d.pixelPref)
+        ? d.value === "true"
+        : d.value;
+    const p = preferences.set(d.pixelPref, v);
+    applyPixelFont(p.fontSize);
+    settings();
+    if (audioUnlocked) syncAudio("room", state.life.game);
+    return;
+  }
+  if (target.dataset.workDay !== undefined) {
+    const day = Number(target.dataset.workDay),
+      reason = planDay(state.life, day, { id: target.dataset.workAction });
+    checkpoint();
+    changed();
+    schedule();
+    toast(reason || "已排入工作日");
+    return;
+  }
+  if (offlineUI.handle(target)) return;
+  if (storageUI.handle(target)) return;
+  if (featureUI.handle(target)) return;
   if (lifeUI.handle(target)) return;
   if (target.dataset.object) {
     leaveOverlay();
@@ -690,6 +930,8 @@ document.addEventListener("click", async (event) => {
       )
     )
       return;
+    appearanceBusy = true;
+    const previousChanged = state.flags.changed;
     const previousOutfit = state.outfitId;
     state.life.game.outfitId = target.dataset.outfit;
     state.outfitId = target.dataset.outfit;
@@ -700,9 +942,12 @@ document.addEventListener("click", async (event) => {
     } catch {
       state.outfitId = previousOutfit;
       state.life.game.outfitId = previousOutfit;
+      state.flags.changed = previousChanged;
+      appearanceBusy = false;
       toast("服裝載入失敗，請再試一次");
       return;
     }
+    appearanceBusy = false;
     checkpoint();
     changed();
     panelType === "shop" ? lifeUI.shop() : wardrobe();
@@ -748,8 +993,10 @@ document.addEventListener("click", async (event) => {
       close();
       break;
     case "begin":
+      finishCreation(state);
       lockIdentity(state);
-      close();
+      narrate(prologueData(state));
+      checkpoint();
       break;
     case "help":
       help();
@@ -764,8 +1011,10 @@ document.addEventListener("click", async (event) => {
       profile();
       break;
     case "name":
-      state.playerName =
-        $("name-input").value.trim().slice(0, 16) || "星途新人";
+      state.life.game.realName =
+        $("real-name-input").value.trim().slice(0, 16) || "星途新人";
+      state.life.game.stageName = $("name-input").value.trim().slice(0, 16);
+      state.playerName = state.life.game.stageName || state.life.game.realName;
       state.life.game.name = state.playerName;
       checkpoint();
       changed();
@@ -835,9 +1084,10 @@ panel.addEventListener("cancel", (event) => {
 window.addEventListener("pagehide", () => checkpoint());
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
+    if (audioUnlocked) suspendAudio();
     world?.keys.clear();
     checkpoint();
-  }
+  } else if (audioUnlocked) resumeAudio();
 });
 setInterval(() => {
   if (world && !document.hidden) checkpoint();

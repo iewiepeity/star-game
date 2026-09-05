@@ -3,7 +3,7 @@ import { state } from "../core/state.js";
 import { esc } from "../core/utils.js";
 import { playerRealName } from "../core/player-name.js";
 
-const SCENES = [
+export const SCENES = [
   {
     label: "星望市・搬進新房間的第一天",
     title: "最後一只紙箱也安頓好了。",

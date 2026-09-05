@@ -33,6 +33,27 @@ export const THEMES = [
 ];
 export function normalizePixelPreferences(raw) {
   return {
+    fontSize: ["standard", "comfortable", "large"].includes(raw?.fontSize)
+      ? raw.fontSize
+      : "standard",
+    musicVolume: Math.max(
+      0,
+      Math.min(
+        1,
+        Number.isFinite(Number(raw?.musicVolume))
+          ? Number(raw.musicVolume)
+          : 0.28,
+      ),
+    ),
+    sfxVolume: Math.max(
+      0,
+      Math.min(
+        1,
+        Number.isFinite(Number(raw?.sfxVolume)) ? Number(raw.sfxVolume) : 0.42,
+      ),
+    ),
+    audioMuted: raw?.audioMuted === true,
+    tutorials: raw?.tutorials !== false,
     theme: THEMES.some((t) => t.id === raw?.theme) ? raw.theme : "cream",
   };
 }
@@ -45,16 +66,20 @@ export function pixelPreferences(storage) {
   } catch {
     value = normalizePixelPreferences();
   }
+  function set(key, next) {
+    value = normalizePixelPreferences({ ...value, [key]: next });
+    try {
+      storage.setItem(PIXEL_PREFERENCES_KEY, JSON.stringify(value));
+      return { ...value, saved: true };
+    } catch {
+      return { ...value, saved: false };
+    }
+  }
   return {
+    set,
     get: () => ({ ...value }),
     setTheme(id) {
-      value = normalizePixelPreferences({ theme: id });
-      try {
-        storage.setItem(PIXEL_PREFERENCES_KEY, JSON.stringify(value));
-      } catch {
-        return { ...value, saved: false };
-      }
-      return { ...value, saved: true };
+      return set("theme", id);
     },
   };
 }
@@ -68,4 +93,12 @@ export function applyPixelTheme(theme) {
       "content",
       THEMES.find((t) => t.id === theme)?.colors[0] || THEMES[0].colors[0],
     );
+}
+
+export function applyPixelFont(size) {
+  document.documentElement.dataset.pixelFont = size;
+  document.documentElement.style.setProperty(
+    "--reading-scale",
+    { standard: 1, comfortable: 1.1, large: 1.2 }[size] || 1,
+  );
 }

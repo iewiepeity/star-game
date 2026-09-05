@@ -1,0 +1,1173 @@
+/* The original information screens live inside the same pixel-world UI. */
+.pixel-app {
+  color: var(--ui-ink);
+  font-size: calc(15px * var(--reading-scale, 1));
+  line-height: 1.65;
+}
+.pixel-app * {
+  box-sizing: border-box;
+  min-width: 0;
+}
+.pixel-app img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.pixel-app p {
+  margin: 8px 0 16px;
+  color: var(--ui-muted);
+}
+.pixel-app small {
+  color: var(--ui-muted);
+}
+.pixel-app h2 {
+  font-size: clamp(22px, 3vw, 32px);
+  margin: 12px 0;
+}
+.pixel-app h3 {
+  font-size: 19px;
+  margin: 18px 0 10px;
+}
+.pixel-app h4 {
+  font-size: 16px;
+}
+.pixel-app button {
+  line-height: 1.5;
+  white-space: normal;
+}
+.pixel-app
+  button:is(.active, .selected, [aria-pressed="true"], [aria-selected="true"]) {
+  background: var(--ui-tint);
+  border-color: var(--ui-accent);
+  color: var(--ui-accent);
+}
+.pixel-app :is(input, select) {
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+  background: var(--ui-paper);
+  color: var(--ui-ink);
+  padding: 10px 12px;
+  max-width: 100%;
+  font: inherit;
+  min-height: 44px;
+}
+.pixel-app
+  :is(
+    article,
+    details,
+    .inside-title,
+    .gallery-hero,
+    .timeline-hero,
+    .achievement-career,
+    .social-profile,
+    .npc-story-status
+  ) {
+  border: 1px solid var(--ui-border);
+  border-radius: 14px;
+  background: var(--ui-paper);
+  padding: 16px;
+  margin: 12px 0;
+}
+.pixel-app summary {
+  cursor: pointer;
+  font-weight: 700;
+  padding: 6px 0;
+}
+.pixel-app details > :not(summary) {
+  margin-top: 12px;
+}
+.pixel-app .inside-title,
+.pixel-app .gallery-hero {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 20px;
+  align-items: center;
+}
+.pixel-app .inside-title span,
+.pixel-app .gallery-hero span {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--ui-accent);
+}
+.app-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid var(--ui-border);
+  padding: 0 0 14px;
+  margin-bottom: 18px;
+}
+.app-toolbar span {
+  font-size: 13px;
+  color: var(--ui-muted);
+}
+.pixel-app-library {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.pixel-app-library > button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 14px;
+  text-align: left;
+  background: var(--ui-paper);
+}
+.pixel-app-library i {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 14px;
+  background: var(--ui-soft);
+  color: var(--ui-accent);
+}
+.pixel-app-library svg {
+  width: 32px;
+  height: 32px;
+}
+.pixel-app-library span {
+  display: grid;
+  gap: 3px;
+}
+.pixel-app-library b {
+  font-size: 17px;
+}
+.pixel-app-library small {
+  font-size: 12px;
+  font-weight: 400;
+}
+.pixel-app
+  :is(
+    nav:not(.app-toolbar),
+    .buttons,
+    .list-tools,
+    .social-actions,
+    .job-actions,
+    .action-buttons,
+    .recent-apps
+  ) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.pixel-app nav button {
+  font-size: 14px;
+  padding: 8px 14px;
+}
+.pixel-app .people-hub-tabs button span {
+  font-size: 10px;
+  display: block;
+  letter-spacing: 1px;
+}
+.pixel-app
+  :is(
+    .contact-list,
+    .gallery-grid,
+    .achievement-grid,
+    .stat-grid,
+    .ability-grid,
+    .world-stats,
+    .forum-categories
+  ) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.pixel-app .contact-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+}
+.pixel-app .contact-card > div {
+  position: relative;
+  flex: none;
+  width: 56px;
+  height: 64px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--ui-soft);
+}
+.pixel-app .contact-card img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+.pixel-app .contact-card span {
+  display: grid;
+  flex: 1;
+}
+.pixel-app .contact-card em {
+  font-size: 12px;
+  max-width: 90px;
+  font-style: normal;
+  color: var(--ui-muted);
+}
+.pixel-app .message-inbox button {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 10px;
+  text-align: left;
+  width: 100%;
+  margin: 8px 0;
+}
+.pixel-app .message-inbox .unread {
+  border-left: 4px solid var(--ui-accent);
+}
+.pixel-app .npc-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 20px;
+}
+.pixel-app :is(.npc-portrait, .npc-art, .npc-hero) img {
+  max-height: 450px;
+  width: auto;
+  margin: auto;
+  display: block;
+}
+.pixel-app .npc-profile {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.pixel-app :is(.npc-profile, .profile-fields, .npc-details) > div {
+  border-bottom: 1px solid var(--ui-border);
+  padding: 8px;
+}
+.pixel-app :is(.npc-profile, .profile-fields) :is(span, small) {
+  display: block;
+  color: var(--ui-muted);
+}
+.pixel-app .npc-tab-list {
+  display: flex;
+  overflow: auto;
+  gap: 8px;
+}
+.pixel-app .npc-tab-list img {
+  height: 50px;
+  width: 50px;
+  object-fit: cover;
+  object-position: top;
+}
+.pixel-app .npc-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.pixel-app .npc-actions button {
+  display: grid;
+  text-align: left;
+}
+.pixel-app .npc-actions small {
+  font-weight: 400;
+}
+.pixel-app .player-look-card {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  border-radius: 16px;
+  background: var(--ui-soft);
+  padding: 16px;
+}
+.pixel-app .player-look-card img {
+  width: 120px;
+  height: 200px;
+  object-fit: contain;
+}
+.pixel-app .player-look-card div {
+  display: grid;
+  gap: 8px;
+}
+.pixel-app .player-look-card.compact img {
+  width: 72px;
+  height: 100px;
+}
+.pixel-app .social-avatar {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.pixel-app .social-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+.pixel-app :is(.social-post header, .post-header, .social-profile) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pixel-app .social-profile > img {
+  width: 72px;
+  height: 85px;
+  object-fit: cover;
+  object-position: top;
+}
+.pixel-app
+  :is(
+    .social-feed,
+    .forum-threads,
+    .timeline-list,
+    .job-catalog,
+    .agency-list,
+    .log-works
+  ) {
+  display: grid;
+  gap: 12px;
+}
+.pixel-app
+  :is(.social-work-art, .timeline-work-art, .log-work-art, .work-poster) {
+  width: 120px;
+  max-height: 180px;
+  object-fit: cover;
+  float: right;
+  margin: 0 0 10px 14px;
+  border-radius: 10px;
+}
+.pixel-app .social-post::after,
+.pixel-app article::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+.pixel-app .forum-threads button {
+  display: grid;
+  text-align: left;
+  gap: 6px;
+}
+.pixel-app .forum-threads button span {
+  color: var(--ui-muted);
+}
+.pixel-app .gallery-grid button {
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+}
+.pixel-app .gallery-grid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+}
+.pixel-app .gallery-grid span {
+  display: block;
+  padding: 12px;
+}
+.pixel-app .gallery-grid .locked img {
+  filter: grayscale(1) brightness(0.55);
+}
+.pixel-app .gallery-feature {
+  margin: 0;
+}
+.pixel-app .gallery-feature > img {
+  width: 100%;
+  max-height: 60dvh;
+  object-fit: contain;
+  border-radius: 12px;
+}
+.pixel-app .gallery-feature figcaption {
+  padding: 18px 0;
+}
+.pixel-app .achievement-card {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+}
+.pixel-app .achievement-card i {
+  font-size: 28px;
+  font-style: normal;
+  color: var(--ui-accent);
+}
+.pixel-app .achievement-card > span {
+  flex: 1;
+}
+.pixel-app .achievement-card :is(small, b, em) {
+  display: block;
+}
+.pixel-app .achievement-card em {
+  color: var(--ui-muted);
+  font-size: 12px;
+}
+.pixel-app .achievement-card span > div {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--ui-soft);
+  overflow: hidden;
+  margin-top: 12px;
+}
+.pixel-app .achievement-card span > div span {
+  display: block;
+  height: 100%;
+  background: var(--ui-accent);
+}
+.pixel-app :is(.jobs-layout, .agency-layout) {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 20px;
+}
+.pixel-app :is(.job-list, .agency-list) button {
+  display: grid;
+  text-align: left;
+  gap: 5px;
+  width: 100%;
+}
+.pixel-app :is(.job-list, .job-catalog) {
+  max-height: 65dvh;
+  overflow: auto;
+}
+.pixel-app .place-art {
+  display: block;
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+.pixel-app .place-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.pixel-app :is(.job-detail, .agency-detail) > img {
+  width: 180px;
+  max-height: 240px;
+  object-fit: cover;
+}
+.pixel-app :is(.stat-row, .ability-row, .rep-row) {
+  display: grid;
+  grid-template-columns: minmax(85px, 1fr) 2fr auto;
+  gap: 12px;
+  align-items: center;
+  margin: 8px 0;
+}
+.pixel-app :is(.bar, .stat-bar, .meter) {
+  background: var(--ui-soft);
+  border-radius: 6px;
+  height: 7px;
+  overflow: hidden;
+}
+.pixel-app :is(.bar, .stat-bar, .meter) > * {
+  background: var(--ui-accent);
+  display: block;
+  height: 100%;
+}
+.pixel-app table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.pixel-app :is(td, th) {
+  padding: 9px;
+  border-bottom: 1px solid var(--ui-border);
+  text-align: left;
+}
+.pixel-app .tablet-empty {
+  text-align: center;
+  padding: 28px;
+  background: var(--ui-soft);
+  border-radius: 14px;
+}
+.pixel-app .tablet-empty > span {
+  font-size: 32px;
+  color: var(--ui-accent);
+}
+.fitting-room {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 28px;
+}
+.fitting-room figure {
+  margin: 0;
+  border-radius: 20px;
+  background: var(--ui-soft);
+  padding: 12px;
+  text-align: center;
+}
+.fitting-room figure img {
+  height: 340px;
+  width: 100%;
+  object-fit: contain;
+}
+.fitting-room figcaption {
+  color: var(--ui-accent);
+  font-size: 14px;
+}
+.look-slots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.look-slots > div {
+  display: grid;
+  gap: 6px;
+  background: var(--ui-soft);
+  padding: 12px;
+  border-radius: 12px;
+}
+.look-slots button {
+  font-size: 12px;
+  padding: 6px;
+}
+.bonus-comparison {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.bonus-comparison span {
+  display: grid;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--ui-soft);
+  font-size: 13px;
+}
+@media (max-width: 700px) {
+  .pixel-app {
+    font-size: calc(14px * var(--reading-scale, 1));
+  }
+  .pixel-app-library {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+  .pixel-app-library > button {
+    padding: 12px 9px;
+    gap: 8px;
+  }
+  .pixel-app-library b {
+    font-size: 15px;
+  }
+  .pixel-app-library i {
+    width: 34px;
+    height: 38px;
+    border-radius: 10px;
+  }
+  .pixel-app-library svg {
+    width: 25px;
+    height: 25px;
+  }
+  .pixel-app-library small {
+    font-size: 11px;
+  }
+  .pixel-app :is(.npc-layout, .jobs-layout, .agency-layout, .npc-profile) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pixel-app :is(.contact-list, .achievement-grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pixel-app :is(.job-list, .job-catalog) {
+    max-height: 220px;
+  }
+  .pixel-app :is(.npc-portrait, .npc-art) img {
+    height: 240px;
+  }
+  .pixel-app :is(.gallery-grid, .npc-actions) {
+    gap: 8px;
+  }
+  .pixel-app .app-toolbar {
+    gap: 6px;
+  }
+  .pixel-app .app-toolbar button {
+    padding: 7px 9px;
+    font-size: 13px;
+  }
+  .fitting-room {
+    grid-template-columns: 100px minmax(0, 1fr);
+    gap: 12px;
+  }
+  .fitting-room figure img {
+    height: 200px;
+  }
+  .fitting-room h2 {
+    font-size: 20px;
+  }
+  .look-slots {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .look-slots > div {
+    grid-template-columns: 1fr 1fr;
+    padding: 8px;
+  }
+  .look-slots small {
+    font-size: 11px;
+  }
+}
+.pixel-app .social-profile {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 14px;
+}
+.pixel-app .social-profile > i {
+  width: 64px;
+  height: 70px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--ui-soft);
+}
+.pixel-app .social-profile > i img {
+  width: 100%;
+  height: 190%;
+  object-fit: cover;
+  object-position: top;
+}
+.pixel-app .social-profile h2 {
+  border: 0;
+  padding: 0;
+  margin: 3px 0;
+  font-size: 22px;
+}
+.pixel-app .social-profile h2::after {
+  display: none;
+}
+.pixel-app .social-profile p {
+  font-size: 13px;
+  margin: 0;
+}
+.pixel-app .social-profile dl {
+  display: flex;
+  gap: 24px;
+  grid-column: 1/-1;
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--ui-border);
+}
+.pixel-app .social-profile dl div {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.pixel-app .social-profile dl b {
+  color: var(--ui-accent);
+}
+.pixel-app .social-post header i {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--ui-soft);
+  flex: none;
+}
+.pixel-app .social-post header i img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+.pixel-app .social-post header i .player-look-image {
+  height: 220%;
+}
+.pixel-app .social-post header small {
+  display: block;
+  font-size: 12px;
+}
+.pixel-app .social-comments {
+  padding: 8px 12px;
+  background: var(--ui-soft);
+  border-radius: 10px;
+  font-size: 13px;
+}
+.pixel-app .social-comments p {
+  margin: 5px 0;
+}
+.pixel-app :is(.social-compose, .social-reply-actions) button {
+  text-align: left;
+}
+.pixel-app .social-compose button {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin: 8px 0;
+}
+.pixel-app .social-compose button small {
+  display: block;
+  font-weight: 400;
+}
+.pixel-app .social-work-media {
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+}
+.pixel-app .npc-dossier {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 20px;
+}
+.pixel-app nav.npc-list {
+  display: block;
+}
+.pixel-app .npc-list button {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 8px;
+  text-align: left;
+}
+.pixel-app .npc-list i {
+  flex: none;
+  width: 36px;
+  height: 42px;
+  overflow: hidden;
+  position: relative;
+}
+.pixel-app .npc-list i img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+.pixel-app .npc-list small {
+  display: block;
+  font-size: 10px;
+}
+.pixel-app .npc-profile {
+  display: block;
+}
+.pixel-app .npc-figure {
+  float: right;
+  width: 180px;
+  margin: 0 0 12px 20px;
+}
+.pixel-app .npc-figure img {
+  display: block;
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 14px;
+}
+.pixel-app .npc-figure.full img {
+  object-fit: contain;
+}
+.pixel-app .npc-profile-copy {
+  display: flow-root;
+}
+.pixel-app .npc-profile-copy > details,
+.pixel-app .relationship-panel {
+  clear: both;
+}
+.pixel-app .npc-figure span {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+}
+.pixel-app .npc-figure nav {
+  margin: 6px 0;
+}
+.pixel-app .work-discovery > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.pixel-app .work-discovery article {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+}
+.pixel-app .work-discovery .place-art {
+  height: 100px;
+}
+.app-toolbar {
+  padding-right: 44px;
+}
+.creation-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.creation-fields label {
+  display: grid;
+  gap: 5px;
+  font-size: 14px;
+}
+.creation-stats,
+.planner-tools,
+.new-journey,
+.save-maintenance {
+  margin: 16px 0;
+  padding: 14px;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+}
+.volume-control {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  margin: 15px 0;
+}
+.volume-control input {
+  width: 100%;
+  accent-color: var(--ui-accent);
+}
+.font-options {
+  display: flex;
+  gap: 8px;
+}
+.pixel-tutorial {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-left: 3px solid var(--ui-accent);
+  background: var(--ui-soft);
+  padding: 10px 14px;
+  margin: 0 45px 14px 0;
+  border-radius: 10px;
+}
+.pixel-tutorial p {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 4px 0 0;
+}
+.pixel-tutorial b {
+  font-size: 14px;
+}
+.pixel-tutorial button {
+  flex: none;
+  font-size: 12px;
+  padding: 7px;
+}
+.transfer-summary {
+  display: grid;
+  gap: 8px;
+  border-radius: 14px;
+  padding: 20px;
+  margin: 20px 0;
+  background: var(--ui-soft);
+}
+#panel :is(p, .choices button, .result-note, .lede) {
+  font-size: calc(1em * var(--reading-scale, 1));
+}
+@media (max-width: 700px) {
+  .pixel-app .npc-dossier {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pixel-app nav.npc-list {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow: auto;
+  }
+  .pixel-app .npc-list button {
+    width: 130px;
+    flex: none;
+  }
+  .pixel-app .npc-figure {
+    width: 110px;
+    margin-left: 12px;
+  }
+  .pixel-app .npc-figure img {
+    height: 150px;
+  }
+  .pixel-app .work-discovery > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pixel-app .social-profile dl {
+    gap: 15px;
+  }
+  .app-toolbar > span {
+    display: none;
+  }
+  .creation-fields {
+    gap: 10px;
+  }
+  .save-maintenance .save-row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .save-maintenance .save-row b {
+    flex-basis: 100%;
+  }
+}
+.pixel-app
+  :is(
+    .creative-hero,
+    .creative-launcher,
+    .creative-production-status,
+    .creative-release-result
+  ) {
+  border: 1px solid var(--ui-border);
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--ui-soft);
+  margin: 12px 0;
+}
+.pixel-app .creative-title-field {
+  display: grid;
+  gap: 8px;
+}
+.pixel-app
+  :is(
+    .creative-type-grid,
+    .creative-direction-options,
+    .creative-budget,
+    .creative-collaborators,
+    .creative-roles,
+    .creative-company-routes,
+    .creative-story-map
+  ) {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.pixel-app
+  :is(
+    .creative-type-grid,
+    .creative-direction-options,
+    .creative-budget,
+    .creative-roles
+  )
+  button {
+  display: grid;
+  gap: 6px;
+  text-align: left;
+}
+.pixel-app .creative-type-grid small,
+.pixel-app .creative-direction-options small {
+  font-weight: 400;
+}
+.pixel-app .creative-person-head {
+  width: 42px;
+  height: 50px;
+  object-fit: cover;
+  object-position: top;
+}
+.pixel-app .creative-collaborators button {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+.pixel-app :is(.creative-phase, .creative-workflow) {
+  display: flex;
+  gap: 10px;
+  overflow: auto;
+  font-size: 12px;
+  margin: 16px 0;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--ui-soft);
+}
+.pixel-app :is(.creative-phase, .creative-workflow) > span {
+  white-space: nowrap;
+}
+.pixel-app .creative-meters {
+  display: grid;
+  gap: 10px;
+}
+.pixel-app .creative-meters i {
+  display: block;
+  background: var(--ui-soft);
+  height: 6px;
+  border-radius: 4px;
+}
+.pixel-app .creative-meters i b {
+  display: block;
+  height: 100%;
+  background: var(--ui-accent);
+}
+.pixel-app .creative-story-map > div {
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--ui-soft);
+}
+.pixel-app .creative-story-map footer {
+  grid-column: 1/-1;
+  display: grid;
+  gap: 6px;
+}
+.pixel-app .creative-story-map em {
+  font-style: normal;
+  color: var(--ui-muted);
+}
+.pixel-app .creative-hero dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.pixel-app .creative-hero dl div {
+  display: grid;
+}
+@media (max-width: 700px) {
+  .pixel-app
+    :is(
+      .creative-type-grid,
+      .creative-direction-options,
+      .creative-company-routes,
+      .creative-story-map
+    ) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+#panel .pixel-app header.social-profile {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+}
+#panel .pixel-app .social-profile h2 {
+  border: 0;
+  margin: 3px 0;
+  padding: 0;
+  font-size: 22px;
+}
+#panel .pixel-app .social-profile h2::after {
+  display: none;
+}
+#panel .pixel-app .social-profile dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-column: 1/-1;
+  gap: 12px;
+}
+#panel .pixel-app .social-profile dl div {
+  display: grid;
+  gap: 0;
+}
+#panel .pixel-app .social-profile dl small {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* The handbook keeps favorites separate from its searchable catalogue. */
+.pixel-app .pocket-favorites {
+  padding: 14px;
+  background: var(--ui-soft);
+  border: 1px solid var(--ui-border);
+  border-radius: 16px;
+  margin-bottom: 14px;
+}
+.pixel-app .pocket-favorites > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.pixel-app .pocket-favorites h3 {
+  margin: 0;
+}
+#panel .pixel-app nav.pocket-dock {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+.pixel-app .pocket-dock button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 4px;
+  min-width: 0;
+  font-size: 13px;
+}
+.pixel-app .pocket-dock i {
+  display: block;
+  width: 26px;
+  height: 26px;
+  color: var(--ui-accent);
+}
+.pixel-app .pocket-dock-editor {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.pixel-app .pocket-search {
+  display: block;
+  margin: 16px 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ui-muted);
+}
+.pixel-app .pocket-search input {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+}
+.pixel-app .pocket-recent > summary {
+  font-size: 13px;
+  color: var(--ui-muted);
+  cursor: pointer;
+}
+@media (max-width: 700px) {
+  #panel .pixel-app nav.pocket-dock {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .pixel-app .pocket-dock button {
+    flex-direction: row;
+    font-size: 12px;
+    gap: 6px;
+    min-height: 44px;
+  }
+  .pixel-app .pocket-dock i {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+}
+
+#panel .pocket-heading h2 {
+  font-size: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+#panel .pocket-heading h2::after {
+  display: none;
+}
+#panel .pocket-heading p {
+  font-size: 13px;
+  margin: 4px 0 14px;
+}
+#panel .pixel-app[data-app="phone"] .app-toolbar {
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+}
+#panel .pixel-app[data-app="phone"] .app-filters {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin: 8px 0;
+}
+#panel .pixel-app[data-app="phone"] .app-filters button {
+  flex-shrink: 0;
+}
+#panel .pocket-favorites h3 {
+  font-size: 16px;
+}
+#panel .pocket-favorites {
+  padding: 12px;
+}
+#panel .pocket-favorites > header {
+  margin-bottom: 8px;
+}
+@media (max-width: 700px) {
+  #panel .pocket-heading h2 {
+    font-size: 21px;
+  }
+  #panel .pocket-favorites > header button {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  #panel .pocket-search {
+    margin: 10px 0 6px;
+  }
+  #panel .pixel-app[data-app="phone"] .app-filters button {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  #panel .pixel-app[data-app="phone"] .pixel-app-library {
+    margin-top: 10px;
+  }
+}

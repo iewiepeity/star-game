@@ -1,4 +1,6 @@
 import { getPreferences } from "./preferences.js";
+let audioPreferences = getPreferences;
+export function configureAudioPreferences(read) { audioPreferences = typeof read === "function" ? read : getPreferences; }
 
 const AudioContextClass=()=>globalThis.AudioContext||globalThis.webkitAudioContext;
 const SAMPLE_ROOT="./assets/audio/kenney-interface/";
@@ -60,18 +62,18 @@ function scheduleMusicBeat(){
  if(config.color==="bright"&&musicStep%4===2)synthNoise(now,.025,{gain:.0018,frequencyValue:4200,type:"highpass",destination:musicBuses[activeBus]});if(careerIntensity>.55&&musicStep%16===12)synthTone(config.root*4,now,beat*2.4,{destination:musicBuses[activeBus],gain:.006*careerIntensity,type:"sine",trackMusic:true});musicStep+=1;
 }
 function startMusic(mode,{fade=.9}={}){
- const c=ensure();if(!c)return;stopMusicScheduler();const previous=activeBus;activeBus=1-activeBus;activeMode=MODES[mode]?mode:"room";const now=c.currentTime,target=getPreferences().audioMuted?0:1;
+ const c=ensure();if(!c)return;stopMusicScheduler();const previous=activeBus;activeBus=1-activeBus;activeMode=MODES[mode]?mode:"room";const now=c.currentTime,target=audioPreferences().audioMuted?0:1;
  musicBuses[previous].gain.cancelScheduledValues(now);musicBuses[previous].gain.setValueAtTime(musicBuses[previous].gain.value,now);musicBuses[previous].gain.linearRampToValueAtTime(0,now+fade);
  musicBuses[activeBus].gain.cancelScheduledValues(now);musicBuses[activeBus].gain.setValueAtTime(0,now);musicBuses[activeBus].gain.linearRampToValueAtTime(target,now+fade*1.25);
  if(c.state!=="running")return;scheduleMusicBeat();musicTimer=globalThis.setInterval(scheduleMusicBeat,(60/MODES[activeMode].bpm)*1000);
 }
-function duckMusic(amount=.42,duration=.28){if(!context||!musicMix)return;const now=context.currentTime,volume=getPreferences().musicVolume;musicMix.gain.cancelScheduledValues(now);musicMix.gain.setValueAtTime(musicMix.gain.value,now);musicMix.gain.linearRampToValueAtTime(volume*amount,now+.025);musicMix.gain.linearRampToValueAtTime(volume,now+duration)}
+function duckMusic(amount=.42,duration=.28){if(!context||!musicMix)return;const now=context.currentTime,volume=audioPreferences().musicVolume;musicMix.gain.cancelScheduledValues(now);musicMix.gain.setValueAtTime(musicMix.gain.value,now);musicMix.gain.linearRampToValueAtTime(volume*amount,now+.025);musicMix.gain.linearRampToValueAtTime(volume,now+duration)}
 
 export async function enableAudio(){const c=ensure();if(!c)return false;if(c.state==="suspended")await c.resume();loadSamples();if(c.state==="running"&&!musicTimer)startMusic(activeMode||"room",{fade:.35});syncAudio(activeMode||"room");return c.state==="running"}
 export async function suspendAudio(){if(!context||context.state!=="running")return;hiddenByPage=true;const now=context.currentTime;master.gain.cancelScheduledValues(now);master.gain.linearRampToValueAtTime(0,now+.12);await new Promise(resolve=>globalThis.setTimeout(resolve,140));if(hiddenByPage&&context.state==="running")await context.suspend()}
-export async function resumeAudio(){if(!context||!hiddenByPage)return;hiddenByPage=false;await context.resume();syncAudio(activeMode);const now=context.currentTime;master.gain.setValueAtTime(0,now);master.gain.linearRampToValueAtTime(getPreferences().audioMuted?0:1,now+.2);if(!musicTimer)startMusic(activeMode,{fade:.35})}
+export async function resumeAudio(){if(!context||!hiddenByPage)return;hiddenByPage=false;await context.resume();syncAudio(activeMode);const now=context.currentTime;master.gain.setValueAtTime(0,now);master.gain.linearRampToValueAtTime(audioPreferences().audioMuted?0:1,now+.2);if(!musicTimer)startMusic(activeMode,{fade:.35})}
 export function syncAudio(mode="room",gameState=null){
- const c=ensure();if(!c)return;if(gameState){const year=Math.max(1,Math.min(5,Number(gameState.year)||1)),fame=Math.max(0,Math.min(500,Number(gameState.fame)||0));careerIntensity=Math.min(1,(year-1)/8+fame/1000)}const prefs=getPreferences(),now=c.currentTime;master.gain.setTargetAtTime(prefs.audioMuted?0:1,now,.04);musicMix.gain.setTargetAtTime(prefs.musicVolume,now,.08);sfxBus.gain.setTargetAtTime(prefs.sfxVolume,now,.04);if(activeMode!==mode)startMusic(mode);
+ const c=ensure();if(!c)return;if(gameState){const year=Math.max(1,Math.min(5,Number(gameState.year)||1)),fame=Math.max(0,Math.min(500,Number(gameState.fame)||0));careerIntensity=Math.min(1,(year-1)/8+fame/1000)}const prefs=audioPreferences(),now=c.currentTime;master.gain.setTargetAtTime(prefs.audioMuted?0:1,now,.04);musicMix.gain.setTargetAtTime(prefs.musicVolume,now,.08);sfxBus.gain.setTargetAtTime(prefs.sfxVolume,now,.04);if(activeMode!==mode)startMusic(mode);
 }
 
 const SYNTH=Object.freeze({
@@ -81,7 +83,7 @@ const SYNTH=Object.freeze({
  day:[[349.23,0,.09,440,.025,"triangle"],[523.25,.09,.14,659.25,.025,"sine"]],week:[[261.63,0,.12,329.63,.03,"triangle"],[392,.1,.14,493.88,.03,"triangle"],[659.25,.22,.2,783.99,.025,"sine"]],reveal:[[329.63,0,.2,659.25,.03,"sine"],[987.77,.15,.26,1318.51,.02,"sine"]],
 });
 export function playSfx(kind="tap"){
- const c=ensure(),prefs=getPreferences();if(!c||prefs.audioMuted||c.state!=="running")return false;const nowMs=globalThis.performance?.now?.()??Date.now();if(kind==="tap"&&nowMs-lastTapAt<55)return false;lastTapAt=nowMs;
+ const c=ensure(),prefs=audioPreferences();if(!c||prefs.audioMuted||c.state!=="running")return false;const nowMs=globalThis.performance?.now?.()??Date.now();if(kind==="tap"&&nowMs-lastTapAt<55)return false;lastTapAt=nowMs;
  const rate=.96+Math.random()*.08,sample=SAMPLE_BY_SFX[kind],impact=["success","reward","warning","failure","week","reveal","applause"].includes(kind);
  if(impact){const danger=kind==="warning"||kind==="failure",long=kind==="reward"||kind==="applause";duckMusic(danger ? .28 : .48,long ? .55 : .34)}
  const sampled=sample?playSample(sample,kind==="tap"?.34:.46,rate):false,now=c.currentTime;for(const[frequencyValue,offset,duration,endFrequency,gain,type]of SYNTH[kind]||[])synthTone(frequencyValue,now+offset,duration,{endFrequency,gain,type});

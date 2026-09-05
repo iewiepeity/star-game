@@ -1,0 +1,2438 @@
+{
+  "version": "0.7.0",
+  "bytes": 113761919,
+  "entries": [
+    {
+      "url": "./pixel.html",
+      "bytes": 3954
+    },
+    {
+      "url": "./pixel.css",
+      "bytes": 50768
+    },
+    {
+      "url": "./pixel-ui.css",
+      "bytes": 25387
+    },
+    {
+      "url": "./pixel-apps.css",
+      "bytes": 22901
+    },
+    {
+      "url": "./pixel.webmanifest",
+      "bytes": 499
+    },
+    {
+      "url": "./src/bind/achievements.js",
+      "bytes": 279
+    },
+    {
+      "url": "./src/bind/agency.js",
+      "bytes": 1860
+    },
+    {
+      "url": "./src/bind/city-map.js",
+      "bytes": 10558
+    },
+    {
+      "url": "./src/bind/create.js",
+      "bytes": 4707
+    },
+    {
+      "url": "./src/bind/creative.js",
+      "bytes": 7171
+    },
+    {
+      "url": "./src/bind/ending.js",
+      "bytes": 1575
+    },
+    {
+      "url": "./src/bind/event.js",
+      "bytes": 1763
+    },
+    {
+      "url": "./src/bind/forum.js",
+      "bytes": 865
+    },
+    {
+      "url": "./src/bind/gallery.js",
+      "bytes": 518
+    },
+    {
+      "url": "./src/bind/jobs.js",
+      "bytes": 3121
+    },
+    {
+      "url": "./src/bind/map.js",
+      "bytes": 92
+    },
+    {
+      "url": "./src/bind/npc.js",
+      "bytes": 2255
+    },
+    {
+      "url": "./src/bind/planner.js",
+      "bytes": 7351
+    },
+    {
+      "url": "./src/bind/prologue.js",
+      "bytes": 798
+    },
+    {
+      "url": "./src/bind/room.js",
+      "bytes": 12824
+    },
+    {
+      "url": "./src/bind/runner.js",
+      "bytes": 2950
+    },
+    {
+      "url": "./src/bind/save.js",
+      "bytes": 2754
+    },
+    {
+      "url": "./src/bind/settings.js",
+      "bytes": 2236
+    },
+    {
+      "url": "./src/bind/social.js",
+      "bytes": 1846
+    },
+    {
+      "url": "./src/bind/summary.js",
+      "bytes": 2133
+    },
+    {
+      "url": "./src/bind/timeline.js",
+      "bytes": 1000
+    },
+    {
+      "url": "./src/bind/wardrobe.js",
+      "bytes": 8354
+    },
+    {
+      "url": "./src/bind.js",
+      "bytes": 2223
+    },
+    {
+      "url": "./src/core/app-navigation.js",
+      "bytes": 1196
+    },
+    {
+      "url": "./src/core/audio.js",
+      "bytes": 13405
+    },
+    {
+      "url": "./src/core/birthday.js",
+      "bytes": 466
+    },
+    {
+      "url": "./src/core/deferred-search.js",
+      "bytes": 1095
+    },
+    {
+      "url": "./src/core/dialog-focus.js",
+      "bytes": 2056
+    },
+    {
+      "url": "./src/core/error-recovery.js",
+      "bytes": 2392
+    },
+    {
+      "url": "./src/core/images.js",
+      "bytes": 1163
+    },
+    {
+      "url": "./src/core/migrations.js",
+      "bytes": 8776
+    },
+    {
+      "url": "./src/core/persistence.js",
+      "bytes": 7746
+    },
+    {
+      "url": "./src/core/player-name.js",
+      "bytes": 684
+    },
+    {
+      "url": "./src/core/preferences.js",
+      "bytes": 2420
+    },
+    {
+      "url": "./src/core/pwa-update.js",
+      "bytes": 431
+    },
+    {
+      "url": "./src/core/rng.js",
+      "bytes": 1020
+    },
+    {
+      "url": "./src/core/safe-html.js",
+      "bytes": 1328
+    },
+    {
+      "url": "./src/core/save-schema.js",
+      "bytes": 9555
+    },
+    {
+      "url": "./src/core/state-transaction.js",
+      "bytes": 685
+    },
+    {
+      "url": "./src/core/state.js",
+      "bytes": 15742
+    },
+    {
+      "url": "./src/core/stats.js",
+      "bytes": 706
+    },
+    {
+      "url": "./src/core/undo.js",
+      "bytes": 570
+    },
+    {
+      "url": "./src/core/utils.js",
+      "bytes": 1218
+    },
+    {
+      "url": "./src/data/abilities.js",
+      "bytes": 675
+    },
+    {
+      "url": "./src/data/achievements.js",
+      "bytes": 10696
+    },
+    {
+      "url": "./src/data/actions.js",
+      "bytes": 4420
+    },
+    {
+      "url": "./src/data/agencies.js",
+      "bytes": 2740
+    },
+    {
+      "url": "./src/data/calendar-events.js",
+      "bytes": 7398
+    },
+    {
+      "url": "./src/data/calendar.js",
+      "bytes": 318
+    },
+    {
+      "url": "./src/data/city-map.js",
+      "bytes": 2328
+    },
+    {
+      "url": "./src/data/deepening-content.js",
+      "bytes": 13380
+    },
+    {
+      "url": "./src/data/focuses.js",
+      "bytes": 452
+    },
+    {
+      "url": "./src/data/forum.js",
+      "bytes": 3345
+    },
+    {
+      "url": "./src/data/genders.js",
+      "bytes": 328
+    },
+    {
+      "url": "./src/data/industry.js",
+      "bytes": 1209
+    },
+    {
+      "url": "./src/data/invitation-content.js",
+      "bytes": 8680
+    },
+    {
+      "url": "./src/data/job-feature-beats.js",
+      "bytes": 10218
+    },
+    {
+      "url": "./src/data/job-foundation-beats.js",
+      "bytes": 12013
+    },
+    {
+      "url": "./src/data/job-production-scenes.js",
+      "bytes": 3420
+    },
+    {
+      "url": "./src/data/job-storylines.js",
+      "bytes": 7679
+    },
+    {
+      "url": "./src/data/jobs-catalog.js",
+      "bytes": 36878
+    },
+    {
+      "url": "./src/data/jobs-expansion.js",
+      "bytes": 17180
+    },
+    {
+      "url": "./src/data/jobs.js",
+      "bytes": 468
+    },
+    {
+      "url": "./src/data/life-events.js",
+      "bytes": 10171
+    },
+    {
+      "url": "./src/data/living-world-content.js",
+      "bytes": 6553
+    },
+    {
+      "url": "./src/data/location-events.js",
+      "bytes": 41085
+    },
+    {
+      "url": "./src/data/longform-content.js",
+      "bytes": 14836
+    },
+    {
+      "url": "./src/data/longform-scene-beats.js",
+      "bytes": 25100
+    },
+    {
+      "url": "./src/data/managers.js",
+      "bytes": 2300
+    },
+    {
+      "url": "./src/data/map-locations.js",
+      "bytes": 6350
+    },
+    {
+      "url": "./src/data/npc-arc-events.js",
+      "bytes": 14533
+    },
+    {
+      "url": "./src/data/npc-first-meetings.js",
+      "bytes": 6159
+    },
+    {
+      "url": "./src/data/npc-interaction-events.js",
+      "bytes": 32976
+    },
+    {
+      "url": "./src/data/npc-network.js",
+      "bytes": 3383
+    },
+    {
+      "url": "./src/data/npc-story-content.js",
+      "bytes": 3694
+    },
+    {
+      "url": "./src/data/npcs.js",
+      "bytes": 18865
+    },
+    {
+      "url": "./src/data/part-time.js",
+      "bytes": 1168
+    },
+    {
+      "url": "./src/data/playable-depth-content.js",
+      "bytes": 3129
+    },
+    {
+      "url": "./src/data/portraits.js",
+      "bytes": 371
+    },
+    {
+      "url": "./src/data/romance.js",
+      "bytes": 2506
+    },
+    {
+      "url": "./src/data/schedule-events.js",
+      "bytes": 19955
+    },
+    {
+      "url": "./src/data/season-art.js",
+      "bytes": 3827
+    },
+    {
+      "url": "./src/data/social.js",
+      "bytes": 2227
+    },
+    {
+      "url": "./src/data/story-art.js",
+      "bytes": 15984
+    },
+    {
+      "url": "./src/data/wardrobe.js",
+      "bytes": 4480
+    },
+    {
+      "url": "./src/data/work-art.js",
+      "bytes": 1060
+    },
+    {
+      "url": "./src/logic/achievement-engine.js",
+      "bytes": 1180
+    },
+    {
+      "url": "./src/logic/agency-offers.js",
+      "bytes": 2503
+    },
+    {
+      "url": "./src/logic/agency.js",
+      "bytes": 7542
+    },
+    {
+      "url": "./src/logic/brand-relations.js",
+      "bytes": 1861
+    },
+    {
+      "url": "./src/logic/calendar-events.js",
+      "bytes": 1269
+    },
+    {
+      "url": "./src/logic/career-memory.js",
+      "bytes": 3762
+    },
+    {
+      "url": "./src/logic/career-phases.js",
+      "bytes": 8654
+    },
+    {
+      "url": "./src/logic/career.js",
+      "bytes": 8821
+    },
+    {
+      "url": "./src/logic/city-hints.js",
+      "bytes": 2556
+    },
+    {
+      "url": "./src/logic/city-progression.js",
+      "bytes": 3042
+    },
+    {
+      "url": "./src/logic/community-interactions.js",
+      "bytes": 2042
+    },
+    {
+      "url": "./src/logic/competitors.js",
+      "bytes": 1487
+    },
+    {
+      "url": "./src/logic/condition-engine.js",
+      "bytes": 2007
+    },
+    {
+      "url": "./src/logic/contract-negotiation.js",
+      "bytes": 2114
+    },
+    {
+      "url": "./src/logic/creative-schedule.js",
+      "bytes": 2234
+    },
+    {
+      "url": "./src/logic/creative-team.js",
+      "bytes": 5420
+    },
+    {
+      "url": "./src/logic/creative-workflow.js",
+      "bytes": 1352
+    },
+    {
+      "url": "./src/logic/creative.js",
+      "bytes": 15453
+    },
+    {
+      "url": "./src/logic/cross-event-engine.js",
+      "bytes": 4123
+    },
+    {
+      "url": "./src/logic/deepening-engine.js",
+      "bytes": 13820
+    },
+    {
+      "url": "./src/logic/economy.js",
+      "bytes": 689
+    },
+    {
+      "url": "./src/logic/event-engine.js",
+      "bytes": 9726
+    },
+    {
+      "url": "./src/logic/event-queue.js",
+      "bytes": 2339
+    },
+    {
+      "url": "./src/logic/exploration.js",
+      "bytes": 3448
+    },
+    {
+      "url": "./src/logic/fandom.js",
+      "bytes": 1014
+    },
+    {
+      "url": "./src/logic/first-work.js",
+      "bytes": 2003
+    },
+    {
+      "url": "./src/logic/hidden-route.js",
+      "bytes": 8519
+    },
+    {
+      "url": "./src/logic/industry-news.js",
+      "bytes": 2245
+    },
+    {
+      "url": "./src/logic/industry.js",
+      "bytes": 3525
+    },
+    {
+      "url": "./src/logic/job-engine.js",
+      "bytes": 19889
+    },
+    {
+      "url": "./src/logic/job-list-model.js",
+      "bytes": 271
+    },
+    {
+      "url": "./src/logic/life-events.js",
+      "bytes": 770
+    },
+    {
+      "url": "./src/logic/lived-story-engine.js",
+      "bytes": 9863
+    },
+    {
+      "url": "./src/logic/manager.js",
+      "bytes": 10599
+    },
+    {
+      "url": "./src/logic/media-engine.js",
+      "bytes": 2642
+    },
+    {
+      "url": "./src/logic/npc-autonomy.js",
+      "bytes": 2176
+    },
+    {
+      "url": "./src/logic/npc-dynamics.js",
+      "bytes": 2346
+    },
+    {
+      "url": "./src/logic/npc-ecosystem.js",
+      "bytes": 12761
+    },
+    {
+      "url": "./src/logic/npc-engine.js",
+      "bytes": 8151
+    },
+    {
+      "url": "./src/logic/npc-interaction-engine.js",
+      "bytes": 4074
+    },
+    {
+      "url": "./src/logic/npc-invitations.js",
+      "bytes": 4248
+    },
+    {
+      "url": "./src/logic/npc-proactive.js",
+      "bytes": 2427
+    },
+    {
+      "url": "./src/logic/npc-storylines.js",
+      "bytes": 7730
+    },
+    {
+      "url": "./src/logic/onboarding.js",
+      "bytes": 658
+    },
+    {
+      "url": "./src/logic/overseas.js",
+      "bytes": 2794
+    },
+    {
+      "url": "./src/logic/persona-engine.js",
+      "bytes": 1825
+    },
+    {
+      "url": "./src/logic/personal-tasks.js",
+      "bytes": 5656
+    },
+    {
+      "url": "./src/logic/planner-edit.js",
+      "bytes": 2823
+    },
+    {
+      "url": "./src/logic/playable-depth-engine.js",
+      "bytes": 16176
+    },
+    {
+      "url": "./src/logic/portfolio.js",
+      "bytes": 4175
+    },
+    {
+      "url": "./src/logic/random-events.js",
+      "bytes": 2173
+    },
+    {
+      "url": "./src/logic/reputation-engine.js",
+      "bytes": 4420
+    },
+    {
+      "url": "./src/logic/romance-engine.js",
+      "bytes": 9494
+    },
+    {
+      "url": "./src/logic/routine-rules.js",
+      "bytes": 1384
+    },
+    {
+      "url": "./src/logic/rumor-engine.js",
+      "bytes": 2721
+    },
+    {
+      "url": "./src/logic/runner.js",
+      "bytes": 20436
+    },
+    {
+      "url": "./src/logic/scandal-engine.js",
+      "bytes": 3962
+    },
+    {
+      "url": "./src/logic/scene-reader.js",
+      "bytes": 647
+    },
+    {
+      "url": "./src/logic/schedule-assistant.js",
+      "bytes": 5006
+    },
+    {
+      "url": "./src/logic/schedule-transaction.js",
+      "bytes": 1945
+    },
+    {
+      "url": "./src/logic/scheduled-activities.js",
+      "bytes": 3182
+    },
+    {
+      "url": "./src/logic/sequel-engine.js",
+      "bytes": 6070
+    },
+    {
+      "url": "./src/logic/social-drafts.js",
+      "bytes": 1591
+    },
+    {
+      "url": "./src/logic/tutorial.js",
+      "bytes": 3268
+    },
+    {
+      "url": "./src/logic/wardrobe.js",
+      "bytes": 2529
+    },
+    {
+      "url": "./src/logic/weekly-task.js",
+      "bytes": 1875
+    },
+    {
+      "url": "./src/logic/work-lifecycle.js",
+      "bytes": 1498
+    },
+    {
+      "url": "./src/logic/work-profile.js",
+      "bytes": 2513
+    },
+    {
+      "url": "./src/logic/work-progression.js",
+      "bytes": 1966
+    },
+    {
+      "url": "./src/logic/world-events.js",
+      "bytes": 1629
+    },
+    {
+      "url": "./src/logic/world-market.js",
+      "bytes": 2674
+    },
+    {
+      "url": "./src/logic/world-tick.js",
+      "bytes": 5982
+    },
+    {
+      "url": "./src/main.js",
+      "bytes": 2666
+    },
+    {
+      "url": "./src/pixel/career-ui.js",
+      "bytes": 23830
+    },
+    {
+      "url": "./src/pixel/career.js",
+      "bytes": 22576
+    },
+    {
+      "url": "./src/pixel/cast.js",
+      "bytes": 5869
+    },
+    {
+      "url": "./src/pixel/city-catalog.js",
+      "bytes": 9796
+    },
+    {
+      "url": "./src/pixel/city-rooms.js",
+      "bytes": 23687
+    },
+    {
+      "url": "./src/pixel/city-ui.js",
+      "bytes": 7597
+    },
+    {
+      "url": "./src/pixel/core-bridge.js",
+      "bytes": 387
+    },
+    {
+      "url": "./src/pixel/data.js",
+      "bytes": 14838
+    },
+    {
+      "url": "./src/pixel/expanded-sprites.js",
+      "bytes": 5577
+    },
+    {
+      "url": "./src/pixel/feature-ui.js",
+      "bytes": 21215
+    },
+    {
+      "url": "./src/pixel/identity.js",
+      "bytes": 3264
+    },
+    {
+      "url": "./src/pixel/life-ui.js",
+      "bytes": 26522
+    },
+    {
+      "url": "./src/pixel/life.js",
+      "bytes": 20421
+    },
+    {
+      "url": "./src/pixel/main.js",
+      "bytes": 39408
+    },
+    {
+      "url": "./src/pixel/menu-icons.js",
+      "bytes": 943
+    },
+    {
+      "url": "./src/pixel/model.js",
+      "bytes": 6882
+    },
+    {
+      "url": "./src/pixel/navigation.js",
+      "bytes": 4250
+    },
+    {
+      "url": "./src/pixel/offline.js",
+      "bytes": 4518
+    },
+    {
+      "url": "./src/pixel/onboarding.js",
+      "bytes": 3604
+    },
+    {
+      "url": "./src/pixel/planner-tools.js",
+      "bytes": 4596
+    },
+    {
+      "url": "./src/pixel/preferences.js",
+      "bytes": 2630
+    },
+    {
+      "url": "./src/pixel/save-transfer.js",
+      "bytes": 4233
+    },
+    {
+      "url": "./src/pixel/settings-ui.js",
+      "bytes": 4420
+    },
+    {
+      "url": "./src/pixel/sprites.js",
+      "bytes": 6347
+    },
+    {
+      "url": "./src/pixel/storage-ui.js",
+      "bytes": 7466
+    },
+    {
+      "url": "./src/pixel/tutorial-ui.js",
+      "bytes": 2006
+    },
+    {
+      "url": "./src/pixel/world.js",
+      "bytes": 28289
+    },
+    {
+      "url": "./src/render.js",
+      "bytes": 8504
+    },
+    {
+      "url": "./src/views/achievements.js",
+      "bytes": 2097
+    },
+    {
+      "url": "./src/views/agency.js",
+      "bytes": 15799
+    },
+    {
+      "url": "./src/views/app-icons.js",
+      "bytes": 5568
+    },
+    {
+      "url": "./src/views/city-map.js",
+      "bytes": 5082
+    },
+    {
+      "url": "./src/views/confirm-dialog.js",
+      "bytes": 3830
+    },
+    {
+      "url": "./src/views/create.js",
+      "bytes": 5595
+    },
+    {
+      "url": "./src/views/creative.js",
+      "bytes": 10681
+    },
+    {
+      "url": "./src/views/ending.js",
+      "bytes": 5046
+    },
+    {
+      "url": "./src/views/event.js",
+      "bytes": 5234
+    },
+    {
+      "url": "./src/views/forum.js",
+      "bytes": 5798
+    },
+    {
+      "url": "./src/views/gallery.js",
+      "bytes": 4429
+    },
+    {
+      "url": "./src/views/jobs.js",
+      "bytes": 15603
+    },
+    {
+      "url": "./src/views/log.js",
+      "bytes": 5315
+    },
+    {
+      "url": "./src/views/map.js",
+      "bytes": 144
+    },
+    {
+      "url": "./src/views/npc-invitation.js",
+      "bytes": 1499
+    },
+    {
+      "url": "./src/views/npc.js",
+      "bytes": 9097
+    },
+    {
+      "url": "./src/views/people.js",
+      "bytes": 4408
+    },
+    {
+      "url": "./src/views/phone.js",
+      "bytes": 1425
+    },
+    {
+      "url": "./src/views/place-art.js",
+      "bytes": 437
+    },
+    {
+      "url": "./src/views/planner.js",
+      "bytes": 16926
+    },
+    {
+      "url": "./src/views/player-look.js",
+      "bytes": 1257
+    },
+    {
+      "url": "./src/views/prologue.js",
+      "bytes": 4003
+    },
+    {
+      "url": "./src/views/room.js",
+      "bytes": 16594
+    },
+    {
+      "url": "./src/views/runner.js",
+      "bytes": 7795
+    },
+    {
+      "url": "./src/views/save.js",
+      "bytes": 2580
+    },
+    {
+      "url": "./src/views/settings.js",
+      "bytes": 4587
+    },
+    {
+      "url": "./src/views/social.js",
+      "bytes": 5670
+    },
+    {
+      "url": "./src/views/stats-app.js",
+      "bytes": 2335
+    },
+    {
+      "url": "./src/views/summary.js",
+      "bytes": 5696
+    },
+    {
+      "url": "./src/views/timeline.js",
+      "bytes": 3837
+    },
+    {
+      "url": "./src/views/wardrobe.js",
+      "bytes": 6971
+    },
+    {
+      "url": "./src/views/work-discovery.js",
+      "bytes": 1768
+    },
+    {
+      "url": "./src/views/world.js",
+      "bytes": 3942
+    },
+    {
+      "url": "./assets/audio/kenney-interface/back.ogg",
+      "bytes": 7029
+    },
+    {
+      "url": "./assets/audio/kenney-interface/close.ogg",
+      "bytes": 14752
+    },
+    {
+      "url": "./assets/audio/kenney-interface/confirm.ogg",
+      "bytes": 14169
+    },
+    {
+      "url": "./assets/audio/kenney-interface/message.ogg",
+      "bytes": 6941
+    },
+    {
+      "url": "./assets/audio/kenney-interface/open.ogg",
+      "bytes": 14975
+    },
+    {
+      "url": "./assets/audio/kenney-interface/paper.ogg",
+      "bytes": 9319
+    },
+    {
+      "url": "./assets/audio/kenney-interface/reward.ogg",
+      "bytes": 8323
+    },
+    {
+      "url": "./assets/audio/kenney-interface/schedule.ogg",
+      "bytes": 6288
+    },
+    {
+      "url": "./assets/audio/kenney-interface/scroll.ogg",
+      "bytes": 21633
+    },
+    {
+      "url": "./assets/audio/kenney-interface/select.ogg",
+      "bytes": 6901
+    },
+    {
+      "url": "./assets/audio/kenney-interface/switch.ogg",
+      "bytes": 9653
+    },
+    {
+      "url": "./assets/audio/kenney-interface/tap.ogg",
+      "bytes": 4275
+    },
+    {
+      "url": "./assets/audio/kenney-interface/tick.ogg",
+      "bytes": 4514
+    },
+    {
+      "url": "./assets/audio/kenney-interface/warning.ogg",
+      "bytes": 12256
+    },
+    {
+      "url": "./assets/avatars/noir-audition.webp",
+      "bytes": 20494
+    },
+    {
+      "url": "./assets/avatars/noir-casual.webp",
+      "bytes": 40642
+    },
+    {
+      "url": "./assets/avatars/noir-cinema.webp",
+      "bytes": 38814
+    },
+    {
+      "url": "./assets/avatars/noir-classic.webp",
+      "bytes": 34354
+    },
+    {
+      "url": "./assets/avatars/noir-editorial.webp",
+      "bytes": 36772
+    },
+    {
+      "url": "./assets/avatars/noir-gala.webp",
+      "bytes": 21838
+    },
+    {
+      "url": "./assets/avatars/noir-host.webp",
+      "bytes": 43432
+    },
+    {
+      "url": "./assets/avatars/noir-icon.webp",
+      "bytes": 53362
+    },
+    {
+      "url": "./assets/avatars/noir-newcomer.webp",
+      "bytes": 22216
+    },
+    {
+      "url": "./assets/avatars/noir-practice.webp",
+      "bytes": 23724
+    },
+    {
+      "url": "./assets/avatars/noir-premium.webp",
+      "bytes": 41048
+    },
+    {
+      "url": "./assets/avatars/noir-stage.webp",
+      "bytes": 26270
+    },
+    {
+      "url": "./assets/avatars/noir-street.webp",
+      "bytes": 50432
+    },
+    {
+      "url": "./assets/avatars/noir-variety.webp",
+      "bytes": 39494
+    },
+    {
+      "url": "./assets/avatars/noir-vocal.webp",
+      "bytes": 34554
+    },
+    {
+      "url": "./assets/avatars/raven-audition.webp",
+      "bytes": 17082
+    },
+    {
+      "url": "./assets/avatars/raven-casual.webp",
+      "bytes": 46980
+    },
+    {
+      "url": "./assets/avatars/raven-cinema.webp",
+      "bytes": 35520
+    },
+    {
+      "url": "./assets/avatars/raven-classic.webp",
+      "bytes": 37002
+    },
+    {
+      "url": "./assets/avatars/raven-editorial.webp",
+      "bytes": 46582
+    },
+    {
+      "url": "./assets/avatars/raven-gala.webp",
+      "bytes": 28032
+    },
+    {
+      "url": "./assets/avatars/raven-host.webp",
+      "bytes": 29794
+    },
+    {
+      "url": "./assets/avatars/raven-icon.webp",
+      "bytes": 86878
+    },
+    {
+      "url": "./assets/avatars/raven-newcomer.webp",
+      "bytes": 24010
+    },
+    {
+      "url": "./assets/avatars/raven-practice.webp",
+      "bytes": 25538
+    },
+    {
+      "url": "./assets/avatars/raven-premium.webp",
+      "bytes": 54200
+    },
+    {
+      "url": "./assets/avatars/raven-stage.webp",
+      "bytes": 34440
+    },
+    {
+      "url": "./assets/avatars/raven-street.webp",
+      "bytes": 53890
+    },
+    {
+      "url": "./assets/avatars/raven-variety.webp",
+      "bytes": 51068
+    },
+    {
+      "url": "./assets/avatars/raven-vocal.webp",
+      "bytes": 40092
+    },
+    {
+      "url": "./assets/avatars/sage-audition.webp",
+      "bytes": 38872
+    },
+    {
+      "url": "./assets/avatars/sage-casual.webp",
+      "bytes": 44812
+    },
+    {
+      "url": "./assets/avatars/sage-cinema.webp",
+      "bytes": 39050
+    },
+    {
+      "url": "./assets/avatars/sage-classic.webp",
+      "bytes": 40240
+    },
+    {
+      "url": "./assets/avatars/sage-editorial.webp",
+      "bytes": 38442
+    },
+    {
+      "url": "./assets/avatars/sage-gala.webp",
+      "bytes": 40194
+    },
+    {
+      "url": "./assets/avatars/sage-host.webp",
+      "bytes": 42276
+    },
+    {
+      "url": "./assets/avatars/sage-icon.webp",
+      "bytes": 54146
+    },
+    {
+      "url": "./assets/avatars/sage-newcomer.webp",
+      "bytes": 23752
+    },
+    {
+      "url": "./assets/avatars/sage-practice.webp",
+      "bytes": 25432
+    },
+    {
+      "url": "./assets/avatars/sage-premium.webp",
+      "bytes": 39474
+    },
+    {
+      "url": "./assets/avatars/sage-stage.webp",
+      "bytes": 28454
+    },
+    {
+      "url": "./assets/avatars/sage-street.webp",
+      "bytes": 49772
+    },
+    {
+      "url": "./assets/avatars/sage-variety.webp",
+      "bytes": 39946
+    },
+    {
+      "url": "./assets/avatars/sage-vocal.webp",
+      "bytes": 39904
+    },
+    {
+      "url": "./assets/avatars/silver-newcomer.webp",
+      "bytes": 21938
+    },
+    {
+      "url": "./assets/avatars/silver-practice.webp",
+      "bytes": 22590
+    },
+    {
+      "url": "./assets/avatars/silver-stage.webp",
+      "bytes": 34604
+    },
+    {
+      "url": "./assets/avatars/sunny-audition.webp",
+      "bytes": 42464
+    },
+    {
+      "url": "./assets/avatars/sunny-casual.webp",
+      "bytes": 47386
+    },
+    {
+      "url": "./assets/avatars/sunny-cinema.webp",
+      "bytes": 47150
+    },
+    {
+      "url": "./assets/avatars/sunny-classic.webp",
+      "bytes": 43636
+    },
+    {
+      "url": "./assets/avatars/sunny-editorial.webp",
+      "bytes": 51104
+    },
+    {
+      "url": "./assets/avatars/sunny-gala.webp",
+      "bytes": 76398
+    },
+    {
+      "url": "./assets/avatars/sunny-host.webp",
+      "bytes": 41240
+    },
+    {
+      "url": "./assets/avatars/sunny-icon.webp",
+      "bytes": 55956
+    },
+    {
+      "url": "./assets/avatars/sunny-newcomer.webp",
+      "bytes": 26530
+    },
+    {
+      "url": "./assets/avatars/sunny-practice.webp",
+      "bytes": 31782
+    },
+    {
+      "url": "./assets/avatars/sunny-premium.webp",
+      "bytes": 62424
+    },
+    {
+      "url": "./assets/avatars/sunny-stage.webp",
+      "bytes": 31740
+    },
+    {
+      "url": "./assets/avatars/sunny-street.webp",
+      "bytes": 61494
+    },
+    {
+      "url": "./assets/avatars/sunny-variety.webp",
+      "bytes": 47856
+    },
+    {
+      "url": "./assets/avatars/sunny-vocal.webp",
+      "bytes": 47844
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-audition.webp",
+      "bytes": 5546
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-casual.webp",
+      "bytes": 8514
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-cinema.webp",
+      "bytes": 8528
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-classic.webp",
+      "bytes": 7926
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-editorial.webp",
+      "bytes": 7720
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-gala.webp",
+      "bytes": 5322
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-host.webp",
+      "bytes": 9048
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-icon.webp",
+      "bytes": 9992
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-newcomer.webp",
+      "bytes": 5238
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-practice.webp",
+      "bytes": 5886
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-premium.webp",
+      "bytes": 8412
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-stage.webp",
+      "bytes": 5888
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-street.webp",
+      "bytes": 9608
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-variety.webp",
+      "bytes": 7936
+    },
+    {
+      "url": "./assets/avatars/thumbs/noir-vocal.webp",
+      "bytes": 7140
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-audition.webp",
+      "bytes": 4850
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-casual.webp",
+      "bytes": 8272
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-cinema.webp",
+      "bytes": 7316
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-classic.webp",
+      "bytes": 8054
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-editorial.webp",
+      "bytes": 8820
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-gala.webp",
+      "bytes": 5512
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-host.webp",
+      "bytes": 6702
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-icon.webp",
+      "bytes": 13938
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-newcomer.webp",
+      "bytes": 6258
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-practice.webp",
+      "bytes": 6136
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-premium.webp",
+      "bytes": 9470
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-stage.webp",
+      "bytes": 7258
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-street.webp",
+      "bytes": 10220
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-variety.webp",
+      "bytes": 9454
+    },
+    {
+      "url": "./assets/avatars/thumbs/raven-vocal.webp",
+      "bytes": 7976
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-audition.webp",
+      "bytes": 7178
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-casual.webp",
+      "bytes": 8944
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-cinema.webp",
+      "bytes": 8398
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-classic.webp",
+      "bytes": 8240
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-editorial.webp",
+      "bytes": 7570
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-gala.webp",
+      "bytes": 7566
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-host.webp",
+      "bytes": 8688
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-icon.webp",
+      "bytes": 9514
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-newcomer.webp",
+      "bytes": 5572
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-practice.webp",
+      "bytes": 5594
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-premium.webp",
+      "bytes": 8590
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-stage.webp",
+      "bytes": 5992
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-street.webp",
+      "bytes": 8876
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-variety.webp",
+      "bytes": 7736
+    },
+    {
+      "url": "./assets/avatars/thumbs/sage-vocal.webp",
+      "bytes": 8172
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-audition.webp",
+      "bytes": 8216
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-casual.webp",
+      "bytes": 8472
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-cinema.webp",
+      "bytes": 9294
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-classic.webp",
+      "bytes": 9006
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-editorial.webp",
+      "bytes": 9732
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-gala.webp",
+      "bytes": 10444
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-host.webp",
+      "bytes": 8532
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-icon.webp",
+      "bytes": 10578
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-newcomer.webp",
+      "bytes": 6280
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-practice.webp",
+      "bytes": 7014
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-premium.webp",
+      "bytes": 9342
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-stage.webp",
+      "bytes": 6456
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-street.webp",
+      "bytes": 10878
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-variety.webp",
+      "bytes": 9718
+    },
+    {
+      "url": "./assets/avatars/thumbs/sunny-vocal.webp",
+      "bytes": 9562
+    },
+    {
+      "url": "./assets/cg/chapter-chengyian-artist-no.webp",
+      "bytes": 88090
+    },
+    {
+      "url": "./assets/cg/chapter-chengyian-client-secret.webp",
+      "bytes": 66592
+    },
+    {
+      "url": "./assets/cg/chapter-chengyian-failed-pitch.webp",
+      "bytes": 55546
+    },
+    {
+      "url": "./assets/cg/chapter-chengyian-team-burnout.webp",
+      "bytes": 68016
+    },
+    {
+      "url": "./assets/cg/chapter-guchengxi-old-contract.webp",
+      "bytes": 72474
+    },
+    {
+      "url": "./assets/cg/chapter-guchengxi-stage-return.webp",
+      "bytes": 78148
+    },
+    {
+      "url": "./assets/cg/chapter-guchengxi-villain-cut.webp",
+      "bytes": 57030
+    },
+    {
+      "url": "./assets/cg/chapter-guchengxi-young-actor.webp",
+      "bytes": 51516
+    },
+    {
+      "url": "./assets/cg/chapter-hanzhiyuan-board-choice.webp",
+      "bytes": 69052
+    },
+    {
+      "url": "./assets/cg/chapter-hanzhiyuan-small-project.webp",
+      "bytes": 86426
+    },
+    {
+      "url": "./assets/cg/chapter-hanzhiyuan-team-exit.webp",
+      "bytes": 64312
+    },
+    {
+      "url": "./assets/cg/chapter-hanzhiyuan-wrong-model.webp",
+      "bytes": 75082
+    },
+    {
+      "url": "./assets/cg/chapter-jiqing-first-season.webp",
+      "bytes": 82874
+    },
+    {
+      "url": "./assets/cg/chapter-jiqing-guest-boundary.webp",
+      "bytes": 69730
+    },
+    {
+      "url": "./assets/cg/chapter-jiqing-listener-letter.webp",
+      "bytes": 88384
+    },
+    {
+      "url": "./assets/cg/chapter-jiqing-network-offer.webp",
+      "bytes": 73304
+    },
+    {
+      "url": "./assets/cg/chapter-linxiafan-assistant-name.webp",
+      "bytes": 57520
+    },
+    {
+      "url": "./assets/cg/chapter-linxiafan-copied-work.webp",
+      "bytes": 87466
+    },
+    {
+      "url": "./assets/cg/chapter-linxiafan-first-payroll.webp",
+      "bytes": 90872
+    },
+    {
+      "url": "./assets/cg/chapter-linxiafan-studio-year.webp",
+      "bytes": 106572
+    },
+    {
+      "url": "./assets/cg/chapter-lujingran-chorus-order.webp",
+      "bytes": 88604
+    },
+    {
+      "url": "./assets/cg/chapter-lujingran-quiet-release.webp",
+      "bytes": 94722
+    },
+    {
+      "url": "./assets/cg/chapter-lujingran-session-credit.webp",
+      "bytes": 61496
+    },
+    {
+      "url": "./assets/cg/chapter-lujingran-two-names.webp",
+      "bytes": 96114
+    },
+    {
+      "url": "./assets/cg/chapter-shenyao-actor-break.webp",
+      "bytes": 44578
+    },
+    {
+      "url": "./assets/cg/chapter-shenyao-festival-no.webp",
+      "bytes": 59678
+    },
+    {
+      "url": "./assets/cg/chapter-shenyao-missing-shot.webp",
+      "bytes": 46800
+    },
+    {
+      "url": "./assets/cg/chapter-shenyao-public-screening.webp",
+      "bytes": 40136
+    },
+    {
+      "url": "./assets/cg/chapter-sufei-family-seat.webp",
+      "bytes": 50960
+    },
+    {
+      "url": "./assets/cg/chapter-sufei-same-credit.webp",
+      "bytes": 76436
+    },
+    {
+      "url": "./assets/cg/chapter-sufei-understudy.webp",
+      "bytes": 67036
+    },
+    {
+      "url": "./assets/cg/chapter-tangtang-fan-project.webp",
+      "bytes": 122168
+    },
+    {
+      "url": "./assets/cg/chapter-tangtang-member-conflict.webp",
+      "bytes": 92590
+    },
+    {
+      "url": "./assets/cg/chapter-tangtang-solo-rumor.webp",
+      "bytes": 90398
+    },
+    {
+      "url": "./assets/cg/chapter-tangtang-voice-rest.webp",
+      "bytes": 116312
+    },
+    {
+      "url": "./assets/cg/chapter-xiayutong-bad-review.webp",
+      "bytes": 59680
+    },
+    {
+      "url": "./assets/cg/chapter-xiayutong-crew-hour.webp",
+      "bytes": 110968
+    },
+    {
+      "url": "./assets/cg/chapter-xiayutong-platform-note.webp",
+      "bytes": 57760
+    },
+    {
+      "url": "./assets/cg/chapter-xiayutong-second-round.webp",
+      "bytes": 51568
+    },
+    {
+      "url": "./assets/cg/chengyian-sunset-frame.webp",
+      "bytes": 74908
+    },
+    {
+      "url": "./assets/cg/guchengxi-last-bow.webp",
+      "bytes": 66036
+    },
+    {
+      "url": "./assets/cg/hanzhiyuan-ordinary-night.webp",
+      "bytes": 60752
+    },
+    {
+      "url": "./assets/cg/jiqing-empty-studio.webp",
+      "bytes": 77754
+    },
+    {
+      "url": "./assets/cg/linxiafan-body-request.webp",
+      "bytes": 59266
+    },
+    {
+      "url": "./assets/cg/lujingran-shared-headphones.webp",
+      "bytes": 83064
+    },
+    {
+      "url": "./assets/cg/milestone-contract-renewal.webp",
+      "bytes": 115552
+    },
+    {
+      "url": "./assets/cg/milestone-ending-award_collector.webp",
+      "bytes": 352844
+    },
+    {
+      "url": "./assets/cg/milestone-ending-breakout.webp",
+      "bytes": 444334
+    },
+    {
+      "url": "./assets/cg/milestone-ending-commercial_king.webp",
+      "bytes": 388266
+    },
+    {
+      "url": "./assets/cg/milestone-ending-creative_auteur.webp",
+      "bytes": 251360
+    },
+    {
+      "url": "./assets/cg/milestone-ending-cult_artist.webp",
+      "bytes": 131188
+    },
+    {
+      "url": "./assets/cg/milestone-ending-death.webp",
+      "bytes": 284186
+    },
+    {
+      "url": "./assets/cg/milestone-ending-legacy_builder.webp",
+      "bytes": 216882
+    },
+    {
+      "url": "./assets/cg/milestone-ending-masterpiece_vow.webp",
+      "bytes": 277178
+    },
+    {
+      "url": "./assets/cg/milestone-ending-multi_hyphenate.webp",
+      "bytes": 400932
+    },
+    {
+      "url": "./assets/cg/milestone-ending-national_darling.webp",
+      "bytes": 383632
+    },
+    {
+      "url": "./assets/cg/milestone-ending-people_first.webp",
+      "bytes": 171778
+    },
+    {
+      "url": "./assets/cg/milestone-ending-power_couple.webp",
+      "bytes": 161574
+    },
+    {
+      "url": "./assets/cg/milestone-ending-soulmate.webp",
+      "bytes": 241604
+    },
+    {
+      "url": "./assets/cg/milestone-ending-steady.webp",
+      "bytes": 248624
+    },
+    {
+      "url": "./assets/cg/milestone-ending-storm_icon.webp",
+      "bytes": 312078
+    },
+    {
+      "url": "./assets/cg/milestone-ending-unfinished.webp",
+      "bytes": 345240
+    },
+    {
+      "url": "./assets/cg/milestone-ending-wealthy_exit.webp",
+      "bytes": 315588
+    },
+    {
+      "url": "./assets/cg/milestone-ending-workhorse.webp",
+      "bytes": 349108
+    },
+    {
+      "url": "./assets/cg/milestone-first-audition.webp",
+      "bytes": 66132
+    },
+    {
+      "url": "./assets/cg/milestone-first-award.webp",
+      "bytes": 129598
+    },
+    {
+      "url": "./assets/cg/milestone-first-contract.webp",
+      "bytes": 75270
+    },
+    {
+      "url": "./assets/cg/milestone-first-fan.webp",
+      "bytes": 137998
+    },
+    {
+      "url": "./assets/cg/milestone-first-red-carpet.webp",
+      "bytes": 153104
+    },
+    {
+      "url": "./assets/cg/milestone-first-shoot.webp",
+      "bytes": 80534
+    },
+    {
+      "url": "./assets/cg/milestone-five-year-integrated.webp",
+      "bytes": 70454
+    },
+    {
+      "url": "./assets/cg/milestone-flagship-signature.webp",
+      "bytes": 76344
+    },
+    {
+      "url": "./assets/cg/milestone-overwork-collapse.webp",
+      "bytes": 60580
+    },
+    {
+      "url": "./assets/cg/milestone-romance-breakup.webp",
+      "bytes": 98848
+    },
+    {
+      "url": "./assets/cg/milestone-romance-proposal.webp",
+      "bytes": 94980
+    },
+    {
+      "url": "./assets/cg/milestone-romance-wedding.webp",
+      "bytes": 102084
+    },
+    {
+      "url": "./assets/cg/milestone-scandal-press.webp",
+      "bytes": 82150
+    },
+    {
+      "url": "./assets/cg/route-chengyian-premiere-reunion.webp",
+      "bytes": 106818
+    },
+    {
+      "url": "./assets/cg/route-guchengxi-stage-flower.webp",
+      "bytes": 52092
+    },
+    {
+      "url": "./assets/cg/route-hanzhiyuan-hospital-vigil.webp",
+      "bytes": 59424
+    },
+    {
+      "url": "./assets/cg/route-jiqing-studio-argument.webp",
+      "bytes": 54624
+    },
+    {
+      "url": "./assets/cg/route-linxiafan-collar.webp",
+      "bytes": 56768
+    },
+    {
+      "url": "./assets/cg/route-lujingran-rooftop-confession.webp",
+      "bytes": 89388
+    },
+    {
+      "url": "./assets/cg/route-shenyao-shared-umbrella.webp",
+      "bytes": 58604
+    },
+    {
+      "url": "./assets/cg/route-silver-last-train-farewell.webp",
+      "bytes": 76606
+    },
+    {
+      "url": "./assets/cg/route-sufei-stage-hand.webp",
+      "bytes": 43110
+    },
+    {
+      "url": "./assets/cg/route-tangtang-secret-date.webp",
+      "bytes": 111322
+    },
+    {
+      "url": "./assets/cg/route-xiayutong-wrap-drink.webp",
+      "bytes": 92976
+    },
+    {
+      "url": "./assets/cg/shenyao-rough-cut.webp",
+      "bytes": 44894
+    },
+    {
+      "url": "./assets/cg/silver-pc-archive-room.webp",
+      "bytes": 94186
+    },
+    {
+      "url": "./assets/cg/silver-pc-film-festival.webp",
+      "bytes": 106864
+    },
+    {
+      "url": "./assets/cg/silver-pc-last-train.webp",
+      "bytes": 90828
+    },
+    {
+      "url": "./assets/cg/sufei-rent-day.webp",
+      "bytes": 55432
+    },
+    {
+      "url": "./assets/cg/tangtang-unplugged.webp",
+      "bytes": 83274
+    },
+    {
+      "url": "./assets/cg/xiayutong-ordinary-dawn.webp",
+      "bytes": 120746
+    },
+    {
+      "url": "./assets/city/starwish-city-soft.jpg",
+      "bytes": 687080
+    },
+    {
+      "url": "./assets/city/starwish-city.jpg",
+      "bytes": 1095240
+    },
+    {
+      "url": "./assets/icons/app-icon.svg",
+      "bytes": 1061
+    },
+    {
+      "url": "./assets/icons/apple-touch-icon.png",
+      "bytes": 28532
+    },
+    {
+      "url": "./assets/icons/favicon-32.png",
+      "bytes": 3923
+    },
+    {
+      "url": "./assets/icons/icon-192.webp",
+      "bytes": 1892
+    },
+    {
+      "url": "./assets/icons/icon-512.webp",
+      "bytes": 5744
+    },
+    {
+      "url": "./assets/new-start-box.webp",
+      "bytes": 28112
+    },
+    {
+      "url": "./assets/pixel/atlas-manifest.json",
+      "bytes": 44768
+    },
+    {
+      "url": "./assets/pixel/cafe.png",
+      "bytes": 2090723
+    },
+    {
+      "url": "./assets/pixel/cast/cast-0.webp",
+      "bytes": 1505774
+    },
+    {
+      "url": "./assets/pixel/cast/cast-1.webp",
+      "bytes": 1403550
+    },
+    {
+      "url": "./assets/pixel/cast/cast-2.webp",
+      "bytes": 1515842
+    },
+    {
+      "url": "./assets/pixel/city/coast.webp",
+      "bytes": 1282146
+    },
+    {
+      "url": "./assets/pixel/city/culture.webp",
+      "bytes": 1700392
+    },
+    {
+      "url": "./assets/pixel/city/film.webp",
+      "bytes": 1400970
+    },
+    {
+      "url": "./assets/pixel/city/interiors.webp",
+      "bytes": 1665374
+    },
+    {
+      "url": "./assets/pixel/city/life.webp",
+      "bytes": 1578318
+    },
+    {
+      "url": "./assets/pixel/city/map-organic.webp",
+      "bytes": 2275306
+    },
+    {
+      "url": "./assets/pixel/city/map.webp",
+      "bytes": 1828942
+    },
+    {
+      "url": "./assets/pixel/city/media.webp",
+      "bytes": 1516630
+    },
+    {
+      "url": "./assets/pixel/city/music.webp",
+      "bytes": 1374642
+    },
+    {
+      "url": "./assets/pixel/home.png",
+      "bytes": 1978035
+    },
+    {
+      "url": "./assets/pixel/jiqing-actions.png",
+      "bytes": 1668139
+    },
+    {
+      "url": "./assets/pixel/jiqing.png",
+      "bytes": 1577391
+    },
+    {
+      "url": "./assets/pixel/lossless-verification.json",
+      "bytes": 8896
+    },
+    {
+      "url": "./assets/pixel/provenance-phase-four.json",
+      "bytes": 2928
+    },
+    {
+      "url": "./assets/pixel/provenance-phase-three.json",
+      "bytes": 44030
+    },
+    {
+      "url": "./assets/pixel/raven-audition-actions.png",
+      "bytes": 1574437
+    },
+    {
+      "url": "./assets/pixel/raven-audition-seated.png",
+      "bytes": 1598928
+    },
+    {
+      "url": "./assets/pixel/raven-audition.png",
+      "bytes": 1564209
+    },
+    {
+      "url": "./assets/pixel/raven-newcomer-actions.png",
+      "bytes": 1623011
+    },
+    {
+      "url": "./assets/pixel/raven-newcomer-rest-actions.png",
+      "bytes": 1605650
+    },
+    {
+      "url": "./assets/pixel/raven-newcomer-seated.png",
+      "bytes": 1553421
+    },
+    {
+      "url": "./assets/pixel/raven-newcomer.png",
+      "bytes": 1614172
+    },
+    {
+      "url": "./assets/pixel/raven-practice-actions.png",
+      "bytes": 1762703
+    },
+    {
+      "url": "./assets/pixel/raven-practice-seated.png",
+      "bytes": 1720043
+    },
+    {
+      "url": "./assets/pixel/raven-practice.png",
+      "bytes": 1609278
+    },
+    {
+      "url": "./assets/pixel/rehearsal.png",
+      "bytes": 1971869
+    },
+    {
+      "url": "./assets/pixel/shop.png",
+      "bytes": 1948205
+    },
+    {
+      "url": "./assets/pixel/sufei-actions.png",
+      "bytes": 1699960
+    },
+    {
+      "url": "./assets/pixel/sufei.png",
+      "bytes": 1590842
+    },
+    {
+      "url": "./assets/pixel/tv.png",
+      "bytes": 1684214
+    },
+    {
+      "url": "./assets/pixel/wardrobe/poses-noir-0.webp",
+      "bytes": 1217054
+    },
+    {
+      "url": "./assets/pixel/wardrobe/poses-noir-1.webp",
+      "bytes": 1213242
+    },
+    {
+      "url": "./assets/pixel/wardrobe/poses-noir-2.webp",
+      "bytes": 1214262
+    },
+    {
+      "url": "./assets/pixel/wardrobe/poses-raven-0.webp",
+      "bytes": 1248918
+    },
+    {
+      "url": "./assets/pixel/wardrobe/poses-raven-1.webp",
+      "bytes": 1191620
+    },
+    {
+      "url": "./assets/pixel/wardrobe/poses-raven-2.webp",
+      "bytes": 1321622
+    },
+    {
+      "url": "./assets/pixel/wardrobe/poses-sage-0.webp",
+      "bytes": 1316720
+    },
+    {
+      "url": "./assets/pixel/wardrobe/poses-sage-1.webp",
+      "bytes": 1293048
+    },
+    {
+      "url": "./assets/pixel/wardrobe/poses-sage-2.webp",
+      "bytes": 1276910
+    },
+    {
+      "url": "./assets/pixel/wardrobe/poses-sunny-0.webp",
+      "bytes": 1307340
+    },
+    {
+      "url": "./assets/pixel/wardrobe/poses-sunny-1.webp",
+      "bytes": 1301888
+    },
+    {
+      "url": "./assets/pixel/wardrobe/poses-sunny-2.webp",
+      "bytes": 1283052
+    },
+    {
+      "url": "./assets/pixel/wardrobe/wardrobe-noir-0.webp",
+      "bytes": 1511280
+    },
+    {
+      "url": "./assets/pixel/wardrobe/wardrobe-noir-1.webp",
+      "bytes": 1589582
+    },
+    {
+      "url": "./assets/pixel/wardrobe/wardrobe-noir-2.webp",
+      "bytes": 1616020
+    },
+    {
+      "url": "./assets/pixel/wardrobe/wardrobe-raven-0.webp",
+      "bytes": 1631406
+    },
+    {
+      "url": "./assets/pixel/wardrobe/wardrobe-raven-1.webp",
+      "bytes": 1762706
+    },
+    {
+      "url": "./assets/pixel/wardrobe/wardrobe-raven-2.webp",
+      "bytes": 1722340
+    },
+    {
+      "url": "./assets/pixel/wardrobe/wardrobe-sage-0.webp",
+      "bytes": 1689776
+    },
+    {
+      "url": "./assets/pixel/wardrobe/wardrobe-sage-1.webp",
+      "bytes": 1812046
+    },
+    {
+      "url": "./assets/pixel/wardrobe/wardrobe-sage-2.webp",
+      "bytes": 1734960
+    },
+    {
+      "url": "./assets/pixel/wardrobe/wardrobe-sunny-0.webp",
+      "bytes": 1884622
+    },
+    {
+      "url": "./assets/pixel/wardrobe/wardrobe-sunny-1.webp",
+      "bytes": 1920034
+    },
+    {
+      "url": "./assets/pixel/wardrobe/wardrobe-sunny-2.webp",
+      "bytes": 1856384
+    },
+    {
+      "url": "./assets/portraits/busts/chengyian.webp",
+      "bytes": 28726
+    },
+    {
+      "url": "./assets/portraits/busts/guchengxi.webp",
+      "bytes": 25316
+    },
+    {
+      "url": "./assets/portraits/busts/hanzhiyuan.webp",
+      "bytes": 19840
+    },
+    {
+      "url": "./assets/portraits/busts/jiqing.webp",
+      "bytes": 26438
+    },
+    {
+      "url": "./assets/portraits/busts/linxiafan.webp",
+      "bytes": 24032
+    },
+    {
+      "url": "./assets/portraits/busts/lujingran.webp",
+      "bytes": 25766
+    },
+    {
+      "url": "./assets/portraits/busts/shenyao.webp",
+      "bytes": 18008
+    },
+    {
+      "url": "./assets/portraits/busts/sufei.webp",
+      "bytes": 25768
+    },
+    {
+      "url": "./assets/portraits/busts/tangtang.webp",
+      "bytes": 35348
+    },
+    {
+      "url": "./assets/portraits/busts/xiayutong.webp",
+      "bytes": 32890
+    },
+    {
+      "url": "./assets/portraits/chengyian.webp",
+      "bytes": 62324
+    },
+    {
+      "url": "./assets/portraits/guchengxi.webp",
+      "bytes": 52520
+    },
+    {
+      "url": "./assets/portraits/hanzhiyuan.webp",
+      "bytes": 34052
+    },
+    {
+      "url": "./assets/portraits/heads/chengyian.webp",
+      "bytes": 15314
+    },
+    {
+      "url": "./assets/portraits/heads/guchengxi.webp",
+      "bytes": 12116
+    },
+    {
+      "url": "./assets/portraits/heads/hanzhiyuan.webp",
+      "bytes": 10650
+    },
+    {
+      "url": "./assets/portraits/heads/jiqing.webp",
+      "bytes": 15538
+    },
+    {
+      "url": "./assets/portraits/heads/linxiafan.webp",
+      "bytes": 12104
+    },
+    {
+      "url": "./assets/portraits/heads/lujingran.webp",
+      "bytes": 12590
+    },
+    {
+      "url": "./assets/portraits/heads/shenyao.webp",
+      "bytes": 9520
+    },
+    {
+      "url": "./assets/portraits/heads/sufei.webp",
+      "bytes": 13666
+    },
+    {
+      "url": "./assets/portraits/heads/tangtang.webp",
+      "bytes": 21616
+    },
+    {
+      "url": "./assets/portraits/heads/xiayutong.webp",
+      "bytes": 21856
+    },
+    {
+      "url": "./assets/portraits/jiqing.webp",
+      "bytes": 58628
+    },
+    {
+      "url": "./assets/portraits/linxiafan.webp",
+      "bytes": 53474
+    },
+    {
+      "url": "./assets/portraits/lujingran.webp",
+      "bytes": 58218
+    },
+    {
+      "url": "./assets/portraits/shenyao.webp",
+      "bytes": 45318
+    },
+    {
+      "url": "./assets/portraits/sufei.webp",
+      "bytes": 54494
+    },
+    {
+      "url": "./assets/portraits/tangtang.webp",
+      "bytes": 73024
+    },
+    {
+      "url": "./assets/portraits/thumbs/chengyian.webp",
+      "bytes": 9842
+    },
+    {
+      "url": "./assets/portraits/thumbs/guchengxi.webp",
+      "bytes": 8154
+    },
+    {
+      "url": "./assets/portraits/thumbs/hanzhiyuan.webp",
+      "bytes": 6306
+    },
+    {
+      "url": "./assets/portraits/thumbs/jiqing.webp",
+      "bytes": 9554
+    },
+    {
+      "url": "./assets/portraits/thumbs/linxiafan.webp",
+      "bytes": 8558
+    },
+    {
+      "url": "./assets/portraits/thumbs/lujingran.webp",
+      "bytes": 8656
+    },
+    {
+      "url": "./assets/portraits/thumbs/shenyao.webp",
+      "bytes": 7340
+    },
+    {
+      "url": "./assets/portraits/thumbs/sufei.webp",
+      "bytes": 8818
+    },
+    {
+      "url": "./assets/portraits/thumbs/tangtang.webp",
+      "bytes": 11152
+    },
+    {
+      "url": "./assets/portraits/thumbs/xiayutong.webp",
+      "bytes": 8130
+    },
+    {
+      "url": "./assets/portraits/xiayutong.webp",
+      "bytes": 53620
+    },
+    {
+      "url": "./assets/rookie-room.webp",
+      "bytes": 119890
+    },
+    {
+      "url": "./assets/scenes/audition-room.webp",
+      "bytes": 101028
+    },
+    {
+      "url": "./assets/scenes/awards-stage.webp",
+      "bytes": 199276
+    },
+    {
+      "url": "./assets/scenes/backstage-dressing-room.webp",
+      "bytes": 179910
+    },
+    {
+      "url": "./assets/scenes/city-media-library.webp",
+      "bytes": 153752
+    },
+    {
+      "url": "./assets/scenes/echo-recording-studio.webp",
+      "bytes": 137304
+    },
+    {
+      "url": "./assets/scenes/eclipse-livehouse.webp",
+      "bytes": 118422
+    },
+    {
+      "url": "./assets/scenes/editing-suite-night.webp",
+      "bytes": 104114
+    },
+    {
+      "url": "./assets/scenes/entertainment-boardroom.webp",
+      "bytes": 139286
+    },
+    {
+      "url": "./assets/scenes/entertainment-district-rain.webp",
+      "bytes": 261210
+    },
+    {
+      "url": "./assets/scenes/fashion-atelier.webp",
+      "bytes": 121782
+    },
+    {
+      "url": "./assets/scenes/film-soundstage.webp",
+      "bytes": 191284
+    },
+    {
+      "url": "./assets/scenes/galaxy-theatre.webp",
+      "bytes": 188206
+    },
+    {
+      "url": "./assets/scenes/hospital-room-dawn.webp",
+      "bytes": 134690
+    },
+    {
+      "url": "./assets/scenes/lark-fitness-center.webp",
+      "bytes": 198996
+    },
+    {
+      "url": "./assets/scenes/moon-bay-beach.webp",
+      "bytes": 130394
+    },
+    {
+      "url": "./assets/scenes/morning-beauty-salon.webp",
+      "bytes": 185524
+    },
+    {
+      "url": "./assets/scenes/morning-star-cafe-rain.webp",
+      "bytes": 168620
+    },
+    {
+      "url": "./assets/scenes/nightlight-bistro.webp",
+      "bytes": 156716
+    },
+    {
+      "url": "./assets/scenes/press-conference.webp",
+      "bytes": 118250
+    },
+    {
+      "url": "./assets/scenes/pulse-dance-studio.webp",
+      "bytes": 110722
+    },
+    {
+      "url": "./assets/scenes/rookie-room-night.webp",
+      "bytes": 185842
+    },
+    {
+      "url": "./assets/scenes/star-cinema-premiere.webp",
+      "bytes": 139006
+    },
+    {
+      "url": "./assets/scenes/star-city-airport.webp",
+      "bytes": 154950
+    },
+    {
+      "url": "./assets/scenes/star-city-radio-night.webp",
+      "bytes": 178818
+    },
+    {
+      "url": "./assets/scenes/star-riverside-park.webp",
+      "bytes": 198928
+    },
+    {
+      "url": "./assets/scenes/starlight-boutique.webp",
+      "bytes": 179630
+    },
+    {
+      "url": "./assets/scenes/starview-mazu-temple.webp",
+      "bytes": 281320
+    },
+    {
+      "url": "./assets/scenes/studio-17.webp",
+      "bytes": 198358
+    },
+    {
+      "url": "./assets/scenes/talent-agency-lobby.webp",
+      "bytes": 154566
+    },
+    {
+      "url": "./assets/scenes/tv-variety-studio.webp",
+      "bytes": 152634
+    },
+    {
+      "url": "./assets/scenes/white-wall-gallery.webp",
+      "bytes": 92638
+    },
+    {
+      "url": "./assets/star-city-street.webp",
+      "bytes": 115252
+    },
+    {
+      "url": "./assets/vendor/phaser.esm.min.js",
+      "bytes": 1197130
+    },
+    {
+      "url": "./assets/work-art/J041-stadium-tour.webp",
+      "bytes": 129578
+    },
+    {
+      "url": "./assets/work-art/J042-north-coast.webp",
+      "bytes": 75440
+    },
+    {
+      "url": "./assets/work-art/J043-river-of-time.webp",
+      "bytes": 78964
+    },
+    {
+      "url": "./assets/work-art/J044-one-world-house.webp",
+      "bytes": 91738
+    },
+    {
+      "url": "./assets/work-art/J045-luxury-ambassador.webp",
+      "bytes": 66154
+    },
+    {
+      "url": "./assets/work-art/J046-world-tour-album.webp",
+      "bytes": 148064
+    },
+    {
+      "url": "./assets/work-art/J047-skyline-project.webp",
+      "bytes": 92046
+    },
+    {
+      "url": "./assets/work-art/J048-thirteenth-letter.webp",
+      "bytes": 101366
+    },
+    {
+      "url": "./assets/work-art/J049-new-year-live.webp",
+      "bytes": 111666
+    },
+    {
+      "url": "./assets/work-art/J050-global-airline.webp",
+      "bytes": 47578
+    }
+  ]
+}
