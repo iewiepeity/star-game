@@ -6,7 +6,7 @@ import { MAP_LOCATIONS } from "../data/map-locations.js";
 import { DAYS } from "../data/calendar.js";
 import { state } from "../core/state.js";
 import { effectiveStat, successRateLabel } from "../core/utils.js";
-import { autoAdvanceDelay, setPreference } from "../core/preferences.js";
+import { autoAdvanceDelay, runnerLoadingDelay, setPreference } from "../core/preferences.js";
 import { randomInt, chance } from "../core/rng.js";
 import {
   deterministicInterviewScore,
@@ -38,10 +38,15 @@ import { finalizeWeekMemory } from "./career-memory.js";
 import { managerInteractionDecision } from "./manager.js";
 import { effectiveActionCost } from "./economy.js";
 let runnerTimer = null;
+let loadingTimer = null;
 function clearRunnerTimer() {
   if (runnerTimer) {
     clearTimeout(runnerTimer);
     runnerTimer = null;
+  }
+  if (loadingTimer) {
+    clearTimeout(loadingTimer);
+    loadingTimer = null;
   }
 }
 export function decisionFor(id) {
@@ -160,20 +165,32 @@ export function startDay() {
   if (!["free", "personal_task"].includes(id)) prepareScheduleEvent(id);
   else state.pendingRandomEvent = null;
   render();
-  setTimeout(() => {
+  scheduleDayResolution();
+}
+function scheduleDayResolution() {
+  clearRunnerTimer();
+  if (state.screen !== "runner" || state.runnerPhase !== "loading" || state.runnerPaused) return;
+  const day = state.runnerDay, id = state.schedule[day];
+  loadingTimer = setTimeout(() => {
+    loadingTimer = null;
     if (
       state.screen !== "runner" ||
       state.runnerDay !== day ||
-      state.runnerPhase !== "loading"
+      state.runnerPhase !== "loading" ||
+      state.runnerPaused
     )
       return;
+    if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+      scheduleDayResolution();
+      return;
+    }
     const d = decisionFor(id);
     if (d) {
       state.runnerDecision = d;
       state.runnerPhase = "decision";
       render();
     } else resolveDay(null);
-  }, 350);
+  }, runnerLoadingDelay());
 }
 function scheduleAutoAdvance() {
   clearRunnerTimer();
@@ -210,14 +227,19 @@ function scheduleAutoAdvance() {
 export function setRunnerPaused(paused) {
   state.runnerPaused = Boolean(paused);
   clearRunnerTimer();
-  if (!state.runnerPaused) scheduleAutoAdvance();
+  if (!state.runnerPaused) {
+    if (state.runnerPhase === "loading") scheduleDayResolution();
+    else scheduleAutoAdvance();
+  }
   render({ persist: false });
 }
 export function setRunnerSpeed(speed) {
   setPreference("autoSpeed", speed);
-  state.runnerPaused = false;
+  // Choosing another automatic speed must not undo an explicit pause.
+  if (speed === "manual") state.runnerPaused = false;
   clearRunnerTimer();
-  scheduleAutoAdvance();
+  if (state.runnerPhase === "loading") scheduleDayResolution();
+  else scheduleAutoAdvance();
   render({ persist: false });
 }
 export function advanceRunner() {

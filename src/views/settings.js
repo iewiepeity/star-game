@@ -1,5 +1,5 @@
 import { state } from "../core/state.js";
-import { getPreferences } from "../core/preferences.js";
+import { getPreferences, PLAYBACK_SPEEDS } from "../core/preferences.js";
 import { TUTORIALS } from "../logic/tutorial.js";
 import { saveSlotCards } from "./save.js";
 import { esc } from "../core/utils.js";
@@ -17,7 +17,7 @@ export function settingsApp() {
   return `<div class="inside-page settings-page"><div class="inside-title"><div><span>GAME SETTINGS</span><h2>遊戲設定</h2></div><p>顯示與播放偏好會保留在這台裝置，不受讀檔影響</p></div>${state.saveNotice ? `<div class="wardrobe-notice">${esc(state.saveNotice)}</div>` : ""}
     ${section("DISPLAY", "字體大小", "全介面使用一致的中文黑體，敘事標題使用同一套中文襯線字。", `<div class="setting-options">${option("font-size", "standard", prefs.fontSize, "A", "標準", "原始排版")}${option("font-size", "comfortable", prefs.fontSize, "A+", "舒適", "內文至少 16px")}${option("font-size", "large", prefs.fontSize, "A++", "大字", "內文至少 18px")}</div>`)}
     ${section("THEME", "介面主題", "保留水彩素材，只調整平板、視窗與按鈕色調。", `<div class="setting-options themes">${option("theme", "warm", prefs.theme, "☀", "奶油晨光", "原始米白與珊瑚粉")}${option("theme", "rose", prefs.theme, "❀", "櫻花手帳", "柔粉紙張與莓果色")}${option("theme", "night", prefs.theme, "☾", "夜幕星光", "深藍灰低亮度介面")}</div>`)}
-    ${section("PLAYBACK", "自動播放速度與方式", "需要選擇、簽約或閱讀人物劇情時一定會暫停。", `<div class="setting-options playback-speeds">${option("auto-speed", "manual", prefs.autoSpeed, "Ⅱ", "手動播放", "由你決定何時進入下一天")}${option("auto-speed", "x1", prefs.autoSpeed, "1×", "舒緩閱讀", "每段停留 10 秒")}${option("auto-speed", "x2", prefs.autoSpeed, "2×", "快速播放", "每段仍保留 5 秒")}</div>`)}
+    ${section("PLAYBACK", "自動播放速度與方式", "過場與一般結算一起加速。需要選擇、簽約、人物互動或查看現場看板時，仍會停下來等你。", `<div class="setting-options playback-speeds">${PLAYBACK_SPEEDS.map(speed => option("auto-speed", speed.id, prefs.autoSpeed, speed.id === "manual" ? "Ⅱ" : speed.label, speed.title, speed.resultDelay == null ? "由你決定何時進入下一天" : `一般結算停留 ${speed.resultDelay / 1000} 秒`)).join("")}</div>`)}
     ${section("AUDIO", "音樂與事件音效", "背景音樂會依房間、事件、行程與結局切換；一般按鈕與操作不再發出聲音。首次點擊後開始播放，可離線使用。", `${slider("musicVolume", "背景音樂", prefs.musicVolume)}${slider("sfxVolume", "事件音效", prefs.sfxVolume)}<div class="audio-previews" aria-label="試聽事件音效"><button data-preview-sfx="message">訊息</button><button data-preview-sfx="success">成功</button><button data-preview-sfx="warning">警告</button><button data-preview-sfx="reward">獎勵</button></div><button class="settings-link" data-audio-muted>${prefs.audioMuted ? "開啟聲音" : "全部靜音"}</button>`)}
     ${section("SAVE / LOAD", "快速存檔與讀檔", "讀檔前會自動建立安全備份；匯出、匯入與備份還原請進完整管理。", `${saveSlotCards()}<button class="settings-link" data-open-save-manager>開啟完整存檔管理 →</button>`)}
     ${section("TUTORIAL", "新手教學", `目前已看過 ${seen.size}／${TUTORIALS.length} 則教學提示。`, `<div class="settings-inline-actions"><button data-tutorial-mode="restart">重新顯示所有教學</button><button data-tutorial-mode="skip">關閉所有後續教學</button></div>`)}

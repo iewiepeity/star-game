@@ -5,10 +5,11 @@
   .day-track li.done { background: #668264; color: #fff; }
   .day-track li.now { background: #c87927; color: #fff; box-shadow: 0 0 0 5px rgba(200,121,39,.2); }
   .story-action > span { min-width: 0; flex: 1; }
-  .runner-playback { display: flex; align-items: center; gap: 7px; margin-left: auto; }
-  .runner-playback > div { display: flex; padding: 3px; border-radius: 10px; background: #eee5dc; }
-  .runner-playback button { min-height: 34px; padding: 6px 9px; border: 0; border-radius: 8px; background: transparent; color: #675a54; font-weight: 800; }
+  .runner-playback { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-left: auto; max-width: 100%; }
+  .runner-playback > div { display: grid; grid-template-columns: repeat(6, minmax(44px, 1fr)); gap: 2px; padding: 3px; border-radius: 10px; background: #eee5dc; }
+  .runner-playback button { min-height: 44px; padding: 6px 8px; border: 0; border-radius: 8px; background: transparent; color: #675a54; font-weight: 800; }
   .runner-playback button.active, .runner-playback button[aria-pressed="true"] { background: #fff; color: #9b4651; box-shadow: 0 2px 7px rgba(54,40,34,.12); }
+  .story-loading.is-paused i { animation-play-state: paused; }
   .runner-countdown { display: block; width: min(360px,100%); height: 4px; margin: 8px 0; overflow: hidden; border-radius: 999px; background: #eadfd5; }
   .runner-countdown i { display: block; width: 100%; height: 100%; background: #bd6871; transform-origin: left; animation: runner-countdown var(--runner-delay) linear forwards; }
   .job-catalog-card, .timeline-entry, .outfit-card { content-visibility: auto; contain-intrinsic-size: 88px; }
@@ -18,6 +19,13 @@
     .event-screen .story-action { display: flex; flex-wrap: wrap; padding-bottom: 8px; }
     .event-screen .story-action > i, .event-screen .story-action > span { display: none; }
     .tablet-dock button span, .dock-empty, .dock-empty small { font-size: 12px !important; }
+  }
+  @media (max-width: 480px) {
+    .runner-playback > div { width: 100%; }
+    .runner-playback > button { margin-left: auto; }
+  }
+  @media (max-width: 360px) {
+    .runner-playback > div { grid-template-columns: repeat(3, minmax(44px, 1fr)); }
   }
   @media (prefers-reduced-motion:reduce) { .runner-countdown i { animation: none; } }
 }

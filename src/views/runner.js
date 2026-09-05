@@ -6,20 +6,16 @@ import { state } from "../core/state.js";
 import { esc, money } from "../core/utils.js";
 import { jobState, qualification } from "../logic/job-engine.js";
 import { runnerSceneArt } from "../data/story-art.js";
-import { autoAdvanceDelay, getPreferences } from "../core/preferences.js";
+import { autoAdvanceDelay, getPreferences, PLAYBACK_SPEEDS } from "../core/preferences.js";
 import { sanitizeRichText } from "../core/safe-html.js";
 function playbackControls() {
   const speed = getPreferences().autoSpeed,
-    canPause = state.runnerPhase === "result" && speed !== "manual",
+    canPause = ["loading", "result"].includes(state.runnerPhase) && speed !== "manual",
     paused = Boolean(state.runnerPaused);
-  return `<div class="runner-playback" aria-label="自動播放控制"><button data-runner-pause aria-pressed="${paused}" ${canPause ? "" : "disabled"}>${paused ? "▶ 繼續" : "Ⅱ 暫停"}</button><div role="group" aria-label="播放速度">${[
-    ["manual", "手動"],
-    ["x1", "1×"],
-    ["x2", "2×"],
-  ]
+  return `<div class="runner-playback" aria-label="自動播放控制"><button data-runner-pause aria-pressed="${paused}" ${canPause ? "" : "disabled"}>${paused ? "▶ 繼續" : "Ⅱ 暫停"}</button><div role="group" aria-label="播放速度">${PLAYBACK_SPEEDS
     .map(
-      ([value, label]) =>
-        `<button data-runner-speed="${value}" aria-pressed="${speed === value}" class="${speed === value ? "active" : ""}">${label}</button>`,
+      ({id, label, resultDelay}) =>
+        `<button data-runner-speed="${id}" aria-pressed="${speed === id}" class="${speed === id ? "active" : ""}" title="${resultDelay == null ? "親自前往下一天" : `一般結算 ${resultDelay / 1000} 秒・選擇與人物劇情會暫停`}">${label}</button>`,
     )
     .join("")}</div></div>`;
 }
@@ -32,7 +28,7 @@ export function runnerView() {
       state.freeLocations?.[i],
       state.runnerResult,
     );
-  return `<main class="event-screen"><img src="${art.src}" alt="${art.alt}" style="object-position:${art.position}"><div class="event-top"><div class="logo dark">✦ 星途未定</div><div>${state.week} 週・DAY ${i + 1}　${DAYS[i]}</div><div>體力 ${state.stamina}　疲勞 ${state.fatigue}</div></div><ol class="day-track" aria-label="本週進度">${DAYS.map((d, x) => `<li class="${x < i ? "done" : x === i ? "now" : ""}" ${x === i ? 'aria-current="step"' : ""}>${x < i ? "✓" : x + 1}<small>${SHORT[x]}</small></li>`).join("")}</ol><section class="story-box" aria-live="polite"><div class="story-action"><i>${a.icon}</i><span><small>今日行程</small><b>${a.label}</b><em>${a.note}</em></span>${playbackControls()}</div>${state.runnerPhase === "loading" ? `<div class="story-loading" role="status"><i></i><b>今天正在發生……</b><small>一般行程會自動結算並進入下一天</small></div>` : state.runnerPhase === "decision" ? decisionView() : resultView()}</section></main>`;
+  return `<main class="event-screen"><img src="${art.src}" alt="${art.alt}" style="object-position:${art.position}"><div class="event-top"><div class="logo dark">✦ 星途未定</div><div>${state.week} 週・DAY ${i + 1}　${DAYS[i]}</div><div>體力 ${state.stamina}　疲勞 ${state.fatigue}</div></div><ol class="day-track" aria-label="本週進度">${DAYS.map((d, x) => `<li class="${x < i ? "done" : x === i ? "now" : ""}" ${x === i ? 'aria-current="step"' : ""}>${x < i ? "✓" : x + 1}<small>${SHORT[x]}</small></li>`).join("")}</ol><section class="story-box" aria-live="polite"><div class="story-action"><i>${a.icon}</i><span><small>今日行程</small><b>${a.label}</b><em>${a.note}</em></span>${playbackControls()}</div>${state.runnerPhase === "loading" ? `<div class="story-loading ${state.runnerPaused ? "is-paused" : ""}" role="status"><i></i><b>${state.runnerPaused ? "行程已暫停" : "今天正在發生……"}</b><small>${state.runnerPaused ? "點「繼續」恢復播放" : "一般行程會自動結算並進入下一天"}</small></div>` : state.runnerPhase === "decision" ? decisionView() : resultView()}</section></main>`;
 }
 function relationshipCues(data) {
   return data?.relationshipCues?.length

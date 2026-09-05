@@ -1,7 +1,15 @@
 const KEY="star-game-preferences";
 const FONT_SIZES=new Set(["standard","comfortable","large"]);
 const THEMES=new Set(["warm","rose","night"]);
-const AUTO_SPEEDS=new Set(["manual","x1","x2"]);
+export const PLAYBACK_SPEEDS = Object.freeze([
+ { id: "manual", label: "手動", title: "手動播放", resultDelay: null, loadingDelay: 350 },
+ ...[1, 2, 4, 8, 16].map((speed, index) => ({
+  id: `x${speed}`, label: `${speed}×`,
+  title: ["一般閱讀", "快速播放", "加速推進", "高速播放", "極速播放"][index],
+  resultDelay: 4000 / speed, loadingDelay: Math.round(350 / speed),
+ })),
+].map(Object.freeze));
+const AUTO_SPEEDS=new Set(PLAYBACK_SPEEDS.map(speed=>speed.id));
 const clampVolume=value=>Math.max(0,Math.min(1,Number.isFinite(Number(value))?Number(value):0));
 export const DEFAULT_PREFERENCES={fontSize:"standard",theme:"warm",autoSpeed:"x1",musicVolume:.28,sfxVolume:.42,audioMuted:false};
 
@@ -15,7 +23,8 @@ function readPreferences(){
 
 let preferences=readPreferences();
 export function getPreferences(){return{...preferences}}
-export function autoAdvanceDelay(){return preferences.autoSpeed==="manual"?null:preferences.autoSpeed==="x2"?5000:10000}
+export function autoAdvanceDelay(){return PLAYBACK_SPEEDS.find(speed=>speed.id===preferences.autoSpeed).resultDelay}
+export function runnerLoadingDelay(){return PLAYBACK_SPEEDS.find(speed=>speed.id===preferences.autoSpeed).loadingDelay}
 export function applyPreferences(){
  if(typeof document==="undefined")return;
  document.documentElement.dataset.fontSize=preferences.fontSize;
