@@ -1,0 +1,247 @@
+[
+  {
+    "source": "assets/pixel/city/coast.png",
+    "target": "assets/pixel/city/coast.webp",
+    "sourceBytes": 1895614,
+    "bytes": 1282146,
+    "decodedRGBA": "3c0f99a13da2dff3b36b5f23d9ca04af383735f752504410f354e861d081a3b0"
+  },
+  {
+    "source": "assets/pixel/city/culture.png",
+    "target": "assets/pixel/city/culture.webp",
+    "sourceBytes": 2573239,
+    "bytes": 1700392,
+    "decodedRGBA": "874a9181d0f4e009ab56d9b909a4aa2623d83d440a41f02ab27f1edeb5c058e8"
+  },
+  {
+    "source": "assets/pixel/city/film.png",
+    "target": "assets/pixel/city/film.webp",
+    "sourceBytes": 2058640,
+    "bytes": 1400970,
+    "decodedRGBA": "63199d928b010e16cf9d08a774791e54d90f253008ff23fa7c9db11021b185c9"
+  },
+  {
+    "source": "assets/pixel/city/interiors.png",
+    "target": "assets/pixel/city/interiors.webp",
+    "sourceBytes": 2447435,
+    "bytes": 1665374,
+    "decodedRGBA": "b4b3b21221966759dd638f37c9336d80fe23dffdf710cc7723d8db7d091cb485"
+  },
+  {
+    "source": "assets/pixel/city/life.png",
+    "target": "assets/pixel/city/life.webp",
+    "sourceBytes": 2299879,
+    "bytes": 1578318,
+    "decodedRGBA": "28fad8742723d5dc5da5edaefadf4dd63a42a600d971e50aba67781bc20ada87"
+  },
+  {
+    "source": "assets/pixel/city/map.png",
+    "target": "assets/pixel/city/map.webp",
+    "sourceBytes": 2615138,
+    "bytes": 1828942,
+    "decodedRGBA": "e605fed0fbe89e77188760ca450c748fc01ae05fa9b1805d274d964ff4765973"
+  },
+  {
+    "source": "assets/pixel/city/media.png",
+    "target": "assets/pixel/city/media.webp",
+    "sourceBytes": 2221918,
+    "bytes": 1516630,
+    "decodedRGBA": "0b1dbdaebe9405724f9add74ac0a61357a898a3c65e9b2ba2b1bcc2048ebd33a"
+  },
+  {
+    "source": "assets/pixel/city/music.png",
+    "target": "assets/pixel/city/music.webp",
+    "sourceBytes": 2105644,
+    "bytes": 1374642,
+    "decodedRGBA": "8f80fcc9654dd3e990e02388f073bd4ec64b5b3ced0937df35c63a45e5f5334d"
+  },
+  {
+    "source": "assets/pixel/cast/cast-0.png",
+    "target": "assets/pixel/cast/cast-0.webp",
+    "sourceBytes": 2048397,
+    "bytes": 1505774,
+    "decodedRGBA": "75a722139868b1aa3be09938c17e195a3344011bc9c31c7004763ce3febed72d"
+  },
+  {
+    "source": "assets/pixel/cast/cast-1.png",
+    "target": "assets/pixel/cast/cast-1.webp",
+    "sourceBytes": 1915579,
+    "bytes": 1403550,
+    "decodedRGBA": "2be053d2720e7841bf779bdb09668d4fed4ab9a8242f529e191f1fca05fea38e"
+  },
+  {
+    "source": "assets/pixel/cast/cast-2.png",
+    "target": "assets/pixel/cast/cast-2.webp",
+    "sourceBytes": 2049767,
+    "bytes": 1515842,
+    "decodedRGBA": "77eef1e41aca7725a3131b66d4201fcc7c47ebd90fb241c21fd99cb182aea8ee"
+  },
+  {
+    "source": "assets/pixel/wardrobe/poses-noir-0.png",
+    "target": "assets/pixel/wardrobe/poses-noir-0.webp",
+    "sourceBytes": 1767851,
+    "bytes": 1217054,
+    "decodedRGBA": "c2278f99e63b5d89bfcd3936871609e68d4b69b8895220063348cc6ca507a7e6"
+  },
+  {
+    "source": "assets/pixel/wardrobe/poses-noir-1.png",
+    "target": "assets/pixel/wardrobe/poses-noir-1.webp",
+    "sourceBytes": 1752210,
+    "bytes": 1213242,
+    "decodedRGBA": "e9c4bc9697dc5d3c5a9c3b0aad3f081b233dff744340308ee8e6ea5977064309"
+  },
+  {
+    "source": "assets/pixel/wardrobe/poses-noir-2.png",
+    "target": "assets/pixel/wardrobe/poses-noir-2.webp",
+    "sourceBytes": 1760762,
+    "bytes": 1214262,
+    "decodedRGBA": "caf4da9304d7291f0630831a729891e478a9c7e8b5148f2707109d6a9e03d543"
+  },
+  {
+    "source": "assets/pixel/wardrobe/poses-raven-0.png",
+    "target": "assets/pixel/wardrobe/poses-raven-0.webp",
+    "sourceBytes": 1782486,
+    "bytes": 1248918,
+    "decodedRGBA": "8ab35d6c1feee06e97539c609958d02e176f852cb4e395e9dfa23b5a487f24ce"
+  },
+  {
+    "source": "assets/pixel/wardrobe/poses-raven-1.png",
+    "target": "assets/pixel/wardrobe/poses-raven-1.webp",
+    "sourceBytes": 1709871,
+    "bytes": 1191620,
+    "decodedRGBA": "b29f5603fc89b3b0015b387850d578c3dc5e6c85378ade2cb2f72aecc0b64468"
+  },
+  {
+    "source": "assets/pixel/wardrobe/poses-raven-2.png",
+    "target": "assets/pixel/wardrobe/poses-raven-2.webp",
+    "sourceBytes": 1897968,
+    "bytes": 1321622,
+    "decodedRGBA": "9ffe3f8c3f3014a7cd554e80d7bbe8154b7a2113e31e0b74d78af80e55b892d0"
+  },
+  {
+    "source": "assets/pixel/wardrobe/poses-sage-0.png",
+    "target": "assets/pixel/wardrobe/poses-sage-0.webp",
+    "sourceBytes": 1887056,
+    "bytes": 1316720,
+    "decodedRGBA": "ad02e4cdb137efeabcbcd7a635fcd46efbebad95222244b4538dac44595c92a5"
+  },
+  {
+    "source": "assets/pixel/wardrobe/poses-sage-1.png",
+    "target": "assets/pixel/wardrobe/poses-sage-1.webp",
+    "sourceBytes": 1858751,
+    "bytes": 1293048,
+    "decodedRGBA": "4fd863b424bdddfeaa82f7fcca4d997ebe72db10c7de0860ec1c003dca7f0384"
+  },
+  {
+    "source": "assets/pixel/wardrobe/poses-sage-2.png",
+    "target": "assets/pixel/wardrobe/poses-sage-2.webp",
+    "sourceBytes": 1811635,
+    "bytes": 1276910,
+    "decodedRGBA": "c35cc439aaea79c524a7aac465c6bbb752453fae6acf131fbf2ba2b320a7365a"
+  },
+  {
+    "source": "assets/pixel/wardrobe/poses-sunny-0.png",
+    "target": "assets/pixel/wardrobe/poses-sunny-0.webp",
+    "sourceBytes": 1841336,
+    "bytes": 1307340,
+    "decodedRGBA": "a1ca398b43910c4cb5fe9a99f3f0c703045b67e09db6072a5c9b40f78080c1ff"
+  },
+  {
+    "source": "assets/pixel/wardrobe/poses-sunny-1.png",
+    "target": "assets/pixel/wardrobe/poses-sunny-1.webp",
+    "sourceBytes": 1865562,
+    "bytes": 1301888,
+    "decodedRGBA": "59d293a12670595f2a89d73b0b3617cc3c8980b9647bda50e8dd626015668642"
+  },
+  {
+    "source": "assets/pixel/wardrobe/poses-sunny-2.png",
+    "target": "assets/pixel/wardrobe/poses-sunny-2.webp",
+    "sourceBytes": 1819570,
+    "bytes": 1283052,
+    "decodedRGBA": "5e33a467bdb7f515a58378430ed059b4b61f4a324fe13d76d21c799b8cd677a9"
+  },
+  {
+    "source": "assets/pixel/wardrobe/wardrobe-noir-0.png",
+    "target": "assets/pixel/wardrobe/wardrobe-noir-0.webp",
+    "sourceBytes": 2033072,
+    "bytes": 1511280,
+    "decodedRGBA": "856ccb75d3b25f055e0901d851b55b8c581857b4f95734dcc9220332a60f559c"
+  },
+  {
+    "source": "assets/pixel/wardrobe/wardrobe-noir-1.png",
+    "target": "assets/pixel/wardrobe/wardrobe-noir-1.webp",
+    "sourceBytes": 2093317,
+    "bytes": 1589582,
+    "decodedRGBA": "5954fc4c8eedf705f75b27b4ba1d1e0f4c5c46f7754c9cab6517e673c59ccf04"
+  },
+  {
+    "source": "assets/pixel/wardrobe/wardrobe-noir-2.png",
+    "target": "assets/pixel/wardrobe/wardrobe-noir-2.webp",
+    "sourceBytes": 2167104,
+    "bytes": 1616020,
+    "decodedRGBA": "ca4eea08616677785ccd0f055bf58bc4c7f0ad94d8770105a1ae187da269ad62"
+  },
+  {
+    "source": "assets/pixel/wardrobe/wardrobe-raven-0.png",
+    "target": "assets/pixel/wardrobe/wardrobe-raven-0.webp",
+    "sourceBytes": 2174534,
+    "bytes": 1631406,
+    "decodedRGBA": "41f47588e92d0e8d3173a1dda846658ea470e3b05b8e5ef16e428403b8870c7d"
+  },
+  {
+    "source": "assets/pixel/wardrobe/wardrobe-raven-1.png",
+    "target": "assets/pixel/wardrobe/wardrobe-raven-1.webp",
+    "sourceBytes": 2327496,
+    "bytes": 1762706,
+    "decodedRGBA": "6ffaf367e7b36fc9a623045cf0d4230ff3c913d5144a8fc8b17e4b22547f5831"
+  },
+  {
+    "source": "assets/pixel/wardrobe/wardrobe-raven-2.png",
+    "target": "assets/pixel/wardrobe/wardrobe-raven-2.webp",
+    "sourceBytes": 2275511,
+    "bytes": 1722340,
+    "decodedRGBA": "89677c5d9ff0c1724de23651507d09f39d90333c713d5373e6709e781778c693"
+  },
+  {
+    "source": "assets/pixel/wardrobe/wardrobe-sage-0.png",
+    "target": "assets/pixel/wardrobe/wardrobe-sage-0.webp",
+    "sourceBytes": 2232967,
+    "bytes": 1689776,
+    "decodedRGBA": "70d86554400944e1103232f4f26268e12d5bc51625bd20775588870d3e88216c"
+  },
+  {
+    "source": "assets/pixel/wardrobe/wardrobe-sage-1.png",
+    "target": "assets/pixel/wardrobe/wardrobe-sage-1.webp",
+    "sourceBytes": 2366447,
+    "bytes": 1812046,
+    "decodedRGBA": "758ea73b2699336298ba913be5463cfb405ba3660b225a5f07c1ceed98079261"
+  },
+  {
+    "source": "assets/pixel/wardrobe/wardrobe-sage-2.png",
+    "target": "assets/pixel/wardrobe/wardrobe-sage-2.webp",
+    "sourceBytes": 2293308,
+    "bytes": 1734960,
+    "decodedRGBA": "9b8695188002572309a208d9aad811bf3a3a5c5880f54a62bce797025add74a4"
+  },
+  {
+    "source": "assets/pixel/wardrobe/wardrobe-sunny-0.png",
+    "target": "assets/pixel/wardrobe/wardrobe-sunny-0.webp",
+    "sourceBytes": 2406160,
+    "bytes": 1884622,
+    "decodedRGBA": "9506158e00bc8a94c88360a0fdb8d0509c74edd142523bc8fde2273f385c31b7"
+  },
+  {
+    "source": "assets/pixel/wardrobe/wardrobe-sunny-1.png",
+    "target": "assets/pixel/wardrobe/wardrobe-sunny-1.webp",
+    "sourceBytes": 2470094,
+    "bytes": 1920034,
+    "decodedRGBA": "f1d39d7ed4079995b0ac583712e34fa9b23df2e763d6c34d9290f37a1ebafc5a"
+  },
+  {
+    "source": "assets/pixel/wardrobe/wardrobe-sunny-2.png",
+    "target": "assets/pixel/wardrobe/wardrobe-sunny-2.webp",
+    "sourceBytes": 2389605,
+    "bytes": 1856384,
+    "decodedRGBA": "0930840e29cc03bf9f8f2af8329ea05919869f891fb78949cf8694f2f0ae1ca5"
+  }
+]

@@ -22,7 +22,8 @@ async function menu(page, item) {
 }
 async function travel(page, id) {
   await menu(page, "travel");
-  await page.locator(`[data-room="${id}"]`).click();
+  await page.locator(`[data-map-place="${id}"]`).click();
+  await page.locator(`[data-map-enter="${id}"]`).click();
   await expect
     .poll(async () => (await read(page)).scene, { timeout: 12000 })
     .toBe(id);

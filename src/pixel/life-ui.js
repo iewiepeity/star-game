@@ -13,11 +13,15 @@ import {
   newProject,
   buyOutfit,
   recordMeeting,
+  cancelDay,
 } from "./life.js";
 import { CREATIVE_TYPES } from "../logic/creative.js";
 import { ROOMS, PEOPLE, outfits } from "./data.js";
-import { OUTFITS } from "../data/wardrobe.js";
+import { OUTFITS, portraitAsset } from "../data/wardrobe.js";
 import { hasVisited } from "../logic/city-progression.js";
+import { roomIllustration } from "./city-rooms.js";
+import { CITY_CATALOG, hiddenRoomOpen } from "./city-catalog.js";
+import { AGENCIES } from "../data/agencies.js";
 import { OFFICIAL_SOCIAL_POSTS, NPC_SOCIAL_COPY } from "../data/social.js";
 export function createLifeUI(api) {
   const { show, heading, escape, checkpoint, toast, leaveOverlay } = api;
@@ -26,7 +30,8 @@ export function createLifeUI(api) {
     world = () => api.world();
   const money = (n) => `$${n.toLocaleString()}`;
   let selectedDay = 0,
-    autoWait = 0;
+    autoWait = 0,
+    filter = "全部";
   const label = (a) =>
     a?.id === "creative"
       ? `創作・${life().game.creativeProjects.find((p) => p.id === a.projectId)?.title || "選一份作品"}`
@@ -78,6 +83,7 @@ export function createLifeUI(api) {
       .slice(l.day)
       .reduce((sum, a) => sum + costOf(l, a), 0);
     const cards = Object.entries(CHOICES)
+      .filter(([, d]) => filter === "全部" || d.group === filter)
       .map(([id, d]) => {
         const a =
           id === "creative"
@@ -92,7 +98,8 @@ export function createLifeUI(api) {
           locked = !!reason;
         return row(
           d.label,
-          reason || `${d.group} · ${ROOMS[d.room].name}`,
+          reason ||
+            `${ROOMS[d.room].name}${!hasVisited(l.game, ROOMS[d.room].venue) && d.room !== "home" ? " · 含首次前往" : ""}`,
           `data-plan="${id}" ${a.projectId ? `data-project="${a.projectId}"` : ""} ${locked ? "disabled" : ""} aria-pressed="${selected.id === id}"`,
           costOf(l, a) ? money(costOf(l, a)) : "—",
         );
@@ -100,18 +107,27 @@ export function createLifeUI(api) {
       .join("");
     show(
       "schedule",
-      `${heading("WEEKLY PLAN", "我的一週", "每天一件重要的事。先探訪、再報名，空下來的日子留給自己。")}<div class="week-strip" role="group" aria-label="七日行程">${l.plan.map((a, i) => `<button data-day="${i}" class="${i === selectedDay ? "selected" : ""}" ${i < l.day ? "disabled" : ""}><small>週${"一二三四五六日"[i]}</small><strong>${escape(label(a))}</strong><span>${i < l.day ? "已完成" : i === l.day ? "今天" : "可調整"}</span></button>`).join("")}</div><div class="section-heading"><b>安排 ${DAY_NAMES[selectedDay]}</b><span>餘下學費／外出費 ${money(estimate)}</span></div><div class="action-catalog">${cards}</div><div class="panel-actions"><button data-ui="menu">◀ 選單</button><button data-life="auto" ${l.pending ? "disabled" : ""}>自動執行行程</button><button class="primary" data-life="today">開始今天 →</button></div>`,
+      `${heading("WEEKLY PLAN", "我的一週", "第一週就能自由改排。課程與工作會帶你前往場地，不需先花一天登記。")}<div class="week-strip" role="group" aria-label="七日行程">${l.plan.map((a, i) => `<button data-day="${i}" class="${i === selectedDay ? "selected" : ""}" ${i < l.day ? "disabled" : ""}><small>週${"一二三四五六日"[i]}</small><strong>${escape(label(a))}</strong><span>${i < l.day ? "已完成" : i === l.day ? "今天" : "可調整"}</span></button>`).join("")}</div><div class="section-heading"><b>安排 ${DAY_NAMES[selectedDay]}</b><span>餘下學費／外出費 ${money(estimate)}</span></div><nav class="schedule-filters" aria-label="行程類型">${["全部", "訓練", "工作", "探訪", "生活", "創作", "休息"].map((f) => `<button data-schedule-filter="${f}" aria-pressed="${filter === f}">${f}</button>`).join("")}</nav><div class="action-catalog">${cards}</div><div class="panel-actions"><button data-ui="menu">◀ 選單</button><button data-life="auto" ${l.pending ? "disabled" : ""}>自動執行行程</button><button class="primary" data-life="today">開始今天 →</button></div>`,
     );
   }
   function offer(assignment) {
     const l = life();
     if (l.day === 7) return summary();
-    if (l.pending) return today();
+    if (l.pending?.phase === "result") return result();
+    if (l.pending) {
+      const error = cancelDay(l);
+      if (error) {
+        toast(error);
+        return;
+      }
+      world().cancelActivity();
+      world().stopRoute();
+    }
     const d = CHOICES[assignment.id],
       reason = access(l, assignment);
     show(
       "action",
-      `${heading("TODAY", label(assignment), reason || "確認後，這件事會佔用今天的主要行程。")}<div class="action-detail"><img src="assets/pixel/${d.room}.png" alt="${ROOMS[d.room].name}"><div><b>${ROOMS[d.room].name}</b><p>${costOf(l, assignment) ? `花費 ${money(costOf(l, assignment))}` : "不需費用"} · 1 天</p><small>${assignment.id === "rest" ? "體力 +24 · 疲勞 −18" : d.group === "訓練" ? "課程效果依當日身體狀態調整" : d.group === "工作" ? `收入 $${ACTIONS[d.action].income[0].toLocaleString()}～$${ACTIONS[d.action].income[1].toLocaleString()} · 疲勞 +${ACTIONS[d.action].fatigue}` : assignment.id === "creative" ? "疲勞 +6 · 同一週可安排多天創作" : "完成後在日誌留下今日成果"}</small></div></div><div class="panel-actions"><button data-ui="close">再想一下</button><button class="primary" data-start="${assignment.id}" ${assignment.projectId ? `data-project="${escape(assignment.projectId)}"` : ""} ${reason ? "disabled" : ""}>確認今天的安排</button></div>`,
+      `${heading("TODAY", label(assignment), reason || "確認後，這件事會佔用今天的主要行程。")}<div class="action-detail">${roomIllustration(ROOMS[d.room])}<div><b>${ROOMS[d.room].name}</b><p>${costOf(l, assignment) ? `花費 ${money(costOf(l, assignment))}` : "不需費用"} · 1 天</p><small>${assignment.id === "rest" ? "體力 +24 · 疲勞 −18" : d.group === "訓練" ? "課程效果依當日身體狀態調整" : d.group === "工作" ? `收入 $${ACTIONS[d.action].income[0].toLocaleString()}～$${ACTIONS[d.action].income[1].toLocaleString()} · 疲勞 +${ACTIONS[d.action].fatigue}` : assignment.id === "creative" ? "疲勞 +6 · 同一週可安排多天創作" : "完成後在日誌留下今日成果"}</small></div></div><div class="panel-actions"><button data-ui="close">再想一下</button><button class="primary" data-start="${assignment.id}" ${assignment.projectId ? `data-project="${escape(assignment.projectId)}"` : ""} ${reason ? "disabled" : ""}>確認今天的安排</button></div>`,
     );
   }
   function run(assignment, auto = false) {
@@ -135,7 +151,7 @@ export function createLifeUI(api) {
     leaveOverlay();
     p.phase = "travel";
     const arrive = () => world().interact(def.item);
-    if (state().sceneId !== def.room) world().transition(def.room, arrive);
+    if (state().sceneId !== def.room) api.travelTo(def.room, arrive, true);
     else arrive();
     checkpoint();
     changed();
@@ -163,15 +179,7 @@ export function createLifeUI(api) {
       d.room === state().sceneId &&
       d.item === item.id
     ) {
-      if (d.venue && !p.assignment.choice) {
-        life().auto = false;
-        p.phase = "choice";
-        checkpoint();
-        show(
-          "visit",
-          `${heading("FIRST STEPS", d.label, "已走到現場。今天想怎麼認識這裡？")}<div class="command-list">${row("了解場地與服務", "詢問報名、記下工作與課程資訊", 'data-visit="focus"')}${row("留意身邊的人", "了解服務，也為接下來的相遇留點空間", 'data-visit="explore"')}</div><p class="tiny-note">完成這次自由活動後才會開放相關安排。選擇時自動行程暫停。</p>${buttons()}`,
-        );
-      } else startPose(p.assignment.choice);
+      startPose(p.assignment.choice || "focus");
       return true;
     }
     if (p && p.phase !== "result") {
@@ -181,7 +189,7 @@ export function createLifeUI(api) {
     const room = state().sceneId;
     if (room === "tv") {
       if (item.id === "reception") {
-        offer({ id: "visit_tv" });
+        services();
         return true;
       }
       if (item.id === "props") {
@@ -194,13 +202,13 @@ export function createLifeUI(api) {
       return true;
     }
     if (room === "rehearsal" && item.id === "notice") {
-      offer({ id: "visit_rehearsal" });
+      services();
       return true;
     }
     if (room === "rehearsal" && item.id === "practice") {
       show(
         "practice",
-        `${heading("REHEARSAL", "鏡前練習", "正式課程佔一天；試做動作不增加能力。")}<div class="command-list">${row("報名表演課", `到訪後開放 · 目前學費 ${money(costOf(life(), { id: "acting" }))}`, 'data-offer="acting"')}${row("先試一段舞步", "放鬆暖身，不結算養成數值", 'data-activity="dance" data-item="practice"')}${row("先試著朗讀", "找找台詞的節奏", 'data-activity="read" data-item="practice"')}</div>${buttons()}`,
+        `${heading("REHEARSAL", "鏡前練習", "正式課程佔一天；試做動作不增加能力。")}<div class="command-list">${row("報名表演課", `可直接報名 · 目前學費 ${money(costOf(life(), { id: "acting" }))}`, 'data-offer="acting"')}${row("先試一段舞步", "放鬆暖身，不結算養成數值", 'data-activity="dance" data-item="practice"')}${row("先試著朗讀", "找找台詞的節奏", 'data-activity="read" data-item="practice"')}</div>${buttons()}`,
       );
       return true;
     }
@@ -209,6 +217,10 @@ export function createLifeUI(api) {
         "bed",
         `${heading("AT HOME", "好好睡一覺")}<div class="command-list">${row("用今天充分休息", "體力 +24 · 疲勞 −18", 'data-offer="rest"')}${row("只是躺一下", "不消耗天數、不改變數值", 'data-activity="rest" data-item="bed"')}</div>${buttons()}`,
       );
+      return true;
+    }
+    if (item.action === "services") {
+      services();
       return true;
     }
     return false;
@@ -261,7 +273,7 @@ export function createLifeUI(api) {
     if (!r) return;
     show(
       "result",
-      `${heading("A DAY TO REMEMBER", `${DAY_NAMES[r.day]} · ${r.label}`)}<div class="result-scene"><img src="assets/pixel/${CHOICES[r.assignment.id].room}.png" alt="今天的活動場景"><span>今日完成</span></div><div class="result-values">${Object.entries(
+      `${heading("A DAY TO REMEMBER", `${DAY_NAMES[r.day]} · ${r.label}`)}<div class="result-scene">${roomIllustration(ROOMS[CHOICES[r.assignment.id].room])}<span>今日完成</span></div><div class="result-values">${Object.entries(
         r.deltas,
       )
         .filter(([, v]) => v)
@@ -343,21 +355,31 @@ export function createLifeUI(api) {
   }
   function shop() {
     const l = life(),
-      visited = hasVisited(l.game, "shop");
+      avatar = state().avatarId;
     show(
       "shop",
-      `${heading("STARLIGHT BOUTIQUE", "星光服飾店", visited ? "挑一件陪你走進下一個場景的衣服。" : "先花一天熟悉店內款式，再到櫃檯購買。")}${!visited ? row("認識服飾店", "自由活動 · $300 · 1 天", 'data-offer="visit_shop"') : ""}<div class="wardrobe-grid">${outfits
+      `${heading("STARLIGHT BOUTIQUE", "星光服飾店", "挑好就能購買，不用額外登記，也不消耗天數。")}<div class="wardrobe-grid">${outfits
         .map(
           (o) =>
-            `<article class="outfit-card"><img src="${o.portrait}" alt="${o.name}"><strong>${o.name}</strong><small>${Object.entries(
+            `<article class="outfit-card"><img src="${portraitAsset(avatar, o.id)}" alt="${o.name}"><strong>${o.name}</strong><small>${Object.entries(
               OUTFITS[o.id].bonuses,
             )
               .map(([n, v]) => `${n}+${v}`)
               .join(
                 " · ",
-              )}</small><button data-buy="${o.id}" ${!visited || l.game.ownedOutfits.raven.includes(o.id) ? "disabled" : ""}>${l.game.ownedOutfits.raven.includes(o.id) ? "已擁有" : money(OUTFITS[o.id].price)}</button></article>`,
+              )}</small><button data-buy="${o.id}" ${l.game.ownedOutfits[avatar].includes(o.id) ? "disabled" : ""}>${l.game.ownedOutfits[avatar].includes(o.id) ? "已擁有" : money(OUTFITS[o.id].price)}</button>${l.game.ownedOutfits[avatar].includes(o.id) ? `<button data-outfit="${o.id}">${state().outfitId === o.id ? "穿著中" : "換上這套"}</button>` : ""}</article>`,
         )
         .join("")}</div>${buttons()}`,
+    );
+  }
+  function services() {
+    const room = state().sceneId;
+    const list = Object.entries(CHOICES).filter(([, d]) => d.room === room);
+    const agency =
+      room.startsWith("agency_") && AGENCIES[room.replace("agency_", "")];
+    show(
+      "services",
+      `${heading("AT YOUR SERVICE", ROOMS[room].name, "服務已開放。選擇今天要做的事，或先看看資訊。")}<div class="command-list">${list.map(([id, d]) => row(d.label, `${d.group} · ${costOf(life(), { id }) ? money(costOf(life(), { id })) : "免費"} · 1 天`, `data-offer="${id}"`)).join("")}${room === "business" ? row("搭電梯拜訪經紀公司", "四家公司的公開接待區", 'data-ui="agencies"') : ""}${room === "gallery" && hiddenRoomOpen(state()) ? row("前往深夜剪輯室", "熟悉的分鏡工作室", 'data-interior="editing_room"') : ""}</div>${agency ? `<p class="result-note">${escape(agency.description || agency.style || CITY_CATALOG[room].note)}</p><p class="tiny-note">這裡是公司公開接待區。先準備作品與履歷；能否面談與簽約，取決於公司的資格要求與審核。</p>` : ""}${buttons()}`,
     );
   }
   function meeting(id) {
@@ -384,6 +406,11 @@ export function createLifeUI(api) {
   function handle(target) {
     const d = target.dataset,
       l = life();
+    if (d.scheduleFilter) {
+      filter = d.scheduleFilter;
+      schedule();
+      return true;
+    }
     if (d.day !== undefined) {
       schedule(Number(d.day));
       return true;
@@ -394,6 +421,13 @@ export function createLifeUI(api) {
         ...(d.project ? { projectId: d.project } : {}),
       });
       if (reason) toast(reason);
+      else {
+        if (selectedDay === l.day) {
+          world().cancelActivity();
+          world().stopRoute();
+        }
+        toast(`${DAY_NAMES[selectedDay]}已改成${CHOICES[d.plan].label}`);
+      }
       checkpoint();
       schedule();
       return true;
@@ -415,7 +449,7 @@ export function createLifeUI(api) {
       checkpoint();
       changed();
       shop();
-      toast(reason || "已放進衣櫃，回家就能換上。");
+      toast(reason || "已放進衣櫃，可以直接試穿換上。");
       return true;
     }
     if (d.phone) {
@@ -456,6 +490,8 @@ export function createLifeUI(api) {
   }
   return {
     changed,
+    shop,
+    services,
     schedule,
     phone,
     creative,
@@ -466,6 +502,5 @@ export function createLifeUI(api) {
     tick,
     handle,
     takeover,
-    shop,
   };
 }

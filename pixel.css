@@ -2054,3 +2054,398 @@ input {
     min-height: 54px;
   }
 }
+/* City navigation: art is the hit target; descriptions stay below the map. */
+#panel[data-view="travel"] {
+  width: min(1180px, calc(100vw - 32px));
+  max-width: none;
+  padding: 20px;
+}
+.map-tools {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 12px 0;
+}
+.map-tools label {
+  flex: 1;
+}
+.map-tools input {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+}
+.map-tools button {
+  min-width: 44px;
+  min-height: 44px;
+}
+.city-map-viewport {
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 2px solid #bb9d69;
+  max-height: 58dvh;
+  scrollbar-width: thin;
+}
+.city-map-canvas {
+  position: relative;
+  width: calc(100% * var(--map-zoom));
+  min-width: 100%;
+  aspect-ratio: 3/2;
+  background: #faf2e5;
+}
+.city-map-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+.city-map-landmarks {
+  position: absolute;
+  inset: 0;
+}
+.city-map-landmarks .map-landmark {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 13%;
+  height: 14%;
+  min-height: 44px;
+  min-width: 44px;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  color: #463629;
+}
+.map-landmark span {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 80%);
+  white-space: nowrap;
+  background: #fff9e9;
+  padding: 4px 8px;
+  font-size: 12px;
+  border: 1px solid #c1a374;
+  box-shadow: 2px 2px #755a3833;
+  opacity: 0;
+  pointer-events: none;
+}
+.map-landmark:hover,
+.map-landmark:focus-visible,
+.map-landmark[aria-pressed="true"] {
+  z-index: 4;
+}
+.map-landmark:hover span,
+.map-landmark:focus-visible span,
+.map-landmark[aria-pressed="true"] span,
+.map-landmark.search-match span {
+  opacity: 1;
+}
+.city-map-landmarks .map-landmark:focus-visible {
+  outline: 3px dashed #946a3f;
+  outline-offset: 0;
+}
+.map-landmark i {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  color: #a45767;
+  text-shadow: 1px 1px #fff;
+}
+.map-landmark.search-muted {
+  background: #fff9e9b0;
+  pointer-events: auto;
+}
+.map-watermark {
+  position: absolute;
+  left: 60%;
+  top: 83%;
+  text-align: center;
+  font-family: serif;
+  color: #50746c;
+  font-size: clamp(18px, 3vw, 34px);
+  letter-spacing: 0.15em;
+  pointer-events: none;
+}
+.map-watermark small {
+  display: block;
+  font: 12px sans-serif;
+  letter-spacing: 0.05em;
+  margin-top: 8px;
+}
+.map-detail {
+  min-height: 96px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 4px 0;
+}
+.map-detail h3 {
+  margin: 4px 0;
+  font-size: 20px;
+}
+.map-detail p {
+  font-size: 14px;
+  margin: 4px 0;
+  max-width: 740px;
+  line-height: 1.5;
+}
+.map-detail small {
+  color: #82725b;
+}
+.map-detail > button {
+  flex-shrink: 0;
+  min-height: 48px;
+}
+.room-illustration {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+}
+.action-detail > .room-illustration {
+  width: 190px;
+  height: 140px;
+  flex-shrink: 0;
+}
+.result-scene > .room-illustration {
+  width: 100%;
+  height: 100%;
+}
+.schedule-filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.schedule-filters button[aria-pressed="true"] {
+  background: #78916b;
+  color: white;
+}
+@media (max-width: 650px) {
+  #panel[data-view="travel"] {
+    width: calc(100vw - 12px);
+    padding: 10px;
+    max-height: calc(100dvh - 124px);
+  }
+  #panel[data-view="travel"] .lede {
+    font-size: 12px;
+    margin: 4px 0;
+  }
+  .map-tools {
+    gap: 4px;
+    margin: 8px 0;
+  }
+  .map-tools input {
+    padding: 8px;
+    font-size: 14px;
+  }
+  .map-tools button {
+    padding: 6px;
+  }
+  .city-map-viewport {
+    max-height: 46dvh;
+  }
+  .map-landmark span {
+    font-size: 11px;
+    padding: 3px 5px;
+  }
+  .map-detail {
+    padding: 10px 0 0;
+    min-height: 100px;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .map-detail h3 {
+    font-size: 17px;
+  }
+  .map-detail p {
+    font-size: 12px;
+  }
+  .map-detail small {
+    font-size: 11px;
+  }
+  .map-detail > button {
+    padding: 10px;
+    font-size: 13px;
+    max-width: 108px;
+  }
+  .map-watermark small {
+    display: none;
+  }
+  .action-detail > .room-illustration {
+    width: 115px;
+    height: 100px;
+  }
+  .wardrobe-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  #panel[data-view="travel"] {
+    max-height: calc(100dvh - 30px);
+  }
+  #panel[data-view="travel"] .lede {
+    display: none;
+  }
+  .city-map-viewport {
+    max-height: 48dvh;
+  }
+  .map-detail {
+    min-height: 70px;
+  }
+}
+
+.avatar-choices {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 18px 0;
+}
+.avatar-choices button {
+  padding: 6px;
+  min-width: 0;
+}
+.avatar-choices img {
+  display: block;
+  width: 100%;
+  height: 140px;
+  object-fit: contain;
+  object-position: top;
+}
+.avatar-choices strong {
+  font-size: 13px;
+}
+.avatar-choices button[aria-pressed="true"] {
+  background: #e6efd9;
+  border-color: #738d64;
+}
+@media (max-width: 650px) {
+  .avatar-choices {
+    gap: 4px;
+  }
+  .avatar-choices img {
+    height: 100px;
+  }
+}
+
+#panel[data-view="travel"] h2 {
+  margin: 6px 0 12px;
+  padding-bottom: 12px;
+}
+#panel[data-view="travel"] .lede {
+  margin: 8px 0;
+}
+#panel[data-view="travel"] .map-tools {
+  margin: 8px 0;
+}
+.city-map-viewport {
+  max-height: calc(100dvh - 360px);
+  background: #fbf3e4;
+}
+.city-map-canvas {
+  width: calc(min(100%, (100dvh - 360px) * 1.5) * var(--map-zoom));
+  min-width: 0;
+  margin: 0 auto;
+}
+.city-map-art {
+  position: absolute;
+  inset: 0;
+}
+@media (max-width: 650px) {
+  .city-map-viewport {
+    max-height: calc(100dvh - 330px);
+  }
+  .city-map-canvas {
+    width: calc(min(100%, (100dvh - 330px) * 1.5) * var(--map-zoom));
+  }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .city-map-viewport {
+    max-height: calc(100dvh - 205px);
+  }
+  .city-map-canvas {
+    width: calc(min(100%, (100dvh - 205px) * 1.5) * var(--map-zoom));
+  }
+}
+/* Reserve space for the destination and travel button at every screen height. */
+#panel[data-view="travel"] {
+  height: calc(100dvh - 190px);
+  overflow: hidden;
+}
+#panel[data-view="travel"] #panel-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+#panel[data-view="travel"] #panel-content > :not(.city-map-viewport) {
+  flex-shrink: 0;
+}
+#panel[data-view="travel"] .city-map-viewport {
+  flex: 1;
+  min-height: 100px;
+  max-height: none;
+}
+#panel[data-view="travel"] .city-map-canvas {
+  width: calc(var(--map-base-width, 100%) * var(--map-zoom));
+}
+#panel[data-view="travel"] .map-detail {
+  min-height: 92px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (max-width: 650px) {
+  #panel[data-view="travel"] {
+    height: calc(100dvh - 176px);
+    max-height: calc(100dvh - 176px);
+  }
+  #panel[data-view="travel"] .eyebrow {
+    display: none;
+  }
+  #panel[data-view="travel"] .map-landmark {
+    min-height: 30px;
+    min-width: 36px;
+  }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  #panel[data-view="travel"] {
+    height: calc(100dvh - 22px);
+    max-height: calc(100dvh - 22px);
+    padding: 10px 16px;
+  }
+  #panel[data-view="travel"] .eyebrow,
+  #panel[data-view="travel"] .lede {
+    display: none;
+  }
+  #panel[data-view="travel"] h2 {
+    font-size: 18px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  #panel[data-view="travel"] .map-detail {
+    min-height: 66px;
+    padding-top: 5px;
+  }
+  #panel[data-view="travel"] .map-detail p {
+    display: none;
+  }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  #panel[data-view="travel"] .map-landmark {
+    min-width: 24px;
+    min-height: 24px;
+  }
+}

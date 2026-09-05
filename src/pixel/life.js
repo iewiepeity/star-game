@@ -2,10 +2,11 @@ import { initialState, hydrateState, state as core } from "../core/state.js";
 import { randomInt, setSeed } from "../core/rng.js";
 import { ABILITIES } from "../data/abilities.js";
 import { ACTIONS } from "../data/actions.js";
-import { OUTFITS } from "../data/wardrobe.js";
+import { OUTFITS, AVATARS } from "../data/wardrobe.js";
 import { MAP_LOCATIONS } from "../data/map-locations.js";
-import { trainingAccess, hasVisited } from "../logic/city-progression.js";
-import { workAccess, recordPartTimeShift } from "../logic/work-progression.js";
+import { TRAINING_VENUES, hasVisited } from "../logic/city-progression.js";
+import { recordPartTimeShift } from "../logic/work-progression.js";
+import { COMPANY_PART_TIME } from "../data/part-time.js";
 import { effectiveActionCost } from "../logic/economy.js";
 import {
   applyActivityLoad,
@@ -38,7 +39,7 @@ export const DAY_NAMES = [
 export const SPEEDS = [1, 2, 4, 8, 16];
 export const CHOICES = {
   visit_rehearsal: {
-    label: "認識排練室",
+    label: "排練室自由活動",
     group: "探訪",
     room: "rehearsal",
     item: "notice",
@@ -47,7 +48,7 @@ export const CHOICES = {
     venue: "rehearsal",
   },
   visit_tv: {
-    label: "電視台人員登記",
+    label: "電視台自由活動",
     group: "探訪",
     room: "tv",
     item: "reception",
@@ -130,15 +131,76 @@ export const CHOICES = {
     action: "rest",
   },
 };
+// A destination is part of the assignment. Planning is available from day one;
+// the actual arrival opens future service shortcuts, without a registration day.
+export const roomForVenue = (id) => (id === "tv_company" ? "tv" : id);
+for (const [id, venue] of Object.entries(TRAINING_VENUES)) {
+  if (CHOICES[id]) continue;
+  CHOICES[id] = {
+    label: ACTIONS[id].short,
+    group: "訓練",
+    room: roomForVenue(venue),
+    item: "service",
+    pose: id === "dance" ? "dance" : "read",
+    action: id,
+  };
+}
+for (const [id, job] of Object.entries(COMPANY_PART_TIME)) {
+  if (CHOICES[id]) continue;
+  CHOICES[id] = {
+    label: job.label,
+    group: "工作",
+    room: roomForVenue(job.venue),
+    item: "service",
+    pose: "read",
+    action: id,
+  };
+}
+for (const [id, place] of Object.entries(MAP_LOCATIONS)) {
+  if (["rehearsal", "tv_company", "shop", "cafe"].includes(id)) continue;
+  CHOICES[`explore_${id}`] = {
+    label: `${place.name}・自由活動`,
+    group: "探訪",
+    room: roomForVenue(id),
+    item: "service",
+    pose: "read",
+    action: "free",
+    venue: id,
+  };
+}
 export const suggestedPlan = () => [
-  { id: "visit_rehearsal" },
   { id: "acting" },
-  { id: "visit_tv" },
-  { id: "tv_assistant" },
+  { id: "newcomer_gig" },
   { id: "study" },
-  { id: "cafe", choice: "focus" },
+  { id: "tv_assistant" },
+  { id: "cafe" },
+  { id: "social" },
   { id: "rest" },
 ];
+export function arriveAt(life, roomId) {
+  const id =
+    roomId === "tv"
+      ? "tv_company"
+      : roomId.startsWith("agency_")
+        ? "business"
+        : roomId;
+  if (!MAP_LOCATIONS[id]) return false;
+  const first = !hasVisited(life.game, id);
+  const visits = (life.game.visitedLocationsByWeek[life.game.week] ||= []);
+  if (!visits.includes(id)) visits.push(id);
+  return first;
+}
+export function cancelDay(life) {
+  if (!life.pending) return "";
+  if (
+    life.pending.phase === "result" ||
+    life.ledger.some((r) => r.id === life.pending.id)
+  )
+    return "今天已完成，請先迎接明天";
+  life.pending = null;
+  life.auto = false;
+  return "";
+}
 // Core modules use a live binding. Only synchronous commands run inside this bridge;
 // the pixel save owns the snapshot. No classic render, runner, or storage is mounted.
 export function withCore(life, fn) {
@@ -210,27 +272,18 @@ export function normalizeLife(raw, legacyOutfit = "newcomer") {
 export const actionKey = (life) => `week-${life.game.week}-day-${life.day}`;
 export function costOf(life, assignment) {
   const def = CHOICES[assignment?.id];
-  return def ? effectiveActionCost(ACTIONS[def.action], life.game.week) : 0;
+  return def
+    ? effectiveActionCost(ACTIONS[def.action], life.game.week) +
+        (def.action === "free" ? MAP_LOCATIONS[def.venue]?.extraCost || 0 : 0)
+    : 0;
 }
-export function access(
-  life,
-  assignment,
-  day = life.day,
-  projectVisits = false,
-) {
+export function access(life, assignment, day = life.day) {
   const def = CHOICES[assignment?.id];
   if (!def) return "找不到這個安排";
   if (day < life.day || day > 6) return "這一天已經結束";
-  const game = structuredClone(life.game);
-  if (projectVisits)
-    for (let i = life.day; i < day; i++) {
-      const prior = CHOICES[life.plan[i].id];
-      if (prior.venue)
-        (game.visitedLocationsByWeek[game.week] ||= []).push(prior.venue);
-    }
-  if (def.action === "acting" && !trainingAccess(game, def.action).unlocked)
-    return "先用一天到排練室登記";
-  if (!workAccess(game, def.action).unlocked) return "先用一天到電視台登記";
+  const game = life.game;
+  // Services are public destinations. A schedule can include the first trip;
+  // dispatch still walks through the city map and arrives before performing.
   if (assignment.id === "creative") {
     const project = game.creativeProjects.find(
       (p) => p.id === assignment.projectId,
@@ -245,9 +298,12 @@ export function access(
   return "";
 }
 export function planDay(life, day, assignment) {
-  if (life.pending && day === life.day) return "先完成或取消正在進行的行動";
   const reason = access(life, assignment, day, true);
   if (reason) return reason;
+  if (day === life.day) {
+    const error = cancelDay(life);
+    if (error) return error;
+  }
   life.plan[day] = structuredClone(assignment);
   return "";
 }
@@ -287,36 +343,54 @@ export function settleDay(life, choice = "focus") {
     game.runnerDay = life.day;
     game.schedule[life.day] = def.action;
     game.freeLocations[life.day] = def.venue || null;
-    if (def.action === "acting") {
+    if (ACTIONS[def.action].type === "train") {
       const r = routineTraining(game, def.action, randomInt);
       notes.push(`學習效率 ${Math.round(r.multiplier * 100)}%`);
     } else if (def.action === "rest") {
       routineRest(game);
       notes.push("睡了一個好覺，明天繼續。");
-    } else if (["tv_assistant", "newcomer_gig"].includes(def.action)) {
+    } else if (COMPANY_PART_TIME[def.action] || def.action === "newcomer_gig") {
       applyActivityLoad(ACTIONS[def.action], game);
       game.money += randomInt(...ACTIONS[def.action].income);
       if (def.action === "newcomer_gig") game.fame += 1;
       routineGains(game, ACTIONS[def.action].shiftGains, randomInt);
       notes.push(
-        def.action === "tv_assistant"
-          ? "核對道具、引導來賓，完成今天的棚務。"
-          : "在公開活動報到，引導來賓，並協助活動撤場。",
-        def.action === "tv_assistant"
-          ? recordPartTimeShift(game, "tv_assistant")
-          : "公開招募的活動引導工作；公司內部職缺仍需先完成人事登記。",
+        COMPANY_PART_TIME[def.action]?.note || "引導來賓，並協助公開活動撤場。",
+        COMPANY_PART_TIME[def.action]
+          ? recordPartTimeShift(game, def.action)
+          : "完成了今天的公開零工。",
       );
     } else if (def.action === "study") {
       const multiplier = performanceMultiplier("training", game);
       applyActivityLoad(ACTIONS.study, game);
       routineGains(game, ACTIONS.study.gains, randomInt, multiplier);
     } else if (def.action === "free") {
-      const location = MAP_LOCATIONS[def.venue],
-        first = !hasVisited(game, def.venue);
+      const location = MAP_LOCATIONS[def.venue];
       applyActivityLoad(ACTIONS.free, game);
+      game.money -= location.extraCost || 0;
+      game.fatigue = Math.max(
+        0,
+        Math.min(
+          120,
+          game.fatigue +
+            (location.extraFatigue || 0) -
+            (location.recover?.fatigue || 0),
+        ),
+      );
+      game.mood = Math.min(100, game.mood + (location.recover?.mood || 0));
+      game.stamina = Math.max(0, game.stamina - (location.extraFatigue || 0));
+      if (location.luck)
+        game.luck = Math.min(1000, (game.luck || 0) + location.luck);
+      notes.push(
+        def.venue === "shop"
+          ? "逛逛新一季的服裝，留下穿搭靈感。"
+          : def.venue === "clinic"
+            ? "參觀公開諮詢區，記下形象管理的建議。"
+            : location.effect || location.note,
+      );
       const visits = (game.visitedLocationsByWeek[game.week] ||= []);
       if (!visits.includes(def.venue)) visits.push(def.venue);
-      // Explicit exploration settlement, not a scene-entry or preview side effect.
+      // Growth belongs to the daily activity; walking into a room never grants gains.
       for (const gain of [
         location.gain,
         choice === "focus" && location.bonus,
@@ -327,12 +401,6 @@ export function settleDay(life, choice = "focus") {
           (game.stats[name] || 0) + randomInt(min, max),
         );
       }
-      if (first && def.venue === "rehearsal")
-        notes.push("已完成報名登記：之後可安排表演課。");
-      if (first && def.venue === "tv_company")
-        notes.push("人事窗口完成登記：之後可安排棚務助理。");
-      if (first && def.venue === "shop")
-        notes.push("已認識店內款式，可以在櫃檯購買服裝。");
       if (choice === "explore")
         notes.push("留意身邊的人，也許可以找機會聊聊。");
     } else if (assignment.id === "creative") {
@@ -353,6 +421,8 @@ export function settleDay(life, choice = "focus") {
             assignment.text || "慢慢練習、好好生活。今天也往夢想走近了一點。",
         },
       });
+      // The action ledger owns the post identity, independent of playback speed.
+      if (game.socialPosts[0]) game.socialPosts[0].id = `pixel-${pending.id}`;
       notes.push(plain(r.text));
     }
     healthPressure(game);
@@ -429,12 +499,12 @@ export function newProject(life, type, title) {
   return withCore(life, () => createCreativeProject(type, title.slice(0, 40)));
 }
 export function buyOutfit(life, id) {
-  if (!["practice", "audition"].includes(id)) return "找不到這套服裝";
-  if (!hasVisited(life.game, "shop")) return "先完成一次服飾店探訪";
-  if (life.game.ownedOutfits.raven.includes(id)) return "已擁有這套服裝";
+  if (!OUTFITS[id]) return "找不到這套服裝";
+  const avatar = AVATARS[life.game.avatarId] ? life.game.avatarId : "raven";
+  if (life.game.ownedOutfits[avatar].includes(id)) return "已擁有這套服裝";
   if (life.game.money < OUTFITS[id].price) return "現金不足";
   life.game.money -= OUTFITS[id].price;
-  life.game.ownedOutfits.raven.push(id);
+  life.game.ownedOutfits[avatar].push(id);
   return "";
 }
 export function recordMeeting(life, id) {

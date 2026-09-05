@@ -1,4 +1,5 @@
-import { initialLife, normalizeLife, recordMeeting } from "./life.js";
+import { AVATARS } from "../data/wardrobe.js";
+import { initialLife, normalizeLife, recordMeeting, arriveAt } from "./life.js";
 import {
   ROOMS,
   OUTFIT_IDS,
@@ -13,6 +14,7 @@ export const initialPixelState = () => ({
   sceneId: "home",
   position: { ...ROOMS.home.entry },
   outfitId: "newcomer",
+  avatarId: "raven",
   playerName: "星途新人",
   elapsed: 0,
   visited: ["home"],
@@ -34,6 +36,7 @@ export function validatePixelState(raw) {
   const state = initialPixelState();
   state.sceneId = raw.sceneId;
   state.outfitId = raw.outfitId;
+  state.avatarId = AVATARS[raw.avatarId] ? raw.avatarId : "raven";
   if (raw.position && [raw.position.x, raw.position.y].every(Number.isFinite))
     state.position = {
       x: Math.max(0, Math.min(960, raw.position.x)),
@@ -109,6 +112,10 @@ export function validatePixelState(raw) {
     };
   }
   state.life = normalizeLife(raw.life, state.outfitId);
+  state.life.game.avatarId = state.avatarId;
+  state.life.game.gender = AVATARS[state.avatarId].gender;
+  state.life.game.outfitId = state.outfitId;
+  for (const id of state.visited) arriveAt(state.life, id);
   if (!raw.life)
     for (const id of state.knownPeople) recordMeeting(state.life, id);
   return state;
@@ -147,7 +154,7 @@ export function objectives(state) {
   const game = state.life.game;
   const visits = Object.values(game.visitedLocationsByWeek).flat();
   return [
-    { done: visits.includes("rehearsal"), label: "完成排練室登記" },
+    { done: visits.includes("rehearsal"), label: "走進排練室" },
     { done: game.trainingSessionsCompleted > 0, label: "上完第一堂表演課" },
     {
       done: state.life.ledger.some((r) =>

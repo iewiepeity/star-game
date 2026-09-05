@@ -1,3 +1,7 @@
+import {
+  expandedActorFrame,
+  expandedActivityFrame,
+} from "./expanded-sprites.js";
 // Source sheets use a magenta key, like traditional sprite import pipelines.
 // Decode once into GPU textures. The generated source artwork stays unmodified.
 export function importSprites(scene, key) {
@@ -48,9 +52,11 @@ export function importSprites(scene, key) {
         bottom - top + 1,
       );
     }
+  scene.textures.remove(`raw-${key}`);
   return texture;
 }
 export function actorFrame(actor, moving, elapsed) {
+  if (expandedActorFrame(actor, moving, elapsed)) return;
   const row = moving ? [0, 1, 0, 2][Math.floor(elapsed * 9) % 4] : 0;
   let col = actor.facing,
     flip = false;
@@ -88,6 +94,7 @@ export function actorFrame(actor, moving, elapsed) {
 }
 
 export function activityFrame(actor, kind, elapsed, spot = {}) {
+  if (expandedActivityFrame(actor, kind, elapsed, spot)) return;
   if ((kind === "sit" || kind === "coffee") && spot.seat) {
     seatedFrame(actor, kind, elapsed, spot);
     return;

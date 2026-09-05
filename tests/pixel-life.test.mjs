@@ -12,6 +12,8 @@ import {
   newProject,
   buyOutfit,
   recordMeeting,
+  arriveAt,
+  cancelDay,
   CHOICES,
 } from "../src/pixel/life.js";
 import {
@@ -27,20 +29,27 @@ function day(l, a) {
   advanceDay(l);
   return r;
 }
-test("previewing / planning a visit never opens jobs or courses; real day settlement does", () => {
-  const l = initialLife("unlock");
-  assert.ok(access(l, { id: "acting" }));
-  assert.ok(access(l, { id: "tv_assistant" }));
-  assert.equal(planDay(l, 1, { id: "acting" }), "");
-  assert.deepEqual(l.game.visitedLocationsByWeek, {});
-  beginDay(l, { id: "visit_rehearsal" });
-  assert.ok(access(l, { id: "acting" }));
-  settleDay(l);
+test("first-week planning and immediate arrivals need no registration day", () => {
+  const l = initialLife("arrival");
   assert.equal(access(l, { id: "acting" }), "");
-  assert.ok(access(l, { id: "tv_assistant" }));
-  advanceDay(l);
-  day(l, { id: "visit_tv" });
   assert.equal(access(l, { id: "tv_assistant" }), "");
+  for (let day = 0; day < 7; day++)
+    assert.equal(planDay(l, day, { id: "acting" }), "");
+  assert.deepEqual(l.game.visitedLocationsByWeek, {});
+  const before = structuredClone(l.game);
+  assert.equal(arriveAt(l, "rehearsal"), true);
+  assert.equal(arriveAt(l, "rehearsal"), false);
+  assert.equal(l.day, 0);
+  assert.equal(l.game.money, before.money);
+  assert.deepEqual(l.game.stats, before.stats);
+  assert.deepEqual(l.game.visitedLocationsByWeek, { 1: ["rehearsal"] });
+  beginDay(l, { id: "acting" });
+  assert.equal(planDay(l, 0, { id: "study" }), "");
+  assert.equal(l.pending, null);
+  beginDay(l);
+  settleDay(l);
+  assert.ok(cancelDay(l));
+  assert.ok(planDay(l, 0, { id: "rest" }));
 });
 test("action IDs survive save/reload; replays cannot duplicate money, growth, RNG or weekly reward", () => {
   let l = initialLife("ledger");
@@ -97,8 +106,8 @@ test("creative work may use multiple days per week, and creates persistent origi
 });
 test("shop purchases use original outfit prices, ownership and reject duplicate spending", () => {
   const l = initialLife("shop");
-  assert.ok(buyOutfit(l, "practice"));
-  day(l, { id: "visit_shop" });
+  arriveAt(l, "shop");
+  assert.equal(l.day, 0);
   const before = l.game.money;
   assert.equal(buyOutfit(l, "practice"), "");
   assert.equal(l.game.money, before - 1200);
@@ -118,7 +127,7 @@ test("social publishing and NPC meeting use original core outcomes; repeat greet
 });
 test("cannot execute locked/poorly funded days or overwrite completed days", () => {
   const l = initialLife("blocked");
-  assert.ok(beginDay(l, { id: "acting" }).error);
+  assert.ok(beginDay(l, { id: "missing" }).error);
   assert.equal(l.pending, null);
   day(l, { id: "rest" });
   assert.ok(planDay(l, 0, { id: "study" }));
@@ -143,5 +152,5 @@ test("phase-one migration and pending actions stay isolated from classic saves",
   assert.ok(s.write(migrated));
   assert.equal(s.read().state.life.pending.assignment.id, "study");
   assert.equal(data.get("star-game-save"), "sentinel");
-  assert.equal(Object.keys(CHOICES).length, 11);
+  assert.equal(Object.keys(CHOICES).length, 44);
 });

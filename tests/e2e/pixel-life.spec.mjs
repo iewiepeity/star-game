@@ -24,7 +24,7 @@ async function advance(page) {
   await page.locator('[data-life="advance"]').click();
 }
 
-test("a real week: first visits stop auto, actual classes and shifts settle once, then next week", async ({
+test("first week schedules immediately and all seven days complete without registration", async ({
   page,
 }) => {
   const errors = [];
@@ -32,14 +32,15 @@ test("a real week: first visits stop auto, actual classes and shifts settle once
   await start(page);
   await fast(page);
   await menu(page, "schedule");
-  await expect(page.locator('[data-plan="acting"]')).toBeDisabled();
-  expect((await read(page)).state.life.game.visitedLocationsByWeek).toEqual({});
+  await expect(page.locator('[data-plan="acting"]')).toBeEnabled();
+  await page.locator('[data-day="0"]').click();
+  await page.locator('[data-plan="acting"]').click();
+  expect((await read(page)).state.life.plan[0].id).toBe("acting");
   await close(page);
-  await page.locator("#auto-control").click();
-  await expect(page.locator('[data-visit="focus"]')).toBeVisible();
-  expect((await read(page)).state.life.auto).toBe(false);
-  await page.locator('[data-visit="focus"]').click();
+  await page.locator("#run-label").click();
+  await page.locator('[data-start="acting"]').click();
   await waitResult(page);
+  expect((await read(page)).state.life.game.trainingSessionsCompleted).toBe(1);
   const saved = (await read(page)).state.life;
   await page.reload();
   await expect(page.locator("#loading")).toBeHidden();
@@ -47,16 +48,8 @@ test("a real week: first visits stop auto, actual classes and shifts settle once
   await page.locator("#run-label").click();
   await advance(page);
   await page.locator("#auto-control").click();
-  await expect(page.locator('[data-visit="focus"]')).toBeVisible({
-    timeout: 20000,
-  });
-  expect((await read(page)).state.life.game.trainingSessionsCompleted).toBe(1);
-  await page.locator('[data-visit="focus"]').click();
-  await waitResult(page);
-  await advance(page);
-  await page.locator("#auto-control").click();
   await expect(page.locator('[data-life="next-week"]')).toBeVisible({
-    timeout: 25000,
+    timeout: 40000,
   });
   const complete = (await read(page)).state.life;
   expect(complete.ledger).toHaveLength(7);
@@ -108,24 +101,21 @@ test("create twice in one week, publish a social post, and inspect responsive me
   expect(overflow).toBe(false);
 });
 
-test("shop requires a settled visit, buys original outfit and changes illustrated and pixel look", async ({
+test("enter the shop on Monday, buy immediately and synchronize illustration and pixel outfit", async ({
   page,
 }) => {
   await start(page);
   await fast(page);
   await menu(page, "travel");
-  await page.locator('[data-room="shop"]').click();
+  await page.locator('[data-map-place="shop"]').click();
+  await page.locator('[data-map-enter="shop"]').click();
   await expect
     .poll(async () => (await read(page)).scene, { timeout: 15000 })
     .toBe("shop");
-  expect((await read(page)).state.life.game.visitedLocationsByWeek).toEqual({});
-  await menu(page, "nearby");
-  await page.locator('[data-object="checkout"]').click();
-  await page.locator('[data-offer="visit_shop"]').click();
-  await page.locator("[data-start]").click();
-  await page.locator('[data-visit="focus"]').click();
-  await waitResult(page);
-  await advance(page);
+  expect(
+    (await read(page)).state.life.game.visitedLocationsByWeek[1],
+  ).toContain("shop");
+  expect((await read(page)).state.life.day).toBe(0);
   await menu(page, "nearby");
   await page.locator('[data-object="checkout"]').click();
   const before = (await read(page)).state.life.game.money;
@@ -135,8 +125,11 @@ test("shop requires a settled visit, buys original outfit and changes illustrate
   await close(page);
   await menu(page, "profile");
   await page.locator('[data-ui="closet"]').click();
+  await page.locator('[data-map-enter="home"]').click();
   await page.locator('[data-outfit="practice"]').click();
-  expect((await read(page)).player.outfit).toBe("raven-practice");
+  await expect
+    .poll(async () => (await read(page)).player.outfit)
+    .toBe("raven-practice");
   await expect(page.locator("#player-head")).toHaveAttribute(
     "src",
     "./assets/avatars/raven-practice.webp",

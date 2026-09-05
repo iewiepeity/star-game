@@ -1,3 +1,5 @@
+import { cityItinerary, expandCast } from "./cast.js";
+import { registerCityRooms } from "./city-rooms.js";
 import { NPCS } from "../data/npcs.js";
 import { OUTFITS, portraitAsset } from "../data/wardrobe.js";
 export const WORLD = { width: 960, height: 640, grid: 12 };
@@ -442,7 +444,7 @@ export const ACTIVITY_SPOTS = {
 export function activityAllowed(sceneId, itemId, kind) {
   return !!ACTIVITY_SPOTS[sceneId]?.[itemId]?.kinds.includes(kind);
 }
-export const OUTFIT_IDS = ["newcomer", "practice", "audition"];
+export const OUTFIT_IDS = Object.keys(OUTFITS);
 export const outfits = OUTFIT_IDS.map((id) => ({
   ...OUTFITS[id],
   portrait: portraitAsset("raven", id),
@@ -460,36 +462,7 @@ export const PEOPLE = Object.fromEntries(
   ]),
 );
 // One shared itinerary per person, regardless of the room the player is viewing.
-export function itinerary(id, elapsed) {
-  const t = ((elapsed % 180) + 180) % 180;
-  if (id === "sufei") {
-    if (t < 105)
-      return {
-        scene: "rehearsal",
-        node: Math.floor(t / 18) % 3,
-        status: t < 36 ? "暖身中" : "讀本休息",
-        leaving: t > 94,
-      };
-    if (t < 120) return { scene: null, status: "前往咖啡館" };
-    if (t < 165)
-      return {
-        scene: "cafe",
-        node: Math.floor(t / 15) % 3,
-        status: "練習後休息",
-        leaving: t > 155,
-      };
-    return { scene: null, status: "前往排練室" };
-  }
-  if (t < 135)
-    return {
-      scene: "cafe",
-      node: Math.floor(t / 19) % 3,
-      status: t % 38 < 19 ? "整理節目筆記" : "等一杯咖啡",
-      leaving: t > 124,
-    };
-  if (t < 152) return { scene: null, status: "外出接電話" };
-  return { scene: "cafe", node: 1, status: "回來整理講稿", leaving: false };
-}
+export const itinerary = cityItinerary;
 export const CONVERSATIONS = {
   sufei: [
     {
@@ -737,3 +710,7 @@ ACTIVITY_SPOTS.shop = {
   rack: { kinds: ["read"] },
   mirror: { kinds: ["read"] },
 };
+
+registerCityRooms(ROOMS, ACTIVITY_SPOTS);
+
+expandCast(PEOPLE, CONVERSATIONS);

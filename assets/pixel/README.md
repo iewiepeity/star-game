@@ -1,3 +1,13 @@
+# Pixel assets — current set v0.4.0
+
+The phase-three city adds all 32 playable spaces, 60 avatar/outfit combinations and 11 canonical NPC identities. The source artwork for the new map and 27 actor atlases was generated with image_gen. Original NPC and wardrobe illustrations are retained. Reviewed scene atlases from the accepted design are rendered with explicit art bounds, individual walk meshes, object footprints, interaction positions and foreground masks.
+
+New assets in city/, cast/ and wardrobe/ are lossless WebP. Decoded RGBA bytes were verified identical to the source PNGs, with a 1.92 MB maximum new asset. The manifest holds 792 canonical atlas frames; exact legacy Raven pose sheets remain in use for the original three outfits. Direction corrections are explicit per frame rather than guessed at runtime. Source provenance and available prompts are in provenance-phase-three.json.
+
+Only the current protagonist is instantiated. The renderer loads selected wardrobe groups on demand and retains two recent hero bundles and three scene atlases. All original NPCs use their own identity, with the hidden character gated by saved story progress.
+
+The following records describe earlier asset production and remain for provenance.
+
 # Phase one runtime art
 
 Eight original assets generated for Star Game on 2026-09-05: three rooms and five character sheets. Existing illustrated player/NPC portraits are reused without modification. Scene coordinate definitions live in `src/pixel/data.js`.

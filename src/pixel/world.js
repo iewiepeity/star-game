@@ -1,3 +1,8 @@
+import {
+  expandedAssets,
+  expandedMeta,
+  importAtlas,
+} from "./expanded-sprites.js";
 import * as Phaser from "../../assets/vendor/phaser.esm.min.js";
 import {
   ROOMS,
@@ -16,22 +21,18 @@ import {
   inside,
 } from "./navigation.js";
 import { importSprites, actorFrame, activityFrame } from "./sprites.js";
-const SPRITES = [
-  "raven-newcomer",
-  "raven-practice",
-  "raven-audition",
-  "jiqing",
-  "sufei",
-  "raven-newcomer-actions",
-  "raven-newcomer-rest-actions",
-  "raven-practice-actions",
-  "raven-audition-actions",
-  "jiqing-actions",
-  "sufei-actions",
-  "raven-newcomer-seated",
-  "raven-practice-seated",
-  "raven-audition-seated",
+const OLD_NPCS = ["jiqing", "sufei", "jiqing-actions", "sufei-actions"];
+const actorKey = (state) => `${state.avatarId || "raven"}-${state.outfitId}`;
+const oldHero = (key) => [
+  key,
+  `${key}-actions`,
+  `${key}-seated`,
+  ...(key === "raven-newcomer" ? ["raven-newcomer-rest-actions"] : []),
 ];
+const roomAssetKey = (room) =>
+  room.crop
+    ? `city-${room.asset.split("/").at(-1)}`
+    : `room-${room.venue === "tv_company" ? "tv" : room.venue}`;
 export function createWorld(controller) {
   class PixelWorld extends Phaser.Scene {
     constructor() {
@@ -41,28 +42,134 @@ export function createWorld(controller) {
       this.zoomFactor = 1;
       this.heldNpc = null;
       this.keys = new Set();
+      this.assetHistory = { rooms: [], heroes: [] };
     }
     preload() {
       this.load.on("progress", (value) =>
         controller.loading(Math.round(value * 100)),
       );
       this.load.on("loaderror", (file) => controller.loadError(file.key));
-      for (const id of Object.keys(ROOMS))
-        this.load.image(`room-${id}`, `assets/pixel/${id}.png`);
-      for (const id of SPRITES)
+      this.load.json(
+        "pixel-atlas-manifest",
+        "assets/pixel/atlas-manifest.json",
+      );
+      const state = controller.state(),
+        key = actorKey(state);
+      this.initialOld = [
+        ...OLD_NPCS,
+        ...(expandedMeta(key) ? [] : oldHero(key)),
+      ];
+      const room = ROOMS[state.sceneId];
+      this.load.image(roomAssetKey(room), room.asset);
+      for (const id of this.initialOld)
         this.load.image(`raw-${id}`, `assets/pixel/${id}.png`);
+      this.initialExpanded = [
+        ...["cast-0", "cast-1", "cast-2"].map((id) => ({
+          key: id,
+          url: `assets/pixel/cast/${id}.webp`,
+        })),
+        ...expandedAssets(key),
+      ];
+      for (const a of this.initialExpanded)
+        this.load.image(`raw-${a.key}`, a.url);
     }
     create() {
       try {
-        for (const key of SPRITES) importSprites(this, key);
+        for (const key of this.initialOld) importSprites(this, key);
+        for (const a of this.initialExpanded)
+          importAtlas(
+            this,
+            a.key,
+            this.cache.json.get("pixel-atlas-manifest").frames[a.key],
+          );
+        this.loadRoom();
       } catch (e) {
         controller.loadError(e.message);
         return;
       }
-      this.loadRoom();
       this.bindInput();
       this.scale.on("resize", () => this.resizeView());
       controller.ready(this);
+    }
+    async ensureAssets(
+      id = controller.state().sceneId,
+      key = actorKey(controller.state()),
+    ) {
+      const assets = [],
+        room = ROOMS[id];
+      if (!this.textures.exists(roomAssetKey(room)))
+        assets.push({ key: roomAssetKey(room), url: room.asset });
+      const extra = expandedAssets(key),
+        old = extra.length ? [] : oldHero(key);
+      for (const a of extra)
+        if (!this.textures.exists(a.key))
+          assets.push({ key: `raw-${a.key}`, url: a.url });
+      for (const k of old)
+        if (!this.textures.exists(k))
+          assets.push({ key: `raw-${k}`, url: `assets/pixel/${k}.png` });
+      if (assets.length)
+        await new Promise((resolve, reject) => {
+          let failed = false;
+          const error = (file) => {
+            if (assets.some((a) => a.key === file.key)) failed = true;
+          };
+          this.load.on("loaderror", error);
+          this.load.once("complete", () => {
+            this.load.off("loaderror", error);
+            failed ? reject(new Error("素材載入失敗")) : resolve();
+          });
+          for (const a of assets) this.load.image(a.key, a.url);
+          this.load.start();
+        });
+      for (const a of extra)
+        if (!this.textures.exists(a.key))
+          importAtlas(
+            this,
+            a.key,
+            this.cache.json.get("pixel-atlas-manifest").frames[a.key],
+          );
+      for (const k of old) if (!this.textures.exists(k)) importSprites(this, k);
+    }
+    background(depth = -10) {
+      const key = roomAssetKey(this.room),
+        texture = this.textures.get(key),
+        id = controller.state().sceneId;
+      if (this.room.crop && !texture.has(id))
+        texture.add(id, 0, ...this.room.crop);
+      const r = this.room.rect;
+      return this.add
+        .image(r.x, r.y, key, this.room.crop ? id : undefined)
+        .setOrigin(0)
+        .setDisplaySize(r.width, r.height)
+        .setDepth(depth);
+    }
+    trimAssets() {
+      const retain = (bucket, keys, limit) => {
+        const history = this.assetHistory[bucket];
+        const signature = keys.join("|");
+        const previous = history.findIndex(
+          (entry) => entry.join("|") === signature,
+        );
+        if (previous >= 0) history.splice(previous, 1);
+        history.push(keys);
+        while (history.length > limit) {
+          const evicted = history.shift();
+          for (const key of evicted)
+            if (
+              !history.some((entry) => entry.includes(key)) &&
+              this.textures.exists(key)
+            )
+              this.textures.remove(key);
+        }
+      };
+      retain("rooms", [roomAssetKey(this.room)], 3);
+      const key = actorKey(controller.state());
+      const expanded = expandedAssets(key);
+      retain(
+        "heroes",
+        expanded.length ? expanded.map((a) => a.key) : oldHero(key),
+        2,
+      );
     }
     get paused() {
       return controller.paused() || document.hidden;
@@ -76,26 +183,17 @@ export function createWorld(controller) {
       const state = controller.state();
       this.room = ROOMS[state.sceneId];
       this.grid = buildGrid(this.room);
-      this.add
-        .image(0, 0, `room-${state.sceneId}`)
-        .setOrigin(0)
-        .setDisplaySize(WORLD.width, WORLD.height)
-        .setDepth(-10);
+      this.background();
       for (const f of this.room.foreground) {
         const mask = this.make.graphics({ x: 0, y: 0, add: false });
         mask.fillStyle(0xffffff).fillPoints(f.polygon, true);
-        this.add
-          .image(0, 0, `room-${state.sceneId}`)
-          .setOrigin(0)
-          .setDisplaySize(WORLD.width, WORLD.height)
-          .setDepth(f.depth * 0.625)
-          .setMask(mask.createGeometryMask());
+        this.background(f.depth * 0.625).setMask(mask.createGeometryMask());
         this.events.once("room-clear", () => mask.destroy());
       }
       const pos = walkable(this.room, state.position)
         ? state.position
         : nearest(this.grid, this.room.entry);
-      this.player = this.addActor("player", `raven-${state.outfitId}`, pos);
+      this.player = this.addActor("player", actorKey(state), pos);
       this.player.shadow.setStrokeStyle(1, 0xad7580, 0.5);
       this.targetRing = this.add
         .ellipse(0, 0, 18, 9)
@@ -108,12 +206,9 @@ export function createWorld(controller) {
         if (!spot.foreground) continue;
         const mask = this.make.graphics({ x: 0, y: 0, add: false });
         mask.fillStyle(0xffffff).fillPoints(spot.foreground, true);
-        const layer = this.add
-          .image(0, 0, `room-${state.sceneId}`)
-          .setOrigin(0)
-          .setDisplaySize(WORLD.width, WORLD.height)
-          .setDepth(spot.depth + 1)
-          .setMask(mask.createGeometryMask());
+        const layer = this.background(spot.depth + 1).setMask(
+          mask.createGeometryMask(),
+        );
         this.seatForegrounds.set(id, layer);
         this.events.once("room-clear", () => mask.destroy());
       }
@@ -137,6 +232,7 @@ export function createWorld(controller) {
       this.manualPan = false;
       this.resizeView();
       this.syncNpcs(true);
+      this.trimAssets();
       if (state.activity)
         activityFrame(
           this.player,
@@ -164,7 +260,12 @@ export function createWorld(controller) {
         id === "player" ? 0x886456 : 0x655843,
         0.16,
       );
-      actor.sprite = this.add.sprite(pos.x, pos.y, key, "0-0");
+      actor.sprite = this.add.sprite(
+        pos.x,
+        pos.y,
+        expandedMeta(key)?.sheet || key,
+        expandedMeta(key) ? `${expandedMeta(key).row}-idle-0` : "0-0",
+      );
       if (id !== "player")
         actor.label = this.add
           .text(pos.x, pos.y - 75, PEOPLE[id].name, {
@@ -188,7 +289,11 @@ export function createWorld(controller) {
     }
     syncNpcs(first = false) {
       for (const id of Object.keys(PEOPLE)) {
-        const plan = itinerary(id, controller.state().elapsed);
+        const plan = itinerary(
+          id,
+          controller.state().elapsed,
+          controller.state(),
+        );
         let actor = this.actors.get(id);
         if (this.heldNpc === id) continue;
         if (plan.scene !== controller.state().sceneId) {
@@ -229,6 +334,7 @@ export function createWorld(controller) {
           );
         }
         actor.status = plan.status;
+        actor.busy = plan.busy;
         actor.exiting = false;
         actor.label.setText(
           `${PEOPLE[id].name} · ${actor.path.length ? "走動中" : plan.status}`,
@@ -258,7 +364,13 @@ export function createWorld(controller) {
     talk(id) {
       const actor = this.actors.get(id);
       if (!actor || actor.exiting) {
-        controller.toast("她剛離開，晚一點再碰面吧");
+        controller.toast("對方剛離開，晚一點再碰面吧");
+        return;
+      }
+      if (actor.busy) {
+        controller.toast(
+          `${PEOPLE[id].name}正在${actor.status}，等工作結束再聊吧。`,
+        );
         return;
       }
       this.go(nearest(this.grid, { x: actor.x + 50, y: actor.y + 12 }), () => {
@@ -281,24 +393,59 @@ export function createWorld(controller) {
       this.heldNpc = null;
       for (const actor of this.actors.values()) actor.routeKey = null;
     }
-    setOutfit(id) {
-      this.player.key = `raven-${id}`;
-      actorFrame(this.player, false, 0);
+    stopRoute() {
+      this.pending = null;
+      this.player.path = [];
+      this.keys.clear();
+      this.targetRing.setVisible(false);
+    }
+    async setOutfit() {
+      const key = actorKey(controller.state());
+      controller.transitioning = true;
+      try {
+        await this.ensureAssets(controller.state().sceneId, key);
+        this.cancelActivity();
+        this.player.key = key;
+        actorFrame(this.player, false, 0);
+        this.trimAssets();
+      } finally {
+        controller.transitioning = false;
+      }
     }
     transition(id, after) {
-      this.go(this.room.objects.find((o) => o.id === "door").target, () => {
-        controller.transitioning = true;
-        this.cameras.main.fadeOut(180, 250, 245, 235);
-        this.time.delayedCall(185, () => {
-          this.events.emit("room-clear");
-          controller.enterRoom(id);
-          this.loadRoom();
-          this.cameras.main.fadeIn(230, 250, 245, 235);
-          controller.transitioning = false;
-          controller.checkpoint();
-          after?.();
-        });
-      });
+      if (!ROOMS[id]) return;
+      this.go(
+        this.room.objects.find((o) => o.id === "door").target,
+        async () => {
+          controller.transitioning = true;
+          try {
+            await this.ensureAssets(id);
+            this.cameras.main.fadeOut(180, 250, 245, 235);
+            this.time.delayedCall(185, () => {
+              this.events.emit("room-clear");
+              controller.enterRoom(id);
+              this.loadRoom();
+              this.cameras.main.fadeIn(230, 250, 245, 235);
+              controller.transitioning = false;
+              controller.checkpoint();
+              after?.();
+            });
+          } catch {
+            controller.transitioning = false;
+            controller.toast("地點素材載入失敗，請重新開啟地圖再試。");
+          }
+        },
+      );
+    }
+    async restoreRoom() {
+      controller.transitioning = true;
+      try {
+        await this.ensureAssets();
+        this.events.emit("room-clear");
+        this.loadRoom();
+      } finally {
+        controller.transitioning = false;
+      }
     }
     resizeView() {
       const { width, height } = this.scale;
@@ -544,7 +691,7 @@ export function createWorld(controller) {
       } else if (dx || dy) {
         // Substep direct input as well as path-following at accelerated speed;
         // a large frame may never jump across a furniture collision polygon.
-        const factor = (150 * dt) / Math.hypot(dx, dy);
+        const factor = (150 * Math.min(delta, 80)) / 1000 / Math.hypot(dx, dy);
         const steps = Math.max(1, Math.ceil(factor / (WORLD.grid / 2)));
         for (let i = 0; i < steps; i++) {
           const x = this.player.x + (dx * factor) / steps;
@@ -634,6 +781,11 @@ export function createWorld(controller) {
     snapshot() {
       return {
         scene: controller.state().sceneId,
+        retainedAssets: {
+          rooms: this.assetHistory.rooms.length,
+          heroes: this.assetHistory.heroes.length,
+          textures: this.textures.getTextureKeys().length,
+        },
         playerCount: 1,
         camera: {
           x: this.cameras.main.worldView.x,

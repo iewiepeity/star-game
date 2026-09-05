@@ -90,9 +90,11 @@ test("legacy pixel saves load without activities; only room-compatible poses res
   );
 });
 test("NPC itineraries have one location, and contain both travel and activity", () => {
-  assert.deepEqual(Object.keys(PEOPLE).sort(), ["jiqing", "sufei"]);
+  assert.equal(Object.keys(PEOPLE).length, 11);
   for (const id of Object.keys(PEOPLE)) {
-    const plans = Array.from({ length: 360 }, (_, i) => itinerary(id, i));
+    const plans = Array.from({ length: 360 }, (_, i) =>
+      itinerary(id, i, { knownPeople: ["silver_pc"] }),
+    );
     assert.ok(plans.some((p) => p.scene === null));
     assert.ok(plans.some((p) => p.leaving));
     assert.ok(plans.every((p) => p.scene === null || ROOMS[p.scene]));
@@ -115,10 +117,10 @@ test("pixel saves preserve position, outfit, encounter and NPC progress without 
   state.npcPositions.jiqing = { sceneId: "cafe", x: 570, y: 425 };
   state.elapsed = 72;
   assert.ok(storage.write(state, 1));
-  assert.deepEqual(storage.read(1).state, {
-    ...state,
-    visited: ["home", "cafe"],
-  });
+  const restored = storage.read(1).state;
+  assert.deepEqual(restored, validatePixelState(state));
+  assert.deepEqual(restored.visited, ["home", "cafe"]);
+  assert.equal(restored.life.game.outfitId, "practice");
   storage.write({ ...state, outfitId: "audition" }, 1);
   assert.ok(data.has(`${SAVE_KEY}-slot-1-backup`));
   assert.equal(data.get("star-game-save"), "original-save");
@@ -140,7 +142,7 @@ test("corrupt, incompatible and unavailable storage fail without crashing", () =
     validatePixelState({ ...initialPixelState(), sceneId: "missing" }),
   );
   assert.throws(() =>
-    validatePixelState({ ...initialPixelState(), outfitId: "icon" }),
+    validatePixelState({ ...initialPixelState(), outfitId: "missing" }),
   );
   const safe = validatePixelState({
     ...initialPixelState(),

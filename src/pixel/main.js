@@ -1,3 +1,8 @@
+import { createCityUI } from "./city-ui.js";
+import { CITY_CATALOG } from "./city-catalog.js";
+import { arriveAt } from "./life.js";
+import { AVATARS, portraitAsset } from "../data/wardrobe.js";
+import { repeatLine } from "./cast.js";
 import { createLifeUI } from "./life-ui.js";
 import { menuIcon } from "./menu-icons.js";
 import {
@@ -37,7 +42,7 @@ let state = loaded.state || initialPixelState(),
   toastTimer = null;
 const panel = $("panel");
 let previousFocus = null;
-const portrait = () => outfits.find((o) => o.id === state.outfitId).portrait;
+const portrait = () => portraitAsset(state.avatarId, state.outfitId);
 function toast(message) {
   $("toast").textContent = message;
   $("toast").classList.add("visible");
@@ -60,8 +65,8 @@ function changed() {
   $("room-subtitle").textContent = room.subtitle;
   $("player-name").textContent = state.playerName;
   $("outfit-label").textContent = outfit.name;
-  if (!$("player-head").src.endsWith(outfit.portrait.replace("./", "")))
-    $("player-head").src = outfit.portrait;
+  if (!$("player-head").src.endsWith(portrait().replace("./", "")))
+    $("player-head").src = portrait();
 
   const activity = state.activity;
   $("activity-strip").hidden = !activity;
@@ -81,6 +86,7 @@ function setDialogueVisible(visible) {
     element.inert = visible;
 }
 function show(type, html) {
+  if (panelType === "travel" && type !== "travel") cityUI.cancelRoute();
   panelType = type;
   panel.dataset.view = type;
   setDialogueVisible(false);
@@ -96,6 +102,7 @@ function show(type, html) {
   }
 }
 function close() {
+  cityUI.cancelRoute();
   if (panelType === "welcome") state.flags.intro = true;
   panel.close();
   panelType = "";
@@ -128,7 +135,7 @@ function leaveOverlay() {
 function goTo(sceneId, itemId) {
   leaveOverlay();
   if (sceneId === state.sceneId) world.interact(itemId);
-  else world.transition(sceneId, () => world.interact(itemId));
+  else cityUI.route(sceneId, () => world.interact(itemId));
 }
 function menu() {
   show(
@@ -177,32 +184,32 @@ function heading(kicker, title, description = "") {
 function welcome() {
   show(
     "welcome",
-    `${heading("CHAPTER 01 · 來到星望市", "第一週，先在城市站穩腳步", "行李才剛放下。先去排練室了解報名，再找一份零工，替夢想留一點生活費。")}<div class="help-lines"><div><b>看看本週行程</b><span>已替你擬好第一週的安排；每天一件事，也可以自己調整。</span></div><div><b>先認識場地</b><span>在現場完成一天的探訪，才會開放課程與公司工作。</span></div><div><b>照自己的步調</b><span>親自走過去，或讓角色依行程自動執行；遇到選擇會停下來。</span></div></div><div class="buttons"><button class="primary" data-ui="begin">開始我的一天 →</button></div><p class="tiny-note">第二階段 · 五個場景、完整七日養成。像素生活使用獨立進度。</p>`,
+    `${heading("CHAPTER 01 · 來到星望市", "第一週，先在城市站穩腳步", "行李才剛放下。打開城市地圖，走進想去的地方。第一週的生活，由你自己安排。")}<div class="help-lines"><div><b>看看本週行程</b><span>已替你擬好第一週的安排；每天一件事，也可以自己調整。</span></div><div><b>走進城市</b><span>點地圖進入每個空間。到店就能購物，到教室就能上課，不需額外登記。</span></div><div><b>照自己的步調</b><span>親自走過去，或讓角色依行程自動執行；遇到選擇會停下來。</span></div></div>${avatarChoices()}<div class="buttons"><button class="primary" data-ui="begin">開始我的一天 →</button></div><p class="tiny-note">每一個地點，都有屬於它的人與日常。</p>`,
   );
 }
 function travel() {
-  show(
-    "travel",
-    `${heading("CITY WALK · 星望市", "今天想去哪裡？", "先走到門口再出發。走訪場景不消耗天數；在現場辦理一天的探訪，才會解鎖服務。")}<div class="route-cards">${Object.entries(
-      ROOMS,
+  cityUI.show();
+}
+function avatarChoices() {
+  return `<div class="avatar-choices" role="group" aria-label="主角外型">${Object.values(
+    AVATARS,
+  )
+    .map(
+      (a) =>
+        `<button data-avatar="${a.id}" aria-pressed="${state.avatarId === a.id}"><img src="${portraitAsset(a.id, "newcomer")}" alt="${a.name}"><strong>${a.name}</strong></button>`,
     )
-      .map(
-        ([id, room]) =>
-          `<button class="route-card" data-room="${id}" ${id === state.sceneId ? "disabled" : ""}><img src="assets/pixel/${id}.png" alt="${room.name}的像素場景"><strong>${room.name}</strong><small>${id === state.sceneId ? "現在的位置" : state.visited.includes(id) ? "再去走走" : "第一次探索 →"}</small></button>`,
-      )
-      .join("")}</div>`,
-  );
+    .join("")}</div>`;
 }
 function wardrobe() {
   show(
     "wardrobe",
-    `${heading("MY WARDROBE · 衣櫃", "換上今天的心情", "挑一套衣服，場景裡的你也會一起換裝。")}<div class="wardrobe-grid">${outfits.map((o) => `<button class="outfit-card" data-outfit="${o.id}" aria-pressed="${o.id === state.outfitId}" ${state.life.game.ownedOutfits.raven.includes(o.id) ? "" : "disabled"}><img src="${o.portrait}" alt="${o.name}的原版立繪"><strong>${o.name}</strong><small>${o.id === state.outfitId ? "穿著中 ✓" : state.life.game.ownedOutfits.raven.includes(o.id) ? "換上這套" : "到服飾店購買"}</small></button>`).join("")}</div><div class="buttons"><button class="primary" data-ui="close">穿好了，出發</button></div>`,
+    `${heading("MY WARDROBE · 衣櫃", "換上今天的心情", "挑一套衣服，場景裡的你也會一起換裝。")}<div class="wardrobe-grid">${outfits.map((o) => `<button class="outfit-card" data-outfit="${o.id}" aria-pressed="${o.id === state.outfitId}" ${state.life.game.ownedOutfits[state.avatarId].includes(o.id) ? "" : "disabled"}><img src="${portraitAsset(state.avatarId, o.id)}" alt="${o.name}的原版立繪"><strong>${o.name}</strong><small>${o.id === state.outfitId ? "穿著中 ✓" : state.life.game.ownedOutfits[state.avatarId].includes(o.id) ? "換上這套" : "到服飾店購買"}</small></button>`).join("")}</div><div class="buttons"><button class="primary" data-ui="close">穿好了，出發</button></div>`,
   );
 }
 function profile() {
   show(
     "profile",
-    `${heading("THIS IS ME · 玩家資訊", "我的小小起點")}<div class="player-profile"><img src="${portrait()}" alt="目前穿著的原版立繪"><div><label>角色名字<input id="name-input" maxlength="16" value="${escape(state.playerName)}" autocomplete="off"></label><p>${escape(outfits.find((o) => o.id === state.outfitId).name)}<br><span class="tiny-note">夜櫻系 · 未簽約新人</span></p><button class="primary" data-ui="name">儲存名字</button><p class="tiny-note">${state.visited.length} 個足跡 · ${state.knownPeople.length} 位新朋友</p><button data-ui="closet">前往衣櫃</button></div></div><div class="ability-grid">${Object.entries(
+    `${heading("THIS IS ME · 玩家資訊", "我的小小起點")}<div class="player-profile"><img src="${portrait()}" alt="目前穿著的原版立繪"><div><label>角色名字<input id="name-input" maxlength="16" value="${escape(state.playerName)}" autocomplete="off"></label><p>${escape(outfits.find((o) => o.id === state.outfitId).name)}<br><span class="tiny-note">${AVATARS[state.avatarId].name} · 未簽約新人</span></p><button class="primary" data-ui="name">儲存名字</button><p class="tiny-note">${state.visited.length} 個足跡 · ${state.knownPeople.length} 位新朋友</p><button data-ui="closet">前往衣櫃</button></div></div>${avatarChoices()}<div class="ability-grid">${Object.entries(
       state.life.game.stats,
     )
       .map(([name, v]) => `<div><small>${name}</small><b>${v}</b></div>`)
@@ -248,7 +255,7 @@ function saves() {
       .join("")}</div>`,
   );
 }
-function restore(slot) {
+async function restore(slot) {
   const saved = storage.read(slot);
   if (!saved.state) {
     toast(saved.error || "這格還沒有存檔");
@@ -258,8 +265,7 @@ function restore(slot) {
   setDialogueVisible(false);
   panel.close();
   panelType = "";
-  world.events.emit("room-clear");
-  world.loadRoom();
+  await world.restoreRoom();
   changed();
   if (state.dialogue) renderDialogue();
   checkpoint();
@@ -270,10 +276,7 @@ function startDialogue(id) {
     state.dialogue = {
       npcId: id,
       index: 2,
-      reply:
-        id === "sufei"
-          ? "又見面了。今天有比上次多一點把握嗎？練累了就停一下，明天還能繼續。"
-          : "又碰到你了。今天在城市裡找到什麼喜歡的地方？我還有一點時間，可以聽你說。",
+      reply: repeatLine(id),
     };
   } else state.dialogue = { npcId: id, index: 0, reply: null };
   renderDialogue();
@@ -328,6 +331,21 @@ function selectObject(item) {
 function interact(item) {
   if (lifeUI.interact(item)) return;
   switch (item.action) {
+    case "agencies":
+      cityUI.agencies();
+      break;
+    case "business-exit":
+      cityUI.interior("business");
+      break;
+    case "reading":
+      lifeUI.creative();
+      break;
+    case "detail":
+      simple(
+        item.name,
+        CITY_CATALOG[state.sceneId]?.gate || "看看這裡的日常。",
+      );
+      break;
     case "wardrobe":
       wardrobe();
       break;
@@ -404,18 +422,31 @@ const controller = {
     state.position = { ...ROOMS[id].entry };
     state.activity = null;
     if (!state.visited.includes(id)) state.visited.push(id);
+    const first = arriveAt(state.life, id);
+    if (first) toast(`${ROOMS[id].name}：服務已開放`);
   },
   ready: (scene) => {
     world = scene;
     $("loading").hidden = true;
     changed();
     if (loaded.error) toast("舊的像素測試存檔無法讀取，已開啟新的體驗");
+    arriveAt(state.life, state.sceneId);
     if (state.dialogue) renderDialogue();
     else if (!state.flags.intro) welcome();
     checkpoint();
   },
 };
+const cityUI = createCityUI({
+  state: () => state,
+  world: () => world,
+  show,
+  heading,
+  leaveOverlay,
+  toast,
+  takeover: () => lifeUI.takeover(),
+});
 const lifeUI = createLifeUI({
+  travelTo: (...args) => cityUI.route(...args),
   state: () => state,
   world: () => world,
   show,
@@ -428,9 +459,10 @@ const lifeUI = createLifeUI({
     paused || panel.open || !!state.dialogue || controller.transitioning,
 });
 setInterval(() => lifeUI.tick(0.1), 100);
-document.addEventListener("click", (event) => {
+document.addEventListener("click", async (event) => {
   const target = event.target.closest("button");
   if (!target || !world) return;
+  if (cityUI.handle(target)) return;
   if (lifeUI.handle(target)) return;
   if (target.dataset.object) {
     leaveOverlay();
@@ -451,22 +483,63 @@ document.addEventListener("click", (event) => {
     beginActivity(target.dataset.item, target.dataset.activity);
     return;
   }
-  if (target.dataset.room) {
-    const id = target.dataset.room;
-    leaveOverlay();
-    world.transition(id);
+  if (target.dataset.avatar && AVATARS[target.dataset.avatar]) {
+    if (controller.transitioning) return;
+    lifeUI.takeover();
+    const avatar = target.dataset.avatar,
+      oldAvatar = state.avatarId,
+      oldOutfit = state.outfitId;
+    state.avatarId = avatar;
+    state.life.game.avatarId = avatar;
+    state.life.game.gender = AVATARS[avatar].gender;
+    state.outfitId = state.life.game.ownedOutfits[avatar].includes(
+      state.outfitId,
+    )
+      ? state.outfitId
+      : "newcomer";
+    state.life.game.outfitId = state.outfitId;
+    try {
+      toast("正在整理造型…");
+      await world.setOutfit(state.outfitId);
+    } catch {
+      state.avatarId = oldAvatar;
+      state.outfitId = oldOutfit;
+      state.life.game.avatarId = oldAvatar;
+      state.life.game.outfitId = oldOutfit;
+      state.life.game.gender = AVATARS[oldAvatar].gender;
+      toast("人物載入失敗，請再試一次");
+      return;
+    }
+    checkpoint();
+    changed();
+    panelType === "welcome" ? welcome() : profile();
     return;
   }
   if (target.dataset.outfit) {
-    if (!state.life.game.ownedOutfits.raven.includes(target.dataset.outfit))
+    if (controller.transitioning) return;
+    lifeUI.takeover();
+    if (
+      !state.life.game.ownedOutfits[state.avatarId].includes(
+        target.dataset.outfit,
+      )
+    )
       return;
+    const previousOutfit = state.outfitId;
     state.life.game.outfitId = target.dataset.outfit;
     state.outfitId = target.dataset.outfit;
     state.flags.changed = true;
-    world.setOutfit(state.outfitId);
+    try {
+      toast("正在換裝…");
+      await world.setOutfit(state.outfitId);
+    } catch {
+      state.outfitId = previousOutfit;
+      state.life.game.outfitId = previousOutfit;
+      toast("服裝載入失敗，請再試一次");
+      return;
+    }
     checkpoint();
     changed();
-    wardrobe();
+    panelType === "shop" ? lifeUI.shop() : wardrobe();
     toast("立繪與像素人物已一起換裝");
     return;
   }
@@ -557,6 +630,9 @@ document.addEventListener("click", (event) => {
       lifeUI.takeover();
       world.cancelActivity();
       checkpoint();
+      break;
+    case "agencies":
+      cityUI.agencies();
       break;
     case "travel":
       travel();

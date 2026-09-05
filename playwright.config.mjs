@@ -20,6 +20,7 @@ export default defineConfig({
         "**/playback-speed.spec.mjs",
         "**/pixel-phase-one.spec.mjs",
         "**/pixel-life.spec.mjs",
+        "**/pixel-city.spec.mjs",
       ],
       use: {
         browserName: "chromium",
@@ -38,6 +39,7 @@ export default defineConfig({
         "**/playback-speed.spec.mjs",
         "**/pixel-phase-one.spec.mjs",
         "**/pixel-life.spec.mjs",
+        "**/pixel-city.spec.mjs",
       ],
       use: {
         browserName: "webkit",
@@ -57,6 +59,7 @@ export default defineConfig({
         "**/playback-speed.spec.mjs",
         "**/pixel-phase-one.spec.mjs",
         "**/pixel-life.spec.mjs",
+        "**/pixel-city.spec.mjs",
       ],
       use: {
         browserName: "webkit",
@@ -75,6 +78,7 @@ export default defineConfig({
         "**/playback-speed.spec.mjs",
         "**/pixel-phase-one.spec.mjs",
         "**/pixel-life.spec.mjs",
+        "**/pixel-city.spec.mjs",
       ],
       use: { browserName: "firefox", viewport: { width: 1366, height: 900 } },
     },
