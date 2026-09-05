@@ -11,6 +11,7 @@ const paths={
  map:'<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z"/><path d="M9 3v15M15 6v15"/><path d="M12 8a2 2 0 1 1 4 0c0 2-2 4-2 4s-2-2-2-4Z"/>',
  jobs:'<rect x="3" y="6" width="18" height="14" rx="3"/><path d="M8 6V4h8v2M3 11h18M10 11v3h4v-3"/>',
  creative:'<path d="m4 20 1-5L16 4l4 4L9 19l-5 1Z"/><path d="m14 6 4 4M4 20l5-1M6 15l3 4M20 2v3M18.5 3.5h3"/>',
+ creator:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3V9ZM8 3h8M8 21h8"/>',
  npc:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2.5"/><path d="M5.5 17c.6-2 1.8-3 3.5-3s2.9 1 3.5 3M15 8h3M15 12h3M15 16h2"/>',
  social:'<rect x="4" y="3" width="16" height="18" rx="4"/><circle cx="12" cy="11" r="3"/><path d="M8 6h1M16 6h1M9 17h6"/>',
  forum:'<path d="M3 5h13a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H9l-4 3v-3H3V5Z"/><path d="M7 9h8M7 12h5"/>',
@@ -20,11 +21,11 @@ const paths={
  achievements:'<path d="M8 4h8v4a4 4 0 0 1-8 0V4ZM8 6H4v2a4 4 0 0 0 5 4M16 6h4v2a4 4 0 0 1-5 4M12 12v5M8 21h8M9 17h6"/>',
  save:'<path d="M4 3h13l3 3v15H4V3Z"/><path d="M8 3v6h8V3M8 21v-7h8v7M10 6h4"/>'
 };
-export const APP_META=Object.freeze({
+export const APP_META=Object.freeze({creator:{label:"創作者",title:"創作者中心",note:"二週目限定・拍片、直播與經營個人頻道",tone:"coral"},
  planner:{label:"行程",title:"行程與工作",note:"安排七天行程、策略與預算",tone:"coral"},timeline:{label:"時間線",title:"星途時間線",note:"集中查看人物、作品與重大選擇",tone:"amber"},gallery:{label:"影像館",title:"星途影像館",note:"收藏 CG 並重讀人物章節",tone:"violet"},stats:{label:"能力",title:"能力資料",note:"檢視能力與隱藏特質",tone:"blue"},people:{label:"人物",title:"人物",note:"訊息、關係與人物檔案",tone:"teal"},log:{label:"紀錄",title:"星途紀錄",note:"回顧每週成果與重大選擇",tone:"slate"},world:{label:"娛樂週報",title:"娛樂圈週報",note:"市場、作品與後台世界",tone:"indigo"},map:{label:"星望地圖",title:"星望市地圖",note:"探索城市與產業公司",tone:"sage"},jobs:{label:"工作信箱",title:"工作信箱",note:"管理徵選、推薦與指名邀約",tone:"gold"},creative:{label:"創作室",title:"創作工作室",note:"製作、販售或自主發行作品",tone:"plum"},npc:{label:"人物",title:"人物",note:"訊息、關係與人物檔案",tone:"teal"},social:{label:"星光社群",title:"星光社群",note:"發布近況並查看圈內動態",tone:"pink"},forum:{label:"星談論壇",title:"星談論壇",note:"娛樂討論與熱門話題",tone:"orange"},wardrobe:{label:"造型衣櫃",title:"造型衣櫃",note:"切換造型與能力加成",tone:"lilac"},agency:{label:"經紀公司",title:"經紀公司",note:"投遞、面談與簽約進度",tone:"navy"},achievements:{label:"星途成就",title:"星途成就",note:"收藏旅程與生活里程碑",tone:"honey"},save:{label:"存檔管理",title:"存檔管理",note:"管理存檔與安全備份",tone:"mint"},settings:{label:"遊戲設定",title:"遊戲設定",note:"存讀檔、顯示與遊戲流程",tone:"gray"}
 });
 export const APP_LIBRARY_IDS=APP_IDS;
-export const APP_CATEGORIES=Object.freeze({planner:"規劃",map:"規劃",jobs:"事業",creative:"事業",agency:"事業",stats:"事業",people:"人物",social:"人物",forum:"人物",world:"世界",timeline:"紀錄",gallery:"紀錄",log:"紀錄",achievements:"紀錄",wardrobe:"個人",save:"系統",settings:"系統"});
+export const APP_CATEGORIES=Object.freeze({planner:"規劃",map:"規劃",jobs:"事業",creative:"事業",creator:"事業",agency:"事業",stats:"事業",people:"人物",social:"人物",forum:"人物",world:"世界",timeline:"紀錄",gallery:"紀錄",log:"紀錄",achievements:"紀錄",wardrobe:"個人",save:"系統",settings:"系統"});
 export const APP_CATEGORY_LABELS=Object.freeze(["全部","規劃","事業","人物","世界","紀錄","個人","系統"]);
 export const DEFAULT_DOCK_IDS=Object.freeze(["planner","timeline","gallery","stats","people","log"]);
 export const APP_DOCK_IDS=DEFAULT_DOCK_IDS;

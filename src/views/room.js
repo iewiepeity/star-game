@@ -19,6 +19,7 @@ import { saveApp } from "./save.js";
 import { settingsApp } from "./settings.js";
 import { forumApp } from "./forum.js";
 import { socialApp } from "./social.js";
+import { creatorApp } from "./creator.js";
 import { creativeApp } from "./creative.js";
 import { achievementsApp } from "./achievements.js";
 import { worldApp } from "./world.js";
@@ -127,7 +128,8 @@ function baseTabletHome() {
     quickApps = [
       ...new Set([...recent, ...normalizeDockIds(state.dockAppIds)]),
     ].slice(0, 6);
-  const filteredApps = APP_LIBRARY_IDS.filter(
+  const unlockedApps = APP_LIBRARY_IDS.filter((id) => id !== "creator" || (state.runCount || 1) >= 2),
+    filteredApps = unlockedApps.filter(
       (id) =>
         (appCategory === "全部" || APP_CATEGORIES[id] === appCategory) &&
         (!appQuery ||
@@ -254,6 +256,7 @@ export function appWindow() {
     jobs: jobsApp,
     npc: peopleHubApp,
     social: socialApp,
+    creator: creatorApp,
     forum: forumApp,
     agency: agencyApp,
     save: saveApp,

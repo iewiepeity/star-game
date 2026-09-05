@@ -8,9 +8,9 @@ import{availableChoices}from"../src/logic/event-engine.js";
 import{queueCareerPhaseEvent}from"../src/logic/career-phases.js";
 import{queueNpcStoryEvents}from"../src/logic/npc-storylines.js";
 
-test("成就擴充到 81 項且涵蓋每一種結局原型",()=>{
- assert.equal(ACHIEVEMENTS.length,81);
- assert.equal(new Set(ACHIEVEMENTS.map(x=>x.id)).size,81);
+test("成就擴充到 84 項且涵蓋每一種結局原型",()=>{
+ assert.equal(ACHIEVEMENTS.length,84);
+ assert.equal(new Set(ACHIEVEMENTS.map(x=>x.id)).size,84);
  const ids=new Set(ACHIEVEMENTS.map(x=>x.id));
  for(const ending of ENDING_ARCHETYPES)assert.ok(ids.has(`ending_${ending.id}`),ending.id);
 });
