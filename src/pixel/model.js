@@ -157,9 +157,11 @@ export function objectives(state) {
     { done: visits.includes("rehearsal"), label: "走進排練室" },
     { done: game.trainingSessionsCompleted > 0, label: "上完第一堂表演課" },
     {
-      done: state.life.ledger.some((r) =>
-        ["tv_assistant", "newcomer_gig"].includes(r.assignment.id),
-      ),
+      done:
+        state.life.milestones?.firstWork ||
+        state.life.ledger.some((r) =>
+          ["tv_assistant", "newcomer_gig"].includes(r.assignment.id),
+        ),
       label: "賺到第一份零工收入",
     },
     { done: state.knownPeople.length > 0, label: "認識一位城市裡的人" },

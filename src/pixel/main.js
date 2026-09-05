@@ -1,6 +1,7 @@
 import { createCityUI } from "./city-ui.js";
 import { CITY_CATALOG } from "./city-catalog.js";
 import { arriveAt } from "./life.js";
+import { AGENCIES } from "../data/agencies.js";
 import { AVATARS, portraitAsset } from "../data/wardrobe.js";
 import { repeatLine } from "./cast.js";
 import { createLifeUI } from "./life-ui.js";
@@ -59,6 +60,9 @@ function checkpoint(slot = "auto") {
   return ok;
 }
 function changed() {
+  state.knownPeople = [
+    ...new Set([...state.knownPeople, ...state.life.game.knownPeople]),
+  ];
   const room = ROOMS[state.sceneId],
     outfit = outfits.find((o) => o.id === state.outfitId);
   $("room-title").textContent = room.name;
@@ -107,6 +111,7 @@ function close() {
   panel.close();
   panelType = "";
   if (state.dialogue) renderDialogue();
+  else if (lifeUI.resumeNarrative()) return;
   else {
     setDialogueVisible(false);
     world?.releaseNpc();
@@ -143,6 +148,7 @@ function menu() {
     `${heading("STARLIGHT DAYS", "我的生活")}<nav class="command-menu" aria-label="遊戲功能">${[
       ["schedule", "本週行程", "安排生活與成長"],
       ["travel", "城市地圖", "走進每一個地方"],
+      ["career", "職涯與故事", "徵選、通告、人物與作品"],
       ["creative", "創作筆記", "把靈感變成作品"],
       ["phone", "手機", "社群與聯絡人"],
       ["profile", "我的角色", "能力、衣櫃與名字"],
@@ -209,7 +215,7 @@ function wardrobe() {
 function profile() {
   show(
     "profile",
-    `${heading("THIS IS ME · 玩家資訊", "我的小小起點")}<div class="player-profile"><img src="${portrait()}" alt="目前穿著的原版立繪"><div><label>角色名字<input id="name-input" maxlength="16" value="${escape(state.playerName)}" autocomplete="off"></label><p>${escape(outfits.find((o) => o.id === state.outfitId).name)}<br><span class="tiny-note">${AVATARS[state.avatarId].name} · 未簽約新人</span></p><button class="primary" data-ui="name">儲存名字</button><p class="tiny-note">${state.visited.length} 個足跡 · ${state.knownPeople.length} 位新朋友</p><button data-ui="closet">前往衣櫃</button></div></div>${avatarChoices()}<div class="ability-grid">${Object.entries(
+    `${heading("THIS IS ME · 玩家資訊", "我的角色")}<div class="player-profile"><img src="${portrait()}" alt="目前穿著的原版立繪"><div><label>角色名字<input id="name-input" maxlength="16" value="${escape(state.playerName)}" autocomplete="off"></label><p>${escape(outfits.find((o) => o.id === state.outfitId).name)}<br><span class="tiny-note">${AVATARS[state.avatarId].name} · ${AGENCIES[state.life.game.currentAgencyId]?.name || "自由藝人"}</span></p><button class="primary" data-ui="name">儲存名字</button><p class="tiny-note">${state.visited.length} 個足跡 · ${state.knownPeople.length} 位新朋友</p><button data-ui="closet">前往衣櫃</button></div></div>${avatarChoices()}<div class="ability-grid">${Object.entries(
       state.life.game.stats,
     )
       .map(([name, v]) => `<div><small>${name}</small><b>${v}</b></div>`)
@@ -234,7 +240,7 @@ function journal() {
 function help() {
   show(
     "help",
-    `${heading("HOW TO PLAY · 操作", "慢慢逛，也可以很順手")}<div class="help-lines"><div><b>走動</b><span>點空地自動走過去；電腦也可用方向鍵或 WASD。</span></div><div><b>互動</b><span>點家具或人物本身。也可從「選單 → 附近物件」選擇，角色會先走近。</span></div><div><b>看場景</b><span>拖曳畫面平移；選單的「設定」可以縮放或找回主角。</span></div><div><b>閱讀</b><span>開啟視窗會暫停世界；也可從「選單 → 設定」暫停。</span></div><div><b>進度</b><span>自動存檔，另外提供五格手動存讀檔。</span></div></div><p class="tiny-note">每天一件主要安排，走路與查看手機不消耗天數。先到訪排練室／電視台，再報名課程／工作。1× 到 16× 只改變演出速度，成果相同。</p>`,
+    `${heading("HOW TO PLAY · 操作", "慢慢逛，也可以很順手")}<div class="help-lines"><div><b>走動</b><span>點空地自動走過去；電腦也可用方向鍵或 WASD。</span></div><div><b>互動</b><span>點家具或人物本身。也可從「選單 → 附近物件」選擇，角色會先走近。</span></div><div><b>看場景</b><span>拖曳畫面平移；選單的「設定」可以縮放或找回主角。</span></div><div><b>職涯</b><span>選單的「職涯與故事」可查看徵選、作品與人物約定。試鏡、製作與約會各占一天。</span></div><div><b>閱讀</b><span>開啟視窗會暫停世界；重要劇情在下方閱讀，選擇後才繼續。</span></div><div><b>進度</b><span>自動存檔，另外提供五格手動存讀檔。</span></div></div><p class="tiny-note">每天一件主要安排，走路與查看手機不消耗天數。可直接排課並在當天前往；正式通告從現場徵選開始。1× 到 16× 只改變演出速度，成果相同。</p>`,
   );
 }
 function saves() {
@@ -297,6 +303,42 @@ function renderDialogue() {
   world?.keys.clear();
   $("dialogue").querySelector(".choices button")?.focus();
 }
+function narrate({ title, text, portrait: face, art, choices }) {
+  leaveOverlay();
+  panelType = "career-dialogue";
+  $("toast").classList.remove("visible");
+  clearTimeout(toastTimer);
+  const blocks = String(text)
+    .replace(/<[^>]*>/g, " ")
+    .split(/(?<=[。！？])\s*/)
+    .filter(Boolean);
+  const pages = [];
+  for (const part of blocks) {
+    if (!pages.length || pages.at(-1).length + part.length > 155)
+      pages.push(part);
+    else pages[pages.length - 1] += part;
+  }
+  if (!pages.length) pages.push("……");
+  const key = `${state.life.game.week}-${state.life.day}-${title}`;
+  let index =
+    state.life.reader?.key === key
+      ? Math.min(pages.length - 1, state.life.reader.index)
+      : 0;
+  function page() {
+    state.life.reader = { key, index };
+    checkpoint();
+    $("dialogue").innerHTML =
+      `<div class="conversation career-conversation ${face ? "" : "no-portrait"}">${face ? `<figure class="dialogue-portrait npc-crop"><img src="${face}" alt="肩上肖像"></figure>` : ""}<div class="speech">${art ? `<img class="story-art" src="${art}" alt="故事插畫">` : ""}<div class="dialogue-heading"><h2>${escape(title)}</h2><small>${index + 1} / ${pages.length}</small></div><p>${escape(pages[index])}</p><div class="choices">${index < pages.length - 1 ? '<button class="primary" id="career-page-next">繼續 →</button>' : choices.map((c) => `<button ${c.attrs}>${escape(c.label)}${c.note ? `<small>${escape(c.note)}</small>` : ""}</button>`).join("")}</div></div><div class="dialogue-tools"><button data-ui="saves">存檔</button></div></div>`;
+    $("career-page-next")?.addEventListener("click", () => {
+      index++;
+      page();
+    });
+    $("dialogue").querySelector(".choices button")?.focus();
+  }
+  setDialogueVisible(true);
+  world?.keys.clear();
+  page();
+}
 function nextDialogue() {
   const d = state.dialogue;
   if (!d) return;
@@ -331,6 +373,9 @@ function selectObject(item) {
 function interact(item) {
   if (lifeUI.interact(item)) return;
   switch (item.action) {
+    case "career":
+      lifeUI.career.hub();
+      break;
     case "agencies":
       cityUI.agencies();
       break;
@@ -393,7 +438,11 @@ function interact(item) {
 const controller = {
   state: () => state,
   paused: () =>
-    paused || panel.open || !!state.dialogue || controller.transitioning,
+    paused ||
+    panel.open ||
+    !!state.dialogue ||
+    panelType === "career-dialogue" ||
+    controller.transitioning,
   transitioning: false,
   toast,
   checkpoint,
@@ -433,6 +482,7 @@ const controller = {
     arriveAt(state.life, state.sceneId);
     if (state.dialogue) renderDialogue();
     else if (!state.flags.intro) welcome();
+    else lifeUI.resumeNarrative();
     checkpoint();
   },
 };
@@ -447,6 +497,8 @@ const cityUI = createCityUI({
 });
 const lifeUI = createLifeUI({
   travelTo: (...args) => cityUI.route(...args),
+  agencies: () => cityUI.agencies(),
+  narrate,
   state: () => state,
   world: () => world,
   show,
@@ -456,7 +508,11 @@ const lifeUI = createLifeUI({
   toast,
   leaveOverlay,
   paused: () =>
-    paused || panel.open || !!state.dialogue || controller.transitioning,
+    paused ||
+    panel.open ||
+    !!state.dialogue ||
+    panelType === "career-dialogue" ||
+    controller.transitioning,
 });
 setInterval(() => lifeUI.tick(0.1), 100);
 document.addEventListener("click", async (event) => {
@@ -630,6 +686,9 @@ document.addEventListener("click", async (event) => {
       lifeUI.takeover();
       world.cancelActivity();
       checkpoint();
+      break;
+    case "career":
+      lifeUI.career.hub();
       break;
     case "agencies":
       cityUI.agencies();

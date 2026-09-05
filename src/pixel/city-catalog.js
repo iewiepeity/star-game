@@ -201,7 +201,37 @@ export const MAP_ROWS = [
   ["dance", "gym", "clinic", "restaurant", "market", "temple"],
   ["park", "beach", "airport"],
 ];
-export const CITY_PLACES = MAP_ROWS.flat().map((id, i) => ({
+// Centers are measured from the organic city illustration, not a row/column grid.
+export const CITY_COORDINATES = {
+  home: [10.5, 19.5],
+  film_company: [28, 16],
+  studio: [43, 14],
+  rehearsal: [38.5, 27],
+  theatre: [58.5, 19],
+  cinema: [75, 18],
+  record_company: [11, 40.3],
+  recording: [26.8, 40],
+  livehouse: [40.5, 42],
+  tv: [86, 35],
+  radio: [79, 47],
+  media_company: [68, 39],
+  business: [53.5, 35.8],
+  gallery: [33, 55],
+  library: [49, 56],
+  cafe: [25, 68],
+  shop: [66, 57],
+  beauty: [79, 61],
+  dance: [10, 57],
+  gym: [8.6, 75],
+  clinic: [39.5, 70],
+  restaurant: [53, 75],
+  market: [65, 74.5],
+  temple: [79, 78],
+  park: [11, 88],
+  beach: [93, 58],
+  airport: [87.4, 13],
+};
+export const CITY_PLACES = MAP_ROWS.flat().map((id) => ({
   id,
   venue: id === "tv" ? "tv_company" : id,
   name:
@@ -237,8 +267,8 @@ export const CITY_PLACES = MAP_ROWS.flat().map((id, i) => ({
     beach: "月灣海灘",
     airport: "國際機場",
   }[id],
-  x: [12, 27, 42.2, 57.1, 72.2, 87][i % 6],
-  y: [19, 34, 50, 66, 83][Math.floor(i / 6)],
+  x: CITY_COORDINATES[id][0],
+  y: CITY_COORDINATES[id][1],
   district: CITY_CATALOG[id === "tv" ? "tv_company" : id].district,
   description:
     MAP_LOCATIONS[id === "tv" ? "tv_company" : id]?.note ||

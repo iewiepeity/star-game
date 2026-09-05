@@ -2449,3 +2449,346 @@ input {
     min-height: 24px;
   }
 }
+
+/* Career desks share the compact pixel menu, while stories stay at the bottom. */
+.career-dashboard {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+.career-dashboard > div {
+  background: #f1e5c9;
+  border: 1px solid #b5a17a;
+  padding: 12px;
+}
+.career-dashboard small,
+.career-dashboard strong {
+  display: block;
+}
+.career-dashboard strong {
+  font-size: clamp(17px, 2.2vw, 28px);
+  margin-top: 6px;
+}
+.career-grid,
+.career-board,
+.career-card-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.career-tile {
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+}
+.career-tile .room-illustration,
+.career-tile > img {
+  display: block;
+  width: 100%;
+  height: 115px;
+  object-fit: contain;
+  background: #f7efe0;
+}
+.career-tile strong {
+  display: block;
+  padding: 12px;
+}
+.career-job-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  gap: 8px;
+  padding: 16px;
+}
+.career-job-card span,
+.career-job-card small {
+  font-size: 13px;
+  color: #756148;
+}
+.career-card {
+  background: #fff9ec;
+  border: 1px solid #bea886;
+  padding: 16px;
+}
+.career-feature {
+  display: grid;
+  grid-template-columns: minmax(120px, 32%) 1fr;
+  align-items: center;
+  gap: 18px;
+  margin: 16px 0;
+}
+.career-feature .room-illustration,
+.career-feature > img {
+  width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+}
+.career-requirements {
+  display: grid;
+  gap: 10px;
+}
+.career-requirements > div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+}
+.career-requirements progress {
+  grid-column: 1/-1;
+  width: 100%;
+  height: 8px;
+  accent-color: #819266;
+}
+.career-date-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.career-date-list button {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  gap: 6px;
+  padding: 14px;
+}
+.career-date-list button span {
+  font-size: 12px;
+  color: #80644d;
+}
+.career-conversation .choices {
+  flex-wrap: wrap;
+}
+.career-conversation .choices small {
+  display: block;
+  max-width: 300px;
+  color: #74624e;
+  font-size: 12px;
+  font-weight: normal;
+}
+.career-conversation.no-portrait {
+  grid-template-columns: 1fr;
+  max-width: 1000px;
+  margin: auto;
+}
+.career-conversation .speech {
+  overflow: auto;
+  max-height: 68dvh;
+}
+.career-conversation .story-art {
+  float: right;
+  width: 28%;
+  max-height: 160px;
+  object-fit: cover;
+  margin: 0 0 12px 16px;
+  border: 3px solid #c7b28d;
+}
+.contact-portrait {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.contact-portrait > img {
+  width: 110px;
+  height: 130px;
+  object-fit: cover;
+  object-position: 50% 5%;
+}
+#panel[data-view^="career"] details {
+  margin: 14px 0;
+  padding: 12px;
+  background: #f5ecdb;
+}
+#panel[data-view^="career"] summary {
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 32px;
+}
+#panel[data-view^="career"] .command-list {
+  gap: 8px;
+}
+#panel[data-view^="career"] .panel-actions {
+  flex-wrap: wrap;
+}
+#panel[data-view^="career"] button {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .career-dashboard {
+    gap: 6px;
+  }
+  .career-dashboard > div {
+    padding: 9px;
+  }
+  .career-dashboard small {
+    font-size: 11px;
+  }
+  .career-board,
+  .career-card-list {
+    grid-template-columns: 1fr;
+  }
+  .career-feature {
+    grid-template-columns: 100px 1fr;
+    gap: 12px;
+    font-size: 13px;
+  }
+  .career-tile .room-illustration,
+  .career-tile > img {
+    height: 90px;
+  }
+  .career-conversation .speech {
+    max-height: 63dvh;
+  }
+  .career-conversation .story-art {
+    float: none;
+    width: 100%;
+    height: 95px;
+    margin: 0 0 8px;
+  }
+  .career-date-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* City navigation gets the full window; information lives beside the map. */
+#panel[data-view="travel"] {
+  width: calc(100vw - 24px);
+  max-width: none;
+  height: calc(100dvh - 24px);
+  max-height: calc(100dvh - 24px);
+  margin: auto;
+  padding: 18px;
+}
+#panel[data-view="travel"] #panel-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  gap: 12px;
+}
+#panel[data-view="travel"] .map-heading {
+  grid-column: 1/-1;
+  padding: 0 50px 0 0;
+}
+#panel[data-view="travel"] .map-heading > span {
+  font-size: 10px;
+}
+#panel[data-view="travel"] .map-heading h2 {
+  margin: 4px 0;
+  padding: 0;
+  border: 0;
+  font-size: 24px;
+}
+#panel[data-view="travel"] .map-heading p {
+  margin: 0;
+  font-size: 12px;
+}
+#panel[data-view="travel"] .map-tools {
+  grid-column: 1/-1;
+  margin: 0;
+}
+#panel[data-view="travel"] .city-map-viewport {
+  grid-column: 1;
+  grid-row: 3;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  margin: 0;
+}
+#panel[data-view="travel"] .map-detail {
+  grid-column: 2;
+  grid-row: 3;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 18px;
+  margin: 0;
+  padding: 16px;
+  background: #f2e7d0;
+  overflow: auto;
+  min-height: 0;
+}
+#panel[data-view="travel"] .map-detail > button {
+  margin-top: auto;
+}
+#panel[data-view="travel"] .map-detail h3 {
+  font-size: 22px;
+}
+#panel[data-view="travel"] .map-detail p {
+  font-size: 14px;
+  line-height: 1.7;
+}
+@media (max-width: 650px) {
+  #panel[data-view="travel"] {
+    padding: 12px;
+  }
+  #panel[data-view="travel"] #panel-content {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+  #panel[data-view="travel"] .city-map-viewport {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  #panel[data-view="travel"] .map-detail {
+    grid-column: 1;
+    grid-row: 4;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px;
+    gap: 10px;
+    max-height: 140px;
+  }
+  #panel[data-view="travel"] .map-detail > div {
+    flex: 1;
+  }
+  #panel[data-view="travel"] .map-detail > button {
+    margin: 0;
+    flex-shrink: 0;
+  }
+  #panel[data-view="travel"] .map-detail h3 {
+    font-size: 17px;
+    margin: 4px 0;
+  }
+  #panel[data-view="travel"] .map-detail p {
+    display: none;
+  }
+  #panel[data-view="travel"] .map-heading p {
+    display: none;
+  }
+}
+@media (max-height: 500px) and (min-width: 651px) {
+  #panel[data-view="travel"] #panel-content {
+    grid-template-columns: minmax(0, 1fr) 215px;
+    gap: 6px;
+  }
+  #panel[data-view="travel"] .map-heading > span,
+  #panel[data-view="travel"] .map-heading p {
+    display: none;
+  }
+  #panel[data-view="travel"] .map-heading h2 {
+    font-size: 18px;
+  }
+  #panel[data-view="travel"] .map-detail {
+    padding: 10px;
+    gap: 8px;
+  }
+}
+
+/* On a portrait phone, fit the whole-city overview without an empty canvas tail. */
+@media (max-width: 650px) and (min-height: 501px) {
+  #panel[data-view="travel"] {
+    height: fit-content;
+  }
+  #panel[data-view="travel"] #panel-content {
+    height: auto;
+    grid-template-rows: auto auto auto auto;
+  }
+  #panel[data-view="travel"] .city-map-viewport {
+    height: auto;
+    aspect-ratio: 3 / 2;
+  }
+}

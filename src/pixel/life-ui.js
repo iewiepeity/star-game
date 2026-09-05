@@ -1,6 +1,9 @@
+import { createCareerUI } from "./career-ui.js";
+import { careerDecision } from "./career.js";
 import { ACTIONS } from "../data/actions.js";
 import {
   CHOICES,
+  definition,
   DAY_NAMES,
   SPEEDS,
   beginDay,
@@ -35,7 +38,7 @@ export function createLifeUI(api) {
   const label = (a) =>
     a?.id === "creative"
       ? `創作・${life().game.creativeProjects.find((p) => p.id === a.projectId)?.title || "選一份作品"}`
-      : CHOICES[a?.id]?.label || "未安排";
+      : definition(life(), a)?.label || "未安排";
   const buttons = () =>
     `<div class="panel-actions"><button data-ui="menu">◀ 選單</button><button class="primary" data-ui="close">回到場景</button></div>`;
   const row = (title, note, attributes = "", right = "→") =>
@@ -76,6 +79,7 @@ export function createLifeUI(api) {
   }
   function schedule(day = selectedDay) {
     const l = life();
+    if (l.game.endingResult) return careerUI.ending();
     selectedDay = Math.max(l.day, Math.min(6, day));
     if (l.day === 7) return summary();
     const selected = l.plan[selectedDay];
@@ -83,6 +87,7 @@ export function createLifeUI(api) {
       .slice(l.day)
       .reduce((sum, a) => sum + costOf(l, a), 0);
     const cards = Object.entries(CHOICES)
+      .filter(([id]) => !id.startsWith("career_"))
       .filter(([, d]) => filter === "全部" || d.group === filter)
       .map(([id, d]) => {
         const a =
@@ -123,11 +128,11 @@ export function createLifeUI(api) {
       world().cancelActivity();
       world().stopRoute();
     }
-    const d = CHOICES[assignment.id],
+    const d = definition(life(), assignment),
       reason = access(l, assignment);
     show(
       "action",
-      `${heading("TODAY", label(assignment), reason || "確認後，這件事會佔用今天的主要行程。")}<div class="action-detail">${roomIllustration(ROOMS[d.room])}<div><b>${ROOMS[d.room].name}</b><p>${costOf(l, assignment) ? `花費 ${money(costOf(l, assignment))}` : "不需費用"} · 1 天</p><small>${assignment.id === "rest" ? "體力 +24 · 疲勞 −18" : d.group === "訓練" ? "課程效果依當日身體狀態調整" : d.group === "工作" ? `收入 $${ACTIONS[d.action].income[0].toLocaleString()}～$${ACTIONS[d.action].income[1].toLocaleString()} · 疲勞 +${ACTIONS[d.action].fatigue}` : assignment.id === "creative" ? "疲勞 +6 · 同一週可安排多天創作" : "完成後在日誌留下今日成果"}</small></div></div><div class="panel-actions"><button data-ui="close">再想一下</button><button class="primary" data-start="${assignment.id}" ${assignment.projectId ? `data-project="${escape(assignment.projectId)}"` : ""} ${reason ? "disabled" : ""}>確認今天的安排</button></div>`,
+      `${heading("TODAY", label(assignment), reason || "確認後，這件事會佔用今天的主要行程。")}<div class="action-detail">${roomIllustration(ROOMS[d.room])}<div><b>${ROOMS[d.room].name}</b><p>${costOf(l, assignment) ? `花費 ${money(costOf(l, assignment))}` : "不需費用"} · 1 天</p><small>${assignment.id === "rest" ? "體力 +24 · 疲勞 −18" : d.group === "訓練" ? "課程效果依當日身體狀態調整" : d.group === "工作" && ACTIONS[d.action].income ? `收入 $${ACTIONS[d.action].income[0].toLocaleString()}～$${ACTIONS[d.action].income[1].toLocaleString()} · 疲勞 +${ACTIONS[d.action].fatigue}` : assignment.id === "creative" ? "疲勞 +6 · 同一週可安排多天創作" : "完成後在日誌留下今日成果"}</small></div></div><div class="panel-actions"><button data-ui="close">再想一下</button><button class="primary" data-start="${assignment.id}" ${assignment.projectId ? `data-project="${escape(assignment.projectId)}"` : ""} ${reason ? "disabled" : ""}>確認今天的安排</button></div>`,
     );
   }
   function run(assignment, auto = false) {
@@ -147,7 +152,7 @@ export function createLifeUI(api) {
     const p = life().pending;
     if (!p) return;
     if (p.phase === "result") return result();
-    const def = CHOICES[p.assignment.id];
+    const def = definition(life(), p.assignment);
     leaveOverlay();
     p.phase = "travel";
     const arrive = () => world().interact(def.item);
@@ -158,7 +163,7 @@ export function createLifeUI(api) {
   }
   function startPose(choice = "focus") {
     const p = life().pending,
-      d = CHOICES[p.assignment.id];
+      d = definition(life(), p.assignment);
     p.assignment.choice = choice;
     p.phase = "performing";
     leaveOverlay();
@@ -172,13 +177,24 @@ export function createLifeUI(api) {
   }
   function interact(item) {
     const p = life().pending,
-      d = p && CHOICES[p.assignment.id];
+      d = p && definition(life(), p.assignment);
     if (
       p &&
       p.phase !== "result" &&
       d.room === state().sceneId &&
       d.item === item.id
     ) {
+      if (!p.decisionMade) {
+        const decision = p.decision || careerDecision(life(), p.assignment);
+        if (decision) {
+          p.decision = decision;
+          p.phase = "decision";
+          life().auto = false;
+          checkpoint();
+          showDecision();
+          return true;
+        }
+      }
       startPose(p.assignment.choice || "focus");
       return true;
     }
@@ -225,7 +241,27 @@ export function createLifeUI(api) {
     }
     return false;
   }
+  function showDecision() {
+    const d = life().pending?.decision;
+    if (!d) return;
+    api.narrate({
+      title: d.title,
+      text: d.text,
+      portrait: d.portrait,
+      choices: d.choices.map((c) => ({
+        label: c.label,
+        note: c.note,
+        attrs: `data-career-decision="${escape(c.id)}"`,
+      })),
+    });
+  }
   function today() {
+    if (life().game.endingResult) return careerUI.ending();
+    if (careerUI.hasStory()) {
+      life().auto = false;
+      return careerUI.stories();
+    }
+    if (life().pending?.phase === "decision") return showDecision();
     const l = life();
     if (l.day === 7) return summary();
     if (l.pending?.phase === "result") return result();
@@ -235,7 +271,7 @@ export function createLifeUI(api) {
   function activityDone(kind, itemId) {
     const l = life();
     if (l.pending?.phase !== "performing") return false;
-    const def = CHOICES[l.pending.assignment.id];
+    const def = definition(life(), l.pending.assignment);
     if (
       def.pose !== kind ||
       def.item !== itemId ||
@@ -249,6 +285,11 @@ export function createLifeUI(api) {
       toast(r.error);
       return true;
     }
+    state().knownPeople = [
+      ...new Set([...state().knownPeople, ...l.game.knownPeople]),
+    ];
+    if (r.presentation || careerUI.hasStory() || l.game.endingResult)
+      l.auto = false;
     checkpoint();
     changed();
     autoWait = 0;
@@ -271,9 +312,21 @@ export function createLifeUI(api) {
   function result() {
     const r = life().pending?.result;
     if (!r) return;
+    if (r.presentation?.portrait)
+      return api.narrate({
+        title: r.presentation.title || r.label,
+        text: r.notes.join(" "),
+        portrait: r.presentation.portrait,
+        choices: [
+          {
+            label: life().day === 6 ? "看看這一週" : "迎接明天",
+            attrs: 'data-life="advance"',
+          },
+        ],
+      });
     show(
       "result",
-      `${heading("A DAY TO REMEMBER", `${DAY_NAMES[r.day]} · ${r.label}`)}<div class="result-scene">${roomIllustration(ROOMS[CHOICES[r.assignment.id].room])}<span>今日完成</span></div><div class="result-values">${Object.entries(
+      `${heading("A DAY TO REMEMBER", `${DAY_NAMES[r.day]} · ${r.label}`)}<div class="result-scene">${roomIllustration(ROOMS[definition(life(), r.assignment).room])}<span>今日完成</span></div><div class="result-values">${Object.entries(
         r.deltas,
       )
         .filter(([, v]) => v)
@@ -283,7 +336,7 @@ export function createLifeUI(api) {
         )
         .join(
           "",
-        )}${r.gains.map((g) => `<div><small>${g.name}</small><b>+${g.amount}</b></div>`).join("")}</div>${r.notes.map((n) => `<p class="result-note">${escape(n)}</p>`).join("")}<div class="panel-actions"><button data-ui="saves">保存今天</button><button class="primary" data-life="advance">${life().day === 6 ? "看看這一週" : "迎接明天 →"}</button></div>`,
+        )}${r.gains.map((g) => `<div><small>${g.name}</small><b>+${g.amount}</b></div>`).join("")}</div>${r.notes.map((n) => `<p class="result-note">${escape(n)}</p>`).join("")}<div class="panel-actions">${r.presentation?.jobOfferId ? `<button data-job="${r.presentation.jobOfferId}">閱讀通告合約</button>` : ""}${r.presentation?.agencyOfferId ? `<button data-agency-info="${r.presentation.agencyOfferId}">閱讀經紀合約</button>` : ""}<button data-ui="saves">保存今天</button><button class="primary" data-life="advance">${life().day === 6 ? "看看這一週" : "迎接明天 →"}</button></div>`,
     );
   }
   function advance() {
@@ -291,7 +344,11 @@ export function createLifeUI(api) {
     if (!advanceDay(l)) return;
     checkpoint();
     changed();
-    if (l.day === 7) summary();
+    if (l.game.endingResult) careerUI.ending();
+    else if (careerUI.hasStory()) {
+      l.auto = false;
+      careerUI.stories();
+    } else if (l.day === 7) summary();
     else if (l.auto) run(l.plan[l.day], true);
     else {
       leaveOverlay();
@@ -318,7 +375,7 @@ export function createLifeUI(api) {
         .map(([id, v]) => `<option value="${id}">${v.label}</option>`)
         .join(
           "",
-        )}</select></label><label>作品名稱<input id="project-title" maxlength="40" placeholder="給這個靈感一個名字" required></label><button class="primary" type="submit">建立草稿</button></div></form><div class="project-list">${projects.length ? projects.map((p) => `<article><div class="section-heading"><strong>${escape(p.title)}</strong><small>${CREATIVE_TYPES[p.type].label}</small></div><progress max="100" value="${p.progress}" aria-label="作品完成度"></progress><div class="section-heading"><small>${p.progress}% · 品質 ${p.quality}</small><button data-offer="creative" data-project="${escape(p.id)}" ${p.status === "ready" ? "disabled" : ""}>${p.status === "ready" ? "草稿完成" : "今天繼續寫"}</button></div></article>`).join("") : '<p class="empty-note">還沒有作品。先記下一個你想說的故事。</p>'}</div>${buttons()}`,
+        )}</select></label><label>作品名稱<input id="project-title" maxlength="40" placeholder="給這個靈感一個名字" required></label><button class="primary" type="submit">建立草稿</button></div></form><div class="project-list">${projects.length ? projects.map((p) => `<article><div class="section-heading"><strong>${escape(p.title)}</strong><small>${CREATIVE_TYPES[p.type].label}</small></div><progress max="100" value="${p.progress}" aria-label="作品完成度"></progress><div class="section-heading"><small>${p.progress}% · 品質 ${p.quality}</small><button data-project-detail="${escape(p.id)}">製作與投稿</button><button data-offer="creative" data-project="${escape(p.id)}" ${["draft", "rejected"].includes(p.status) ? "" : "disabled"}>今天繼續寫</button></div></article>`).join("") : '<p class="empty-note">還沒有作品。先記下一個你想說的故事。</p>'}</div>${buttons()}`,
     );
     document.getElementById("project-form").addEventListener("submit", (e) => {
       e.preventDefault();
@@ -346,11 +403,20 @@ export function createLifeUI(api) {
         likes: 12,
         comments: [],
       })),
+      ...(l.worldNews?.news || [])
+        .filter((n) => n.title || n.text)
+        .map((n, i) => ({
+          id: `news-${i}`,
+          name: n.title || "星望速報",
+          text: n.text || n.summary || "",
+          likes: 0,
+          comments: [],
+        })),
       ...OFFICIAL_SOCIAL_POSTS,
     ];
     show(
       "phone",
-      `${heading("STARGRAM", "我的手機")}<nav class="phone-tabs"><button data-phone="feed" aria-pressed="${tab === "feed"}">星語動態</button><button data-phone="contacts" aria-pressed="${tab === "contacts"}">聯絡人 ${contacts.length}</button></nav>${tab === "contacts" ? `<div class="contact-list">${contacts.length ? contacts.map((id) => `<article><img src="${PEOPLE[id].head}" alt=""><div><b>${PEOPLE[id].name}</b><small>${PEOPLE[id].job}</small><p>親近 ${l.game.relationships[id]?.closeness || 0} · 信任 ${l.game.relationships[id]?.trust || 0}</p></div></article>`).join("") : '<p class="empty-note">到場景和人物打招呼，交換聯絡方式後會出現在這裡。</p>'}</div>` : `<div class="section-heading"><span>粉絲 ${l.game.fans}</span><button data-offer="social">安排一天經營動態</button></div><div class="social-feed">${posts.map((p) => `<article><b>${escape(p.name)}</b><p>${escape(p.text)}</p><small>♡ ${p.likes} · ${p.comments.length} 則回應</small><details><summary>查看回應</summary>${p.comments.length ? p.comments.map((c) => `<p>${escape(typeof c === "string" ? c : `${c.name}：${c.text}`)}</p>`).join("") : "<p>還沒有回應</p>"}</details></article>`).join("")}</div>`}${buttons()}`,
+      `${heading("STARGRAM", "我的手機")}<nav class="phone-tabs"><button data-phone="feed" aria-pressed="${tab === "feed"}">星語動態</button><button data-phone="contacts" aria-pressed="${tab === "contacts"}">聯絡人 ${contacts.length}</button></nav>${tab === "contacts" ? `<div class="contact-list">${contacts.length ? contacts.map((id) => `<article><img src="${PEOPLE[id].head}" alt=""><div><b>${PEOPLE[id].name}</b><small>${PEOPLE[id].job}</small><p>親近 ${l.game.relationships[id]?.closeness || 0} · 信任 ${l.game.relationships[id]?.trust || 0}</p><button data-contact="${id}">聯絡／邀約</button></div></article>`).join("") : '<p class="empty-note">到場景和人物打招呼，交換聯絡方式後會出現在這裡。</p>'}</div>` : `<div class="section-heading"><span>粉絲 ${l.game.fans}</span><button data-offer="social">安排一天經營動態</button></div><div class="social-feed">${posts.map((p) => `<article><b>${escape(p.name)}</b><p>${escape(p.text)}</p><small>♡ ${p.likes} · ${p.comments.length} 則回應</small><details><summary>查看回應</summary>${p.comments.length ? p.comments.map((c) => `<p>${escape(typeof c === "string" ? c : `${c.name}：${c.text}`)}</p>`).join("") : "<p>還沒有回應</p>"}</details></article>`).join("")}</div>`}${buttons()}`,
     );
   }
   function shop() {
@@ -374,12 +440,14 @@ export function createLifeUI(api) {
   }
   function services() {
     const room = state().sceneId;
+    if (room.startsWith("agency_"))
+      return careerUI.agency(room.replace("agency_", ""));
     const list = Object.entries(CHOICES).filter(([, d]) => d.room === room);
     const agency =
       room.startsWith("agency_") && AGENCIES[room.replace("agency_", "")];
     show(
       "services",
-      `${heading("AT YOUR SERVICE", ROOMS[room].name, "服務已開放。選擇今天要做的事，或先看看資訊。")}<div class="command-list">${list.map(([id, d]) => row(d.label, `${d.group} · ${costOf(life(), { id }) ? money(costOf(life(), { id })) : "免費"} · 1 天`, `data-offer="${id}"`)).join("")}${room === "business" ? row("搭電梯拜訪經紀公司", "四家公司的公開接待區", 'data-ui="agencies"') : ""}${room === "gallery" && hiddenRoomOpen(state()) ? row("前往深夜剪輯室", "熟悉的分鏡工作室", 'data-interior="editing_room"') : ""}</div>${agency ? `<p class="result-note">${escape(agency.description || agency.style || CITY_CATALOG[room].note)}</p><p class="tiny-note">這裡是公司公開接待區。先準備作品與履歷；能否面談與簽約，取決於公司的資格要求與審核。</p>` : ""}${buttons()}`,
+      `${heading("AT YOUR SERVICE", ROOMS[room].name, "服務已開放。選擇今天要做的事，或先看看資訊。")}<div class="command-list">${list.map(([id, d]) => row(d.label, `${d.group} · ${costOf(life(), { id }) ? money(costOf(life(), { id })) : "免費"} · 1 天`, `data-offer="${id}"`)).join("")}${["tv", "film_company", "record_company", "media_company"].includes(room) ? row("查看公開徵選與正式通告", "現場 Casting Desk", `data-board-venue="${ROOMS[room].venue}"`) : ""}${room === "business" ? row("搭電梯拜訪經紀公司", "四家公司的公開接待區", 'data-ui="agencies"') : ""}${room === "gallery" && hiddenRoomOpen(state()) ? row("前往深夜剪輯室", "熟悉的分鏡工作室", 'data-interior="editing_room"') : ""}</div>${agency ? `<p class="result-note">${escape(agency.description || agency.style || CITY_CATALOG[room].note)}</p><p class="tiny-note">這裡是公司公開接待區。先準備作品與履歷；能否面談與簽約，取決於公司的資格要求與審核。</p>` : ""}${buttons()}`,
     );
   }
   function meeting(id) {
@@ -404,8 +472,21 @@ export function createLifeUI(api) {
     }
   }
   function handle(target) {
+    if (careerUI.handle(target)) return true;
     const d = target.dataset,
       l = life();
+    if (d.careerDecision) {
+      const p = l.pending;
+      if (
+        p?.phase === "decision" &&
+        p.decision.choices.some((c) => c.id === d.careerDecision)
+      ) {
+        p.decisionMade = true;
+        p.assignment.choice = d.careerDecision;
+        startPose(d.careerDecision);
+      }
+      return true;
+    }
     if (d.scheduleFilter) {
       filter = d.scheduleFilter;
       schedule();
@@ -437,7 +518,11 @@ export function createLifeUI(api) {
       return true;
     }
     if (d.start) {
-      run({ id: d.start, ...(d.project ? { projectId: d.project } : {}) });
+      run(
+        d.start.startsWith("career_")
+          ? l.plan[l.day]
+          : { id: d.start, ...(d.project ? { projectId: d.project } : {}) },
+      );
       return true;
     }
     if (d.visit) {
@@ -463,7 +548,9 @@ export function createLifeUI(api) {
       nextWeek(l);
       checkpoint();
       changed();
-      schedule(0);
+      if (l.game.endingResult) careerUI.ending();
+      else if (careerUI.hasStory()) careerUI.stories();
+      else schedule(0);
     }
     if (d.life === "creative") creative();
     if (d.life === "speed") {
@@ -472,6 +559,15 @@ export function createLifeUI(api) {
       changed();
     }
     if (d.life === "auto") {
+      if (l.game.endingResult) {
+        careerUI.ending();
+        return true;
+      }
+      if (careerUI.hasStory()) {
+        l.auto = false;
+        careerUI.stories();
+        return true;
+      }
       if (l.auto) {
         l.auto = false;
         checkpoint();
@@ -488,7 +584,35 @@ export function createLifeUI(api) {
     }
     return true;
   }
+  const careerUI = createCareerUI({
+    ...api,
+    changed,
+    schedule,
+    phone,
+    creative,
+    afterStory: () => (life().day === 7 ? summary() : changed()),
+  });
+  function resumeNarrative() {
+    if (life().game.activeEvent || life().game.eventOutcome) {
+      careerUI.stories();
+      return true;
+    }
+    if (life().pending?.phase === "decision") {
+      showDecision();
+      return true;
+    }
+    if (
+      life().pending?.phase === "result" &&
+      life().pending.result?.presentation?.portrait
+    ) {
+      result();
+      return true;
+    }
+    return false;
+  }
   return {
+    resumeNarrative,
+    career: careerUI,
     changed,
     shop,
     services,

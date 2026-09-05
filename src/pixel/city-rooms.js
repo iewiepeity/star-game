@@ -11,7 +11,7 @@ const ART_BOUNDS = {
   library: [12, 22, 490, 425],
   cinema: [998, 50, 528, 404],
   gallery: [12, 505, 461, 439],
-  market: [479, 504, 504, 458],
+  market: [479, 504, 504, 465],
   temple: [996, 509, 530, 453],
   dance: [27, 36, 482, 416],
   gym: [529, 36, 477, 416],
@@ -24,6 +24,62 @@ const ART_BOUNDS = {
   agency_tide: [510, 507, 486, 441],
   editing_room: [1012, 502, 506, 445],
 };
+// Source-pixel silhouettes, deliberately independent from navigation polygons.
+const SCENE_OCCLUDERS = {
+  livehouse: [
+    [
+      655,
+      [
+        [1072, 597],
+        [1111, 581],
+        [1157, 603],
+        [1155, 650],
+        [1117, 674],
+        [1116, 630],
+        [1072, 610],
+      ],
+    ],
+    [
+      731,
+      [
+        [1264, 666],
+        [1310, 641],
+        [1359, 665],
+        [1358, 711],
+        [1315, 744],
+        [1314, 694],
+        [1264, 677],
+      ],
+    ],
+  ],
+  library: [
+    [
+      333,
+      [
+        [278, 254],
+        [292, 225],
+        [410, 269],
+        [398, 294],
+        [396, 333],
+        [280, 289],
+      ],
+    ],
+  ],
+};
+// The atlas caption overlaps the lower y extent of the right flower bed.
+// A room outline retains that bed and steps without including the caption.
+const MARKET_OUTLINE = [
+  [479, 504],
+  [983, 504],
+  [983, 914],
+  [850, 970],
+  [793, 970],
+  [778, 943],
+  [721, 938],
+  [658, 916],
+  [633, 922],
+  [487, 858],
+];
 // Coordinates are percentages of each art region. Every space has its own
 // walk mesh, object footprints and approach points; art regions preserve ratio.
 const entries = {
@@ -1144,12 +1200,23 @@ export function registerCityRooms(rooms, spots) {
       ],
       route: [pt(def.entry), pt(def.service.slice(2)), pt(def.detail.slice(2))],
     };
-    // Low furniture occludes feet at its front edge. The art is repeated through
-    // masks; walls and private rooms stay outside the public walk mesh.
-    rooms[id].foreground = def.blocks.map((points) => ({
-      depth: Math.max(...polygon(points).map((p) => p.y)) / 0.625,
-      polygon: polygon(points),
-    }));
+    // Collision polygons are floor footprints, never visual silhouettes.
+    // Public walkways must not repaint background over a character's head.
+    // Only independently reviewed furniture silhouettes become foreground.
+    rooms[id].foreground = (SCENE_OCCLUDERS[id] || []).map(
+      ([depth, points]) => ({
+        depth: (rect.y + (depth - crop[1]) * scale) / 0.625,
+        polygon: points.map(([x, y]) => ({
+          x: rect.x + (x - crop[0]) * scale,
+          y: rect.y + (y - crop[1]) * scale,
+        })),
+      }),
+    );
+    if (id === "market")
+      rooms[id].artOutline = MARKET_OUTLINE.map(([x, y]) => ({
+        x: rect.x + (x - crop[0]) * scale,
+        y: rect.y + (y - crop[1]) * scale,
+      }));
     spots[id] = {
       service: { kinds: ["read", ...(id === "dance" ? ["dance"] : [])] },
       detail: { kinds: ["read"] },
@@ -1164,5 +1231,6 @@ export function registerCityRooms(rooms, spots) {
 }
 export function roomIllustration(room, alt = "") {
   if (!room.crop) return `<img src="${room.asset}" alt="${alt || room.name}">`;
-  return `<svg class="room-illustration" role="img" aria-label="${alt || room.name}" viewBox="${room.crop.join(" ")}"><image href="${room.asset}" width="1536" height="1024"/></svg>`;
+  const clipId = `room-art-${room.crop.join("-")}`;
+  return `<svg class="room-illustration" role="img" aria-label="${alt || room.name}" viewBox="${room.crop.join(" ")}"><defs><clipPath id="${clipId}">${room.artOutline ? `<polygon points="${MARKET_OUTLINE.map((p) => p.join(",")).join(" ")}"/>` : `<rect x="${room.crop[0]}" y="${room.crop[1]}" width="${room.crop[2]}" height="${room.crop[3]}"/>`}</clipPath></defs><image href="${room.asset}" width="1536" height="1024" clip-path="url(#${clipId})"/></svg>`;
 }

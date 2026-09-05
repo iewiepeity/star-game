@@ -54,7 +54,8 @@ export function cityItinerary(id, elapsed, state) {
     scene,
     node: Math.floor((t + index * 7) / 18) % 3,
     status: slot ? slot.label || "工作中" : STATUS[id][Math.floor(t / 24) % 2],
-    busy: !!slot,
+    busy:
+      !!slot && !life?.game.scheduledActivities?.[slot.jobId]?.payload?.npcId,
     leaving,
   };
 }

@@ -1,0 +1,16 @@
+{
+  "map": {
+    "source": "/Users/peiwei/.codex/generated_images/01a06fb9-4de1-7241-bce7-574697ba0d35/exec-3e4347c0-78e2-423a-9d03-c440ff070906.png",
+    "created": "2026-09-06",
+    "tool": "image_gen",
+    "draftPrompt": "Redesign the attached game city map as ONE cohesive organic coastal town map, 1536x1024 landscape. Match its soft restrained warm pixel-diorama illustration style, cream/sage/dusty rose/ochre palette, simple readable buildings, no photorealism. Major correction: NOT a catalog, NOT a rectangular grid, NOT evenly spaced rows or separate tiles. Curving roads, diagonal lanes, irregular blocks, a winding river from upper left towards lower middle, two bridges, hillside at top, crescent coast at right/lower right. Pleasant quiet negative space, no excessive detail. Exactly 27 clearly distinct landmark destinations all visible and spaced enough for interactive buttons. Approximate centers as percentages of full canvas:\nhome small red-roof cottage (10,24); film studio office with film reel (26,13); large camera shooting warehouse (42,11); rehearsal building with theatre masks (38,29); theatre with red curtains (54,21); cinema art deco (68,12); record label with record disc (15,44); recording studio with microphone (28,49); live music club guitar (41,44); TV broadcaster with satellite dish (80,25); radio with antenna (90,39); advertising production with clapperboard (71,39); business high-rise glass complex (58,43); gallery picture frame (48,60); public library book (62,63); cafe coffee cup striped awning (28,69); clothing boutique dress sign (78,54); salon scissors (87,65); dance studio ballet shoes (15,63); gym dumbbell (10,80); clinic green cross (38,81); restaurant plate striped awning (59,82); market stalls (72,77); Chinese red roof temple (85,84); riverside park trees bench and footbridge (18,91); sandy beach parasols (95,73); airport terminal airplane at distant NE coast (90,10). Render gentle curved road connections between all areas around green spaces with organically varying building angles and shapes; no isolated rectangular plots and no frame. The river bends through the town connecting to the coastline. ALL destinations depicted, large and clear at these coordinates, but integrate with the town naturally. No words, no letters, no labels, no numerals anywhere, no captions. No pins/UI. No people. Original game artwork, not a copy of a specific commercial game's art.",
+    "finalRevision": "Removed the duplicated clinic at the lower map edge; retained the central clinic and quiet green open space.",
+    "purpose": "Organic 27-landmark city navigation. Curved river, streets and coast, preserves existing palette. Exact original PNG retained; lossless WebP.",
+    "rgbaSha256": "43abcbe705f01dcf35945c099b32d601a763d43befd486419558657a0a21d4a4",
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "runtimeAsset": "assets/pixel/city/map-organic.webp"
+  }
+}

@@ -1,4 +1,20 @@
-import { initialState, hydrateState, state as core } from "../core/state.js";
+import { captureWeekStart } from "../logic/career-memory.js";
+import {
+  CAREER_CHOICES,
+  careerDefinition,
+  careerCost,
+  careerAccess,
+  resolveCareerDay,
+  syncCoreSchedule,
+  adoptCoreSchedule,
+  releaseCareerDay,
+  closeCareerWeek,
+  advanceCareerWeek,
+} from "./career.js";
+import { lockEnding } from "../logic/career.js";
+import { initialState } from "../core/state.js";
+import { withCore } from "./core-bridge.js";
+export { withCore } from "./core-bridge.js";
 import { randomInt, setSeed } from "../core/rng.js";
 import { ABILITIES } from "../data/abilities.js";
 import { ACTIONS } from "../data/actions.js";
@@ -168,6 +184,9 @@ for (const [id, place] of Object.entries(MAP_LOCATIONS)) {
     venue: id,
   };
 }
+Object.assign(CHOICES, CAREER_CHOICES);
+export const definition = (life, assignment) =>
+  careerDefinition(life.game, assignment) || CHOICES[assignment?.id];
 export const suggestedPlan = () => [
   { id: "acting" },
   { id: "newcomer_gig" },
@@ -201,14 +220,6 @@ export function cancelDay(life) {
   life.auto = false;
   return "";
 }
-// Core modules use a live binding. Only synchronous commands run inside this bridge;
-// the pixel save owns the snapshot. No classic render, runner, or storage is mounted.
-export function withCore(life, fn) {
-  hydrateState(structuredClone(life.game));
-  const result = fn(core);
-  life.game = structuredClone(core);
-  return result;
-}
 export function initialLife(seed = `pixel-${Date.now()}`) {
   const life = {
     version: 2,
@@ -232,6 +243,7 @@ export function initialLife(seed = `pixel-${Date.now()}`) {
     game.stats = Object.fromEntries(
       ABILITIES.map((name) => [name, randomInt(0, 150)]),
     );
+    captureWeekStart();
   });
   return life;
 }
@@ -267,20 +279,28 @@ export function normalizeLife(raw, legacyOutfit = "newcomer") {
       !CHOICES[life.pending.assignment?.id])
   )
     throw new Error("行動紀錄不一致");
+  compactLifeHistory(life);
   return life;
 }
 export const actionKey = (life) => `week-${life.game.week}-day-${life.day}`;
 export function costOf(life, assignment) {
-  const def = CHOICES[assignment?.id];
+  const def = definition(life, assignment);
+  if (CAREER_CHOICES[assignment?.id]) return careerCost(life, assignment);
   return def
     ? effectiveActionCost(ACTIONS[def.action], life.game.week) +
         (def.action === "free" ? MAP_LOCATIONS[def.venue]?.extraCost || 0 : 0)
     : 0;
 }
 export function access(life, assignment, day = life.day) {
-  const def = CHOICES[assignment?.id];
+  const def = definition(life, assignment);
   if (!def) return "找不到這個安排";
+  if (life.game.endingResult) return "這段旅程已完成，可在職涯紀錄查看結局";
+  if (life.game.forcedRestWeek === life.game.week && assignment.id !== "rest")
+    return "本週需要完整休養";
   if (day < life.day || day > 6) return "這一天已經結束";
+  const careerReason =
+    CAREER_CHOICES[assignment.id] && careerAccess(life, assignment, day);
+  if (careerReason) return careerReason;
   const game = life.game;
   // Services are public destinations. A schedule can include the first trip;
   // dispatch still walks through the city map and arrives before performing.
@@ -304,7 +324,9 @@ export function planDay(life, day, assignment) {
     const error = cancelDay(life);
     if (error) return error;
   }
+  releaseCareerDay(life, day);
   life.plan[day] = structuredClone(assignment);
+  syncCoreSchedule(life, CHOICES);
   return "";
 }
 export function beginDay(life, assignment = life.plan[life.day]) {
@@ -334,16 +356,21 @@ export function settleDay(life, choice = "focus") {
     return existing;
   }
   const assignment = pending.assignment,
-    def = CHOICES[assignment.id];
+    def = definition(life, assignment);
   const reason = access(life, assignment);
   if (reason) return { error: reason };
   const before = structuredClone(life.game);
   const notes = [];
+  let presentation = null;
+  syncCoreSchedule(life, CHOICES);
   withCore(life, (game) => {
     game.runnerDay = life.day;
     game.schedule[life.day] = def.action;
     game.freeLocations[life.day] = def.venue || null;
-    if (ACTIONS[def.action].type === "train") {
+    if (CAREER_CHOICES[assignment.id]) {
+      presentation = resolveCareerDay(life, assignment, choice);
+      notes.push(plain(presentation?.text));
+    } else if (ACTIONS[def.action].type === "train") {
       const r = routineTraining(game, def.action, randomInt);
       notes.push(`學習效率 ${Math.round(r.multiplier * 100)}%`);
     } else if (def.action === "rest") {
@@ -425,8 +452,21 @@ export function settleDay(life, choice = "focus") {
       if (game.socialPosts[0]) game.socialPosts[0].id = `pixel-${pending.id}`;
       notes.push(plain(r.text));
     }
-    healthPressure(game);
+    const health = healthPressure(game);
+    if (health === "death") lockEnding("death");
+    if (health === "hospital") {
+      game.forcedRestWeek = game.week + 1;
+      game.fatigue = Math.max(0, game.fatigue - 100);
+      game.stamina = 100;
+      game.health = Math.min(100, game.health + 30);
+      notes.push("身體需要休養。剩餘日子與下週改為休息。");
+    }
+    life.hospitalized = health === "hospital";
+
     game.weekResults.push({
+      day: DAY_NAMES[life.day],
+      action: def.label,
+      result: notes.join(" "),
       dayIndex: life.day,
       actionId: def.action,
       success: true,
@@ -456,7 +496,15 @@ export function settleDay(life, choice = "focus") {
     deltas,
     gains,
     notes: notes.filter(Boolean),
+    presentation,
   };
+  // Original task completion can free redundant production days and NPC slots.
+  adoptCoreSchedule(life, life.day + 1);
+  if (life.hospitalized)
+    for (let day = life.day + 1; day < 7; day++) {
+      releaseCareerDay(life, day);
+      life.plan[day] = { id: "rest" };
+    }
   life.ledger.push(result);
   pending.result = result;
   pending.phase = "result";
@@ -472,10 +520,12 @@ export function advanceDay(life) {
   life.day++;
   if (life.day === 7) {
     const reward = withCore(life, () => evaluateWeeklyTask());
+    const memory = closeCareerWeek(life, reward);
     life.weekSummary = {
       week: life.game.week,
       results: life.ledger.filter((r) => r.week === life.game.week),
       reward,
+      memory,
     };
     life.summaries.push(structuredClone(life.weekSummary));
     life.auto = false;
@@ -484,12 +534,15 @@ export function advanceDay(life) {
 }
 export function nextWeek(life) {
   if (life.day !== 7 || !life.weekSummary) return false;
-  life.game.week++;
+  advanceCareerWeek(life);
   life.day = 0;
   life.weekSummary = null;
+  compactLifeHistory(life);
   life.game.weekResults = [];
   life.game.schedule = Array(7).fill("rest");
   life.game.freeLocations = Array(7).fill(null);
+  life.game.scheduledJobIds = Array(7).fill(null);
+  life.game.scheduledActivityIds = Array(7).fill(null);
   life.plan = Array.from({ length: 7 }, () => ({ id: "rest" }));
   life.auto = false;
   return true;
@@ -509,4 +562,34 @@ export function buyOutfit(life, id) {
 }
 export function recordMeeting(life, id) {
   return withCore(life, () => meetNpc(id, "在像素城市裡正式交換聯絡方式"));
+}
+
+// Keep one durable weekly journal, plus the current ledger for crash-safe replay.
+// Phase-two/three saves are archived before removing their duplicated summaries.
+export function compactLifeHistory(life) {
+  life.milestones ||= {};
+  if (
+    life.ledger.some((r) =>
+      ["tv_assistant", "newcomer_gig"].includes(r.assignment?.id),
+    )
+  )
+    life.milestones.firstWork = true;
+  const historyWeeks = new Set(life.game.history.map((h) => h.week));
+  for (const summary of life.summaries)
+    if (!historyWeeks.has(summary.week)) {
+      life.game.history.push({
+        week: summary.week,
+        reward: summary.reward?.money || 0,
+        results: summary.results.map((r) => ({
+          day: DAY_NAMES[r.day],
+          dayIndex: r.day,
+          action: r.label,
+          result: r.notes.join(" "),
+          success: true,
+        })),
+      });
+      historyWeeks.add(summary.week);
+    }
+  life.ledger = life.ledger.filter((r) => r.week >= life.game.week - 1);
+  life.summaries = life.summaries.slice(-2);
 }

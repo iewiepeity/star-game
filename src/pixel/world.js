@@ -183,7 +183,13 @@ export function createWorld(controller) {
       const state = controller.state();
       this.room = ROOMS[state.sceneId];
       this.grid = buildGrid(this.room);
-      this.background();
+      const base = this.background();
+      if (this.room.artOutline) {
+        const mask = this.make.graphics({ x: 0, y: 0, add: false });
+        mask.fillStyle(0xffffff).fillPoints(this.room.artOutline, true);
+        base.setMask(mask.createGeometryMask());
+        this.events.once("room-clear", () => mask.destroy());
+      }
       for (const f of this.room.foreground) {
         const mask = this.make.graphics({ x: 0, y: 0, add: false });
         mask.fillStyle(0xffffff).fillPoints(f.polygon, true);
