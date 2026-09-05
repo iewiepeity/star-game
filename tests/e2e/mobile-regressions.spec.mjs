@@ -32,6 +32,8 @@ test("手機人物立繪完整清晰且事件選項維持橫排", async ({ page 
   });
   const art = page.locator(".runner-npc-art img");
   await expect(art).toBeVisible();
+  // Visibility does not imply the image has finished decoding.
+  await expect.poll(() => art.evaluate(img => img.naturalWidth)).toBeGreaterThanOrEqual(600);
   const style = await art.evaluate((img) => ({
     fit: getComputedStyle(img).objectFit,
     position: getComputedStyle(img).objectPosition,

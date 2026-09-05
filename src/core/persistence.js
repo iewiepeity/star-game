@@ -16,6 +16,7 @@ let autoSaveTimer = null,
   lastCheckpoint = "";
 export const TRANSIENT_STATE_KEYS = Object.freeze([
   "appOpen",
+  "plannerReplacement",
   "confirmDialog",
   "runnerPaused",
   "saveStatus",
