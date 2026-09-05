@@ -75,22 +75,16 @@ select {
   border-radius: 24px;
   cursor: pointer;
 }
-.scene-object-light {
-  position: absolute;
-  inset: 0;
-  border: 2px solid transparent;
-  border-radius: 30px;
-  transition:
-    background 0.18s,
-    box-shadow 0.18s;
+.scene-object:hover,
+.scene-object:focus-visible {
+  background: none;
+  outline: none;
+  box-shadow: none;
 }
-.scene-object:hover .scene-object-light,
-.scene-object:focus-visible .scene-object-light {
-  background: #fff5c528;
-  box-shadow:
-    0 0 28px #fff6cc80,
-    inset 0 0 30px #ffffff60;
-  border-color: #fff6d9b0;
+.scene-object:hover .scene-object-tag { color: #a35f6d; }
+.scene-object:focus-visible .scene-object-tag {
+  outline: 2px solid #965465;
+  outline-offset: 3px;
 }
 .scene-object-tag {
   position: absolute;
@@ -551,10 +545,13 @@ select {
 .city-search-results[hidden] {
   display: none;
 }
-.city-preview-art {
-  height: 100px;
-  position: relative;
-  overflow: hidden;
+.city-preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 0 16px;
+  color: #8b776b;
+  font-size: 11px;
 }
 .place-art {
   display: block;
@@ -563,29 +560,13 @@ select {
   background-repeat: no-repeat;
   background-color: #e9ddc9;
 }
-.city-preview-art > .place-art {
-  width: 100%;
-  height: 100%;
-}
-.city-preview-art > span:not(.place-art) {
-  position: absolute;
-  bottom: 6px;
-  left: 10px;
-  background: #fffaf3dd;
-  border-radius: 20px;
-  padding: 3px 8px;
-  font-size: 10px;
-}
-.city-preview-art button {
-  position: absolute;
-  right: 6px;
-  top: 6px;
-  min-width: 34px;
-  min-height: 34px !important;
+.city-preview-head button {
+  min-width: 36px;
+  min-height: 36px !important;
   padding: 0 !important;
-  border-radius: 50% !important;
-  background: #fffaf3e8 !important;
-  font-size: 20px !important;
+  border: 0;
+  background: transparent !important;
+  font-size: 22px !important;
 }
 .city-preview-copy {
   padding: 12px 16px;
@@ -1024,9 +1005,6 @@ select {
     width: calc(100% - 16px);
     max-height: 65%;
   }
-  .city-preview-art {
-    height: 78px;
-  }
   .city-preview-copy {
     padding: 10px 14px;
   }
@@ -1035,9 +1013,6 @@ select {
   }
   .city-preview-copy p {
     font-size: 11px;
-  }
-  .city-preview.is-pinned .city-preview-art {
-    height: 65px;
   }
   .city-footer {
     padding: 6px 10px;
@@ -1110,7 +1085,6 @@ select {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .scene-object-light,
   .city-building-glow {
     transition: none;
   }
@@ -1520,4 +1494,25 @@ html[data-theme="night"]
   .city-toolbar h2 {
     white-space: nowrap;
   }
+}
+
+/* Give artwork its own column so larger thumbnails cannot cover the copy. */
+.picker-list > button:has(> .place-art) {
+  grid-template-columns: 58px minmax(0, 1fr) auto;
+  column-gap: 12px;
+}
+.creative-type-grid button {
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  column-gap: 12px;
+}
+.creative-type-grid button > span:not(.place-art),
+.picker-list > button > span:not(.place-art) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.creative-type-grid button > em { white-space: nowrap; }
+.creative-queue-note { margin: 8px 0 0; color: #8b776b; font-size: 12px; }
+
+@layer overrides {
+  .scene-object:focus-visible { outline: none !important; box-shadow: none !important; }
 }

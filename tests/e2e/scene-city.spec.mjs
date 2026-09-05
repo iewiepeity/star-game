@@ -37,6 +37,7 @@ test("同張原畫涵蓋全部地點，建築可點選，預覽不改變生活�
   for (const [id, location] of Object.entries(MAP_LOCATIONS)) {
     await page.locator(`[data-city-place="${id}"]`).click();
     await expect(page.locator(".city-preview h3")).toHaveText(location.name);
+    await expect(page.locator(".city-preview img, .city-preview .place-art")).toHaveCount(0);
     await expect(page.locator(`[data-city-place="${id}"]`)).toHaveAttribute(
       "aria-expanded",
       "true",
@@ -152,4 +153,48 @@ test("六個房間物件可開啟對應介面，十八個功能仍可從圖示�
   });
   expect(geometry.dateTop).toBeGreaterThanOrEqual(geometry.hudBottom);
   await page.screenshot({ path: info.outputPath("interactive-room.png") });
+});
+
+test("圖片與卡片文字不重疊，大字模式仍可操作；同週可連排創作", async ({ page }) => {
+  await create(page);
+  const room = page.locator('.scene-object[data-open-app="planner"]');
+  await room.hover();
+  await expect(room).not.toHaveAttribute("title", /.+/);
+  expect(await room.evaluate(e => getComputedStyle(e).boxShadow)).toBe("none");
+  await expect(page.locator(".scene-object-light")).toHaveCount(0);
+  for (const fontSize of ["standard", "large"]) {
+    for (const app of ["planner", "creative"]) {
+      await page.evaluate(async ({ app, fontSize }) => {
+        const { state } = await import("/src/core/state.js");
+        (await import("/src/core/preferences.js")).setPreference("fontSize", fontSize);
+        state.appOpen = app; state.filter = "生活";
+        (await import("/src/render.js")).render();
+      }, { app, fontSize });
+      const cards = page.locator(app === "planner" ? '.picker-list > button:has(> .place-art)' : '.creative-type-grid > button');
+      await expect(cards).toHaveCount(3);
+      for (const card of await cards.all()) {
+        await card.scrollIntoViewIfNeeded();
+        const box = await card.evaluate(e => {
+          const image = e.querySelector('.place-art').getBoundingClientRect();
+          const text = e.querySelector('span:not(.place-art)').getBoundingClientRect();
+          const action = e.querySelector('em').getBoundingClientRect();
+          return { imageRight: image.right, textLeft: text.left, textRight: text.right, actionLeft: action.left, overflow: e.scrollWidth - e.clientWidth };
+        });
+        expect(box.textLeft - box.imageRight, `${app} ${fontSize} image gap`).toBeGreaterThanOrEqual(8);
+        expect(box.actionLeft - box.textRight, `${app} ${fontSize} action gap`).toBeGreaterThanOrEqual(7);
+        expect(box.overflow).toBeLessThanOrEqual(1);
+      }
+    }
+  }
+  await page.locator('#creative-title').fill('一週的靈感');
+  await page.locator('[data-creative-new="song"]').click();
+  for (let n = 1; n <= 3; n++) {
+    await page.locator('[data-creative-work]').click();
+    await expect(page.locator('.creative-queue-note')).toContainText(`本週已排 ${n} 天`);
+  }
+  const result = await page.evaluate(async () => {
+    const { state } = await import('/src/core/state.js');
+    return { tasks: Object.values(state.scheduledActivities).filter(a => a.kind === 'creative_work' && a.status === 'scheduled').length, progress: state.creativeProjects[0].progress, week: state.week };
+  });
+  expect(result).toEqual({ tasks: 3, progress: 0, week: 1 });
 });

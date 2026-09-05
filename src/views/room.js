@@ -41,16 +41,6 @@ import { playerRealName } from "../core/player-name.js";
 import { JOB_BY_ID } from "../data/jobs.js";
 import { confirmationDialog } from "./confirm-dialog.js";
 
-function jobHomeStatus() {
-  const active = Object.values(state.activeJobs || {}).filter(
-    (j) => j.stage === "active",
-  );
-  if (active.length)
-    return `${active.length} 份執行中・剩餘 ${active.reduce((s, j) => s + j.remainingSessions, 0)} 次工作`;
-  return state.currentAgencyId
-    ? "查看經紀人送來的工作"
-    : "去產業公司找公開徵選";
-}
 export function playerIdentityLabel() {
   if (isAgencyContractActive())
     return `${esc(AGENCIES[state.currentAgencyId].name)}・旗下新人`;
@@ -68,7 +58,7 @@ export function roomView() {
     { id: "jobs", x: 68, y: 82, w: 19, h: 24, label: "文件・工作信箱" },
     { id: "world", x: 88, y: 45, w: 15, h: 25, label: "書刊・娛樂圈" },
   ];
-  return `<main class="room-screen scene-room"><header class="room-hud"><button class="player-chip" data-open-app="wardrobe" aria-label="開啟玩家衣櫃"><div>${playerLookImage({ className: "portrait-img" })}</div><span><b>${esc(state.name)}</b><small>${playerAge()} 歲・${playerIdentityLabel()}</small></span></button><div class="hud-stats"><span>💰 <b>${money(state.money)}</b></span><span>★ <b>${state.fame}</b></span><span>♡ <b>${state.fans}</b></span><span>☁ <b>${state.fatigue}</b></span></div><button class="save-status" data-save-status="${saveStatus}" data-open-app="save"><i aria-hidden="true"></i><span><b>${saveStatus === "saving" ? "儲存中…" : saveStatus === "error" ? "尚未儲存" : "已儲存"}</b><small>進度保存在此裝置</small></span></button></header><div class="room-scene-frame"><section class="room-stage" aria-label="可以點擊物件的房間"><img class="room-bg" src="./assets/rookie-room.webp" width="1400" height="788" alt="星望市的新房間，桌上有可操作的平板、手機、文件與筆記本" draggable="false" fetchpriority="high">${objects.map((o) => `<button class="scene-object ${o.id === "phone" ? "home-phone-entry" : ""}" data-open-app="${o.id}" style="--object-x:${o.x}%;--object-y:${o.y}%;--object-w:${o.w}%;--object-h:${o.h}%" aria-label="${o.label}" title="${o.id === "jobs" ? esc(jobHomeStatus()) : o.label}"><span class="scene-object-light"></span><span class="scene-object-tag"><i>${appIcon(o.id)}</i>${o.label}</span></button>`).join("")}<div class="scene-guidance">${guidedJourney()}</div></section></div><header class="scene-date"><span>第 ${yearOf()} 年・第 ${weekInYear()} 週</span><b>${esc(playerRealName(state))}，早安。</b><small>點房間物件，開始今天的生活</small></header><p class="scene-pan-hint">左右滑動房間・點物件操作</p><div class="scene-bottom">${tabletDock()}<button class="scene-menu-button" data-app-library-toggle aria-expanded="${Boolean(expanded)}" aria-label="${expanded ? "收起" : "開啟"}全部功能">${appIcon("gallery")}<span>${expanded ? "收起" : "全部功能"}</span></button></div>${expanded ? `<section class="room-menu" aria-label="全部功能">${tabletHome()}<details class="scene-weekly-details"><summary>本週近況與經紀資訊</summary>${weeklyCommandCenter()}${agencyHomeCard()}</details></section>` : ""}${state.appOpen ? appWindow() : ""}${confirmationDialog()}</main>`;
+  return `<main class="room-screen scene-room"><header class="room-hud"><button class="player-chip" data-open-app="wardrobe" aria-label="開啟玩家衣櫃"><div>${playerLookImage({ className: "portrait-img" })}</div><span><b>${esc(state.name)}</b><small>${playerAge()} 歲・${playerIdentityLabel()}</small></span></button><div class="hud-stats"><span>💰 <b>${money(state.money)}</b></span><span>★ <b>${state.fame}</b></span><span>♡ <b>${state.fans}</b></span><span>☁ <b>${state.fatigue}</b></span></div><button class="save-status" data-save-status="${saveStatus}" data-open-app="save"><i aria-hidden="true"></i><span><b>${saveStatus === "saving" ? "儲存中…" : saveStatus === "error" ? "尚未儲存" : "已儲存"}</b><small>進度保存在此裝置</small></span></button></header><div class="room-scene-frame"><section class="room-stage" aria-label="可以點擊物件的房間"><img class="room-bg" src="./assets/rookie-room.webp" width="1400" height="788" alt="星望市的新房間，桌上有可操作的平板、手機、文件與筆記本" draggable="false" fetchpriority="high">${objects.map((o) => `<button class="scene-object ${o.id === "phone" ? "home-phone-entry" : ""}" data-open-app="${o.id}" style="--object-x:${o.x}%;--object-y:${o.y}%;--object-w:${o.w}%;--object-h:${o.h}%" aria-label="${o.label}"><span class="scene-object-tag"><i>${appIcon(o.id)}</i>${o.label}</span></button>`).join("")}<div class="scene-guidance">${guidedJourney()}</div></section></div><header class="scene-date"><span>第 ${yearOf()} 年・第 ${weekInYear()} 週</span><b>${esc(playerRealName(state))}，早安。</b><small>點房間物件，開始今天的生活</small></header><p class="scene-pan-hint">左右滑動房間・點物件操作</p><div class="scene-bottom">${tabletDock()}<button class="scene-menu-button" data-app-library-toggle aria-expanded="${Boolean(expanded)}" aria-label="${expanded ? "收起" : "開啟"}全部功能">${appIcon("gallery")}<span>${expanded ? "收起" : "全部功能"}</span></button></div>${expanded ? `<section class="room-menu" aria-label="全部功能">${tabletHome()}<details class="scene-weekly-details"><summary>本週近況與經紀資訊</summary>${weeklyCommandCenter()}${agencyHomeCard()}</details></section>` : ""}${state.appOpen ? appWindow() : ""}${confirmationDialog()}</main>`;
 }
 
 export function agencyHomeCard() {

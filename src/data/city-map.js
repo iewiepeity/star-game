@@ -42,7 +42,7 @@ export const districtFor = (id) =>
     CITY_DISTRICTS[key].places.includes(id),
   );
 
-export const CITY_ART = "./assets/city/starwish-city.jpg";
+export const CITY_ART = "./assets/city/starwish-city-soft.jpg";
 // Centers and hit areas measured against the final 1536 × 1024 illustration.
 export const CITY_LANDMARKS = {
   film_company: { x: 14, y: 17, w: 12, h: 18 },
@@ -59,7 +59,7 @@ export const CITY_LANDMARKS = {
   cinema: { x: 12, y: 47, w: 14, h: 16 },
   gallery: { x: 30, y: 45, w: 15, h: 15 },
   library: { x: 47, y: 49, w: 12, h: 15 },
-  cafe: { x: 56, y: 51, w: 6, h: 8 },
+  cafe: { x: 56, y: 54, w: 6, h: 8 },
   business: { x: 71, y: 45, w: 14, h: 22 },
   airport: { x: 91, y: 49, w: 13, h: 19 },
   gym: { x: 11, y: 67, w: 13, h: 14 },

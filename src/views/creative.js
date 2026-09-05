@@ -12,6 +12,7 @@ import {
 import { INDUSTRY_LIST } from "../data/industry.js";
 import { NPCS } from "../data/npcs.js";
 import { esc, money } from "../core/utils.js";
+import { queuedCreativeDays } from "../logic/creative-schedule.js";
 import { creativeActionState } from "../logic/creative-workflow.js";
 const STATUS = {
   draft: "創作中",
@@ -64,9 +65,9 @@ function actionArea(p, companies) {
   if (creativeActionState(p, "route").ok)
     return `<div class="creative-route-choice"><header><b>決定作品接下來的命運</b><small>每條路的收益、控制權與風險都不同。</small></header><button class="creative-independent" data-creative-self-produce="${projectId}"><b>自己拍／自己製作</b><small>保留完整權利，增加一次製作並自行承擔成本</small></button><div class="creative-company-routes">${companies.map((c) => `<article><b>${esc(c.name)}</b><button data-creative-submit="${projectId}" data-company="${esc(c.id)}">提案共同製作</button><button data-creative-sell="${projectId}" data-company="${esc(c.id)}">直接販售企劃</button></article>`).join("")}</div></div>`;
   if (creativeActionState(p, "work").ok)
-    return `<div class="creative-actions"><button data-creative-work="${projectId}">${p.status === "rejected" ? "重新修改" : "安排一天繼續創作"} →</button></div>`;
+    return `<div class="creative-actions"><button data-creative-work="${projectId}">${p.status === "rejected" ? "重新修改" : "安排一天繼續創作"} →</button><p class="creative-queue-note">${queuedCreativeDays(p.id, "creative_work") ? `本週已排 ${queuedCreativeDays(p.id, "creative_work")} 天・可繼續安排空檔` : "可在同一週安排多天創作"}</p></div>`;
   if (creativeActionState(p, "produce").ok)
-    return `<div class="creative-actions"><button data-creative-produce="${projectId}">安排製作工作 →</button></div>`;
+    return `<div class="creative-actions"><button data-creative-produce="${projectId}">安排一天製作 →</button><p class="creative-queue-note">${queuedCreativeDays(p.id, "creative_production") ? `本週已排 ${queuedCreativeDays(p.id, "creative_production")} 天・可繼續安排空檔` : "可在同一週安排多天製作"}</p></div>`;
   if (creativeActionState(p, "release").ok)
     return `<div class="creative-actions"><button data-creative-release="${projectId}">安排正式發行 →</button></div>`;
   return "";

@@ -18,7 +18,7 @@ export function npcScheduleFor(id){return [...npcSchedule(id)].sort((a,b)=>a.wee
 export function isNpcBusy(id,week,day,exceptJobId=null){return npcSchedule(id).some(slot=>slot.week===week&&slot.day===day&&slot.status!=="released"&&slot.jobId!==exceptJobId)}
 export function reserveNpcExternalSlot(id,{key,week=state.week,day,label="合作工作"}){if(!NPCS[id]||isNpcBusy(id,week,day,key))return false;npcSchedule(id).push({jobId:key,week,day,status:"reserved",label,external:true});return true}
 export function completeNpcExternalSlot(id,key,week=state.week,day=state.runnerDay){const slot=npcSchedule(id).find(x=>x.jobId===key&&x.week===week&&x.day===day&&x.status==="reserved");if(slot)slot.status="completed";return!!slot}
-export function releaseNpcExternalSlots(key){for(const slots of Object.values(state.npcSchedules||{}))for(const slot of slots)if(slot.jobId===key&&slot.status==="reserved")slot.status="released"}
+export function releaseNpcExternalSlots(key,{week,day}={}){for(const slots of Object.values(state.npcSchedules||{}))for(const slot of slots)if(slot.jobId===key&&slot.status==="reserved"&&(week==null||slot.week===week)&&(day==null||slot.day===day))slot.status="released"}
 function candidateSlots(job,signedWeek,deadlineWeek){const slots=[];for(let week=signedWeek;week<=deadlineWeek;week++)for(const day of job.workDays)slots.push({week,day});return slots}
 function commonOpenSlots(cast,job,signedWeek,deadlineWeek,exceptJobId=null){return candidateSlots(job,signedWeek,deadlineWeek).filter(slot=>cast.every(id=>!isNpcBusy(id,slot.week,slot.day,exceptJobId)))}
 export function canCastFitJob(cast,job,signedWeek=state.week,deadlineWeek=state.week+job.deadlineWeeks-1){return commonOpenSlots(cast,job,signedWeek,deadlineWeek).length>=job.sessions}

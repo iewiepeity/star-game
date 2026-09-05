@@ -8,7 +8,6 @@ import { workAt, companyShifts } from "../logic/work-progression.js";
 import { contextHint } from "../logic/city-hints.js";
 import { overseasEligibility } from "../logic/overseas.js";
 import { esc, money } from "../core/utils.js";
-import { placeArt } from "./place-art.js";
 export function cityPlaceLocked(id) {
   return Boolean(
     MAP_LOCATIONS[id]?.locked &&
@@ -24,7 +23,7 @@ export function cityPreview(id, { runner = false, pinned = false } = {}) {
     work = workAt(id),
     fee = 300 + (location.extraCost || 0);
   const effect = id === "airport" ? "海外徵選、影展與音樂節" : location.effect;
-  return `<div class="city-preview-art">${placeArt(id)}<span>${visited ? "已到訪" : "尚未到訪"}</span><button data-city-dismiss aria-label="關閉地點介紹">×</button></div><div class="city-preview-copy"><small>${location.area}・${location.category}</small><h3>${esc(location.name)}</h3><p>${esc(id === "airport" ? "第二年後，從這裡出發探索海外舞台。" : location.note)}</p><b class="city-effect">${esc(effect)}</b><p class="city-clue"><i aria-hidden="true">✧</i>${esc(contextHint(id, location, runner ? state.runnerDay : state.selectedDay))}</p>${courses.length ? `<p class="city-unlock">${visited ? "課程已開放" : "初訪開放"}：${courses.map((key) => ACTIONS[key].label).join("、")}</p>` : ""}${work.map(([, job]) => `<p class="city-unlock">${visited ? "已登記打工" : "首次到訪可登記"}：${job.label.split("・")[1]}・${companyShifts(state, job.companyId)} 次經驗</p>`).join("")}${
+  return `<div class="city-preview-head"><span>${visited ? "已到訪" : "尚未到訪"}</span><button data-city-dismiss aria-label="關閉地點介紹">×</button></div><div class="city-preview-copy"><small>${location.area}・${location.category}</small><h3>${esc(location.name)}</h3><p>${esc(id === "airport" ? "第二年後，從這裡出發探索海外舞台。" : location.note)}</p><b class="city-effect">${esc(effect)}</b><p class="city-clue"><i aria-hidden="true">✧</i>${esc(contextHint(id, location, runner ? state.runnerDay : state.selectedDay))}</p>${courses.length ? `<p class="city-unlock">${visited ? "課程已開放" : "初訪開放"}：${courses.map((key) => ACTIONS[key].label).join("、")}</p>` : ""}${work.map(([, job]) => `<p class="city-unlock">${visited ? "已登記打工" : "首次到訪可登記"}：${job.label.split("・")[1]}・${companyShifts(state, job.companyId)} 次經驗</p>`).join("")}${
     locked
       ? `<small class="city-locked-note">${overseasEligibility()
           .requirements.filter((r) => !r.met)
