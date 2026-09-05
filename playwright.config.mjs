@@ -18,6 +18,7 @@ export default defineConfig({
         "**/work-progression.spec.mjs",
         "**/scene-city.spec.mjs",
         "**/playback-speed.spec.mjs",
+        "**/pixel-phase-one.spec.mjs",
       ],
       use: {
         browserName: "chromium",
@@ -34,6 +35,7 @@ export default defineConfig({
         "**/work-progression.spec.mjs",
         "**/scene-city.spec.mjs",
         "**/playback-speed.spec.mjs",
+        "**/pixel-phase-one.spec.mjs",
       ],
       use: {
         browserName: "webkit",
@@ -51,6 +53,7 @@ export default defineConfig({
         "**/work-progression.spec.mjs",
         "**/scene-city.spec.mjs",
         "**/playback-speed.spec.mjs",
+        "**/pixel-phase-one.spec.mjs",
       ],
       use: {
         browserName: "webkit",
@@ -67,6 +70,7 @@ export default defineConfig({
         "**/work-progression.spec.mjs",
         "**/scene-city.spec.mjs",
         "**/playback-speed.spec.mjs",
+        "**/pixel-phase-one.spec.mjs",
       ],
       use: { browserName: "firefox", viewport: { width: 1366, height: 900 } },
     },

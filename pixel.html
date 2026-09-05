@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#f9f3e8" />
+    <title>星途未定 · 像素生活</title>
+    <link rel="icon" href="assets/icons/favicon-32.png" />
+    <link rel="stylesheet" href="pixel.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="pixel.html"
+        ><span>✦</span> 星途未定 <small>像素生活</small></a
+      >
+      <div class="top-actions">
+        <span id="save-status" role="status">載入場景中…</span
+        ><button data-ui="saves" aria-label="存檔與讀檔">存檔</button
+        ><button data-ui="help" aria-label="操作說明">?</button>
+      </div>
+    </header>
+    <main id="world-shell">
+      <div
+        id="world"
+        role="application"
+        aria-label="像素場景。點地面移動，或使用方向鍵；附近物件也能用下方按鈕選取。"
+        tabindex="0"
+      ></div>
+      <div id="loading">
+        <span class="spark">✦</span><strong>正在搬進星望市</strong
+        ><span id="load-progress">整理房間與行李…</span>
+      </div>
+      <section class="scene-title">
+        <span class="eyebrow">STARLIGHT DAYS · 自由探索</span>
+        <h1 id="room-title">我的住處</h1>
+        <p id="room-subtitle">一切從這個小房間開始</p>
+      </section>
+      <button id="guide" class="guide" data-ui="journal">
+        <span>今日的小事 <b id="goal-count">0 / 4</b></span
+        ><strong id="goal-label">在家換一套衣服</strong><i>›</i>
+      </button>
+      <div class="camera-tools">
+        <button data-ui="zoom-in" aria-label="放大場景">＋</button
+        ><button data-ui="zoom-out" aria-label="縮小場景">−</button
+        ><button data-ui="center" aria-label="鏡頭回到主角">◎</button
+        ><button data-ui="pause" id="pause" aria-label="暫停世界">Ⅱ</button>
+      </div>
+      <div id="world-hint">點地面走走 · 點物件互動</div>
+    </main>
+    <footer class="bottom-bar">
+      <button class="player-chip" data-ui="profile" aria-label="玩家資訊">
+        <img
+          id="player-head"
+          src="assets/avatars/raven-newcomer.webp"
+          alt="你的角色"
+        /><span
+          ><b id="player-name">星途新人</b
+          ><small id="outfit-label">新人私服</small></span
+        >
+      </button>
+      <nav id="nearby" aria-label="場景互動物件"></nav>
+      <button class="city-button" data-ui="travel"><span>↗</span>出門</button>
+    </footer>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <dialog id="panel" aria-labelledby="panel-title">
+      <button class="close-panel" data-ui="close" aria-label="關閉視窗">
+        ×
+      </button>
+      <div id="panel-content"></div>
+    </dialog>
+    <script type="module" src="src/pixel/main.js"></script>
+  </body>
+</html>

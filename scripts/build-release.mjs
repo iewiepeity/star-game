@@ -8,6 +8,8 @@ const packageJson = JSON.parse(
 );
 const files = [
   "index.html",
+  "pixel.html",
+  "pixel.css",
   "manifest.webmanifest",
   "service-worker.js",
   ".nojekyll",
