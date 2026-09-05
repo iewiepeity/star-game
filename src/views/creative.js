@@ -1,3 +1,4 @@
+import { placeArt } from "./place-art.js";
 import { state } from "../core/state.js";
 import {
   CREATIVE_TYPES,
@@ -11,6 +12,7 @@ import {
 import { INDUSTRY_LIST } from "../data/industry.js";
 import { NPCS } from "../data/npcs.js";
 import { esc, money } from "../core/utils.js";
+import { queuedCreativeDays } from "../logic/creative-schedule.js";
 import { creativeActionState } from "../logic/creative-workflow.js";
 const STATUS = {
   draft: "創作中",
@@ -56,16 +58,16 @@ function teamPanel(p) {
     )
     .join(
       "",
-    )}</div><p class="creative-team-note" id="creative-budget-reason-${projectId}">${esc(budgetAction.reason || budget.note)}${p.budgetSpent ? `・已投入 ${money(p.budgetSpent)}` : ""}</p><div class="creative-collaborators">${eligible.length ? eligible.map((n) => `<button class="${selected.has(n.id) ? "active" : ""}" data-creative-team="${projectId}" data-npc="${esc(n.id)}">${selected.has(n.id) ? "✓ " : ""}${esc(n.name)}<small>${esc(n.field)} Lv.${n.level}</small></button>`).join("") : `<p>目前沒有關係與專業都適合的合作 NPC。多認識業界人士後會出現在這裡。</p>`}</div>${selected.size ? `<div class="creative-roles">${[...selected].map((id) => `<button data-creative-role="${projectId}" data-npc="${esc(id)}">${esc(NPCS[id]?.name || id)}：${esc(p.roleAssignments?.[id] || "待分工")} ↻</button>`).join("")}</div>` : ""}</section>`;
+    )}</div><p class="creative-team-note" id="creative-budget-reason-${projectId}">${esc(budgetAction.reason || budget.note)}${p.budgetSpent ? `・已投入 ${money(p.budgetSpent)}` : ""}</p><div class="creative-collaborators">${eligible.length ? eligible.map((n) => `<button class="${selected.has(n.id) ? "active" : ""}" data-creative-team="${projectId}" data-npc="${esc(n.id)}">${selected.has(n.id) ? "✓ " : ""}<img class="creative-person-head" src="${NPCS[n.id]?.head}" alt="">${esc(n.name)}<small>${esc(n.field)} Lv.${n.level}</small></button>`).join("") : `<p>目前沒有關係與專業都適合的合作 NPC。多認識業界人士後會出現在這裡。</p>`}</div>${selected.size ? `<div class="creative-roles">${[...selected].map((id) => `<button data-creative-role="${projectId}" data-npc="${esc(id)}">${esc(NPCS[id]?.name || id)}：${esc(p.roleAssignments?.[id] || "待分工")} ↻</button>`).join("")}</div>` : ""}</section>`;
 }
 function actionArea(p, companies) {
   const projectId = esc(p.id);
   if (creativeActionState(p, "route").ok)
     return `<div class="creative-route-choice"><header><b>決定作品接下來的命運</b><small>每條路的收益、控制權與風險都不同。</small></header><button class="creative-independent" data-creative-self-produce="${projectId}"><b>自己拍／自己製作</b><small>保留完整權利，增加一次製作並自行承擔成本</small></button><div class="creative-company-routes">${companies.map((c) => `<article><b>${esc(c.name)}</b><button data-creative-submit="${projectId}" data-company="${esc(c.id)}">提案共同製作</button><button data-creative-sell="${projectId}" data-company="${esc(c.id)}">直接販售企劃</button></article>`).join("")}</div></div>`;
   if (creativeActionState(p, "work").ok)
-    return `<div class="creative-actions"><button data-creative-work="${projectId}">${p.status === "rejected" ? "重新修改" : "安排一天繼續創作"} →</button></div>`;
+    return `<div class="creative-actions"><button data-creative-work="${projectId}">${p.status === "rejected" ? "重新修改" : "安排一天繼續創作"} →</button><p class="creative-queue-note">${queuedCreativeDays(p.id, "creative_work") ? `本週已排 ${queuedCreativeDays(p.id, "creative_work")} 天・可繼續安排空檔` : "可在同一週安排多天創作"}</p></div>`;
   if (creativeActionState(p, "produce").ok)
-    return `<div class="creative-actions"><button data-creative-produce="${projectId}">安排製作工作 →</button></div>`;
+    return `<div class="creative-actions"><button data-creative-produce="${projectId}">安排一天製作 →</button><p class="creative-queue-note">${queuedCreativeDays(p.id, "creative_production") ? `本週已排 ${queuedCreativeDays(p.id, "creative_production")} 天・可繼續安排空檔` : "可在同一週安排多天製作"}</p></div>`;
   if (creativeActionState(p, "release").ok)
     return `<div class="creative-actions"><button data-creative-release="${projectId}">安排正式發行 →</button></div>`;
   return "";
@@ -103,7 +105,7 @@ export function creativeApp() {
   )
     .map(([id, d]) => {
       const m = CREATIVE_META[id];
-      return `<button data-creative-new="${id}"><i>${m.icon}</i><span><b>${d.label}</b><small>${m.note}</small></span><em>開始 →</em></button>`;
+      return `<button data-creative-new="${id}">${placeArt(/song|demo|lyric|music/.test(id)?"recording":/script|film/.test(id)?"library":"cafe")}<span><b>${d.label}</b><small>${m.note}</small></span><em>開始 →</em></button>`;
     })
     .join(
       "",

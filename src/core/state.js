@@ -1,3 +1,4 @@
+import { normalizeSavedLooks } from "../logic/wardrobe.js";
 import {
   AVATAR_LIST,
   AVATARS,
@@ -38,11 +39,20 @@ export function initialState() {
     customGender: "",
     birthMonth: 8,
     birthDay: 1,
+    aspiration: "acting",
+    cityDistrict: "all",
+    citySelection: null,
+    npcInvitation: null,
     avatarId: "raven",
     outfitId: "newcomer",
     ownedOutfits: defaultOwnedOutfits(),
     wardrobeNotice: "",
+    wardrobePreview: null,
+    wardrobeFilter: "all",
+    wardrobeCategory: "all",
+    savedLooks: {},
     visitedLocationsByWeek: {},
+    partTimeShifts: {},
     mapFilter: "全部",
     mapPurpose: "全部",
     favoriteLocations: [],
@@ -75,7 +85,7 @@ export function initialState() {
     managerState: null,
     managerAdviceHistory: [],
     week: 1,
-    schedule: ["vocal", "acting", "rest", "audition", "free", "dance", "rest"],
+    schedule: Array(7).fill("rest"),
     lastSchedule: null,
     freeLocations: Array(7).fill(null),
     lastFreeLocations: null,
@@ -273,6 +283,9 @@ export function hydrateState(saved) {
     next.avatarId = defaultAvatarForGender(next.gender).id;
   if (!next.ownedOutfits[next.avatarId].includes(next.outfitId))
     next.outfitId = "newcomer";
+  next.savedLooks = normalizeSavedLooks(next, saved.savedLooks);
+  next.wardrobePreview = null;
+  next.partTimeShifts = Object.fromEntries(Object.entries(saved.partTimeShifts || {}).filter(([, count]) => Number.isInteger(count) && count >= 0));
   const rawVisits =
     saved.visitedLocationsByWeek &&
     typeof saved.visitedLocationsByWeek === "object"

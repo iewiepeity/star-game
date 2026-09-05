@@ -1,3 +1,4 @@
+import { bindCityMap } from "./city-map.js";
 import { titleTag } from "../core/utils.js";
 // 逐日行程預設自動往下一天；只有需要玩家選擇的 decision 才停住。按鈕保留作為「立即跳過等待」的快捷鍵。
 import {
@@ -12,6 +13,12 @@ import { applyForJob, ensureJobState, signJob } from "../logic/job-engine.js";
 import { jobSource } from "../logic/industry.js";
 import { render } from "../render.js";
 export function bindRunnerScreen() {
+  bindCityMap();
+  document
+    .querySelector(".runner-city-map")
+    ?.addEventListener("toggle", (event) => {
+      state.runnerCityMapOpen = event.currentTarget.open;
+    });
   document
     .querySelectorAll("[data-choice]")
     .forEach((x) => (x.onclick = () => resolveDay(x.dataset.choice)));

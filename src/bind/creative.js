@@ -5,14 +5,10 @@ import {
   chooseIndependentProduction,
 } from "../logic/creative.js";
 import { setCreativeDirection } from "../logic/creative.js";
-import {
-  scheduleActivity,
-  cancelActivity,
-} from "../logic/scheduled-activities.js";
+import { queueCreativeActivity } from "../logic/creative-schedule.js";
 import {
   toggleCreativeCollaborator,
   toggleSelfParticipation,
-  reserveCreativeTeam,
   cycleCreativeRole,
   setCreativeBudget,
   creativeBudgetCost,
@@ -21,28 +17,7 @@ import { INDUSTRY_COMPANIES } from "../data/industry.js";
 import { render } from "../render.js";
 import { creativeActionState } from "../logic/creative-workflow.js";
 function queue(kind, payload, label, load, { reserveTeam = false } = {}) {
-  const duplicate = Object.values(state.scheduledActivities || {}).some(
-    (a) =>
-      a.status === "scheduled" &&
-      a.kind === kind &&
-      a.payload?.projectId === payload.projectId,
-  );
-  if (duplicate) {
-    state.notice = "這份作品已經有同類行程在排隊了。";
-    render();
-    return null;
-  }
-  const r = scheduleActivity(kind, payload, label, load);
-  if (r.ok && reserveTeam) {
-    const p = state.creativeProjects?.find((x) => x.id === payload.projectId),
-      booking = p && reserveCreativeTeam(p, state.week, r.day);
-    if (booking && !booking.ok) {
-      cancelActivity(r.day);
-      state.notice = booking.message;
-      render();
-      return null;
-    }
-  }
+  const r = queueCreativeActivity(kind, payload, label, load, { reserveTeam });
   state.notice = r.message;
   render();
   return r;

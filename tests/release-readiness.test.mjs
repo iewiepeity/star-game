@@ -20,8 +20,8 @@ async function readLegacyCss() {
 test("首頁依職涯階段給出下一步，而不是把全部 App 當成教學", () => {
   Object.assign(state, initialState(), { screen: "room", name: "Beta 新人" });
   const rookie = roomView();
-  assert.match(rookie, /尋找第一個真正的機會/);
-  assert.match(rookie, /去城市找徵選/);
+  assert.match(rookie, /先認識映畫排練室/);
+  assert.match(rookie, /在地圖找到第一站/);
   state.currentAgencyId = "starlight";
   assert.match(roomView(), /查看工作機會/);
   state.completedWorks = [{ id: "work-1", title: "第一次演出", category: "廣告" }];

@@ -11,7 +11,13 @@ export default defineConfig({
   projects: [
     {
       name: "tablet",
-      testMatch: "**/browser-playability.spec.mjs",
+      testMatch: [
+        "**/browser-playability.spec.mjs",
+        "**/wardrobe-system.spec.mjs",
+        "**/city-life.spec.mjs",
+        "**/work-progression.spec.mjs",
+        "**/scene-city.spec.mjs",
+      ],
       use: {
         browserName: "chromium",
         viewport: { width: 820, height: 1180 },
@@ -20,7 +26,13 @@ export default defineConfig({
     },
     {
       name: "mobile-webkit",
-      testMatch: "**/browser-playability.spec.mjs",
+      testMatch: [
+        "**/browser-playability.spec.mjs",
+        "**/wardrobe-system.spec.mjs",
+        "**/city-life.spec.mjs",
+        "**/work-progression.spec.mjs",
+        "**/scene-city.spec.mjs",
+      ],
       use: {
         browserName: "webkit",
         viewport: { width: 390, height: 844 },
@@ -30,7 +42,13 @@ export default defineConfig({
     },
     {
       name: "tablet-webkit",
-      testMatch: "**/browser-playability.spec.mjs",
+      testMatch: [
+        "**/browser-playability.spec.mjs",
+        "**/wardrobe-system.spec.mjs",
+        "**/city-life.spec.mjs",
+        "**/work-progression.spec.mjs",
+        "**/scene-city.spec.mjs",
+      ],
       use: {
         browserName: "webkit",
         viewport: { width: 1180, height: 820 },
@@ -39,7 +57,13 @@ export default defineConfig({
     },
     {
       name: "firefox",
-      testMatch: "**/browser-playability.spec.mjs",
+      testMatch: [
+        "**/browser-playability.spec.mjs",
+        "**/wardrobe-system.spec.mjs",
+        "**/city-life.spec.mjs",
+        "**/work-progression.spec.mjs",
+        "**/scene-city.spec.mjs",
+      ],
       use: { browserName: "firefox", viewport: { width: 1366, height: 900 } },
     },
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },

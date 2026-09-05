@@ -401,3 +401,427 @@
 .planner-commitments .contract-alert {
   margin-top: 10px;
 }
+
+/* Dressing room: same paper palette, one equipped look across all player surfaces. */
+.player-chip[data-open-app] {
+  border: 0;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.player-look-card {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 18px;
+  margin: 14px 0;
+  border: 1px solid #e0d2c7;
+  border-radius: 18px;
+  background: linear-gradient(130deg, #f4e7dd, #fffaf5);
+}
+.player-look-card > img {
+  width: 130px;
+  height: 260px;
+  object-fit: contain;
+}
+.player-look-card > div {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.player-look-card strong {
+  font-size: 23px;
+  overflow-wrap: anywhere;
+}
+.player-look-card small {
+  color: #97646a;
+}
+.player-look-card.compact {
+  padding: 8px 14px;
+  gap: 12px;
+}
+.player-look-card.compact > img {
+  width: 48px;
+  height: 60px;
+  object-fit: cover;
+  object-position: center 12%;
+  border-radius: 12px;
+}
+.player-look-card.compact > div {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.player-look-card.compact strong {
+  font-size: 15px;
+}
+.player-look-card.compact span {
+  font-size: 13px;
+}
+.social-profile > i,
+.social-post header > i {
+  overflow: hidden;
+}
+.social-profile .player-look-image,
+.social-post .player-look-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 12%;
+}
+.fitting-actions {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.fitting-actions > span {
+  font-size: 12px;
+  color: #806c65;
+}
+.dressing-room button,
+.player-look-card button,
+.map-shop-entry button {
+  min-height: 44px;
+  cursor: pointer;
+}
+.fitting-actions button,
+.saved-looks button,
+.closet-filters button,
+.wardrobe-shop-link button,
+.player-look-card button,
+.map-shop-entry button {
+  border: 1px solid #d8bcb0;
+  background: #fff9f4;
+  color: #78555a;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 13px;
+}
+.fitting-actions button:first-child {
+  background: #a95966;
+  color: white;
+  border-color: #a95966;
+  font-weight: 700;
+}
+.dressing-room button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.dressing-room button:focus-visible,
+.closet-category select:focus-visible {
+  outline: 3px solid #804b66;
+  outline-offset: 3px;
+}
+.dressing-room .wardrobe-notice {
+  margin-top: 12px;
+  min-height: 44px;
+}
+.dressing-room .closet-panel > header h2 {
+  font-size: clamp(21px, 2vw, 29px);
+}
+.saved-looks {
+  padding: 12px;
+  margin: 12px 0;
+  border: 1px solid #e0d2c7;
+  border-radius: 12px;
+  background: #fffaf4;
+}
+.saved-looks summary,
+.surgery-panel summary {
+  min-height: 44px;
+  cursor: pointer;
+  align-content: center;
+  font-weight: 700;
+}
+.saved-looks p {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.saved-looks > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid #e8d9ce;
+}
+.saved-looks > div > span {
+  flex: 1;
+}
+.saved-looks small,
+.saved-looks b {
+  display: block;
+  font-size: 13px;
+}
+.saved-looks small {
+  color: #806c65;
+  margin-top: 4px;
+}
+.fitting-comparison {
+  margin: 14px 0;
+}
+.fitting-comparison h3 {
+  font-size: 14px;
+}
+.fitting-comparison > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.fitting-comparison span {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 8px;
+  background: #fff9f4;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.fitting-comparison em {
+  color: #47745d;
+  font-style: normal;
+}
+.fitting-comparison em.negative {
+  color: #a34858;
+}
+.wardrobe-shop-link,
+.map-shop-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  margin: 12px 0;
+  background: #f3e8dc;
+  border-radius: 12px;
+  font-size: 13px;
+}
+.wardrobe-shop-link span,
+.map-shop-entry span {
+  flex: 1;
+}
+.closet-filters {
+  display: flex;
+  gap: 6px;
+  margin: 12px 0;
+}
+.closet-filters button {
+  flex: 1;
+}
+.closet-filters [aria-pressed="true"] {
+  color: white;
+  background: #a95966;
+  border-color: #a95966;
+}
+.closet-category {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0;
+  gap: 8px;
+  font-size: 13px;
+}
+.closet-category select {
+  min-height: 44px;
+  border: 1px solid #d8bcb0;
+  background: #fffcf9;
+  border-radius: 10px;
+  padding: 8px;
+  color: inherit;
+  font: inherit;
+}
+.dressing-room .outfit-card {
+  grid-template-columns: 76px minmax(0, 1fr) 68px;
+  gap: 10px;
+  padding: 10px;
+}
+.dressing-room .outfit-card > button {
+  grid-column: auto;
+  min-width: 0;
+  width: 100%;
+}
+.dressing-room .outfit-card > .outfit-thumb {
+  padding: 0;
+  background: #f1e4da;
+  height: 114px;
+}
+.dressing-room .outfit-card.previewing {
+  outline: 2px solid #a95966;
+  outline-offset: -2px;
+}
+.dressing-room .outfit-card h3 {
+  font-size: 16px;
+}
+.dressing-room .outfit-card small {
+  font-size: 12px;
+  color: #975965;
+  line-height: 1.6;
+}
+.dressing-room .avatar-switch button {
+  min-height: 44px;
+}
+@media (max-width: 760px) {
+  .dressing-room .wardrobe-stage {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    min-height: 0;
+    height: 266px;
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    grid-template-rows: 52px 100px 78px;
+    gap: 5px 12px;
+    box-shadow: 0 8px 16px #6e4a3920;
+    background: #f1e4da;
+  }
+  .dressing-room .wardrobe-art {
+    grid-row: 1 / 4;
+    min-height: 0;
+    height: 100%;
+    border-radius: 10px;
+  }
+  .dressing-room .wardrobe-art > span {
+    font-size: 9px;
+    top: 5px;
+    left: 5px;
+    letter-spacing: 0;
+  }
+  .dressing-room .wardrobe-art img {
+    inset: 14px 0 0;
+    height: calc(100% - 14px);
+  }
+  .dressing-room .wardrobe-current {
+    padding: 0;
+    align-content: center;
+  }
+  .dressing-room .wardrobe-current strong {
+    font-size: 15px;
+  }
+  .dressing-room .wardrobe-current small {
+    font-size: 11px;
+  }
+  .dressing-room .fitting-actions {
+    margin: 0;
+    align-content: center;
+  }
+  .dressing-room .avatar-switch {
+    gap: 4px;
+  }
+  .dressing-room .avatar-switch > span {
+    font-size: 11px;
+  }
+  .dressing-room .avatar-switch button {
+    height: 46px;
+  }
+  .dressing-room .closet-panel {
+    padding: 16px 12px;
+  }
+  .dressing-room .outfit-card p {
+    display: none;
+  }
+  .saved-looks > div {
+    flex-wrap: wrap;
+  }
+  .saved-looks > div > span {
+    flex-basis: 100%;
+  }
+  .player-look-card {
+    gap: 12px;
+  }
+  .player-look-card > img {
+    width: 100px;
+    height: 200px;
+  }
+  .map-shop-entry {
+    flex-wrap: wrap;
+  }
+}
+@media (max-height: 560px) and (max-width: 760px) {
+  .dressing-room .wardrobe-stage {
+    position: relative;
+  }
+}
+@media (max-width: 760px) {
+  .app-window.wardrobe .window-body {
+    overflow: hidden;
+  }
+  .dressing-room {
+    display: grid;
+    height: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 266px minmax(0, 1fr);
+    overflow: hidden;
+  }
+  .dressing-room .wardrobe-stage {
+    position: relative;
+    top: auto;
+  }
+  .dressing-room .closet-panel {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+.dressing-room button.outfit-card {
+  text-align: left;
+  color: #594a44;
+  font: inherit;
+}
+.dressing-room .outfit-card > .outfit-thumb {
+  height: 114px;
+  min-width: 0;
+}
+.dressing-room .outfit-copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.dressing-room .outfit-copy strong {
+  color: #594a44;
+  font-size: 16px;
+}
+.dressing-room .outfit-note {
+  font-size: 13px;
+  color: #806c65;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.dressing-room .outfit-try-label {
+  border-radius: 10px;
+  background: #a95966;
+  padding: 12px 5px;
+  text-align: center;
+  color: white;
+  font-size: 13px;
+  font-style: normal;
+}
+@media (max-width: 760px) {
+  .dressing-room .outfit-note {
+    display: none;
+  }
+}
+/* Fifteen cards are small enough to lay out eagerly: estimated offscreen heights
+   otherwise move the hit target during scroll/click in WebKit and Firefox. */
+.dressing-room .outfit-card {
+  content-visibility: visible;
+  contain-intrinsic-size: none;
+}
+@media (max-width: 760px) {
+  .dressing-room .closet-panel > header > span,
+  .dressing-room .closet-panel > header h2,
+  .dressing-room .closet-panel > header p {
+    display: none;
+  }
+  .dressing-room .closet-panel > header b {
+    font-size: 13px;
+  }
+  .dressing-room .wardrobe-notice {
+    font-size: 12px;
+    margin: 8px 0;
+  }
+}

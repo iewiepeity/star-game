@@ -1,3 +1,5 @@
+import { placeArt } from "./place-art.js";
+import { agencyContactsUnlocked } from "../logic/city-progression.js";
 import { AGENCIES, AGENCY_LIST } from "../data/agencies.js";
 import { managerForAgency } from "../data/managers.js";
 import { DAYS } from "../data/calendar.js";
@@ -23,6 +25,7 @@ function managerLabel(s) {
   return "信任危機";
 }
 export function agencyOverallStatusText() {
+  if (!agencyContactsUnlocked(state)) return "尚未取得經紀公司聯絡管道";
   if (isAgencyContractActive()) {
     const agency = AGENCIES[state.currentAgencyId],
       remain = Math.max(0, state.agencyContractEndWeek - state.week + 1);
@@ -46,7 +49,7 @@ export function agencyStatusLabel(agency) {
   if (app && app.status === "expired") return "合約已到期";
   if (!app)
     return checkAgencyEligibility(agency).met ? "尚未投遞" : "尚未符合投遞資格";
-  if (app.status === "applied") return "已投遞，等待安排面談";
+  if (app.status === "applied") return "公司邀請你安排面談";
   if (app.status === "interview_scheduled")
     return `面談已排入${DAYS[state.agencyInterview.dayIndex]}`;
   if (app.status === "rejected") return "未獲錄取";
@@ -71,7 +74,7 @@ function managerBrief() {
   return `<div class="manager-weekly-brief"><span>THIS WEEK</span><h5>${esc(brief.headline)}</h5><ul>${brief.items.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></div>${history.length?`<div class="manager-conversation-history"><span>你們記得的談話</span>${history.map(item=>`<article><b>${esc(item.title)}</b><small>第 ${item.week} 週・${item.choice==="assert"?"說清自己的方向":item.choice==="compromise"?"共同折衷":"先聽對方說完"}</small></article>`).join("")}</div>`:""}`;
 }
 function readinessGuide() {
-  return `<aside class="readiness-guide"><span>HOW TO GROW</span><h4>簽約準備度怎麼增加？</h4><div><b>＋10</b><p>未簽約時完成每週任務：訓練 2 天、工作 1 次，且週末疲勞不超過 60。</p></div><div><b>＋1～3</b><p>參加公開試鏡或街頭演出；即使沒有成功，也會累積少量實戰準備。</p></div><div><b>＋1～4</b><p>探索產業地點、整理履歷，以及特定職涯／年度事件。</p></div></aside>`;
+  return `<aside class="readiness-guide"><span>HOW TO GROW</span><h4>簽約準備度怎麼增加？</h4><div><b>＋10</b><p>未簽約時完成每週任務（第二週起）：訓練 2 天、工作 1 次，且週末疲勞不超過 60。</p></div><div><b>＋1～3</b><p>參加公開試鏡或街頭演出；即使沒有成功，也會累積少量實戰準備。</p></div><div><b>＋1～4</b><p>探索產業地點、整理履歷，以及特定職涯／年度事件。</p></div></aside>`;
 }
 export function agencyContractCard(agency) {
   const terms = currentOfferTerms(agency);
@@ -100,8 +103,9 @@ export function agencyActionPanel(agency, eligibility, app) {
     return `<section class="agency-action"><span>目前申請狀態</span><h3>已拒絕合約</h3><p>你先前婉拒了${esc(agency.name)}的合約。</p></section>`;
   if (app && app.status === "interview_scheduled")
     return `<section class="agency-action"><span>目前申請狀態</span><h3>面談已排入${DAYS[state.agencyInterview.dayIndex]}</h3><p>開始這一週後，面談當天會出現在逐日行程中。</p></section>`;
+  if (app && app.status === "applied" && state.week <= app.appliedWeek) return `<section class="agency-action"><h3>履歷已送出，等待回覆</h3><p>公司需要時間閱讀新人資料。下一週再回來查看面談安排；現在可以繼續訓練或累積作品。</p></section>`;
   if (app && app.status === "applied")
-    return `<section class="agency-action"><span>目前申請狀態</span><h3>已投遞，等待安排面談</h3><button class="main-btn" data-agency-action="schedule-interview">排入本週行程 →</button></section>`;
+    return `<section class="agency-action"><span>目前申請狀態</span><h3>公司邀請你安排面談</h3><button class="main-btn" data-agency-action="schedule-interview">排入本週行程 →</button></section>`;
   if (app && app.status === "rejected")
     return `<section class="agency-action"><span>目前申請狀態</span><h3>未獲錄取</h3>${eligibility.met ? `<button class="main-btn" data-agency-action="apply">重新投遞新人資料 →</button>` : agencyIneligibleBlock(eligibility)}</section>`;
   if (eligibility.met)
@@ -115,9 +119,10 @@ export function agencyDetailView(agency) {
     offerHere = state.agencyOffer && state.agencyOffer.agencyId === agency.id,
     app = state.agencyApplications[agency.id],
     isExpiredHere = !isSigned && !offerHere && app && app.status === "expired";
-  return `<header class="agency-detail-head"><div><span>${esc(agency.type)}・${esc(agency.scale)}</span><h2>${esc(agency.name)}</h2><p>${esc(agency.description)}</p></div><div class="agency-tags">${agency.specialties.map((s) => `<em>${esc(s)}</em>`).join("")}</div></header><section class="agency-requirements"><h3>簽約需求</h3><div class="req-list">${rows.map((r) => `<span class="${r.current >= r.required ? "met" : "unmet"}"><b>${esc(r.label)}</b><small>目前 ${r.current}${r.unit}／需求 ${r.required}${r.unit}</small><em>${r.current >= r.required ? "符合" : "未達"}</em></span>`).join("")}</div>${!isSigned ? readinessGuide() : ""}</section><section class="agency-contract-terms"><h3>合約條件</h3><dl><div><dt>合約期間</dt><dd>${agency.contract.durationWeeks} 週</dd></div><div><dt>經紀抽成</dt><dd>${Math.round(agency.contract.commissionRate * 100)}%</dd></div><div><dt>創作自主</dt><dd>${agency.contract.creativeFreedom ?? 50}%</dd></div><div><dt>保證試鏡</dt><dd>${agency.contract.guaranteedAuditions ? `每年 ${agency.contract.guaranteedAuditions} 次` : `未寫入保障`}</dd></div><div><dt>合約定位</dt><dd>${esc(agency.contract.description)}</dd></div></dl></section>${isSigned ? agencySignedDashboard(agency) : offerHere ? agencyContractCard(agency) : isExpiredHere ? agencyExpiredDashboard(agency) : agencyActionPanel(agency, eligibility, app)}`;
+  return `<header class="agency-detail-head"><div><span>${esc(agency.type)}・${esc(agency.scale)}</span><h2>${esc(agency.name)}</h2><p>${esc(agency.description)}</p></div><div class="agency-tags">${agency.specialties.map((s) => `<em>${esc(s)}</em>`).join("")}</div></header><section class="agency-requirements"><h3>公開招募門檻</h3><div class="req-list">${rows.map((r) => `<span class="${r.current >= r.required ? "met" : "unmet"}"><b>${esc(r.label)}</b><small>目前 ${r.current}${r.unit}／需求 ${r.required}${r.unit}</small><em>${r.current >= r.required ? "符合" : "未達"}</em></span>`).join("")}</div>${!isSigned ? `<details><summary>如何累積簽約準備度</summary>${readinessGuide()}</details>` : ""}</section>${isSigned || offerHere ? `<section class="agency-contract-terms"><h3>合約條件</h3><dl><div><dt>合約期間</dt><dd>${agency.contract.durationWeeks} 週</dd></div><div><dt>經紀抽成</dt><dd>${Math.round(agency.contract.commissionRate * 100)}%</dd></div><div><dt>創作自主</dt><dd>${agency.contract.creativeFreedom ?? 50}%</dd></div><div><dt>保證試鏡</dt><dd>${agency.contract.guaranteedAuditions ? `每年 ${agency.contract.guaranteedAuditions} 次` : `未寫入保障`}</dd></div><div><dt>合約定位</dt><dd>${esc(agency.contract.description)}</dd></div></dl></section>` : `<section class="agency-contract-terms"><h3>尚未收到正式合約</h3><p>先投遞、面談，錄取後公司才會提供本次合約期間、抽成與工作保障。</p></section>`}${isSigned ? agencySignedDashboard(agency) : offerHere ? agencyContractCard(agency) : isExpiredHere ? agencyExpiredDashboard(agency) : agencyActionPanel(agency, eligibility, app)}`;
 }
 export function agencyApp() {
+  if (!agencyContactsUnlocked(state)) return `<div class="inside-page agency-discovery">${placeArt("business")}<span>初來乍到</span><h2>先了解公司，再談簽約。</h2><p>你還沒有業界聯絡管道，也沒有收到任何合約。星環商務中心一樓的新人服務台提供公開招募名錄與投遞說明。</p><details><summary>查看投遞與面談流程</summary><ol><li>完成一次商務中心的自由活動，取得公開聯絡資料。</li><li>培養能力、累積實戰準備，再投遞新人履歷。</li><li>安排面談；通過後才會收到可確認的正式合約。</li></ol></details><button data-city-shortcut="business">在星望市地圖查看商務中心</button><p>目前也可以先上課、接新人零工，或到產業公司查看公開徵選。</p></div>`;
   const selectedId = state.selectedAgencyId || AGENCY_LIST[0].id,
     agency = AGENCIES[selectedId] || AGENCY_LIST[0];
   return `<div class="agency-page"><div class="agency-status-bar"><span>目前狀態</span><b>${agencyOverallStatusText()}</b></div><p class="agency-picker-hint"><b>先選一間公司</b><span>點選公司卡片查看投遞資格、合約條件與面談進度；四間公司都列在下方，不需要左右滑動。</span></p><div class="agency-layout"><nav class="agency-list" aria-label="選擇經紀公司">${AGENCY_LIST.map((a) => `<button class="${a.id === agency.id ? "active" : ""}" data-select-agency="${a.id}" aria-pressed="${a.id === agency.id}"><b>${esc(a.name)}</b><small>${esc(a.type)}</small><em>${agencyStatusLabel(a)}</em></button>`).join("")}</nav><section class="agency-detail">${agencyDetailView(agency)}</section></div></div>`;

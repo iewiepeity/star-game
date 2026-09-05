@@ -9,7 +9,8 @@ import {
   releaseCreativeProject,
   sellCreativeRights,
 } from "./creative.js";
-import { completeCreativeTeamDay } from "./creative-team.js";
+import { completeCreativeTeamDay, releaseCreativeTeam } from "./creative-team.js";
+import { releaseFinishedCreativeDays } from "./creative-schedule.js";
 import { completeSequelSession } from "./sequel-engine.js";
 import { resolveNpcInteraction } from "./npc-interaction-engine.js";
 import { managerInteract } from "./manager.js";
@@ -59,10 +60,11 @@ export function resolvePersonalTask(task, choice = null) {
         p?.status === "rejected"
           ? reviseCreativeProject(p.id)
           : workOnCreativeProject(p?.id);
+    const freed = r ? releaseFinishedCreativeDays(task, p) : 0;
     return r
       ? {
           ok: true,
-          text: `完成${titleTag(p.title)}的創作工作；目前完成度 ${p.progress}%・品質 ${p.quality}。`,
+          text: `完成${titleTag(p.title)}的創作工作；目前完成度 ${p.progress}%・品質 ${p.quality}。${freed ? `草稿已完成，後面 ${freed} 天改為休息。` : ""}`,
         }
       : { ok: false, text: "這份創作目前無法繼續。" };
   }
@@ -97,16 +99,19 @@ export function resolvePersonalTask(task, choice = null) {
         (x) => x.id === task.payload.projectId,
       ),
       r = startCreativeProduction(task.payload.projectId);
-    if (r?.error === "budget")
+    if (r?.error === "budget") {
+      releaseCreativeTeam(p.id, task.week ?? state.week, task.day ?? state.runnerDay);
       return {
         ok: false,
         text: `${titleTag(r.project.title)}原訂製作規格需要 $${r.cost.toLocaleString()}，但執行當天資金不足。`,
       };
-    if (r && p) completeCreativeTeamDay(p, state.week, state.runnerDay);
+    }
+    if (r && p) completeCreativeTeamDay(p, task.week ?? state.week, task.day ?? state.runnerDay);
+    const freed = r && p ? releaseFinishedCreativeDays(task, p) : 0;
     return r
       ? {
           ok: true,
-          text: `${titleTag(r.project.title)}完成一次製作進度，目前 ${r.project.productionProgress}%（${r.project.productionSessions}/${r.project.requiredProductionSessions} 次）；合作團隊檔期同步完成。`,
+          text: `${titleTag(r.project.title)}完成一次製作進度，目前 ${r.project.productionProgress}%（${r.project.productionSessions}/${r.project.requiredProductionSessions} 次）；合作團隊檔期同步完成。${freed ? `製作已完成，後面 ${freed} 天改為休息並釋放團隊檔期。` : ""}`,
         }
       : { ok: false, text: "這部作品目前無法進行製作。" };
   }

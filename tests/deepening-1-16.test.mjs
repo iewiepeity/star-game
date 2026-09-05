@@ -97,7 +97,7 @@ test("world tick and player-facing UI are actually wired to the deepening layer"
   const [tick, room, map, planner] = await Promise.all([
     readFile(new URL("src/logic/world-tick.js", root), "utf8"),
     readFile(new URL("src/views/room.js", root), "utf8"),
-    readFile(new URL("src/views/map.js", root), "utf8"),
+    readFile(new URL("src/views/city-map.js", root), "utf8"),
     readFile(new URL("src/views/planner.js", root), "utf8"),
   ]);
   assert.match(tick, /tickDeepeningSystems\(\)/);

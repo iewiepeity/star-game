@@ -1,4 +1,6 @@
+import { COMPANY_PART_TIME } from "./part-time.js";
 export const ACTIONS={
+...Object.fromEntries(Object.entries(COMPANY_PART_TIME).map(([id, shift]) => [id, {...shift, group:"工作", icon:"◇", type:"work", stamina:shift.fatigue, cost:0, guaranteed:true} ])),
 vocal:{group:"訓練",icon:"♫",label:"聲樂基礎課",short:"聲樂課",note:"歌藝為主，聲線為輔",type:"train",gains:[["歌藝",4,8],["聲線",1,3]],fatigue:8,stamina:8,cost:800},
 acting:{group:"訓練",icon:"🎬",label:"新人表演課",short:"表演課",note:"演技、鏡頭感與肢體表現",type:"train",gains:[["演技",4,8],["鏡頭感",1,3],["肢體表現",1,2]],fatigue:9,stamina:9,cost:900},
 dance:{group:"訓練",icon:"♬",label:"舞蹈基礎課",short:"舞蹈課",note:"舞蹈為主，肢體表現為輔",type:"train",gains:[["舞蹈",4,8],["肢體表現",1,3]],fatigue:11,stamina:11,cost:1000},
@@ -13,8 +15,8 @@ adshoot:{group:"legacy",icon:"🎥",label:"舊版晨露廣告拍攝",short:"舊�
 job_session:{group:"工作",icon:"🎥",label:"正式通告執行",short:"通告工作",note:"依已簽署合約與指定工作日執行",type:"job",fatigue:18,stamina:18,cost:0,hidden:true},
 personal_task:{group:"生活",icon:"✦",label:"個人安排",short:"個人安排",note:"創作、投稿、社交或社群經營等已預約事項",type:"personal",fatigue:0,stamina:0,cost:0,hidden:true},
 street:{group:"工作",icon:"🎸",label:"街頭演出",short:"街頭演出",note:"保底小費 $400～$700；成功演出另有加成",type:"work",fatigue:12,stamina:12,cost:0,income:[400,700],successIncome:[600,900]},
-newcomer_gig:{group:"工作",icon:"🎪",label:"新人活動零工",short:"活動零工",note:"展場、暖場或臨演工作；穩定賺取 $1,200～$2,000",type:"work",fatigue:10,stamina:10,cost:0,income:[1200,2000],guaranteed:true},
-relief_gig:{group:"工作",icon:"🛟",label:"經紀人介紹的救急短工",short:"救急短工",note:"資金低於 $1,500 時限一次；完成可得 $3,000",type:"work",fatigue:8,stamina:8,cost:0,income:[3000,3000],guaranteed:true,relief:true},
+newcomer_gig:{group:"工作",icon:"🎪",label:"新人活動零工",short:"活動零工",note:"市民服務台公開招募的活動引導與撤場工作；穩定賺取 $1,200～$2,000",type:"work",fatigue:10,stamina:10,cost:0,income:[1200,2000],guaranteed:true},
+relief_gig:{group:"工作",icon:"🛟",label:"新人服務台的救急短工",short:"救急短工",note:"資金低於 $1,500 時限一次；完成可得 $3,000",type:"work",fatigue:8,stamina:8,cost:0,income:[3000,3000],guaranteed:true,relief:true},
 free:{group:"生活",icon:"☀",label:"自由活動",short:"自由活動",note:"探索星望市，可能遇見新人物",type:"life",fatigue:3,stamina:4,cost:300},
 styling:{group:"生活",icon:"✧",label:"造型研究",short:"造型研究",note:"提升時尚與外貌管理",type:"life",gains:[["時尚",3,6],["外貌",1,2]],fatigue:3,stamina:3,cost:600},
 study:{group:"生活",icon:"📖",label:"在家研究",short:"在家研究",note:"提升學識與創作靈感",type:"life",gains:[["學識",3,6],["靈感",1,2]],fatigue:2,stamina:2,cost:0},

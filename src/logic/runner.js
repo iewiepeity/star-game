@@ -1,3 +1,5 @@
+import { workAccess, recordPartTimeShift } from "./work-progression.js";
+import { trainingAccess } from "./city-progression.js";
 import { ACTIONS } from "../data/actions.js";
 import { AGENCIES } from "../data/agencies.js";
 import { MAP_LOCATIONS } from "../data/map-locations.js";
@@ -73,7 +75,7 @@ export function decisionFor(id) {
     const l = MAP_LOCATIONS[state.freeLocations[state.runnerDay]];
     if (l)
       return {
-        title: `抵達${l.name}`,
+        title: `今天想去${l.name}`,
         text: l.industry
           ? `${l.note} 今天可以直接進入現場 Casting Desk 查看公開徵選。`
           : l.note,
@@ -148,6 +150,8 @@ function gainContractReadiness(id, success) {
 export function startDay() {
   clearRunnerTimer();
   if (state.runnerDay === 0) state.runnerPaused = false;
+  state.runnerCityMapOpen = false;
+  state.citySelection = state.freeLocations[state.runnerDay] || null;
   state.runnerResult = null;
   state.runnerDecision = null;
   state.runnerPhase = "loading";
@@ -289,7 +293,15 @@ export function resolveDay(choice) {
     text = "",
     success = true,
     presentation = {};
-  if (a.type === "train") {
+  if (!workAccess(state, id).unlocked) {
+    title = "還沒取得這份工作的登記管道";
+    text = workAccess(state, id).message + "今天不收費，也沒有獲得工作收入或經驗。";
+    success = false;
+  } else if (a.type === "train" && !trainingAccess(state, id).unlocked) {
+    title = "還沒完成課程報名";
+    text = trainingAccess(state, id).message + "今天未扣學費，也沒有獲得訓練成長。";
+    success = false;
+  } else if (a.type === "train") {
     const multiplier = performanceMultiplier("training");
     const charged = effectiveActionCost(a, state.week);
     applyActivityLoad({ ...a, cost: charged });
@@ -405,11 +417,12 @@ export function resolveDay(choice) {
       state.flags.push({
         week: state.week,
         label: "新人緊急周轉",
-        note: "經紀人介紹一次救急短工，避免職涯因資金不足停擺。",
+        note: "市民服務台介紹一次救急短工，避免職涯因資金不足停擺。",
       });
     }
     title = a.relief ? "救急短工完成" : "零工順利完成";
     text = `完成${a.label}，收入＋$${earned.toLocaleString()}${id === "newcomer_gig" ? "、知名度＋1" : ""}。`;
+    if (a.shiftGains) text += applyGains(a.shiftGains) + "。" + recordPartTimeShift(state, id);
   } else {
     const power =
         id === "audition"
@@ -461,8 +474,10 @@ export function resolveDay(choice) {
     }
     text += gainContractReadiness(id, success);
   }
-  if (!["free", "personal_task"].includes(id)) text += resolveScheduleEvent(id);
-  if (id !== "personal_task") maybeQueueLifeEvent(a);
+  if (trainingAccess(state, id).unlocked && workAccess(state, id).unlocked) {
+    if (!["free", "personal_task"].includes(id)) text += resolveScheduleEvent(id);
+    if (id !== "personal_task") maybeQueueLifeEvent(a);
+  } else state.pendingRandomEvent = null;
   state.weekResults.push({
     day: DAYS[day],
     dayIndex: day,
@@ -534,8 +549,8 @@ export function finishWeek() {
   state.reward = {
     title: task.met ? "本週任務完成！" : "本週任務未完成",
     text: task.met
-      ? `獲得 $${task.money.toLocaleString()}；訓練 ${task.train} 次、工作 ${task.work} 次，週末疲勞 ${task.fatigue}。`
-      : `需要訓練 2 次、工作 1 次且疲勞不高於 60；本週為 ${task.train}／${task.work}／${task.fatigue}。`,
+      ? `獲得 $${task.money.toLocaleString()}；${task.orientation ? `探訪 ${task.visit}` : `訓練 ${task.train}`} 次、工作 ${task.work} 次，週末疲勞 ${task.fatigue}。`
+      : `需要${task.orientation ? "探訪 1 次" : "訓練 2 次"}、工作 1 次且疲勞不高於 60；本週為 ${task.orientation ? task.visit : task.train}／${task.work}／${task.fatigue}。`,
   };
   const memory = finalizeWeekMemory();
   state.history.push({

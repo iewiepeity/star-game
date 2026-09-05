@@ -1,3 +1,4 @@
+import { cityMap } from "./city-map.js";
 // 畫面層：逐日事件畫面。一般行程會自動從 loading → result → 下一天；需要選擇時才暫停。
 import { ACTIONS } from "../data/actions.js";
 import { DAYS, SHORT } from "../data/calendar.js";
@@ -69,12 +70,12 @@ function venueBoard(venue) {
             return `<article class="venue-job-card"><div><span>${"★".repeat(job.stars)}・${esc(job.category)}</span><b>${esc(job.title)}</b><small>${esc(job.client)}・報酬 ${money(job.pay)}</small><em>${esc(status)}</em></div><button data-venue-apply="${job.id}" ${!available || !q.met ? "disabled" : ""}>${record.stage === "applied" ? "已登記" : available ? "登記試鏡" : "已處理"}</button></article>`;
           })
           .join("")
-      : `<div class="venue-empty"><b>今天沒有適合目前階段的公開徵選</b><small>公司已經記錄在通告信箱；之後有新案時會出現在那裡。</small></div>`
+      : `<div class="venue-empty"><b>今天沒有適合目前階段的公開徵選</b><small>你已取得打工登記管道。先累積三次同公司打工，窗口才會持續提供後續徵選資訊。</small></div>`
   }</div></section>`;
 }
 export function decisionView() {
   const d = state.runnerDecision;
-  return `<div class="decision ${d.kind === "npc_interaction" ? "npc-interaction-decision" : ""}">${npcArt(d)}<div class="runner-scene-copy"><span>CHOICE・自動播放暫停</span><h2>${esc(d.title)}</h2><p>${esc(d.text)}</p><div>${d.choices.map((c) => `<button data-choice="${esc(c.id)}"><b>${esc(c.label)}</b><small>${esc(c.note)}</small></button>`).join("")}</div></div></div>`;
+  return `${state.schedule[state.runnerDay] === "free" ? `<details class="runner-city-map" ${state.runnerCityMapOpen ? "open" : ""}><summary>打開星望市地圖・更換今日目的地</summary>${cityMap({runner:true})}</details>` : ""}<div class="decision ${d.kind === "npc_interaction" ? "npc-interaction-decision" : ""}">${npcArt(d)}<div class="runner-scene-copy"><span>CHOICE・自動播放暫停</span><h2>${esc(d.title)}</h2><p>${esc(d.text)}</p><div>${d.choices.map((c) => `<button data-choice="${esc(c.id)}"><b>${esc(c.label)}</b><small>${esc(c.note)}</small></button>`).join("")}</div></div></div>`;
 }
 export function resultView() {
   const r = state.runnerResult,

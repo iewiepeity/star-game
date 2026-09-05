@@ -20,6 +20,7 @@ test("七天週曆在首屏，選擇活動後可以復原", async ({ page }) => 
   expect(
     await page.locator("html").evaluate((e) => e.scrollWidth - e.clientWidth),
   ).toBeLessThanOrEqual(1);
+  await page.evaluate(async () => { const {state}=await import("/src/core/state.js"); state.visitedLocationsByWeek[state.week]=["recording"]; (await import("/src/render.js")).render(); });
   await page.locator('[data-day="2"]').click();
   await page.locator('[data-pick="vocal"]').click();
   await expect(page.locator('[data-day="2"]')).toContainText("聲樂");

@@ -32,3 +32,6 @@ export const OUTFIT_LIST=Object.values(OUTFITS);
 export const portraitAsset=(avatarId,outfitId)=>`./assets/avatars/${AVATARS[avatarId]?avatarId:"raven"}-${OUTFITS[outfitId]?outfitId:"newcomer"}.webp`;
 export const portraitThumbAsset=(avatarId,outfitId)=>`./assets/avatars/thumbs/${AVATARS[avatarId]?avatarId:"raven"}-${OUTFITS[outfitId]?outfitId:"newcomer"}.webp`;
 export const outfitBonusText=outfit=>Object.entries(outfit.bonuses).map(([name,value])=>`${name}＋${value}`).join("・");
+
+export const OUTFIT_CATEGORIES = { all: "全部場合", daily: "日常生活", practice: "練習錄音", work: "試鏡工作", stage: "舞台典禮" };
+export const outfitCategory = id => ({ newcomer:"daily", casual:"daily", street:"daily", practice:"practice", vocal:"practice", audition:"work", classic:"work", cinema:"work", variety:"work", stage:"stage", gala:"stage", editorial:"stage", premium:"stage", host:"stage", icon:"stage" })[id];

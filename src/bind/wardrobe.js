@@ -1,3 +1,9 @@
+import {
+  purchaseOutfit,
+  ownsOutfit,
+  saveLook,
+  LOOK_SLOTS,
+} from "../logic/wardrobe.js";
 // 事件層：衣櫃的人物切換、購買、穿著與變性。購買服裝需本週已去過服裝店（星光購物商場），
 // 變性需本週已去過整形醫院（星望整形外科）；成功後立刻套用，並由 render() 寫入存檔。
 import {
@@ -18,31 +24,61 @@ const surgeryUnlocked = () => visitedLocationThisWeek("clinic");
 let wardrobeRequest = 0;
 
 async function applyLook(avatarId, outfitId, message) {
+  const game = state;
   const request = ++wardrobeRequest;
-  await preloadImage(portraitAsset(avatarId, outfitId));
-  if (request !== wardrobeRequest) return false;
+  const loaded = await preloadImage(portraitAsset(avatarId, outfitId));
+  if (request !== wardrobeRequest || state !== game) return false;
+  if (!loaded) {
+    document
+      .querySelectorAll('.dressing-room [aria-busy="true"]')
+      .forEach((button) => {
+        button.disabled = false;
+        button.removeAttribute("aria-busy");
+      });
+    state.wardrobeNotice =
+      "造型圖片載入失敗，請確認連線後重試；目前穿著已保留。";
+    renderUi();
+    return false;
+  }
+  if (
+    state.appOpen !== "wardrobe" ||
+    !ownsOutfit(state, avatarId, outfitId) ||
+    isAvatarLocked(AVATARS[avatarId], state.gender)
+  )
+    return false;
   state.avatarId = avatarId;
   state.outfitId = outfitId;
+  state.wardrobePreview = null;
   state.wardrobeNotice = message;
   render();
   return true;
 }
 
-async function buyOutfit(id) {
-  const outfit = OUTFITS[id],
-    avatarId = state.avatarId,
-    owned = state.ownedOutfits[avatarId];
-  if (!outfit || owned.includes(id) || state.money < outfit.price) return false;
+async function buyOutfit(dialog) {
+  const game = state;
   const request = ++wardrobeRequest;
-  await preloadImage(portraitAsset(avatarId, id));
-  if (request !== wardrobeRequest || state.avatarId !== avatarId) return false;
-  state.money -= outfit.price;
-  owned.push(id);
-  state.outfitId = id;
-  state.wardrobeNotice = `購買成功，已穿上「${outfit.name}」`;
+  const loaded = await preloadImage(
+    portraitAsset(dialog.avatarId, dialog.outfitId),
+  );
+  if (
+    request !== wardrobeRequest ||
+    state !== game ||
+    state.confirmDialog !== dialog ||
+    state.appOpen !== "wardrobe"
+  )
+    return false;
+  if (!loaded) {
+    state.wardrobeNotice = "造型圖片載入失敗，沒有扣款；請確認連線後重試。";
+    state.confirmDialog = null;
+    renderUi();
+    return false;
+  }
+  const result = purchaseOutfit(state, dialog.avatarId, dialog.outfitId);
+  state.wardrobeNotice = result.message;
+  if (result.ok) state.wardrobePreview = null;
   state.confirmDialog = null;
   render();
-  return true;
+  return result.ok;
 }
 
 function changeGender(target) {
@@ -50,6 +86,7 @@ function changeGender(target) {
     return false;
   wardrobeRequest++;
   state.money -= GENDER_CHANGE_COST;
+  state.wardrobePreview = null;
   state.gender = target;
   const avatar = defaultAvatarForGender(target);
   state.avatarId = avatar.id;
@@ -62,6 +99,74 @@ function changeGender(target) {
 }
 
 export function bindWardrobe() {
+  document.querySelectorAll("[data-preview-outfit]").forEach((button) => {
+    button.onclick = async () => {
+      const id = button.dataset.previewOutfit,
+        avatar = state.avatarId,
+        game = state;
+      if (!OUTFITS[id]) return;
+      const request = ++wardrobeRequest;
+      button.disabled = true;
+      button.setAttribute("aria-busy", "true");
+      const loaded = await preloadImage(portraitAsset(avatar, id));
+      if (
+        state !== game ||
+        request !== wardrobeRequest ||
+        state.avatarId !== avatar ||
+        state.appOpen !== "wardrobe"
+      )
+        return;
+      button.disabled = false;
+      button.removeAttribute("aria-busy");
+      if (!loaded) {
+        state.wardrobeNotice = "試穿圖片載入失敗，請確認連線後重試。";
+        renderUi();
+        return;
+      }
+      state.wardrobePreview = id;
+      state.wardrobeNotice = "";
+      renderUi();
+    };
+  });
+  document
+    .querySelector("[data-cancel-fitting]")
+    ?.addEventListener("click", () => {
+      wardrobeRequest++;
+      state.wardrobePreview = null;
+      state.wardrobeNotice = "已還原目前穿著，沒有扣款。";
+      renderUi();
+    });
+  document.querySelectorAll("[data-wardrobe-filter]").forEach(
+    (button) =>
+      (button.onclick = () => {
+        state.wardrobeFilter = button.dataset.wardrobeFilter;
+        renderUi();
+      }),
+  );
+  document
+    .querySelector("[data-wardrobe-category]")
+    ?.addEventListener("change", (event) => {
+      state.wardrobeCategory = event.target.value;
+      renderUi();
+    });
+  document.querySelectorAll("[data-save-look]").forEach(
+    (button) =>
+      (button.onclick = () => {
+        if (saveLook(state, button.dataset.saveLook)) {
+          state.wardrobeNotice = `已將目前穿著存入「${LOOK_SLOTS[button.dataset.saveLook]}」。`;
+          render();
+        }
+      }),
+  );
+  document.querySelectorAll("[data-wear-look]").forEach(
+    (button) =>
+      (button.onclick = () => {
+        const id =
+          state.savedLooks?.[state.avatarId]?.[button.dataset.wearLook];
+        if (ownsOutfit(state, state.avatarId, id))
+          applyLook(state.avatarId, id, `已穿上「${OUTFITS[id].name}」`);
+      }),
+  );
   document.querySelectorAll("[data-wardrobe-avatar]").forEach(
     (x) =>
       (x.onclick = () => {
@@ -97,7 +202,11 @@ export function bindWardrobe() {
             return;
           }
           rememberDialogTrigger(x);
-          state.confirmDialog = { type: "buy-outfit", outfitId: id };
+          state.confirmDialog = {
+            type: "buy-outfit",
+            outfitId: id,
+            avatarId: state.avatarId,
+          };
           renderUi();
           return;
         }
@@ -134,7 +243,7 @@ export function bindWardrobe() {
       if (dialog?.type === "buy-outfit") {
         event.currentTarget.disabled = true;
         event.currentTarget.textContent = "載入造型中…";
-        buyOutfit(dialog.outfitId);
+        buyOutfit(dialog);
       } else if (dialog?.type === "change-gender")
         changeGender(dialog.targetGender);
     });

@@ -1,4 +1,4 @@
-export const APP_IDS = Object.freeze(["planner","timeline","gallery","stats","people","log","world","map","jobs","creative","social","forum","wardrobe","agency","achievements","save","settings"]);
+export const APP_IDS = Object.freeze(["phone","planner","timeline","gallery","stats","people","log","world","map","jobs","creative","social","forum","wardrobe","agency","achievements","save","settings"]);
 const APP_ID_SET = new Set(APP_IDS);
 export const isAppId = (appId) => APP_ID_SET.has(appId === "npc" ? "people" : appId);
 
@@ -15,6 +15,7 @@ export function openApp(gameState, appId, { returnContext = null, track = true, 
     if (!silent) gameState.notice = "這個來源目前無法開啟，已保留在原畫面。";
     return false;
   }
+  if (normalized === "wardrobe") gameState.wardrobePreview = null;
   gameState.appOpen = normalized;
   gameState.appReturnContext = returnContext;
   gameState.confirmDialog = null;

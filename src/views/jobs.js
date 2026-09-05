@@ -1,3 +1,5 @@
+import { placeArt } from "./place-art.js";
+import { workDiscovery } from "./work-discovery.js";
 import { JOB_BY_ID, JOB_CATALOG, JOB_CATEGORIES } from "../data/jobs.js";
 import { DAYS } from "../data/calendar.js";
 import { NPCS } from "../data/npcs.js";
@@ -61,6 +63,7 @@ const sourceLabel = (job) => {
     return `${managerForAgency(s.agencyId)?.name || AGENCIES[s.agencyId]?.shortName || "經紀人"}推薦`;
   if (s.type === "network")
     return `${NPCS[s.referrerId]?.name || "業界熟人"}引薦`;
+  if (s.type === "experience") return `${s.company.name}・實務經驗窗口`;
   if (s.type === "direct") return "製作方指名邀約";
   return `${s.company?.name || "公開管道"}本週公開徵選`;
 };
@@ -94,7 +97,7 @@ function listCard(job) {
         breached: "已違約",
       }[record.stage] || "處理中",
     role = selectedJobRole(job.id);
-  return `<button class="job-catalog-card ${selected ? "active" : ""}" data-select-job="${job.id}" data-job-stage="${record.stage}" aria-current="${selected}"><span>${"★".repeat(job.stars)}・${job.category}${["電影", "電視劇"].includes(job.category) ? `・${esc(role.label)}` : ""}</span><b>${esc(job.title)}</b><small>${esc(job.client)}・${sourceLabel(job)}</small><u>${strategicRole(job)}</u><em>${status}</em></button>`;
+  return `<button class="job-catalog-card ${selected ? "active" : ""}" data-select-job="${job.id}" data-job-stage="${record.stage}" aria-current="${selected}">${workArtFor(job)?.src ? `<img class="job-card-art" src="${workArtFor(job).src}" alt="" loading="lazy">` : placeArt(jobSource(job).company?.locationId || "studio", "job-card-art")}<span>${"★".repeat(job.stars)}・${job.category}${["電影", "電視劇"].includes(job.category) ? `・${esc(role.label)}` : ""}</span><b>${esc(job.title)}</b><small>${esc(job.client)}</small><u>${strategicRole(job)}</u><em>${status}</em></button>`;
 }
 function castPanel(record) {
   if (!record.npcCast?.length) return "";
@@ -191,7 +194,7 @@ export function jobsApp() {
     jobs = sortJobs(filtered, state.jobSort),
     sequels = sequelPanel();
   if (!allJobs.length && !sequels)
-    return `<div class="jobs-page"><h2>目前信箱裡沒有工作</h2><p>自由新人要在本週親自去電視台、電影公司、唱片公司或製作公司看公開徵選；人脈、經紀人與指名邀約則會直接送進信箱。</p></div>`;
+    return `<div class="jobs-page"><h2>目前信箱裡沒有工作</h2><p>新人可先接市民服務台的活動零工，或去公司登記打工、詢問公開徵選。完成同公司三次打工或累積相關作品後，窗口才會持續提供消息；人脈引薦與經紀人推薦也會逐步帶來機會。</p>${workDiscovery()}</div>`;
   if (!jobs.length)
     return `<div class="jobs-page jobs-filter-empty">${jobListTools(0, allJobs.length)}<div class="tablet-empty"><span>⌕</span><h3>沒有符合條件的工作</h3><p>換個關鍵字或狀態，不用跟搜尋框硬碰硬。</p><button data-clear-job-filters>清除篩選</button></div>${sequels}</div>`;
   const job =
@@ -213,5 +216,5 @@ export function jobsApp() {
       }[brand.status] || brand.status,
     pay = marketAdjustedPay(job),
     workArt = workArtFor(job.id);
-  return `<div class="jobs-page multi-jobs"><aside class="job-catalog" data-scroll-key="job-catalog"><header><h3>工作信箱</h3><small>${allJobs.length} 份目前可接觸工作・完整通告庫 ${JOB_CATALOG.length} 份</small></header>${jobListTools(jobs.length, allJobs.length)}<nav>${JOB_CATEGORIES.map((c) => `<span>${c}</span>`).join("")}</nav>${jobs.map(listCard).join("")}</aside><section class="job-detail">${nextStepPanel(job, record)}${workArt ? `<figure class="job-key-art"><img src="${workArt.src}" alt="${esc(workArt.alt)}"><figcaption><span>FIVE STAR ORIGINAL・${job.id}</span><b>${esc(job.title)}</b><small>${esc(job.client)}・${esc(job.category)}</small></figcaption></figure>` : ""}<div class="job-board-head"><div><span>${job.id}・${"★".repeat(job.stars)}・${job.category}</span><h2>${esc(job.title)}</h2><p>${sourceLabel(job)}・${esc(job.synopsis)}</p></div><strong>${money(pay)}${pay !== job.pay ? `<small>・市場基準 ${money(job.pay)}</small>` : ""}</strong></div><dl class="job-sheet"><div><dt>委託方</dt><dd>${esc(job.client)}</dd></div><div><dt>${["電影", "電視劇"].includes(job.category) ? "試鏡角色" : "參與定位"}</dt><dd>${esc(role.label)}</dd></div><div><dt>品牌關係</dt><dd>${brandLabel}・信任 ${brand.trust}・合作 ${brand.works} 次</dd></div><div><dt>試鏡地點</dt><dd>${esc(job.audition.venue)}</dd></div><div><dt>指定工作日</dt><dd>每週${jobWorkDaysText(job)}</dd></div><div><dt>最低訓練</dt><dd>${q.training}／${q.trainingRequired} 次</dd></div></dl><details class="job-secondary-details" data-disclosure-key="job-details:${job.id}"><summary>查看劇情、合作陣容與完整資格</summary>${storyPanel(job, record)}${sequels}${castPanel(record)}${crewPanel(record)}<section class="qualification-panel"><div><h3>${q.met ? `${esc(role.label)}資質完整` : `${esc(role.label)}仍有能力尚未達標`}</h3><p>${esc(job.audition.tip)}${["電影", "電視劇"].includes(job.category) ? " 角色位階會直接影響本通告的能力門檻與試鏡競爭強度。" : ""}</p></div><div class="req-list">${requirementRows(job)}</div></section></details>${record.notice ? `<div class="job-notice">${esc(record.notice)}</div>` : ""}</section></div>`;
+  return `<details class="work-directory" data-disclosure-key="company-work-directory"><summary>公司打工與機會來源・查看登記及經驗</summary>${workDiscovery()}</details><div class="jobs-page multi-jobs"><aside class="job-catalog" data-scroll-key="job-catalog"><header><h3>工作信箱</h3><small>${allJobs.length} 份目前可接觸工作・完整通告庫 ${JOB_CATALOG.length} 份</small></header>${jobListTools(jobs.length, allJobs.length)}<nav>${JOB_CATEGORIES.map((c) => `<span>${c}</span>`).join("")}</nav>${jobs.map(listCard).join("")}</aside><section class="job-detail">${nextStepPanel(job, record)}${workArt ? `<figure class="job-key-art"><img src="${workArt.src}" alt="${esc(workArt.alt)}"><figcaption><span>FIVE STAR ORIGINAL・${job.id}</span><b>${esc(job.title)}</b><small>${esc(job.client)}・${esc(job.category)}</small></figcaption></figure>` : `<div class="job-venue-art">${placeArt(jobSource(job).company?.locationId || "studio")}<small>${esc(jobSource(job).company?.name || job.audition.venue)}</small></div>`}<div class="job-board-head"><div><span>${job.id}・${"★".repeat(job.stars)}・${job.category}</span><h2>${esc(job.title)}</h2><p>${sourceLabel(job)}・${esc(job.synopsis)}</p></div><strong>${money(pay)}${pay !== job.pay ? `<small>・市場基準 ${money(job.pay)}</small>` : ""}</strong></div><dl class="job-sheet"><div><dt>委託方</dt><dd>${esc(job.client)}</dd></div><div><dt>${["電影", "電視劇"].includes(job.category) ? "試鏡角色" : "參與定位"}</dt><dd>${esc(role.label)}</dd></div><div><dt>品牌關係</dt><dd>${brandLabel}・信任 ${brand.trust}・合作 ${brand.works} 次</dd></div><div><dt>試鏡地點</dt><dd>${esc(job.audition.venue)}</dd></div><div><dt>指定工作日</dt><dd>每週${jobWorkDaysText(job)}</dd></div><div><dt>最低訓練</dt><dd>${q.training}／${q.trainingRequired} 次</dd></div></dl><details class="job-secondary-details" data-disclosure-key="job-details:${job.id}"><summary>查看劇情、合作陣容與完整資格</summary>${storyPanel(job, record)}${sequels}${castPanel(record)}${crewPanel(record)}<section class="qualification-panel"><div><h3>${q.met ? `${esc(role.label)}資質完整` : `${esc(role.label)}仍有能力尚未達標`}</h3><p>${esc(job.audition.tip)}${["電影", "電視劇"].includes(job.category) ? " 角色位階會直接影響本通告的能力門檻與試鏡競爭強度。" : ""}</p></div><div class="req-list">${requirementRows(job)}</div></section></details>${record.notice ? `<div class="job-notice">${esc(record.notice)}</div>` : ""}</section></div>`;
 }

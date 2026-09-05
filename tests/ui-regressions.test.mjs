@@ -100,6 +100,7 @@ test("品牌後台顯示合作狀態而不是不存在的 score 造成全為 0",
 
 test("經紀公司頁明確說明簽約準備度成長方式",()=>{
  resetState();
+ state.visitedLocationsByWeek[state.week]=["business"];
  const html=agencyApp();
  assert.match(html,/簽約準備度怎麼增加/);
  assert.match(html,/未簽約時完成每週任務/);

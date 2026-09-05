@@ -1,15 +1,17 @@
+import { agencyContactsUnlocked } from "../logic/city-progression.js";
+import { phoneApp } from "./phone.js";
 import { firstWorkJourney } from "../logic/first-work.js";
 import { workArtFor } from "../data/work-art.js";
 import { AGENCIES, AGENCY_LIST } from "../data/agencies.js";
 import { state } from "../core/state.js";
 import { titleTag, esc, money, yearOf, weekInYear } from "../core/utils.js";
-import { portraitThumbAsset } from "../data/wardrobe.js";
+import { playerLookImage } from "./player-look.js";
 import {
   isAgencyContractActive,
   checkAgencyEligibility,
 } from "../logic/agency.js";
 import { playerAge } from "../logic/romance-engine.js";
-import { budget, plannerApp } from "./planner.js";
+import { plannerApp } from "./planner.js";
 import { statsApp } from "./stats-app.js";
 import { peopleHubApp } from "./people.js";
 import { logApp } from "./log.js";
@@ -39,16 +41,6 @@ import { playerRealName } from "../core/player-name.js";
 import { JOB_BY_ID } from "../data/jobs.js";
 import { confirmationDialog } from "./confirm-dialog.js";
 
-function jobHomeStatus() {
-  const active = Object.values(state.activeJobs || {}).filter(
-    (j) => j.stage === "active",
-  );
-  if (active.length)
-    return `${active.length} 份執行中・剩餘 ${active.reduce((s, j) => s + j.remainingSessions, 0)} 次工作`;
-  return state.currentAgencyId
-    ? "查看經紀人送來的工作"
-    : "去產業公司找公開徵選";
-}
 export function playerIdentityLabel() {
   if (isAgencyContractActive())
     return `${esc(AGENCIES[state.currentAgencyId].name)}・旗下新人`;
@@ -56,13 +48,22 @@ export function playerIdentityLabel() {
   return "未簽約新人";
 }
 export function roomView() {
-  const unread = (state.npcMessages || []).filter(
-    (message) => !message.read,
-  ).length;
-  const saveStatus = state.saveStatus || "saved";
-  return `<main class="room-screen"><img class="room-bg" src="./assets/rookie-room.webp" width="1536" height="1024" decoding="async" fetchpriority="high" alt="新人租屋處的工作桌"><header class="room-hud"><div class="player-chip"><div>${esc(state.name.slice(0, 1))}<img class="portrait-img" src="${portraitThumbAsset(state.avatarId, state.outfitId)}" width="160" height="320" decoding="async" alt="玩家目前造型"></div><span><b>${esc(state.name)}</b><small>${playerAge()} 歲・${playerIdentityLabel()}</small></span></div><div class="hud-stats"><span>💰 <b>${money(state.money)}</b></span><span>★ 知名度 <b>${state.fame}</b></span><span>♡ 粉絲 <b>${state.fans}</b></span><span>☁ 疲勞 <b>${state.fatigue}</b></span></div><button class="save-status" data-save-status="${saveStatus}" data-open-app="save"><i aria-hidden="true"></i><span><b>${saveStatus === "saving" ? "儲存中…" : saveStatus === "error" ? "尚未儲存" : "已儲存"}</b><small>${saveStatus === "error" ? "點擊開啟存檔管理" : "進度保存在此裝置"}</small></span></button></header><button class="desk-pin phone-pin" data-open-app="people"><i>${unread || "♡"}</i><b>手機</b><small>${unread ? `${unread} 則未讀訊息` : state.knownPeople.length ? "查看聯絡人" : "新的城市，空白通訊錄"}</small></button><button class="desk-pin mail-pin" data-open-job><i>!</i><b>工作信箱</b><small>${jobHomeStatus()}</small></button><section class="tablet"><div class="tablet-camera"></div><div class="tablet-screen">${tabletHome()}${tabletDock()}</div></section>${state.appOpen ? appWindow() : ""}${confirmationDialog()}</main>`;
+  const saveStatus = state.saveStatus || "saved",
+    expanded = state.appLibraryExpanded || state.dockEditing;
+  const objects = [
+    { id: "map", x: 74, y: 24, w: 25, h: 31, label: "窗外・星望市" },
+    { id: "planner", x: 45, y: 57, w: 30, h: 40, label: "平板・本週行程" },
+    { id: "phone", x: 12, y: 83, w: 19, h: 17, label: "手機・我的日常" },
+    { id: "creative", x: 45, y: 84, w: 21, h: 12, label: "筆記・創作" },
+    { id: "jobs", x: 68, y: 82, w: 19, h: 24, label: "文件・工作信箱" },
+    { id: "world", x: 88, y: 45, w: 15, h: 25, label: "書刊・娛樂圈" },
+  ];
+  return `<main class="room-screen scene-room"><header class="room-hud"><button class="player-chip" data-open-app="wardrobe" aria-label="開啟玩家衣櫃"><div>${playerLookImage({ className: "portrait-img" })}</div><span><b>${esc(state.name)}</b><small>${playerAge()} 歲・${playerIdentityLabel()}</small></span></button><div class="hud-stats"><span>💰 <b>${money(state.money)}</b></span><span>★ <b>${state.fame}</b></span><span>♡ <b>${state.fans}</b></span><span>☁ <b>${state.fatigue}</b></span></div><button class="save-status" data-save-status="${saveStatus}" data-open-app="save"><i aria-hidden="true"></i><span><b>${saveStatus === "saving" ? "儲存中…" : saveStatus === "error" ? "尚未儲存" : "已儲存"}</b><small>進度保存在此裝置</small></span></button></header><div class="room-scene-frame"><section class="room-stage" aria-label="可以點擊物件的房間"><img class="room-bg" src="./assets/rookie-room.webp" width="1400" height="788" alt="星望市的新房間，桌上有可操作的平板、手機、文件與筆記本" draggable="false" fetchpriority="high">${objects.map((o) => `<button class="scene-object ${o.id === "phone" ? "home-phone-entry" : ""}" data-open-app="${o.id}" style="--object-x:${o.x}%;--object-y:${o.y}%;--object-w:${o.w}%;--object-h:${o.h}%" aria-label="${o.label}"><span class="scene-object-tag"><i>${appIcon(o.id)}</i>${o.label}</span></button>`).join("")}<div class="scene-guidance">${guidedJourney()}</div></section></div><header class="scene-date"><span>第 ${yearOf()} 年・第 ${weekInYear()} 週</span><b>${esc(playerRealName(state))}，早安。</b><small>點房間物件，開始今天的生活</small></header><p class="scene-pan-hint">左右滑動房間・點物件操作</p><div class="scene-bottom">${tabletDock()}<button class="scene-menu-button" data-app-library-toggle aria-expanded="${Boolean(expanded)}" aria-label="${expanded ? "收起" : "開啟"}全部功能">${appIcon("gallery")}<span>${expanded ? "收起" : "全部功能"}</span></button></div>${expanded ? `<section class="room-menu" aria-label="全部功能">${tabletHome()}<details class="scene-weekly-details"><summary>本週近況與經紀資訊</summary>${weeklyCommandCenter()}${agencyHomeCard()}</details></section>` : ""}${state.appOpen ? appWindow() : ""}${confirmationDialog()}</main>`;
 }
+
 export function agencyHomeCard() {
+  if (!agencyContactsUnlocked(state))
+    return `<button class="agency-entry" data-open-app="agency"><div><span>經紀公司</span><b>從認識業界開始</b></div><small>先了解投遞與面談流程 →</small></button>`;
   if (isAgencyContractActive()) {
     const a = AGENCIES[state.currentAgencyId],
       remain = Math.max(0, state.agencyContractEndWeek - state.week + 1);
@@ -116,7 +117,6 @@ function weeklyCommandCenter() {
   return `<section class="home-briefing"><header><span>THIS WEEK・行前簡報</span><b>先看急事，再看人，最後確認今年要去哪裡</b></header><div class="home-priority-grid"><button data-open-app="${job ? "jobs" : "planner"}"><small>① 現在最急</small><b>${urgentTitle}</b><em>${urgentText}</em></button><button data-open-app="people"><small>② 有人在找你</small><b>${peopleTitle}</b><em>${peopleText}</em></button><button data-open-app="world"><small>③ 本章目標・第 ${phase.year} 年</small><b>${esc(phase.label)}｜${esc(phase.goal)}</b><em>${esc(phase.pressure || phase.world)}</em></button></div><footer><small>市場風向</small><b>${esc(market)}</b></footer></section>`;
 }
 function baseTabletHome() {
-  const phase = careerPhase();
   const selected = dockSelection();
   const expanded = state.appLibraryExpanded || state.dockEditing;
   const appQuery = (state.appQuery || "").trim().toLocaleLowerCase("zh-Hant"),
@@ -141,7 +141,7 @@ function baseTabletHome() {
   const tools = state.dockEditing
     ? `<div class="dock-editor-actions"><span>快捷列 ${selected.length}／6</span><button data-dock-reset>恢復預設</button><button data-dock-cancel>取消</button><button class="primary" data-dock-save ${selected.length === 6 ? "" : "disabled"}>完成</button></div>`
     : `<div class="app-library-actions"><button data-app-library-toggle>${expanded ? "收合" : "查看全部 App"}</button>${expanded ? `<button data-dock-edit>編輯快捷列</button>` : ""}</div>`;
-  return `<div class="tablet-home"><header><span>第 ${yearOf()} 年・第 ${weekInYear()} 週</span><b>${esc(playerRealName(state))}，早安！</b><small>${esc(phase.label)}・${esc(phase.goal)}</small></header>${guidedJourney()}${weeklyCommandCenter()}${agencyHomeCard()}<button class="next-action" data-open-app="planner"><span>本週主要行動</span><b>安排第 ${state.week} 週行程</b><small>預計支出 ${money(budget())}</small><i aria-hidden="true">→</i></button><section class="app-library ${state.dockEditing ? "editing" : ""} ${expanded ? "expanded" : "compact"}"><header><div><span>${state.dockEditing ? "CUSTOMIZE DOCK" : expanded ? "APP LIBRARY" : "RECENT & FAVORITES"}</span><b>${state.dockEditing ? "挑選六個常用 App" : expanded ? "全部 App" : "最近使用"}</b></div>${tools}</header>${state.dockEditing ? `<p class="dock-editor-note">點選 App 加入或移出下方快捷列；排列順序就是你加入的順序。${state.dockNotice ? `<strong>${esc(state.dockNotice)}</strong>` : ""}</p>` : expanded ? `<div class="app-library-tools"><label><span class="sr-only">搜尋 App</span><input type="search" data-app-query data-focus-key="app-query" value="${esc(state.appQuery || "")}" placeholder="搜尋 App 或功能" aria-label="搜尋 App"></label><nav aria-label="App 分類">${APP_CATEGORY_LABELS.map((category) => `<button data-app-category="${category}" aria-pressed="${appCategory === category}" class="${appCategory === category ? "active" : ""}">${category}</button>`).join("")}</nav></div>` : ""}<div class="home-launchers">${(state.dockEditing ? APP_LIBRARY_IDS : visibleApps).map(appTile).join("")}</div>${expanded && !state.dockEditing && !visibleApps.length ? `<div class="app-library-empty"><b>沒有找到符合的 App</b><button data-clear-app-filters>清除搜尋與分類</button></div>` : ""}</section></div>`;
+  return `<div class="tablet-home"><section class="app-library ${state.dockEditing ? "editing" : ""} ${expanded ? "expanded" : "compact"}"><header><div><span>${state.dockEditing ? "CUSTOMIZE DOCK" : expanded ? "APP LIBRARY" : "RECENT & FAVORITES"}</span><b>${state.dockEditing ? "挑選六個常用 App" : expanded ? "全部 App" : "最近使用"}</b></div>${tools}</header>${state.dockEditing ? `<p class="dock-editor-note">點選 App 加入或移出下方快捷列；排列順序就是你加入的順序。${state.dockNotice ? `<strong>${esc(state.dockNotice)}</strong>` : ""}</p>` : expanded ? `<div class="app-library-tools"><label><span class="sr-only">搜尋 App</span><input type="search" data-app-query data-focus-key="app-query" value="${esc(state.appQuery || "")}" placeholder="搜尋 App 或功能" aria-label="搜尋 App"></label><nav aria-label="App 分類">${APP_CATEGORY_LABELS.map((category) => `<button data-app-category="${category}" aria-pressed="${appCategory === category}" class="${appCategory === category ? "active" : ""}">${category}</button>`).join("")}</nav></div>` : ""}<div class="home-launchers">${(state.dockEditing ? APP_LIBRARY_IDS : visibleApps).map(appTile).join("")}</div>${expanded && !state.dockEditing && !visibleApps.length ? `<div class="app-library-empty"><b>沒有找到符合的 App</b><button data-clear-app-filters>清除搜尋與分類</button></div>` : ""}</section></div>`;
 }
 function guidedJourney() {
   const journey = firstWorkJourney(state);
@@ -149,7 +149,7 @@ function guidedJourney() {
     const art = workArtFor(journey.work);
     return `<button class="first-work-keepsake" data-open-app="log">${art ? `<img src="${art.src}" alt="${esc(art.alt)}">` : '<i aria-hidden="true">✦</i>'}<span><small>房間裡的第一份紀念</small><b>${esc(journey.work.title)}</b><small>第一份作品・翻開履歷 →</small></span></button>`;
   }
-  return `<section class="journey-guide"><header><span>CAREER GUIDE・第一份作品</span><b>${journey.label}</b><p>${journey.text}</p></header><div><button data-open-app="${journey.app}">${journey.action}<i>→</i></button></div></section>`;
+  return `<section class="journey-guide"><header><span>下一步</span><b>${journey.label}</b><details class="journey-note"><summary aria-label="查看下一步說明">?</summary><p>${journey.text}</p></details></header><div><button ${journey.location && journey.app === "map" ? `data-city-shortcut="${journey.location}"` : `data-open-app="${journey.app}"`}>${journey.action}<i>→</i></button></div></section>`;
 }
 export function tabletHome() {
   return baseTabletHome().replace("最近使用", "最近與常用");
@@ -221,6 +221,7 @@ export function appWindow() {
     stats: statsApp,
     creative: creativeApp,
     wardrobe: wardrobeApp,
+    phone: phoneApp,
     people: peopleHubApp,
     log: logApp,
     world: worldApp,
@@ -239,5 +240,5 @@ export function appWindow() {
     state.appReturnContext?.app && state.appReturnContext.app !== state.appOpen
       ? `<button class="window-return" data-return-app="${esc(state.appReturnContext.app)}">← ${esc(state.appReturnContext.label || "返回上一頁")}</button>`
       : "";
-  return `<div class="app-backdrop" data-close-app></div><section class="app-window ${state.appOpen}" role="dialog" aria-modal="true" aria-labelledby="app-window-title" tabindex="-1"><header class="window-bar">${returnButton}<div class="window-icon tone-${meta.tone}">${appIcon(state.appOpen)}</div><div><h2 id="app-window-title">${meta.title}</h2><p>${meta.note}</p></div>${state.appOpen === "planner" ? `<button class="window-start" id="begin-week">開始這週 →</button>` : ""}<button class="window-close" data-close-app aria-label="關閉${meta.title}">×</button></header><div class="window-body">${body}</div></section>`;
+  return `<div class="app-backdrop" data-close-app></div><section class="app-window ${state.appOpen}" role="dialog" aria-modal="true" aria-labelledby="app-window-title" tabindex="-1"><header class="window-bar">${returnButton}<div class="window-icon tone-${meta.tone}">${appIcon(state.appOpen)}</div><div><h2 id="app-window-title">${meta.title}</h2><details class="window-help"><summary aria-label="介面說明">?</summary><p>${meta.note}</p></details></div>${state.appOpen === "planner" ? `<button class="window-start" id="begin-week">開始這週 →</button>` : ""}<button class="window-close" data-close-app aria-label="關閉${meta.title}">×</button></header><div class="window-body">${body}</div></section>`;
 }

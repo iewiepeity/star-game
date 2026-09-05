@@ -89,13 +89,13 @@ test("經紀人互動有三個真正取捨而非單鍵加數值", () => {
   assert.equal(new Set(d.choices.map((c) => c.id)).size, 3);
   assert.ok(d.text.length > 30);
 });
-test("五年職涯、世界週報、目的型地圖與行程控制台均可見", () => {
+test("五年職涯、世界週報、城市建築地圖與行程控制台均可見", () => {
   const s = fresh();
   assert.equal(CAREER_PHASES.length, 5);
   s.week = 209;
   assert.equal(careerPhase().year, 5);
-  assert.match(worldApp(), /INDUSTRY DESK/);
-  assert.match(mapApp(), /找試鏡／通告/);
+  assert.match(worldApp(), /娛樂週報/);
+  assert.match(mapApp(), /data-city-place="tv_company"/);
   assert.match(plannerApp(), /WEEK CONTROL/);
 });
 test("社群草稿會引用已完成作品，而非永遠只有三句固定貼文", () => {

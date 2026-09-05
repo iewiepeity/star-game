@@ -1,0 +1,33 @@
+Generation mode: builtin image_gen, edit from original starwish-city.jpg.
+Output: starwish-city-soft.jpg (converted from generated PNG to JPEG).
+Prompt:
+Edit target: the supplied complete Starwish City map. Redraw this SAME 3:2 city composition as a much SIMPLER, calmer hand-painted 2D life-simulation game map. Preserve the original gentle watercolor / colored-pencil illustration style and warm cream, muted dusty rose, sage green and pale blue palette, but reduce visual detail by about 80%. Keep every one of the 26 recognizable landmarks in the same relative positions listed below, with airy negative space between them.
+The current map is too busy. Remove ALL tiny filler houses and dense city background, crowds, cars, flowerbeds, brickwork, ornate facade lines, tiny windows, road markings and repetitive wave textures. Replace them with broad quiet pastel washes, simple lawns, occasional small groups of 2 or 3 rounded trees and wide uncluttered curved streets. Simplify each landmark into a clear charming silhouette with only ONE or TWO defining architectural details. Use soft thin outlines, large color shapes, very little texture or shading, and low-contrast background. Keep buildings readable and distinct; do not blur the existing image or merely reduce saturation. Leave approximately 45% of the map as calm streets, open lawns and flat pale-blue sea. The overall effect should be an approachable artist-drawn storybook city for a Taiwanese celebrity life sim, not a dense aerial city painting, not a photo, not a 3D render, not a technical vector diagram.
+Preserve all 26 locations, one separate landmark each, near these percentage centers x,y:
+14,17 film company cream office with film reel emblem;
+32,16 photography soundstage with simple sawtooth roof;
+49,14 record company office with vinyl record emblem;
+60,17 recording studio with piano-key awning;
+73,12 television company with two satellite dishes;
+11,32 rehearsal hall with big practice windows;
+25,30 small theatre with red curtains;
+43,32 live music house with guitar sign;
+58,30 dance school with dancer silhouette sign;
+72,26 media production company with a single pastel billboard;
+90,30 radio station with red broadcast mast;
+12,47 vintage cinema with blank marquee;
+30,45 white art gallery with one orange sculpture;
+47,49 public library with open-book emblem;
+56,51 small pink-awning coffee shop;
+71,45 business center of three simple office towers;
+91,49 small coastal airport with one tiny airplane;
+11,67 gym and one basketball court;
+30,64 traditional Taiwanese temple with simplified orange roof;
+45,69 market square with ONLY three market stalls;
+60,68 glass-roofed shopping mall;
+79,75 riverside park with one gazebo and a few trees;
+14,86 medical clinic with a cross sign;
+30,86 beauty salon with oval mirror sign;
+58,87 two-story restaurant with a terrace;
+88,90 pale sandy beach with ONLY two parasols and a small pier.
+Maintain a simple river near the right side and a single bridge, with a pale quiet sea down the right edge. Ensure the café stays separate and visible next to the library, all 26 landmarks are fully within frame. No written text, names, labels, numbers, UI, pins, legends, logos, watermarks or borders. Final landscape image 1536x1024.

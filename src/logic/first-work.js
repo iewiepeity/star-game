@@ -1,3 +1,4 @@
+import { newcomerStep } from "./city-progression.js";
 export function firstWorkJourney(game) {
   const work = game.completedWorks?.[0];
   if (work)
@@ -39,6 +40,8 @@ export function firstWorkJourney(game) {
       app: "jobs",
       action: "確認試鏡安排",
     };
+  const first = newcomerStep(game);
+  if (first) return first;
   return {
     stage: "discover",
     label: "尋找第一個真正的機會",

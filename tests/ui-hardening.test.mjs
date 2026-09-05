@@ -31,11 +31,11 @@ test("only the currently open app binds its interaction layer", async () => {
 });
 
 test("planner, jobs and map include the new compact operation controls", async () => {
-  const [planner, jobs, map, settings] = await Promise.all([read("src/views/planner.js"), read("src/views/jobs.js"), read("src/views/map.js"), read("src/views/settings.js")]);
+  const [planner, jobs, map, settings] = await Promise.all([read("src/views/planner.js"), read("src/views/jobs.js"), read("src/views/city-map.js"), read("src/views/settings.js")]);
   assert.match(planner, /data-clear-day/);
   assert.match(planner, /aria-pressed/);
   assert.match(jobs, /工作狀態篩選/);
-  assert.match(map, /map-place-details/);
-  assert.match(map, /aria-pressed/);
+  assert.match(map, /data-city-search/);
+  assert.match(map, /aria-expanded/);
   assert.match(settings, /主動退圈並查看結算/);
 });
