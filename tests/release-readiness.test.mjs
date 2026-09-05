@@ -4,6 +4,19 @@ import { readFile } from "node:fs/promises";
 import { initialState, state } from "../src/core/state.js";
 import { roomView } from "../src/views/room.js";
 
+const root = new URL("../", import.meta.url);
+
+async function readLegacyCss() {
+  const html = await readFile(new URL("index.html", root), "utf8");
+  const files = [...html.matchAll(/href="\.\/(legacy-[^"]+\.css)"/g)].map(
+    match => match[1],
+  );
+  assert.ok(files.length > 0);
+  return (
+    await Promise.all(files.map(file => readFile(new URL(file, root), "utf8")))
+  ).join("\n");
+}
+
 test("首頁依職涯階段給出下一步，而不是把全部 App 當成教學", () => {
   Object.assign(state, initialState(), { screen: "room", name: "Beta 新人" });
   const rookie = roomView();
@@ -39,7 +52,7 @@ test("網頁提供基本 CSP，阻擋任意腳本、外掛與 base URL 注入", 
 
 test("共用確認視窗維持最上層互動與背景取消功能", async () => {
   const [css, binding] = await Promise.all([
-    readFile(new URL("../style.css", import.meta.url), "utf8"),
+    readLegacyCss(),
     readFile(new URL("../src/bind/room.js", import.meta.url), "utf8"),
   ]);
   assert.doesNotMatch(css, /\.confirm-backdrop\{pointer-events:none/);

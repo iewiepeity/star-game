@@ -13,6 +13,17 @@ import { meetNpc } from "../src/logic/npc-engine.js";
 
 const root = new URL("../", import.meta.url);
 
+async function readLegacyCss() {
+  const html = await readFile(new URL("index.html", root), "utf8");
+  const files = [...html.matchAll(/href="\.\/(legacy-[^"]+\.css)"/g)].map(
+    match => match[1],
+  );
+  assert.ok(files.length > 0);
+  return (
+    await Promise.all(files.map(file => readFile(new URL(file, root), "utf8")))
+  ).join("\n");
+}
+
 test("手機公司選擇提供明確提示且不要求左右滑動", () => {
   resetState();
   const html = agencyApp();
@@ -44,7 +55,7 @@ test("試鏡通過與進行中通告都直接出現在行程工作區", () => {
 });
 
 test("手機快捷列與事件選項有防溢位版面規則", async () => {
-  const css = await readFile(new URL("style.css", root), "utf8");
+  const css = await readLegacyCss();
   assert.match(css, /grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
   assert.match(css, /\.event-choice-list button\{display:flex!important/);
   assert.match(css, /\.event-choice-list button>span\{flex:1 1 auto!important/);
