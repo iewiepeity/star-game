@@ -35,7 +35,7 @@ test("開場志向帶到第一站，經紀公司必須先取得聯絡管道", as
     "先認識迴聲錄音室",
   );
   await page.locator('.journey-guide [data-city-shortcut="recording"]').click();
-  await expect(page.locator(".city-place-detail")).toContainText("聲樂基礎課");
+  await expect(page.locator(".city-preview")).toContainText("聲樂基礎課");
   expect(Object.keys((await snapshot(page)).visits)).toHaveLength(0);
   await open(page, "agency");
   await expect(page.locator(".agency-discovery")).toContainText(
@@ -43,9 +43,7 @@ test("開場志向帶到第一站，經紀公司必須先取得聯絡管道", as
   );
   await expect(page.locator('[data-agency-action="apply"]')).toHaveCount(0);
   await page.locator('[data-city-shortcut="business"]').click();
-  await expect(page.locator(".city-place-detail")).toContainText(
-    "星環商務中心",
-  );
+  await expect(page.locator(".city-preview")).toContainText("星環商務中心");
 });
 test("實際探索後才解鎖課程，自由活動當天可以操作城市地圖", async ({
   page,
@@ -54,10 +52,8 @@ test("實際探索後才解鎖課程，自由活動當天可以操作城市地�
   await open(page, "planner");
   await expect(page.locator('[data-pick="vocal"]')).toHaveCount(0);
   await page.locator('[data-discover-training="recording"]').first().click();
-  await expect(page.locator(".city-place-detail")).toContainText("尚未到訪");
-  await page
-    .locator('.city-place-detail [data-map-location="recording"]')
-    .click();
+  await expect(page.locator(".city-preview")).toContainText("尚未到訪");
+  await page.locator('.city-preview [data-city-confirm="recording"]').click();
   await expect(page.locator('[data-day="0"]')).toContainText("迴聲錄音室");
   await page.evaluate(async () => {
     (await import("/src/core/preferences.js")).setPreference(
@@ -68,9 +64,8 @@ test("實際探索後才解鎖課程，自由活動當天可以操作城市地�
   await page.locator("#begin-week").click();
   await expect(page.locator('[data-choice="focus"]')).toBeVisible();
   await page.locator(".runner-city-map > summary").click();
-  await page.locator('.runner-city-map [data-city-district="life"]').click();
   await page.locator('.runner-city-map [data-city-place="dance"]').click();
-  await page.locator("[data-city-travel]").click();
+  await page.locator('[data-city-confirm="dance"]').click();
   expect(Object.keys((await snapshot(page)).visits)).toHaveLength(0);
   await page.screenshot({ path: info.outputPath("city-map.png") });
   await page.locator('[data-choice="focus"]').click();
@@ -83,13 +78,28 @@ test("實際探索後才解鎖課程，自由活動當天可以操作城市地�
   });
   await expect(page.locator('[data-pick="dance"]')).toBeVisible();
   await expect(page.locator('[data-pick="vocal"]')).toHaveCount(0);
-  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("star-game-save")||"{}").state?.visitedLocationsByWeek?.[1]?.includes("dance"))).toBe(true);
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        JSON.parse(
+          localStorage.getItem("star-game-save") || "{}",
+        ).state?.visitedLocationsByWeek?.[1]?.includes("dance"),
+      ),
+    )
+    .toBe(true);
   await page.reload();
   // A queued story can legitimately open on reload; verify the saved unlock independently.
-  await expect.poll(() => page.evaluate(async () => {
-    const { state } = await import("/src/core/state.js");
-    return (await import("/src/logic/city-progression.js")).trainingAccess(state, "dance").unlocked;
-  })).toBe(true);
+  await expect
+    .poll(() =>
+      page.evaluate(async () => {
+        const { state } = await import("/src/core/state.js");
+        return (await import("/src/logic/city-progression.js")).trainingAccess(
+          state,
+          "dance",
+        ).unlocked;
+      }),
+    )
+    .toBe(true);
 });
 test("手機可查看社群與返回，瀏覽不推進日期或消耗資源", async ({ page }) => {
   await create(page);

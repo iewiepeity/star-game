@@ -1,9 +1,121 @@
-import{FORUM_THREADS,FORUM_CATEGORIES,FORUM_HANDLES}from"../data/forum.js";
-import{state}from"../core/state.js";
-import{esc}from"../core/utils.js";
-function playerThread(){const latest=state.weekResults.at(-1),known=state.knownPeople.length;const title=state.fame>=80?`最近常看到新人「${state.name}」，有人追嗎？`:latest?`有人在${latest.action}看到一位很認真的新人`:"星望市是不是又多了一位新人？";const body=state.rep.爭議度>=120?"討論很多，先提醒大家理性，不要把猜測當成事實。":known?"聽說已經開始跑行程，也和圈內人有互動。先放一個觀察名單。":"目前資料很少，只知道正在默默訓練。新人加油。";return{id:"player",category:"熱門",title,author:"新人觀察簿",body,heat:Math.max(48,state.fame*7+state.fans),replies:["有努力就先給鼓勵。","先看作品，不急著下定論。","感覺會是慢慢成長的類型。","這串先卡位，以後紅了回來簽到。"]}}
-function newsThreads(){return(state.industryNews||[]).slice(0,12).map(n=>({id:`news-${n.id}`,category:n.category==="獎項"||n.category==="圈內"?"熱門":"作品",title:n.title,author:"娛樂搬運工",body:n.body,heat:n.heat||60,replies:["這個有後續嗎？","最近真的一直看到相關消息。","先看作品跟實績再說。","娛樂圈的風向變得也太快。","卡一個，過幾週回來看。"]}))}
-function echoThreads(){return[...(state.livingWorldFeed||[])].reverse().filter(item=>["作品長尾","履約回聲","人物近況","世界反應"].includes(item.type)).slice(0,8).map((item,index)=>({id:`echo-${item.id}`,category:item.type==="作品長尾"?"作品":"熱門",title:item.title,author:item.type==="人物近況"?"圈內目擊":"後續觀察站",body:item.text,heat:Math.max(55,90-index*4+Math.min(180,state.fame*2)),replies:item.type==="作品長尾"?["這個作品居然還有後續討論。","當時那段真的滿有記憶點。","所以前面的選擇現在才看出影響。","娛樂圈真的不是播完就沒事。"]:["原來後面還有這段。","先卡，感覺還會繼續發酵。","這種圈內後續比熱搜本身有意思。","幾週前的事情現在又回來了。"]}))}
-function allThreads(){return[playerThread(),...echoThreads(),...newsThreads(),...FORUM_THREADS]}
-function repliesFor(thread){const shift=state.forumRefresh%thread.replies.length;return Array.from({length:6},(_,i)=>({handle:FORUM_HANDLES[(i+shift+thread.id.length)%FORUM_HANDLES.length],text:thread.replies[(i+shift)%thread.replies.length],likes:3+((thread.heat+i*17+shift*9)%86)}))}
-export function forumApp(){const threads=allThreads(),selected=threads.find(t=>t.id===state.forumThread);if(selected){const reaction=state.forumReactions?.[`${state.week}:${selected.id}`];return `<div class="forum-page"><button class="forum-back" data-forum-back>← 返回討論區</button><article class="forum-thread-detail"><span>${selected.category}・熱度 ${selected.heat}</span><h2>${esc(selected.title)}</h2><small>${esc(selected.author)}・第 ${state.week} 週</small><p>${esc(selected.body)}</p></article><section class="forum-player-reply"><b>要怎麼參與這串討論？</b>${reaction?`<span>✓ 這週已留下回應</span>`:`<div><button data-forum-react="reason">理性補充</button><button data-forum-react="join">分享經驗</button><button data-forum-react="ignore">先觀望</button></div>`}</section><div class="forum-reply-head"><b>網友回覆</b><button data-forum-refresh>重新整理留言 ↻</button></div><div class="forum-replies">${repliesFor(selected).map((r,i)=>`<article><i>${r.handle.slice(0,1)}</i><div><b>${esc(r.handle)}</b><p>${esc(r.text)}</p><small>#${i+1}・♡ ${r.likes}</small></div></article>`).join("")}</div></div>`}const category=state.forumCategory||"熱門",visible=category==="熱門"?threads:threads.filter(t=>t.category===category);return `<div class="forum-page"><header class="forum-hero"><div><span>STAR TALK</span><h2>星談論壇</h2><p>匿名娛樂圈討論區・作品、獎項、NPC 動態與幾週前留下的後果都會流進討論串</p></div><b>即時熱門 ${threads.reduce((n,t)=>n+t.heat,0)}</b></header><nav class="forum-tabs" aria-label="論壇分類">${FORUM_CATEGORIES.map(c=>`<button class="${c===category?"active":""}" data-forum-category="${c}" aria-pressed="${c===category}">${c}</button>`).join("")}</nav><div class="forum-thread-list">${visible.map((t,i)=>`<button data-forum-thread="${t.id}"><i>${i+1}</i><span><small>${t.category}・${esc(t.author)}</small><b>${esc(t.title)}</b><em>${esc(t.body)}</em></span><strong>🔥 ${t.heat}</strong></button>`).join("")}</div><aside class="forum-disclaimer">論壇內容由遊戲狀態與文字模板生成，不代表真實人物或網友發言。</aside></div>`}
+import { appIcon } from "./app-icons.js";
+import {
+  FORUM_THREADS,
+  FORUM_CATEGORIES,
+  FORUM_HANDLES,
+} from "../data/forum.js";
+import { state } from "../core/state.js";
+import { esc } from "../core/utils.js";
+function playerThread() {
+  const latest = state.weekResults.at(-1),
+    known = state.knownPeople.length;
+  const title =
+    state.fame >= 80
+      ? `最近常看到新人「${state.name}」，有人追嗎？`
+      : latest
+        ? `有人在${latest.action}看到一位很認真的新人`
+        : "星望市是不是又多了一位新人？";
+  const body =
+    state.rep.爭議度 >= 120
+      ? "討論很多，先提醒大家理性，不要把猜測當成事實。"
+      : known
+        ? "聽說已經開始跑行程，也和圈內人有互動。先放一個觀察名單。"
+        : "目前資料很少，只知道正在默默訓練。新人加油。";
+  return {
+    id: "player",
+    category: "熱門",
+    title,
+    author: "新人觀察簿",
+    body,
+    heat: Math.max(48, state.fame * 7 + state.fans),
+    replies: [
+      "有努力就先給鼓勵。",
+      "先看作品，不急著下定論。",
+      "感覺會是慢慢成長的類型。",
+      "這串先卡位，以後紅了回來簽到。",
+    ],
+  };
+}
+function newsThreads() {
+  return (state.industryNews || [])
+    .slice(0, 12)
+    .map((n) => ({
+      id: `news-${n.id}`,
+      category:
+        n.category === "獎項" || n.category === "圈內" ? "熱門" : "作品",
+      title: n.title,
+      author: "娛樂搬運工",
+      body: n.body,
+      heat: n.heat || 60,
+      replies: [
+        "這個有後續嗎？",
+        "最近真的一直看到相關消息。",
+        "先看作品跟實績再說。",
+        "娛樂圈的風向變得也太快。",
+        "卡一個，過幾週回來看。",
+      ],
+    }));
+}
+function echoThreads() {
+  return [...(state.livingWorldFeed || [])]
+    .reverse()
+    .filter((item) =>
+      ["作品長尾", "履約回聲", "人物近況", "世界反應"].includes(item.type),
+    )
+    .slice(0, 8)
+    .map((item, index) => ({
+      id: `echo-${item.id}`,
+      category: item.type === "作品長尾" ? "作品" : "熱門",
+      title: item.title,
+      author: item.type === "人物近況" ? "圈內目擊" : "後續觀察站",
+      body: item.text,
+      heat: Math.max(55, 90 - index * 4 + Math.min(180, state.fame * 2)),
+      replies:
+        item.type === "作品長尾"
+          ? [
+              "這個作品居然還有後續討論。",
+              "當時那段真的滿有記憶點。",
+              "所以前面的選擇現在才看出影響。",
+              "娛樂圈真的不是播完就沒事。",
+            ]
+          : [
+              "原來後面還有這段。",
+              "先卡，感覺還會繼續發酵。",
+              "這種圈內後續比熱搜本身有意思。",
+              "幾週前的事情現在又回來了。",
+            ],
+    }));
+}
+function allThreads() {
+  return [playerThread(), ...echoThreads(), ...newsThreads(), ...FORUM_THREADS];
+}
+function repliesFor(thread) {
+  const shift = state.forumRefresh % thread.replies.length;
+  return Array.from({ length: 6 }, (_, i) => ({
+    handle:
+      FORUM_HANDLES[(i + shift + thread.id.length) % FORUM_HANDLES.length],
+    text: thread.replies[(i + shift) % thread.replies.length],
+    likes: 3 + ((thread.heat + i * 17 + shift * 9) % 86),
+  }));
+}
+export function forumApp() {
+  const threads = allThreads(),
+    selected = threads.find((t) => t.id === state.forumThread);
+  if (selected) {
+    const reaction = state.forumReactions?.[`${state.week}:${selected.id}`];
+    return `<div class="forum-page"><button class="forum-back" data-forum-back>← 返回討論區</button><article class="forum-thread-detail"><span>${selected.category}・熱度 ${selected.heat}</span><h2>${esc(selected.title)}</h2><small>${esc(selected.author)}・第 ${state.week} 週</small><p>${esc(selected.body)}</p></article><section class="forum-player-reply"><b>要怎麼參與這串討論？</b>${reaction ? `<span>✓ 這週已留下回應</span>` : `<div><button data-forum-react="reason">理性補充</button><button data-forum-react="join">分享經驗</button><button data-forum-react="ignore">先觀望</button></div>`}</section><div class="forum-reply-head"><b>網友回覆</b><button data-forum-refresh>重新整理留言 ↻</button></div><div class="forum-replies">${repliesFor(
+      selected,
+    )
+      .map(
+        (r, i) =>
+          `<article><i>${r.handle.slice(0, 1)}</i><div><b>${esc(r.handle)}</b><p>${esc(r.text)}</p><small>#${i + 1}・♡ ${r.likes}</small></div></article>`,
+      )
+      .join("")}</div></div>`;
+  }
+  const category = state.forumCategory || "熱門",
+    visible =
+      category === "熱門"
+        ? threads
+        : threads.filter((t) => t.category === category);
+  return `<div class="forum-page"><header class="forum-hero"><div><span>STAR TALK</span><h2>星談論壇</h2><p>匿名娛樂圈討論區・作品、獎項、NPC 動態與幾週前留下的後果都會流進討論串</p></div><b>即時熱門 ${threads.reduce((n, t) => n + t.heat, 0)}</b></header><nav class="forum-tabs" aria-label="論壇分類">${FORUM_CATEGORIES.map((c) => `<button class="${c === category ? "active" : ""}" data-forum-category="${c}" aria-pressed="${c === category}">${c}</button>`).join("")}</nav><div class="forum-thread-list">${visible.map((t) => `<button data-forum-thread="${t.id}"><i>${appIcon("forum")}</i><span><small>${t.category}・${esc(t.author)}</small><b>${esc(t.title)}</b><em>${esc(t.body)}</em></span><strong>🔥 ${t.heat}</strong></button>`).join("")}</div><aside class="forum-disclaimer">論壇內容由遊戲狀態與文字模板生成，不代表真實人物或網友發言。</aside></div>`;
+}

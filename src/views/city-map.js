@@ -1,49 +1,47 @@
-import { workAt, companyShifts } from "../logic/work-progression.js";
 import { state } from "../core/state.js";
 import { MAP_LOCATIONS } from "../data/map-locations.js";
-import { CITY_DISTRICTS } from "../data/city-map.js";
+import { CITY_ART, CITY_LANDMARKS } from "../data/city-map.js";
 import { ACTIONS } from "../data/actions.js";
 import { DAYS } from "../data/calendar.js";
 import { coursesAt, hasVisited } from "../logic/city-progression.js";
+import { workAt, companyShifts } from "../logic/work-progression.js";
+import { contextHint } from "../logic/city-hints.js";
 import { overseasEligibility } from "../logic/overseas.js";
 import { esc, money } from "../core/utils.js";
+import { placeArt } from "./place-art.js";
+export function cityPlaceLocked(id) {
+  return Boolean(
+    MAP_LOCATIONS[id]?.locked &&
+    !(id === "airport" && overseasEligibility().unlocked),
+  );
+}
+export function cityPreview(id, { runner = false, pinned = false } = {}) {
+  const location = MAP_LOCATIONS[id];
+  if (!location) return "";
+  const visited = hasVisited(state, id),
+    locked = cityPlaceLocked(id),
+    courses = coursesAt(id),
+    work = workAt(id),
+    fee = 300 + (location.extraCost || 0);
+  const effect = id === "airport" ? "海外徵選、影展與音樂節" : location.effect;
+  return `<div class="city-preview-art">${placeArt(id)}<span>${visited ? "已到訪" : "尚未到訪"}</span><button data-city-dismiss aria-label="關閉地點介紹">×</button></div><div class="city-preview-copy"><small>${location.area}・${location.category}</small><h3>${esc(location.name)}</h3><p>${esc(id === "airport" ? "第二年後，從這裡出發探索海外舞台。" : location.note)}</p><b class="city-effect">${esc(effect)}</b><p class="city-clue"><i aria-hidden="true">✧</i>${esc(contextHint(id, location, runner ? state.runnerDay : state.selectedDay))}</p>${courses.length ? `<p class="city-unlock">${visited ? "課程已開放" : "初訪開放"}：${courses.map((key) => ACTIONS[key].label).join("、")}</p>` : ""}${work.map(([, job]) => `<p class="city-unlock">${visited ? "已登記打工" : "首次到訪可登記"}：${job.label.split("・")[1]}・${companyShifts(state, job.companyId)} 次經驗</p>`).join("")}${
+    locked
+      ? `<small class="city-locked-note">${overseasEligibility()
+          .requirements.filter((r) => !r.met)
+          .map((r) => esc(r.label))
+          .join("・")}</small>`
+      : ""
+  }${pinned ? `<div class="city-travel-form">${runner ? "" : `<label>選一天<select data-city-day>${DAYS.map((day, i) => `<option value="${i}" ${i === state.selectedDay ? "selected" : ""}>${day}・${ACTIONS[state.schedule[i]]?.short || "已有安排"}</option>`).join("")}</select></label>`}<button data-city-confirm="${id}" ${locked ? "disabled" : ""}>${locked ? "尚未開放" : runner ? "前往這裡" : `安排前往・${money(fee)}`}</button>${id === "shop" && !runner ? "<button data-city-wardrobe>查看服裝目錄</button>" : ""}</div>` : '<small class="city-click-hint">點建築，選擇前往日期</small>'}</div>`;
+}
 export function cityMap({ runner = false } = {}) {
-  const district = CITY_DISTRICTS[state.cityDistrict],
-    selected = MAP_LOCATIONS[state.citySelection]
-      ? state.citySelection
-      : runner
-        ? state.freeLocations[state.runnerDay]
-        : null;
-  const location = MAP_LOCATIONS[selected],
-    visited = location && hasVisited(state, selected);
-  const locked =
-    location?.locked &&
-    !(selected === "airport" && overseasEligibility().unlocked);
-  const pins = district
-    ? district.places.map((id, index) => ({
-        id,
-        label: MAP_LOCATIONS[id].name,
-        x: 20 + (index % 3) * 30,
-        y: 25 + Math.floor(index / 3) * 42,
-        place: true,
-      }))
-    : Object.entries(CITY_DISTRICTS).map(([id, d]) => ({
-        id,
-        label: d.name,
-        x: d.x,
-        y: d.y,
-      }));
-  return `<section class="city-explorer"><header><div><span>STARWISH CITY</span><h2>${district?.name || "星望市・城市導覽"}</h2></div>${district ? '<button data-city-district="all">← 全市地圖</button>' : ""}</header><p>點地圖上的${district ? "地點" : "街區"}查看目的地。查看地圖不花時間，${runner ? "確認探索方式後才結算今天" : "完成實際行程才算到訪"}。</p><div class="city-canvas" role="group" aria-label="星望市互動地圖"><svg viewBox="0 0 900 560" preserveAspectRatio="none" aria-hidden="true"><rect width="900" height="560" fill="#eee6d6"/><path d="M680 -20 Q570 160 720 300 T850 600 L1000 600 1000 -20Z" fill="#b8d1cb"/><path d="M0 165H700M0 370H780M305 0V560M595 0V560" stroke="#fff9ef" stroke-width="32" fill="none"/><path d="M0 165H700M0 370H780M305 0V560M595 0V560" stroke="#d2baa4" stroke-width="2" stroke-dasharray="8 12" fill="none"/><g fill="#d8c0ae" stroke="#c4ab99" stroke-width="2"><rect x="35" y="35" width="94" height="63" rx="12"/><rect x="360" y="36" width="87" height="59" rx="10"/><rect x="665" y="64" width="119" height="62" rx="12"/><rect x="350" y="237" width="138" height="60" rx="12"/><rect x="43" y="460" width="116" height="65" rx="12"/><rect x="470" y="434" width="76" height="90" rx="12"/></g><g fill="#b5c6a5"><ellipse cx="135" cy="293" rx="86" ry="61"/><ellipse cx="697" cy="462" rx="68" ry="40"/></g><path d="M610 365 772 335" stroke="#f7eee1" stroke-width="28"/><text x="700" y="530" fill="#537c78" font-size="20" letter-spacing="6">星望河</text></svg>${pins.map((pin) => `<button class="city-pin ${pin.place && selected === pin.id ? "selected" : ""}" style="--pin-x:${pin.x}%;--pin-y:${pin.y}%" ${pin.place ? `data-city-place="${pin.id}" aria-pressed="${selected === pin.id}"` : `data-city-district="${pin.id}"`}><i aria-hidden="true">${pin.place ? (hasVisited(state, pin.id) ? "✓" : "⌖") : "◇"}</i><span>${esc(pin.label)}</span></button>`).join("")}</div>${
-    location
-      ? `<section class="city-place-detail" aria-live="polite"><span>${visited ? "已到訪" : "尚未到訪"}・${esc(location.area)}</span><h3>${esc(location.name)}</h3><p>${esc(location.note)}</p><p>${esc(location.effect)}</p>${
-          coursesAt(selected).length
-            ? `<p class="city-unlock">${visited ? "可報名課程" : "首次到訪開放"}：${coursesAt(
-                selected,
-              )
-                .map((id) => ACTIONS[id].label)
-                .join("、")}</p>`
-            : ""
-        }${workAt(selected).map(([, job])=>`<p class="city-unlock">${visited ? "已登記打工" : "首次到訪可登記"}：${job.label}・日薪 ${money(job.income[0])}～${money(job.income[1])}。已完成 ${companyShifts(state,job.companyId)} 次；三次後獲得持續徵選資訊。</p>`).join("")}<div><b>交通 ${money(300)}${location.extraCost ? `＋現場支出 ${money(location.extraCost)}` : ""}</b>${runner ? "" : `<label>安排日期<select data-city-day>${DAYS.map((day, i) => `<option value="${i}" ${i === state.selectedDay ? "selected" : ""}>${day}・${ACTIONS[state.schedule[i]]?.short || "已安排"}</option>`).join("")}</select></label>`}<button ${locked ? "disabled" : ""} ${runner ? "data-city-travel" : `data-map-location="${selected}"`}>${locked ? "尚未開放" : runner ? "改為這個目的地" : "安排這次自由活動"}</button></div></section>`
-      : '<p class="city-map-hint">先選街區，再選一個想去的地方。也可使用下方完整地點清單。</p>'
-  }</section>`;
+  return `<section class="city-explorer city-atlas" data-city-atlas data-runner="${runner}"><header class="city-toolbar"><div><span>STARWISH CITY</span><h2>星望市</h2></div><div class="city-tools"><label class="city-search"><span class="sr-only">尋找地點</span><input data-city-search type="search" placeholder="⌕ 找地點" autocomplete="off" aria-label="尋找地點"></label><button data-city-zoom="out" aria-label="縮小地圖">−</button><button data-city-zoom="in" aria-label="放大地圖">＋</button><button data-city-overview aria-label="查看完整城市">全覽</button></div></header><div class="city-search-results" data-city-search-results hidden></div><div class="city-map-frame"><div class="city-viewport" data-city-viewport aria-label="可拖動的星望市地圖"><div class="city-world" data-city-world><img class="city-painting" src="${CITY_ART}" width="1536" height="1024" alt="水彩星望市全景，二十六個地點分布在街道與海岸之間" draggable="false" fetchpriority="high">${Object.entries(
+    CITY_LANDMARKS,
+  )
+    .map(
+      ([id, p]) =>
+        `<button class="city-building ${hasVisited(state, id) ? "visited" : ""} ${cityPlaceLocked(id) ? "locked" : ""}" data-city-place="${id}" style="--place-x:${p.x}%;--place-y:${p.y}%;--place-w:${p.w}%;--place-h:${p.h}%" aria-label="${MAP_LOCATIONS[id].name}${cityPlaceLocked(id) ? "（尚未開放）" : ""}" aria-expanded="false"><span class="city-building-glow"></span><i aria-hidden="true">${cityPlaceLocked(id) ? "◇" : hasVisited(state, id) ? "•" : "✧"}</i><span class="city-building-label">${MAP_LOCATIONS[id].name}</span></button>`,
+    )
+    .join(
+      "",
+    )}</div></div><div class="city-loading" data-city-loading role="status">正在展開星望市…</div><aside class="city-preview" data-city-preview aria-label="地點介紹與今日線索" hidden></aside></div><footer class="city-footer"><span class="pointer-map-hint">移到建築看線索・拖曳地圖移動</span><span class="touch-map-hint">點建築看介紹・滑動地圖探索</span><span>26 個地點 <i>✧ 初次探索　• 已到訪</i></span></footer></section>`;
 }

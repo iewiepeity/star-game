@@ -1,0 +1,29 @@
+Use case: illustration-story. Asset type: final playable 2D city-map background for a Taiwanese show-business life and romance simulation, landscape 1536x1024 or larger 3:2. Paint a charming complete coastal city from a high bird's-eye / gentle isometric angle, all buildings seen as illustrated miniature architecture with roofs and front facades. Original soft hand-painted watercolor and colored pencil on warm ivory paper, muted dusty rose roofs, sage foliage, warm limestone, powder blue windows, turquoise river and sea. Delicate crisp outlines and readable silhouettes, atmospheric but every landmark sharply identifiable. Affectionate late-1990s / early-2000s 2D life-sim background feel, artist-drawn NOT 3D render, NOT vector infographic. All 26 venues must each have a separate distinct building/landmark and be visible together across one interconnected map. Tree-lined winding streets, sidewalks, tiny gardens, bridges, modest background houses connect them; avoid rigid diagram grids. No people closeups. NO TEXT, labels, numbers, UI, location pins, logo, watermark, borders, or vignette obscuring architecture. These will be added by game code.
+Place the following distinct focal landmarks near these normalized canvas centers (x%,y%), keep each within about 10% width and 12% height so they do not overlap; streets between them:
+(13,18) film production company with a film-reel sculpture on a cream office;
+(30,16) broad photography soundstage with studio lights and sawtooth roof;
+(14,36) rehearsal building with large windows and ballet practice bars visible;
+(31,36) small theater with velvet-red entrance curtains;
+(14,55) vintage cinema with blank illuminated marquee and film posters without writing;
+(31,55) white contemporary art gallery with outdoor sculpture;
+(48,15) record label office with giant vinyl-disc emblem;
+(64,16) cozy recording studio with piano-key shaped awning;
+(48,35) live-music venue with acoustic guitar emblem and small outdoor stage;
+(64,35) dance school with arched windows and dancer silhouette signage;
+(80,16) television station with rooftop satellite dishes;
+(91,33) radio station tower with antenna and compact broadcast building;
+(79,35) advertising production office with colorful blank billboard;
+(80,54) business center cluster of elegant cream office towers;
+(48,54) public library with clock and open-book emblem;
+(63,53) ivy-covered cafe with pink awning and terrace tables;
+(48,72) open-air craft market with striped canvas stalls;
+(30,75) traditional Taiwanese temple with red pillars and curved ornate roof;
+(13,74) gym with glass windows and sport courts;
+(14,90) white clinic with a modest cross emblem;
+(30,90) beauty salon with mirror-shaped sign and flowers;
+(63,72) elegant shopping arcade with glass atrium;
+(64,90) warmly lit restaurant with outdoor dining;
+(81,73) large riverside park with curved walking path and flower gardens;
+(87,90) sandy crescent beach, parasols and a small pier;
+(94,57) compact airport terminal, visible airplane and a short runway along the eastern waterfront.
+Eastern edge contains the turquoise coast with the airport, south-east the beach; a small river and arched bridge flow into this coast. Keep all 26 landmark placements visible and separated. Fill the canvas edge-to-edge with the beautiful city environment. Make this a richly illustrated navigable city, not a flat schematic map.

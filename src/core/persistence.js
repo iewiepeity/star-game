@@ -19,6 +19,7 @@ export const TRANSIENT_STATE_KEYS = Object.freeze([
   "runnerCityMapOpen",
   "cityDistrict",
   "citySelection",
+  "cityCamera",
   "npcInvitation",
   "plannerReplacement",
   "confirmDialog",

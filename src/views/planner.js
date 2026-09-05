@@ -1,3 +1,4 @@
+import { placeArt } from "./place-art.js";
 import { COMPANY_PART_TIME } from "../data/part-time.js";
 import { workAccess } from "../logic/work-progression.js";
 import { workDiscovery } from "./work-discovery.js";
@@ -241,9 +242,9 @@ export function activityPicker() {
   return `<div class="planner-day-actions"><button class="planner-clear-day" data-clear-day="${selectedDay}" ${state.schedule[selectedDay] === "rest" ? "disabled" : ""}>清除${DAYS[selectedDay]}行程</button></div><section class="activity-picker" id="planner-activities" aria-label="活動選擇"><header><div><span>接下來排入</span><b>${DAYS[state.selectedDay]}</b></div><nav>${["全部", "訓練", "工作", "生活", "休息"].map((f) => `<button class="${state.filter === f ? "active" : ""}" data-filter="${f}" aria-pressed="${state.filter === f}">${f}</button>`).join("")}</nav></header><div class="picker-list" data-scroll-key="planner-picker">${jobEntries}${entries
     .map(([id, a]) => {
       const cost = effectiveActionCost(a, state.week), access = trainingAccess(state, id), work = workAccess(state,id);
-      if (!work.unlocked) return `<button class="training-discovery" data-city-shortcut="${work.venue}"><i aria-hidden="true">⌖</i><span><b>${a.label}・先認識場地</b><small>${work.message}</small></span><em>在地圖查看</em></button>`;
-      if (!access.unlocked) return `<button class="training-discovery" data-discover-training="${access.venue}"><i aria-hidden="true">⌖</i><span><b>${a.label}・尚未開放</b><small>${access.message}</small></span><em>在地圖查看</em></button>`;
-      return `<button class="${state.schedule[state.selectedDay] === id ? "active" : ""}" data-pick="${id}" aria-pressed="${state.schedule[state.selectedDay] === id}"><i class="${a.type}" aria-hidden="true">${a.icon}</i><span><b>${a.label}</b><small>${a.note}</small></span><em>${cost ? money(cost) : a.income ? `收入 ${money(a.income[0])} 起` : "免費"}<small>疲勞 ${a.fatigue > 0 ? "+" : ""}${a.fatigue}</small></em></button>`;
+      if (!work.unlocked) return `<button class="training-discovery" data-city-shortcut="${work.venue}">${placeArt(work.venue)}<span><b>${a.label}・先認識場地</b><small>${work.message}</small></span><em>在地圖查看</em></button>`;
+      if (!access.unlocked) return `<button class="training-discovery" data-discover-training="${access.venue}">${placeArt(access.venue)}<span><b>${a.label}・尚未開放</b><small>${access.message}</small></span><em>在地圖查看</em></button>`;
+      return `<button class="${state.schedule[state.selectedDay] === id ? "active" : ""}" data-pick="${id}" aria-pressed="${state.schedule[state.selectedDay] === id}">${work.venue||access.venue?placeArt(work.venue||access.venue):["free","newcomer_gig","styling","study"].includes(id)?placeArt(({free:"park",newcomer_gig:"market",styling:"beauty",study:"library"})[id]):`<i class="${a.type}" aria-hidden="true">${a.icon}</i>`}<span><b>${a.label}</b><small>${a.note}</small></span><em>${cost ? money(cost) : a.income ? `收入 ${money(a.income[0])} 起` : "免費"}<small>疲勞 ${a.fatigue > 0 ? "+" : ""}${a.fatigue}</small></em></button>`;
     })
     .join("")}</div></section>${showJobs ? workDiscovery() : ""}${assistant}`;
 }

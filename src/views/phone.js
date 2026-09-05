@@ -1,3 +1,4 @@
+import { appIcon } from "./app-icons.js";
 import { state } from "../core/state.js";
 import { esc } from "../core/utils.js";
 import { playerLookImage } from "./player-look.js";
@@ -19,8 +20,8 @@ export function phoneApp() {
     ["map", "⌖", "星望市地圖", "看看附近有什麼地方"],
   ]
     .map(
-      ([id, icon, label, note]) =>
-        `<button data-phone-open="${id}"><i aria-hidden="true">${icon}</i><b>${label}</b><small>${note}</small></button>`,
+      ([id, , label, note]) =>
+        `<button data-phone-open="${id}"><i aria-hidden="true">${appIcon(id)}</i><b>${label}</b><small>${note}</small></button>`,
     )
     .join(
       "",

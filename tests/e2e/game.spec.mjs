@@ -37,10 +37,16 @@ async function createPlayer(page, name = "測試新人") {
   await expect(page.locator("body")).toContainText(name);
 }
 async function openApp(page, id) {
+  const menuEntry = page.locator(`.app-library [data-open-app="${id}"]`);
+  if (await menuEntry.isVisible().catch(() => false)) {
+    await menuEntry.click();
+    return;
+  }
   const button = page.locator(`[data-open-app="${id}"]`).first();
   if (!(await button.isVisible().catch(() => false)))
-    await page.locator("[data-app-library-toggle]").click();
-  await page.locator(`[data-open-app="${id}"]`).first().click();
+    await page.locator(".scene-menu-button").click();
+  const entry = page.locator(`.app-library [data-open-app="${id}"]`);
+  await ((await entry.isVisible().catch(() => false)) ? entry : button).click();
 }
 test("創角後可閱讀童年卡片序章並接到平板教學", async ({ page }) => {
   await page.goto("/");
@@ -52,7 +58,7 @@ test("創角後可閱讀童年卡片序章並接到平板教學", async ({ page 
     await page.locator(".prologue-dialogue [data-prologue-next]").click();
   await expect(page.locator(".room-screen")).toBeVisible();
   await expect(page.locator(".guide-toast")).toBeVisible({ timeout: 10000 });
-  await expect(page.locator(".guide-toast")).toContainText("平板已經亮了");
+  await expect(page.locator(".guide-toast")).toContainText("點房間裡的物件");
 });
 test("創角可分別設定本名與藝名並依場合顯示", async ({ page }) => {
   await page.goto("/");
@@ -66,7 +72,7 @@ test("創角可分別設定本名與藝名並依場合顯示", async ({ page }) 
   await expect(page.locator(".prologue-dialogue")).toContainText("林星予");
   await page.locator("[data-skip-onboarding]").click();
   await expect(page.locator(".player-chip")).toContainText("星予");
-  await expect(page.locator(".tablet-home > header")).toContainText("林星予");
+  await expect(page.locator(".scene-date")).toContainText("林星予");
   const saved = JSON.parse(
     await page.evaluate(() => localStorage.getItem("star-game-save")),
   );
@@ -81,10 +87,10 @@ test("創角、自動存檔、重新整理與離線啟動", async ({ page, conte
   });
   await createPlayer(page);
   await expect(page.locator("body")).toContainText("工作信箱");
-  await page.locator("[data-app-library-toggle]").click();
-  await expect(page.locator('[data-open-app="creative"]')).toContainText(
-    "創作室",
-  );
+  await page.locator(".scene-menu-button").click();
+  await expect(
+    page.locator('.app-library [data-open-app="creative"]'),
+  ).toContainText("創作室");
   const save = await page.evaluate(() =>
     localStorage.getItem("star-game-save"),
   );
@@ -97,6 +103,14 @@ test("創角、自動存檔、重新整理與離線啟動", async ({ page, conte
   await context.setOffline(true);
   await page.reload();
   await expect(page.locator("body")).toContainText("工作信箱");
+  await page.locator('.scene-object[data-open-app="map"]').click();
+  await expect(page.locator("[data-city-loading]")).toBeHidden();
+  await expect(page.locator("[data-city-place]")).toHaveCount(26);
+  expect(
+    await page
+      .locator(".city-painting")
+      .evaluate((img) => img.complete && img.naturalWidth > 0),
+  ).toBe(true);
   expect(errors).toEqual([]);
 });
 test("正式通告執行週會自動逐日結算，不點下一天也能進週總結", async ({
@@ -153,7 +167,9 @@ test("正式通告執行週會自動逐日結算，不點下一天也能進週�
   expect(result.works).toBeGreaterThan(0);
   expect(result.stage).toBe("completed");
   expect(result.results).toBe(7);
-  await expect(page.locator(".summary-paper > p").first()).toContainText("需要探訪 1 次");
+  await expect(page.locator(".summary-paper > p").first()).toContainText(
+    "需要探訪 1 次",
+  );
 });
 test("需要玩家選擇時自動播放會暫停，選完後才繼續", async ({ page }) => {
   await createPlayer(page, "選擇測試");
@@ -246,6 +262,9 @@ test("深化首頁、行程、地圖與手機在桌機與手機專案都可操�
     state.appOpen = null;
     render();
   });
+  await expect(page.locator(".home-briefing")).toHaveCount(0);
+  await page.locator(".scene-menu-button").click();
+  await page.locator(".scene-weekly-details > summary").click();
   await expect(page.locator(".home-briefing")).toContainText("① 現在最急");
   await expect(page.locator(".home-briefing")).toContainText("② 有人在找你");
   await expect(page.locator(".home-briefing")).toContainText("③ 本章目標");
@@ -256,7 +275,9 @@ test("深化首頁、行程、地圖與手機在桌機與手機專案都可操�
   await expect(page.locator(".planner-command-bar")).toContainText("疲勞趨勢");
   await page.locator(".window-close[data-close-app]").click();
   await openApp(page, "map");
-  await expect(page.locator(".map-page")).toContainText("今日線索");
+  await expect(page.locator("[data-city-preview]")).toBeHidden();
+  await page.locator('[data-city-place="rehearsal"]').click();
+  await expect(page.locator(".city-clue")).toBeVisible();
   await expect(page.locator(".app-window.map")).toBeVisible();
 });
 test("人物整合、原創輸入、線索樣式與存檔版面不再互相遮擋", async ({ page }) => {
@@ -300,8 +321,8 @@ test("人物整合、原創輸入、線索樣式與存檔版面不再互相遮�
   );
   await page.locator(".window-close[data-close-app]").click();
   await openApp(page, "map");
-  await page.locator(".map-place-details summary").first().click();
-  const clue = page.locator(".map-context").first();
+  await page.locator('[data-city-place="rehearsal"]').click();
+  const clue = page.locator(".city-clue");
   await expect(clue).toBeVisible();
   expect(
     await clue.evaluate((el) => getComputedStyle(el).backgroundColor),

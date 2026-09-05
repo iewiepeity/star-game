@@ -30,6 +30,7 @@ const files = [
   "audio.css",
   "browser-flow.css",
   "city-life.css",
+  "scene-ui.css",
 ];
 
 await rm(dist, { recursive: true, force: true });

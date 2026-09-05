@@ -1,3 +1,4 @@
+import { placeArt } from "./place-art.js";
 import { state } from "../core/state.js";
 import {
   CREATIVE_TYPES,
@@ -56,7 +57,7 @@ function teamPanel(p) {
     )
     .join(
       "",
-    )}</div><p class="creative-team-note" id="creative-budget-reason-${projectId}">${esc(budgetAction.reason || budget.note)}${p.budgetSpent ? `・已投入 ${money(p.budgetSpent)}` : ""}</p><div class="creative-collaborators">${eligible.length ? eligible.map((n) => `<button class="${selected.has(n.id) ? "active" : ""}" data-creative-team="${projectId}" data-npc="${esc(n.id)}">${selected.has(n.id) ? "✓ " : ""}${esc(n.name)}<small>${esc(n.field)} Lv.${n.level}</small></button>`).join("") : `<p>目前沒有關係與專業都適合的合作 NPC。多認識業界人士後會出現在這裡。</p>`}</div>${selected.size ? `<div class="creative-roles">${[...selected].map((id) => `<button data-creative-role="${projectId}" data-npc="${esc(id)}">${esc(NPCS[id]?.name || id)}：${esc(p.roleAssignments?.[id] || "待分工")} ↻</button>`).join("")}</div>` : ""}</section>`;
+    )}</div><p class="creative-team-note" id="creative-budget-reason-${projectId}">${esc(budgetAction.reason || budget.note)}${p.budgetSpent ? `・已投入 ${money(p.budgetSpent)}` : ""}</p><div class="creative-collaborators">${eligible.length ? eligible.map((n) => `<button class="${selected.has(n.id) ? "active" : ""}" data-creative-team="${projectId}" data-npc="${esc(n.id)}">${selected.has(n.id) ? "✓ " : ""}<img class="creative-person-head" src="${NPCS[n.id]?.head}" alt="">${esc(n.name)}<small>${esc(n.field)} Lv.${n.level}</small></button>`).join("") : `<p>目前沒有關係與專業都適合的合作 NPC。多認識業界人士後會出現在這裡。</p>`}</div>${selected.size ? `<div class="creative-roles">${[...selected].map((id) => `<button data-creative-role="${projectId}" data-npc="${esc(id)}">${esc(NPCS[id]?.name || id)}：${esc(p.roleAssignments?.[id] || "待分工")} ↻</button>`).join("")}</div>` : ""}</section>`;
 }
 function actionArea(p, companies) {
   const projectId = esc(p.id);
@@ -103,7 +104,7 @@ export function creativeApp() {
   )
     .map(([id, d]) => {
       const m = CREATIVE_META[id];
-      return `<button data-creative-new="${id}"><i>${m.icon}</i><span><b>${d.label}</b><small>${m.note}</small></span><em>開始 →</em></button>`;
+      return `<button data-creative-new="${id}">${placeArt(/song|demo|lyric|music/.test(id)?"recording":/script|film/.test(id)?"library":"cafe")}<span><b>${d.label}</b><small>${m.note}</small></span><em>開始 →</em></button>`;
     })
     .join(
       "",

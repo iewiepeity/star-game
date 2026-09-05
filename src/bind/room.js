@@ -154,16 +154,16 @@ export function bindRoomShell() {
       state.appCategory = "全部";
       renderUi();
     });
-  document
-    .querySelector("[data-app-library-toggle]")
-    ?.addEventListener("click", () => {
+  document.querySelectorAll("[data-app-library-toggle]").forEach((button) =>
+    button.addEventListener("click", () => {
       state.appLibraryExpanded = !state.appLibraryExpanded;
       if (!state.appLibraryExpanded) {
         state.appQuery = "";
         state.appCategory = "全部";
       }
       renderUi();
-    });
+    }),
+  );
   document
     .querySelector("[data-return-app]")
     ?.addEventListener("click", (event) => {
@@ -231,15 +231,57 @@ export function bindRoomShell() {
     state.dockNotice = "";
     render();
   });
-  document.querySelectorAll("[data-part-time-plan]").forEach(button => button.onclick = () => { const id=button.dataset.partTimePlan;if(!COMPANY_PART_TIME[id])return;state.filter="工作";openApp(state,"planner");renderUi();const entry=document.querySelector(`[data-pick="${id}"]`);entry?.scrollIntoView({block:"center"});entry?.focus({preventScroll:true}); });
-  document.querySelectorAll("[data-city-shortcut]").forEach(button => button.onclick = () => { const id=button.dataset.cityShortcut;if(!MAP_LOCATIONS[id])return;state.citySelection=id;state.cityDistrict=districtFor(id)||"all";openApp(state,"map");renderUi(); });
-  document.querySelectorAll("[data-phone-open]").forEach(button => button.onclick = () => { openApp(state,button.dataset.phoneOpen,{returnContext:{app:"phone",label:"手機"}});renderUi(); });
+  document.querySelectorAll("[data-scene-npc]").forEach(
+    (button) =>
+      (button.onclick = () => {
+        const id = button.dataset.sceneNpc;
+        if (!state.knownPeople.includes(id)) return;
+        state.selectedNpc = id;
+        state.peopleSection = "profiles";
+        openApp(state, "people");
+        render();
+      }),
+  );
+  document.querySelectorAll("[data-part-time-plan]").forEach(
+    (button) =>
+      (button.onclick = () => {
+        const id = button.dataset.partTimePlan;
+        if (!COMPANY_PART_TIME[id]) return;
+        state.filter = "工作";
+        openApp(state, "planner");
+        renderUi();
+        const entry = document.querySelector(`[data-pick="${id}"]`);
+        entry?.scrollIntoView({ block: "center" });
+        entry?.focus({ preventScroll: true });
+      }),
+  );
+  document.querySelectorAll("[data-city-shortcut]").forEach(
+    (button) =>
+      (button.onclick = () => {
+        const id = button.dataset.cityShortcut;
+        if (!MAP_LOCATIONS[id]) return;
+        state.citySelection = id;
+        state.cityDistrict = districtFor(id) || "all";
+        openApp(state, "map");
+        renderUi();
+      }),
+  );
+  document.querySelectorAll("[data-phone-open]").forEach(
+    (button) =>
+      (button.onclick = () => {
+        openApp(state, button.dataset.phoneOpen, {
+          returnContext: { app: "phone", label: "手機" },
+        });
+        renderUi();
+      }),
+  );
   document.querySelectorAll("[data-open-app]").forEach(
     (button) =>
       (button.onclick = () => {
         rememberDialogTrigger(button);
         const target = button.dataset.openApp;
         if (target === "map") {
+          state.citySelection = null;
           const openDay = state.schedule.findIndex((id) => id === "rest");
           if (openDay >= 0) state.selectedDay = openDay;
         }
