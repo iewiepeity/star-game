@@ -28,6 +28,9 @@ const SPRITES = [
   "raven-audition-actions",
   "jiqing-actions",
   "sufei-actions",
+  "raven-newcomer-seated",
+  "raven-practice-seated",
+  "raven-audition-seated",
 ];
 export function createWorld(controller) {
   class PixelWorld extends Phaser.Scene {
@@ -100,22 +103,36 @@ export function createWorld(controller) {
         .setVisible(false)
         .setDepth(950);
       this.hotspots = [];
+      this.seatForegrounds = new Map();
+      for (const [id, spot] of Object.entries(ACTIVITY_SPOTS[state.sceneId])) {
+        if (!spot.foreground) continue;
+        const mask = this.make.graphics({ x: 0, y: 0, add: false });
+        mask.fillStyle(0xffffff).fillPoints(spot.foreground, true);
+        const layer = this.add
+          .image(0, 0, `room-${state.sceneId}`)
+          .setOrigin(0)
+          .setDisplaySize(WORLD.width, WORLD.height)
+          .setDepth(spot.depth + 1)
+          .setMask(mask.createGeometryMask());
+        this.seatForegrounds.set(id, layer);
+        this.events.once("room-clear", () => mask.destroy());
+      }
+      this.updateSeatForeground();
       for (const item of this.room.objects) {
-        const highlight = this.add.graphics().setDepth(998).setVisible(false);
-        highlight.lineStyle(1.5, 0xfdf0c8, 0.9).strokePoints(item.hit, true);
         const title = this.add
           .text(item.x, item.y - 28, item.name, {
             fontFamily: "sans-serif",
             fontSize: "13px",
             color: "#594c40",
-            backgroundColor: "#fff9ed",
+            stroke: "#fff9ed",
+            strokeThickness: 4,
             padding: { x: 9, y: 6 },
           })
           .setOrigin(0.5)
           .setDepth(1300)
           .setResolution(2)
           .setVisible(false);
-        this.hotspots.push({ item, highlight, title });
+        this.hotspots.push({ item, title });
       }
       this.manualPan = false;
       this.resizeView();
@@ -332,7 +349,6 @@ export function createWorld(controller) {
           const pt = this.cameras.main.getWorldPoint(pointer.x, pointer.y),
             selected = this.hotspots.findLast((h) => inside(pt, h.item.hit));
           for (const h of this.hotspots) {
-            h.highlight.setVisible(h === selected);
             h.title
               .setVisible(h === selected)
               .setScale(1 / this.cameras.main.zoom);
@@ -585,6 +601,7 @@ export function createWorld(controller) {
       this.pending = null;
       this.targetRing.setVisible(false);
       state.activity = { itemId, kind, elapsed: 0 };
+      this.updateSeatForeground();
       activityFrame(
         this.player,
         kind,
@@ -599,8 +616,13 @@ export function createWorld(controller) {
       const state = controller.state();
       if (!state.activity) return;
       state.activity = null;
+      this.updateSeatForeground();
       actorFrame(this.player, false, state.elapsed);
       controller.changed();
+    }
+    updateSeatForeground() {
+      for (const [id, layer] of this.seatForegrounds)
+        layer.setVisible(controller.state().activity?.itemId === id);
     }
     snapshot() {
       return {
@@ -619,6 +641,11 @@ export function createWorld(controller) {
           facing: this.player.facing,
           pose: controller.state().activity?.kind || "standing",
           frame: this.player.sprite.frame.name,
+          texture: this.player.sprite.texture.key,
+          origin: {
+            x: this.player.sprite.originX,
+            y: this.player.sprite.originY,
+          },
           visual: { x: this.player.sprite.x, y: this.player.sprite.y },
           route: this.player.path.map((p) => ({ x: p.x, y: p.y })),
         },
@@ -633,6 +660,9 @@ export function createWorld(controller) {
             exiting: !!a.exiting,
           })),
         markerCount: 0,
+        seatForegroundCount: [...this.seatForegrounds.values()].filter(
+          (layer) => layer.visible,
+        ).length,
         paused: this.paused,
         zoom: this.cameras.main.zoom,
       };

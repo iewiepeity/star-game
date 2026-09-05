@@ -90,7 +90,6 @@ function show(type, html) {
   world?.keys.clear();
   for (const hotspot of world?.hotspots || []) {
     hotspot.title.setVisible(false);
-    hotspot.highlight.setVisible(false);
   }
 }
 function close() {
@@ -289,7 +288,7 @@ function renderDialogue() {
   panel.close();
   panelType = "dialogue";
   $("dialogue").innerHTML =
-    `<div class="conversation"><figure class="dialogue-portrait ${player ? "player-crop" : "npc-crop"}"><img src="${player ? portrait() : PEOPLE[d.npcId].head}" alt="${escape(name)}的肩上肖像"></figure><div class="speech"><div class="dialogue-heading"><h2 id="dialogue-name">${escape(name)}</h2><span>${player ? "剛到星望市的你" : PEOPLE[d.npcId].job}</span></div><p id="dialogue-text">${escape(text)}</p><div class="choices">${node.choices && !d.reply ? node.choices.map((choice, i) => `<button data-choice="${i}">${choice.label}</button>`).join("") : `<button class="primary" data-ui="next-dialogue">${d.reply ? "下次見" : "繼續 →"}</button>`}</div></div><div class="dialogue-tools"><button data-ui="saves" aria-label="保存這段相遇">存檔</button><button data-ui="menu">選單</button><button data-ui="end-dialogue" aria-label="結束對話">×</button></div></div>`;
+    `<div class="conversation"><figure class="dialogue-portrait ${player ? "player-crop" : "npc-crop"}"><img src="${player ? portrait() : PEOPLE[d.npcId].portrait}" alt="${escape(name)}的肩上肖像"></figure><div class="speech"><div class="dialogue-heading"><h2 id="dialogue-name">${escape(name)}</h2><span>${player ? "剛到星望市的你" : PEOPLE[d.npcId].job}</span></div><p id="dialogue-text">${escape(text)}</p><div class="choices">${node.choices && !d.reply ? node.choices.map((choice, i) => `<button data-choice="${i}">${choice.label}</button>`).join("") : `<button class="primary" data-ui="next-dialogue">${d.reply ? "下次見" : "繼續 →"}</button>`}</div></div><div class="dialogue-tools"><button data-ui="saves" aria-label="保存這段相遇">存檔</button><button data-ui="menu">選單</button><button data-ui="end-dialogue" aria-label="結束對話">×</button></div></div>`;
   setDialogueVisible(true);
   world?.keys.clear();
   $("dialogue").querySelector(".choices button")?.focus();

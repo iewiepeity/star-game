@@ -647,8 +647,8 @@ dialog .buttons {
   transform: translateX(-50%);
 }
 .npc-crop img {
-  width: 150%;
-  top: -4px;
+  width: 300%;
+  top: 0;
 }
 .player-crop img {
   width: 260%;

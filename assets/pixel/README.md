@@ -17,4 +17,12 @@ Six new source PNGs provide furniture and rehearsal poses. The five `*-actions.p
 
 `activityFrame` selects and scales these frames; `ACTIVITY_SPOTS` places them at furniture anchors while retaining a separate safe floor position. NPCs use reading/warm-up poses between their walking routes. Generated action sheets retain their original chroma-key pixels; the runtime performs texture import once, as it does for walk sheets.
 
-Dialogue reuses the original `portraits/heads/jiqing.webp` and `portraits/heads/sufei.webp`, plus CSS shoulder crops of the three Raven wardrobe illustrations. It does not replace the original full-body wardrobe artwork.
+Dialogue uses CSS shoulder crops of the original 640 × 1280 `portraits/jiqing.webp` and `portraits/sufei.webp`, plus the three Raven wardrobe illustrations. The 320 × 320 head thumbnails are only for small menu avatars, never for dialogue enlargement.
+
+## Seat alignment correction (0.2.1)
+
+The three `raven-*-seated.png` sheets each contain eight seated poses: SW, SE, NW and NE across four columns, with idle/sipping rows. Rear-facing art is explicit; a front pose is never mirrored to stand in for a rear pose. All three sheets were generated from their matching original Raven walk sheet with image_gen. The game imports their chroma key without modifying the source PNGs.
+
+Seat coordinates in `ACTIVITY_SPOTS` now identify pelvis contact on the cushion/bench, rather than feet. `SEATED_ORIGINS` in the renderer calibrates that contact per outfit/direction. Desk and coffee chairs add foreground masks for their chair backs, visible only for the occupied seat. These layers are removed on cancellation and reconstructed when an activity is restored.
+
+The desk faces NE, the two café seats NW, and the sofa/bench SW. All five seats have been visually inspected with all three outfits. Object hover has text and a pointer cursor only; it draws neither a polygon outline nor a label background box.

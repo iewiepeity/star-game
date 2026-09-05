@@ -68,7 +68,7 @@ test("walk, dress, enter every room, meet an NPC and reload the same save", asyn
   await expect(page.locator("#panel")).not.toBeVisible();
   await expect(page.locator(".conversation img")).toHaveAttribute(
     "src",
-    /portraits\/heads\/jiqing/,
+    /portraits\/jiqing/,
   );
   await page.locator('[data-ui="next-dialogue"]').click();
   await expect(page.locator(".conversation img")).toHaveAttribute(
@@ -260,7 +260,8 @@ test("bed, sofa and rehearsal have distinct poses; interrupted activity safely r
     .toBe(true);
   await object(page, "sofa");
   await activity(page, "sit");
-  expect((await read(page)).player.frame).toBe("0-2");
+  expect((await read(page)).player.texture).toBe("raven-newcomer-seated");
+  expect((await read(page)).player.frame).toBe("0-0");
   await page.locator('[data-ui="stop-activity"]').click();
   await activity(page, "standing");
   const standing = await read(page);
@@ -352,4 +353,50 @@ test("the actual furniture replaces floating buttons; touch selects before walki
   } else await page.mouse.click(x, y);
   await activity(page, "rest");
   await expect(page.locator("#panel")).not.toBeVisible();
+});
+
+test("seats match furniture directions and retain hip contact through sipping and reload", async ({
+  page,
+}) => {
+  test.setTimeout(80000);
+  await start(page);
+  for (const [room, id, frame, mask] of [
+    ["home", "desk-seat", "0-3", 1],
+    ["home", "sofa", "0-0", 0],
+    ["rehearsal", "bench", "0-0", 0],
+    ["cafe", "chair", "0-2", 1],
+  ]) {
+    if ((await read(page)).scene !== room) await travel(page, room);
+    await object(page, id);
+    await activity(page, "sit");
+    const seated = await read(page);
+    expect(seated.player.texture).toBe("raven-newcomer-seated");
+    expect(seated.player.frame).toBe(frame);
+    expect(seated.player.origin.y).toBeLessThan(1);
+    expect(seated.seatForegroundCount).toBe(mask);
+    await page.locator('[data-ui="stop-activity"]').click();
+    expect((await read(page)).seatForegroundCount).toBe(0);
+  }
+  await object(page, "window");
+  await page.getByRole("button", { name: "坐下喝一杯" }).click();
+  await activity(page, "coffee");
+  const initial = await read(page);
+  await expect
+    .poll(async () => (await read(page)).player.frame)
+    .not.toBe(initial.player.frame);
+  expect((await read(page)).player.visual).toEqual(initial.player.visual);
+  await menu(page, "saves");
+  await page.locator('[data-save="4"]').click();
+  await close(page);
+  await page.locator('[data-ui="stop-activity"]').click();
+  await menu(page, "saves");
+  await page.locator('[data-load="4"]').click();
+  await activity(page, "coffee");
+  expect((await read(page)).player.visual).toEqual(initial.player.visual);
+  expect((await read(page)).seatForegroundCount).toBe(1);
+  await page.locator('[data-ui="stop-activity"]').click();
+  await talk(page);
+  expect(
+    await page.locator(".conversation img").evaluate((img) => img.naturalWidth),
+  ).toBeGreaterThanOrEqual(640);
 });

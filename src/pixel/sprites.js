@@ -15,10 +15,13 @@ export function importSprites(scene, key) {
   }
   context.putImageData(pixels, 0, 0);
   texture.refresh();
-  const actionSheet = key.endsWith("-actions");
-  const xs = actionSheet
-      ? [0, 420, 800, 1140, image.width]
-      : [0, 465, 780, 1090, image.width],
+  const seatedSheet = key.endsWith("-seated");
+  const actionSheet = key.endsWith("-actions") || seatedSheet;
+  const xs = seatedSheet
+      ? [0, 384, 768, 1152, image.width]
+      : actionSheet
+        ? [0, 420, 800, 1140, image.width]
+        : [0, 465, 780, 1090, image.width],
     ys = actionSheet ? [0, 512, image.height] : [0, 342, 662, image.height];
   for (let row = 0; row < ys.length - 1; row++)
     for (let col = 0; col < 4; col++) {
@@ -85,6 +88,10 @@ export function actorFrame(actor, moving, elapsed) {
 }
 
 export function activityFrame(actor, kind, elapsed, spot = {}) {
+  if ((kind === "sit" || kind === "coffee") && spot.seat) {
+    seatedFrame(actor, kind, elapsed, spot);
+    return;
+  }
   const sheet =
       actor.key === "raven-newcomer" && kind === "rest"
         ? "raven-newcomer-rest-actions"
@@ -133,4 +140,45 @@ export function activityFrame(actor, kind, elapsed, spot = {}) {
     ?.setPosition(x, y - 84)
     .setDepth(1200)
     .setScale(1 / sprite.scene.cameras.main.zoom);
+}
+
+// Contact points refer to the underside of the pelvis in each tight sprite frame.
+// Aligning feet to furniture is unreliable: seated feet project beyond the cushion.
+const SEATED_ORIGINS = {
+  "raven-newcomer": [
+    [0.65, 0.81],
+    [0.35, 0.81],
+    [0.64, 0.85],
+    [0.36, 0.85],
+  ],
+  "raven-practice": [
+    [0.64, 0.79],
+    [0.36, 0.79],
+    [0.61, 0.83],
+    [0.39, 0.83],
+  ],
+  "raven-audition": [
+    [0.68, 0.81],
+    [0.32, 0.81],
+    [0.72, 0.82],
+    [0.28, 0.82],
+  ],
+};
+function seatedFrame(actor, kind, elapsed, spot) {
+  const col = ["sw", "se", "nw", "ne"].indexOf(spot.seat.facing);
+  const row = kind === "coffee" ? Math.floor(elapsed * 1.3) % 2 : 0;
+  const [ox, oy] = SEATED_ORIGINS[actor.key][col];
+  actor.sprite
+    .setTexture(`${actor.key}-seated`, `${row}-${col}`)
+    .setFlipX(false)
+    .setRotation(0)
+    .setAlpha(1)
+    .setDisplaySize(
+      (actor.sprite.frame.width * spot.seat.height) / actor.sprite.frame.height,
+      spot.seat.height,
+    )
+    .setOrigin(ox, oy)
+    .setPosition(spot.x, spot.y)
+    .setDepth(spot.depth);
+  actor.shadow.setVisible(false);
 }

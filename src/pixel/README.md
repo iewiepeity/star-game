@@ -23,8 +23,10 @@ The main chrome now has one menu entry. Phone, nearby objects, travel, wardrobe,
 
 Conversation uses a bottom-docked DOM dialog and shoulder portraits. The world remains visible and pauses, while background controls become inert. Closing a save/menu panel returns to the same conversation; Escape or the conversation's close action ends it. Dialogue focus is trapped independently of the native utility dialog.
 
-Furniture is hit-tested against its painted polygon. Desktop hover shows a delicate outline/name; touch first opens a compact object choice. No permanent floating object markers or bottom shortcut clutter remain. Keyboard-accessible object shortcuts are in the menu.
+Furniture is hit-tested against its painted polygon. Desktop hover shows an unboxed name and a pointer cursor, with no furniture outline; touch first opens a compact object choice. No permanent floating object markers or bottom shortcut clutter remain. Keyboard-accessible object shortcuts are in the menu.
 
 Routing is four-neighbor A*, with cardinal bridges from continuous actor positions and direction changes retained during path compression. Keyboard input chooses one axis when two direction keys are held. Four-facing actor art therefore never travels diagonally.
 
 `state.activity` optionally saves `{kind,itemId,elapsed}`. Old prototype saves default it to null. Animations keep the logical actor on a walkable approach point and render at the furniture anchor, so cancellation/restore cannot leave the actor trapped inside furniture. Completion sets only a flavor objective flag; this prototype does not award training or economy stats. Menus, conversations and hidden tabs freeze animation progress. Walking cancels the current action.
+
+Seating uses dedicated front/rear direction sheets and per-outfit pelvis origins. The seat's facing and cushion contact point belong to scene data, while chair-back occlusion is reconstructed with the active seat. Dialogue loads original NPC portraits instead of enlarging head thumbnails. Both changes preserve the existing prototype save schema.
