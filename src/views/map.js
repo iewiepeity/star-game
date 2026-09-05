@@ -37,6 +37,7 @@ function locationCard(id, location, selected, favorites, overseas) {
   return `<article class="map-place ${locked ? "locked" : ""} ${selected === id ? "selected" : ""}">
     <button class="map-favorite ${favorite ? "active" : ""}" data-map-favorite="${id}" aria-label="${favorite ? "取消收藏" : "收藏"}${location.name}" aria-pressed="${favorite}">${favorite ? "★" : "☆"}</button>
     <div class="map-place-main"><i aria-hidden="true">${location.icon}</i><span><small>${location.area}・${location.category}</small><b>${location.name}</b><strong>${effect}</strong><details class="map-place-details" data-disclosure-key="map:${id}"><summary>查看介紹與今日線索</summary><em>${location.note}</em><mark class="map-context">今日線索｜${hint}</mark></details></span><button class="map-go" ${locked ? "disabled" : ""} data-map-location="${id}">${locked ? "完成條件後開放" : location.industry ? "前往工作櫃台 →" : "選擇地點 →"}</button></div>
+    ${id === "shop" ? '<div class="map-shop-entry"><span>星光服飾・先看款式，完成到店行程後可購買</span><button data-open-app="wardrobe">開啟服裝目錄／試衣間</button></div>' : ""}
   </article>`;
 }
 

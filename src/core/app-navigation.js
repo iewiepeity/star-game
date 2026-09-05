@@ -15,6 +15,7 @@ export function openApp(gameState, appId, { returnContext = null, track = true, 
     if (!silent) gameState.notice = "這個來源目前無法開啟，已保留在原畫面。";
     return false;
   }
+  if (normalized === "wardrobe") gameState.wardrobePreview = null;
   gameState.appOpen = normalized;
   gameState.appReturnContext = returnContext;
   gameState.confirmDialog = null;

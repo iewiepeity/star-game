@@ -1,9 +1,10 @@
-// 畫面層：紙娃娃衣櫃。以同角色、同站姿的完整立繪切換服裝，避免圖層錯位；加成由 effectiveStat() 套用。
-// 性別鎖定立繪、服裝購買綁服裝店（星光購物商場）、變性綁整形醫院（星望整形外科），皆需本週已去過對應地點。
 import {
   AVATAR_LIST,
   AVATARS,
+  OUTFITS,
   OUTFIT_LIST,
+  OUTFIT_CATEGORIES,
+  outfitCategory,
   outfitBonusText,
   portraitAsset,
   portraitThumbAsset,
@@ -12,66 +13,80 @@ import {
 } from "../data/wardrobe.js";
 import { state, visitedLocationThisWeek } from "../core/state.js";
 import { money, esc } from "../core/utils.js";
-
-const shoppingUnlocked = () => visitedLocationThisWeek("shop");
-const surgeryUnlocked = () => visitedLocationThisWeek("clinic");
+import { bonusComparison, LOOK_SLOTS, ownsOutfit } from "../logic/wardrobe.js";
 
 export function wardrobeApp() {
-  const markup = baseWardrobeApp();
-  return AVATAR_LIST.reduce(
-    (html, avatar) =>
-      html.replace(
-        `data-wardrobe-avatar="${avatar.id}"`,
-        `data-wardrobe-avatar="${avatar.id}" aria-pressed="${avatar.id === state.avatarId}"`,
-      ),
-    markup,
+  const avatar = AVATARS[state.avatarId] || AVATAR_LIST[0];
+  const current = OUTFITS[state.outfitId] || OUTFITS.newcomer;
+  const preview = OUTFITS[state.wardrobePreview] || current;
+  const trying = preview.id !== current.id;
+  const owned = ownsOutfit(state, avatar.id, preview.id);
+  const canBuy = visitedLocationThisWeek("shop");
+  const canSurgery = visitedLocationThisWeek("clinic");
+  const filter = state.wardrobeFilter || "all",
+    category = state.wardrobeCategory || "all";
+  const outfits = OUTFIT_LIST.filter(
+    (o) =>
+      (filter === "all" ||
+        (filter === "owned"
+          ? ownsOutfit(state, avatar.id, o.id)
+          : !ownsOutfit(state, avatar.id, o.id))) &&
+      (category === "all" || outfitCategory(o.id) === category),
   );
-}
-
-function baseWardrobeApp() {
-  const avatar = AVATARS[state.avatarId] || AVATAR_LIST[0],
-    owned = new Set(state.ownedOutfits[avatar.id] || ["newcomer"]),
-    current =
-      OUTFIT_LIST.find((x) => x.id === state.outfitId) || OUTFIT_LIST[0],
-    canBuy = shoppingUnlocked(),
-    canSurgery = surgeryUnlocked();
-  return `<div class="wardrobe-page"><section class="wardrobe-stage"><div class="wardrobe-art"><span>NOW WEARING</span><img src="${portraitAsset(avatar.id, current.id)}" width="512" height="1024" decoding="async" fetchpriority="high" alt="穿著${esc(current.name)}的玩家全身立繪"></div><div class="wardrobe-current"><strong>${current.name}</strong><small>${outfitBonusText(current)}</small></div><div class="avatar-switch"><span>切換人物立繪・目前性別：${esc(state.gender)}</span>${AVATAR_LIST.map(
-    (a, index) => {
-      const locked = isAvatarLocked(a, state.gender);
-      return `<button class="${a.id === avatar.id ? "active" : ""} ${locked ? "locked" : ""}" data-wardrobe-avatar="${a.id}" ${locked ? "disabled" : ""} aria-label="${locked ? `第 ${index + 1} 款人物立繪已上鎖` : `切換成第 ${index + 1} 款人物立繪`}"><img src="${portraitThumbAsset(a.id, "newcomer")}" width="160" height="320" loading="lazy" decoding="async" alt="">${locked ? "<u>上鎖</u>" : ""}</button>`;
-    },
-  ).join(
-    "",
-  )}</div></section><section class="closet-panel"><header><span>DRESSING ROOM</span><h2>今天要穿什麼？</h2><p>服裝加成只在穿著期間生效，會直接影響試鏡、面談與資質判定，不會永久灌入基礎能力。新服裝要先去地圖上的星光購物商場逛過，本週才能在這裡購買；每套服裝只算在購買當下穿著的人物立繪名下，換人立繪不會共用購買紀錄。</p></header>${state.wardrobeNotice ? `<div class="wardrobe-notice">${esc(state.wardrobeNotice)}</div>` : ""}${canBuy ? "" : '<div class="wardrobe-hint">本週還沒去過星光購物商場，只能穿目前已擁有的服裝，暫時無法購買新服裝。</div>'}<div class="outfit-list" data-scroll-key="wardrobe-outfits">${OUTFIT_LIST.map(
-    (outfit) => {
-      const isOwned = owned.has(outfit.id),
-        wearing = state.outfitId === outfit.id,
-        locked = !isOwned && !canBuy,
-        status = wearing
-          ? "穿著中"
-          : isOwned
-            ? "已擁有"
-            : locked
-              ? "尚未解鎖"
-              : "服飾商店",
-        label = wearing
-          ? "目前造型"
-          : isOwned
-            ? "穿上"
-            : locked
-              ? "前往服裝店購買"
-              : "購買並穿上・" + money(outfit.price);
-      return `<article class="outfit-card ${wearing ? "wearing" : ""} ${locked ? "locked" : ""}"><div class="outfit-thumb"><img src="${portraitThumbAsset(avatar.id, outfit.id)}" width="160" height="320" loading="lazy" decoding="async" alt="${esc(outfit.name)}預覽"></div><div><span>${status}</span><h3>${outfit.name}</h3><p>${outfit.note}</p><div class="outfit-bonuses">${Object.entries(
-        outfit.bonuses,
-      )
-        .map(([name, value]) => `<b>${name}<em>＋${value}</em></b>`)
-        .join(
-          "",
-        )}</div></div><button data-outfit="${outfit.id}" ${wearing || locked ? "disabled" : ""}>${label}</button></article>`;
-    },
-  ).join(
-    "",
-  )}</div><section class="surgery-panel"><header><span>PLASTIC SURGERY</span><h2>整形手術・變性</h2><p>要先去地圖上的星望整形外科看過診，本週才能在這裡辦理變性；手術費用高昂，變性後會自動換上對應性別的立繪。</p></header>${canSurgery ? "" : '<div class="wardrobe-hint">本週還沒去過星望整形外科，暫時無法辦理變性手術。</div>'}<div class="surgery-options">${[
+  const buyLabel = !canBuy
+    ? "本週到店後可購買"
+    : state.money < preview.price
+      ? `還差 ${money(preview.price - state.money)}`
+      : `購買並穿上・${money(preview.price)}`;
+  return `<div class="wardrobe-page dressing-room"><section class="wardrobe-stage"><div class="wardrobe-art"><span>${trying ? "FITTING・試穿中" : "NOW WEARING・穿著中"}</span><img src="${portraitAsset(avatar.id, preview.id)}" width="512" height="1024" decoding="async" fetchpriority="high" alt="${esc(avatar.name)}・${esc(preview.name)}${trying ? "試穿預覽" : "目前造型"}"></div><div class="wardrobe-current"><strong>${esc(preview.name)}</strong><small>${outfitBonusText(preview)}</small></div><div class="fitting-actions">${trying ? `<button data-outfit="${preview.id}" ${!owned && (!canBuy || state.money < preview.price) ? "disabled" : ""}>${owned ? "確認穿上" : buyLabel}</button><button data-cancel-fitting>還原目前穿著</button>` : "<span>已套用到人物資訊、房間與故事</span>"}</div><div class="avatar-switch"><span>人物外型・${esc(avatar.name)}</span>${AVATAR_LIST.map((a) => `<button data-wardrobe-avatar="${a.id}" class="${a.id === avatar.id ? "active" : ""}" aria-pressed="${a.id === avatar.id}" aria-label="切換${esc(a.name)}" ${isAvatarLocked(a, state.gender) ? "disabled" : ""}><img src="${portraitThumbAsset(a.id, "newcomer")}" width="160" height="320" loading="lazy" alt=""></button>`).join("")}</div></section><section class="closet-panel" data-scroll-key="wardrobe-catalog"><header><span>DRESSING ROOM</span><h2>今天，以什麼模樣出發？</h2><p>點選服裝即可免費試穿，確認穿上才會改變造型與能力。服裝歸各人物外型持有。</p><b>錢包 ${money(state.money)}・已收藏 ${state.ownedOutfits[avatar.id]?.length || 1} / ${OUTFIT_LIST.length} 套</b></header><div class="wardrobe-notice" role="status">${esc(state.wardrobeNotice || (trying ? "試穿不扣款、不改變正式能力，也不會寫入目前穿著。" : "選一套服裝，看看新的自己。"))}</div><details class="saved-looks" data-disclosure-key="saved-looks"><summary>常用造型・一鍵換裝</summary><p>將目前正式穿著存入欄位，下次直接穿上；覆存只會更新該欄位。</p>${Object.entries(
+    LOOK_SLOTS,
+  )
+    .map(([slot, label]) => {
+      const id = state.savedLooks?.[avatar.id]?.[slot],
+        look = OUTFITS[id];
+      return `<div><span><b>${label}</b><small>${look ? esc(look.name) : "尚未設定"}</small></span><button data-wear-look="${slot}" ${look ? "" : "disabled"}>穿上</button><button data-save-look="${slot}">${look ? "以目前穿著覆存" : "儲存目前穿著"}</button></div>`;
+    })
+    .join("")}</details>${
+    trying
+      ? `<section class="fitting-comparison"><h3>與目前「${esc(current.name)}」比較</h3><div>${bonusComparison(
+          state,
+          preview.id,
+        )
+          .map(
+            (row) =>
+              `<span>${row.name}<b>${row.before} → ${row.after}</b><em class="${row.delta < 0 ? "negative" : ""}">${row.delta > 0 ? "+" : ""}${row.delta}</em></span>`,
+          )
+          .join("")}</div></section>`
+      : ""
+  }<div class="wardrobe-shop-link"><span>${canBuy ? "星光購物商場・本週購買服務已開放" : "可先試穿；本週完成購物商場行程後開放購買。"}</span><button data-open-app="map">查看地圖</button></div><nav class="closet-filters" aria-label="服裝收藏篩選">${Object.entries(
+    { all: "全部服裝", owned: "我的衣櫃", shop: "服裝商店" },
+  )
+    .map(
+      ([id, label]) =>
+        `<button data-wardrobe-filter="${id}" aria-pressed="${filter === id}">${label}</button>`,
+    )
+    .join(
+      "",
+    )}</nav><label class="closet-category">穿搭場合<select data-wardrobe-category>${Object.entries(
+    OUTFIT_CATEGORIES,
+  )
+    .map(
+      ([id, label]) =>
+        `<option value="${id}" ${category === id ? "selected" : ""}>${label}</option>`,
+    )
+    .join(
+      "",
+    )}</select></label><div class="outfit-list" data-scroll-key="wardrobe-outfits">${
+    outfits
+      .map((outfit) => {
+        const isOwned = ownsOutfit(state, avatar.id, outfit.id),
+          wearing = current.id === outfit.id,
+          selected = preview.id === outfit.id;
+        return `<button class="outfit-card ${wearing ? "wearing" : ""} ${selected ? "previewing" : ""}" data-preview-outfit="${outfit.id}" aria-label="試穿${esc(outfit.name)}" aria-pressed="${selected}"><span class="outfit-thumb"><img src="${portraitThumbAsset(avatar.id, outfit.id)}" width="160" height="320" loading="lazy" decoding="async" alt=""></span><span class="outfit-copy"><small>${wearing ? "穿著中" : isOwned ? "已擁有" : money(outfit.price)}</small><strong>${outfit.name}</strong><span class="outfit-note">${outfit.note}</span><small>${outfitBonusText(outfit)}</small></span><em class="outfit-try-label">${selected ? "預覽中" : "試穿"}</em></button>`;
+      })
+      .join("") ||
+    '<p class="closet-empty">這個分類還沒有服裝，試試其他場合或「全部服裝」。</p>'
+  }</div><details class="surgery-panel" data-disclosure-key="wardrobe-surgery"><summary>人物設定・整形手術</summary><p>本週先到星望整形外科看診後可辦理。手術會切換人物外型，原人物的服裝與常用造型仍保留。</p>${[
     "女性",
     "男性",
   ]
@@ -80,5 +95,7 @@ function baseWardrobeApp() {
       (g) =>
         `<button data-change-gender="${g}" ${canSurgery && state.money >= GENDER_CHANGE_COST ? "" : "disabled"}>變性為${g}・${money(GENDER_CHANGE_COST)}</button>`,
     )
-    .join("")}</div></section></section></div>`;
+    .join(
+      "",
+    )}${canSurgery ? "" : "<p>本週尚未到院看診。</p>"}</details></section></div>`;
 }

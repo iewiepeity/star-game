@@ -1,3 +1,4 @@
+import { normalizeSavedLooks } from "../logic/wardrobe.js";
 import {
   AVATAR_LIST,
   AVATARS,
@@ -42,6 +43,10 @@ export function initialState() {
     outfitId: "newcomer",
     ownedOutfits: defaultOwnedOutfits(),
     wardrobeNotice: "",
+    wardrobePreview: null,
+    wardrobeFilter: "all",
+    wardrobeCategory: "all",
+    savedLooks: {},
     visitedLocationsByWeek: {},
     mapFilter: "全部",
     mapPurpose: "全部",
@@ -273,6 +278,8 @@ export function hydrateState(saved) {
     next.avatarId = defaultAvatarForGender(next.gender).id;
   if (!next.ownedOutfits[next.avatarId].includes(next.outfitId))
     next.outfitId = "newcomer";
+  next.savedLooks = normalizeSavedLooks(next, saved.savedLooks);
+  next.wardrobePreview = null;
   const rawVisits =
     saved.visitedLocationsByWeek &&
     typeof saved.visitedLocationsByWeek === "object"

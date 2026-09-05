@@ -3,7 +3,7 @@ import { workArtFor } from "../data/work-art.js";
 import { AGENCIES, AGENCY_LIST } from "../data/agencies.js";
 import { state } from "../core/state.js";
 import { titleTag, esc, money, yearOf, weekInYear } from "../core/utils.js";
-import { portraitThumbAsset } from "../data/wardrobe.js";
+import { playerLookImage } from "./player-look.js";
 import {
   isAgencyContractActive,
   checkAgencyEligibility,
@@ -60,7 +60,7 @@ export function roomView() {
     (message) => !message.read,
   ).length;
   const saveStatus = state.saveStatus || "saved";
-  return `<main class="room-screen"><img class="room-bg" src="./assets/rookie-room.webp" width="1536" height="1024" decoding="async" fetchpriority="high" alt="新人租屋處的工作桌"><header class="room-hud"><div class="player-chip"><div>${esc(state.name.slice(0, 1))}<img class="portrait-img" src="${portraitThumbAsset(state.avatarId, state.outfitId)}" width="160" height="320" decoding="async" alt="玩家目前造型"></div><span><b>${esc(state.name)}</b><small>${playerAge()} 歲・${playerIdentityLabel()}</small></span></div><div class="hud-stats"><span>💰 <b>${money(state.money)}</b></span><span>★ 知名度 <b>${state.fame}</b></span><span>♡ 粉絲 <b>${state.fans}</b></span><span>☁ 疲勞 <b>${state.fatigue}</b></span></div><button class="save-status" data-save-status="${saveStatus}" data-open-app="save"><i aria-hidden="true"></i><span><b>${saveStatus === "saving" ? "儲存中…" : saveStatus === "error" ? "尚未儲存" : "已儲存"}</b><small>${saveStatus === "error" ? "點擊開啟存檔管理" : "進度保存在此裝置"}</small></span></button></header><button class="desk-pin phone-pin" data-open-app="people"><i>${unread || "♡"}</i><b>手機</b><small>${unread ? `${unread} 則未讀訊息` : state.knownPeople.length ? "查看聯絡人" : "新的城市，空白通訊錄"}</small></button><button class="desk-pin mail-pin" data-open-job><i>!</i><b>工作信箱</b><small>${jobHomeStatus()}</small></button><section class="tablet"><div class="tablet-camera"></div><div class="tablet-screen">${tabletHome()}${tabletDock()}</div></section>${state.appOpen ? appWindow() : ""}${confirmationDialog()}</main>`;
+  return `<main class="room-screen"><img class="room-bg" src="./assets/rookie-room.webp" width="1536" height="1024" decoding="async" fetchpriority="high" alt="新人租屋處的工作桌"><header class="room-hud"><button class="player-chip" data-open-app="wardrobe" aria-label="開啟玩家衣櫃"><div>${esc(state.name.slice(0, 1))}${playerLookImage({ className: "portrait-img" })}</div><span><b>${esc(state.name)}</b><small>${playerAge()} 歲・${playerIdentityLabel()}</small></span></button><div class="hud-stats"><span>💰 <b>${money(state.money)}</b></span><span>★ 知名度 <b>${state.fame}</b></span><span>♡ 粉絲 <b>${state.fans}</b></span><span>☁ 疲勞 <b>${state.fatigue}</b></span></div><button class="save-status" data-save-status="${saveStatus}" data-open-app="save"><i aria-hidden="true"></i><span><b>${saveStatus === "saving" ? "儲存中…" : saveStatus === "error" ? "尚未儲存" : "已儲存"}</b><small>${saveStatus === "error" ? "點擊開啟存檔管理" : "進度保存在此裝置"}</small></span></button></header><button class="desk-pin phone-pin" data-open-app="people"><i>${unread || "♡"}</i><b>手機</b><small>${unread ? `${unread} 則未讀訊息` : state.knownPeople.length ? "查看聯絡人" : "新的城市，空白通訊錄"}</small></button><button class="desk-pin mail-pin" data-open-job><i>!</i><b>工作信箱</b><small>${jobHomeStatus()}</small></button><section class="tablet"><div class="tablet-camera"></div><div class="tablet-screen">${tabletHome()}${tabletDock()}</div></section>${state.appOpen ? appWindow() : ""}${confirmationDialog()}</main>`;
 }
 export function agencyHomeCard() {
   if (isAgencyContractActive()) {
