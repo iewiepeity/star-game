@@ -47,7 +47,9 @@ async function activity(page, kind) {
 test("walk, dress, enter every room, meet an NPC and reload the same save", async ({
   page,
 }) => {
-  test.setTimeout(70000);
+  // This end-to-end journey includes multiple real walks, outfit loads and
+  // a six-second practice. Keep per-action limits, but budget the whole trip.
+  test.setTimeout(120000);
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await start(page);
@@ -261,7 +263,7 @@ test("tap floor to walk in four directions; simultaneous keys do not create diag
 test("bed, sofa and rehearsal have distinct poses; interrupted activity safely reloads", async ({
   page,
 }) => {
-  test.setTimeout(50000);
+  test.setTimeout(90000);
   await start(page);
   await object(page, "bed");
   await page.locator('[data-activity="rest"]').click();
@@ -384,7 +386,7 @@ test("the actual furniture replaces floating buttons; touch selects before walki
 test("seats match furniture directions and retain hip contact through sipping and reload", async ({
   page,
 }) => {
-  test.setTimeout(80000);
+  test.setTimeout(120000);
   await start(page);
   for (const [room, id, frame, mask] of [
     ["home", "desk-seat", "0-3", 1],

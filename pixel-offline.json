@@ -1,6 +1,6 @@
 {
   "version": "0.9.0",
-  "bytes": 114243512,
+  "bytes": 114243829,
   "entries": [
     {
       "url": "./index.html",
@@ -728,7 +728,7 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 41718
+      "bytes": 42035
     },
     {
       "url": "./src/pixel/menu-icons.js",

@@ -174,10 +174,27 @@ test("acceptance survives an interrupted trip and applies no reward before the m
 }) => {
   test.setTimeout(60000);
   await start(page, invitation());
-  await page.locator('[data-stage-reply="accept"]').click();
-  await expect(page.locator(".city-map-viewport")).toBeVisible();
-  expect((await read(page)).state.life.game.eventHistory).toHaveLength(0);
-  await page.reload();
+  // At 16× the map lasts only 300 ms. Interrupt from the rendered map itself
+  // so runner latency cannot move this test past the trip it intends to reload.
+  await page.evaluate(() => {
+    const observer = new window.MutationObserver(() => {
+      const map = document.querySelector(".city-map-viewport");
+      if (!map?.getBoundingClientRect().height || getComputedStyle(map).visibility !== "visible") return;
+      const state = window.__pixelRead().state;
+      sessionStorage.setItem("interrupted-story-trip", JSON.stringify({
+        phase: state.life.storyStage.phase,
+        historyCount: state.life.game.eventHistory.length,
+      }));
+      observer.disconnect();
+      location.reload();
+    });
+    observer.observe(document.body, { subtree: true, childList: true, attributes: true });
+  });
+  await Promise.all([
+    page.waitForEvent("load"),
+    page.locator('[data-stage-reply="accept"]').click(),
+  ]);
+  expect(await page.evaluate(() => JSON.parse(sessionStorage.getItem("interrupted-story-trip")))).toEqual({ phase: "travel", historyCount: 0 });
   await through(page, "[data-stage-resolve]");
   expect((await read(page)).scene).toBe("rehearsal");
   expect((await read(page)).state.life.game.eventHistory).toHaveLength(0);

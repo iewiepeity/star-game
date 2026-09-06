@@ -979,6 +979,9 @@ document.addEventListener("click", async (event) => {
     )
       return;
     appearanceBusy = true;
+    const pendingButtons = [...panel.querySelectorAll("button:not(:disabled)")];
+    for (const button of pendingButtons) button.disabled = true;
+    panel.setAttribute("aria-busy", "true");
     const previousChanged = state.flags.changed;
     const previousOutfit = state.outfitId;
     state.life.game.outfitId = target.dataset.outfit;
@@ -994,6 +997,9 @@ document.addEventListener("click", async (event) => {
       appearanceBusy = false;
       toast("服裝載入失敗，請再試一次");
       return;
+    } finally {
+      for (const button of pendingButtons) button.disabled = false;
+      panel.removeAttribute("aria-busy");
     }
     appearanceBusy = false;
     checkpoint();

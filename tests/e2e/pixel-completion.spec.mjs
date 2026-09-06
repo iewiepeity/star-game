@@ -196,6 +196,36 @@ test("forum threads, collectible looks and the full production controls are usab
   await page.locator("[data-creative-work]").click();
   await expect(page.locator('[data-book-day="0"]')).toBeEnabled();
 });
+test.describe("outfit loading controls", () => {
+  test.use({ serviceWorkers: "block" });
+  test("a slow outfit load disables collection until the new appearance is ready", async ({ page }) => {
+    await start(page, s => s.life.game.ownedOutfits.raven.push("practice"));
+    await apps(page);
+    await page.locator('[data-pixel-app="wardrobe"]').last().click();
+    await page.locator('[data-fitting="practice"]').click();
+    let release;
+    const waiting = new Promise(resolve => { release = resolve; });
+    await page.route("**/assets/pixel/raven-practice*.png", async route => {
+      await waiting;
+      await route.continue();
+    });
+    try {
+      await page.locator('[data-outfit="practice"]').click();
+      await expect(page.locator("#panel")).toHaveAttribute("aria-busy", "true");
+      await expect(page.locator('[data-save-look="work"]')).toBeDisabled();
+      expect((await read(page)).state.life.game.savedLooks.raven?.work).toBeUndefined();
+    } finally {
+      release();
+    }
+    await expect(page.locator('[data-save-look="work"]')).toBeEnabled();
+    await page.locator('[data-save-look="work"]').click();
+    expect((await read(page)).state.life.game.savedLooks.raven.work).toBe("practice");
+    await page.reload();
+    await expect(page.locator("#loading")).toBeHidden();
+    expect((await read(page)).state.life.game.savedLooks.raven.work).toBe("practice");
+  });
+});
+
 test("the complete offline pack reloads and enters an unvisited room without a network", async ({
   page,
   context,
