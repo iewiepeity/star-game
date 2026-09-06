@@ -374,7 +374,7 @@ export function createCareerUI(api) {
     show(
       "career-stories",
       "故事與來信",
-      `<p class="empty-note">目前沒有待決定的劇情。新的消息會隨日期、作品與關係出現。</p><div class="career-card-list">${(
+      `<p class="empty-note">目前沒有待回覆的消息。新的消息會隨日期、作品與關係出現。</p><div class="career-card-list">${(
         g.npcMessages || []
       )
         .slice(-12)
@@ -446,7 +446,7 @@ export function createCareerUI(api) {
                 .join("、")}</small></article>`,
           )
           .join("") || "<p>完成第一部通告或發行原創後，作品會留在這裡。</p>"
-      }</div><details><summary>獎項紀錄</summary>${g.awards.map((a) => `<p>${esc(a.name || a.awardName || a.awardId || "獎季")} · ${esc(a.result)}</p>`).join("") || "符合資格的作品會自動進入原本的獎季評選。"}</details>${g.endingResult ? btn("閱讀結局", 'data-career="ending"') : ""}`,
+      }</div><details><summary>獎項紀錄</summary>${g.awards.map((a) => `<p>${esc(a.name || a.awardName || a.awardId || "獎季")} · ${esc(a.result)}</p>`).join("") || "符合資格的作品會自動進入獎季評選。"}</details>${g.endingResult ? btn("閱讀結局", 'data-career="ending"') : ""}`,
     );
   }
   function ending() {

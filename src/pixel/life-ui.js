@@ -33,6 +33,7 @@ import { roomIllustration } from "./city-rooms.js";
 import { CITY_CATALOG, hiddenRoomOpen } from "./city-catalog.js";
 import { AGENCIES } from "../data/agencies.js";
 import { OFFICIAL_SOCIAL_POSTS, NPC_SOCIAL_COPY } from "../data/social.js";
+import { explorationResultNotes } from "./location-day-copy.js";
 export function createLifeUI(api) {
   const { show, heading, escape, checkpoint, toast, leaveOverlay } = api;
   const state = () => api.state(),
@@ -231,7 +232,7 @@ export function createLifeUI(api) {
     if (room === "rehearsal" && item.id === "practice") {
       show(
         "practice",
-        `${heading("REHEARSAL", "鏡前練習", "正式課程佔一天；試做動作不增加能力。")}<div class="command-list">${row("報名表演課", `可直接報名 · 目前學費 ${money(costOf(life(), { id: "acting" }))}`, 'data-offer="acting"')}${row("先試一段舞步", "放鬆暖身，不結算養成數值", 'data-activity="dance" data-item="practice"')}${row("先試著朗讀", "找找台詞的節奏", 'data-activity="read" data-item="practice"')}</div>${buttons()}`,
+        `${heading("REHEARSAL", "鏡前練習", "正式課程佔一天；試做動作不增加能力。")}<div class="command-list">${row("報名表演課", `可直接報名 · 目前學費 ${money(costOf(life(), { id: "acting" }))}`, 'data-offer="acting"')}${row("先試一段舞步", "暖身活動，不增加能力", 'data-activity="dance" data-item="practice"')}${row("先試著朗讀", "找找台詞的節奏", 'data-activity="read" data-item="practice"')}</div>${buttons()}`,
       );
       return true;
     }
@@ -319,11 +320,12 @@ export function createLifeUI(api) {
   function result() {
     const r = life().pending?.result;
     if (!r) return;
+    const notes = explorationResultNotes(r, CHOICES[r.assignment?.id]);
     if (r.presentation?.portrait)
       return api.narrate({
         title: r.presentation.title || r.label,
         context: r.presentation.context,
-        text: r.notes.join(" "),
+        text: notes.join(" "),
         portrait: r.presentation.portrait,
         choices: [
           {
@@ -344,7 +346,7 @@ export function createLifeUI(api) {
         )
         .join(
           "",
-        )}${r.gains.map((g) => `<div><small>${g.name}</small><b>+${g.amount}</b></div>`).join("")}</div>${r.notes.map((n) => `<p class="result-note">${escape(n)}</p>`).join("")}<div class="panel-actions">${r.presentation?.jobOfferId ? `<button data-job="${r.presentation.jobOfferId}">閱讀通告合約</button>` : ""}${r.presentation?.agencyOfferId ? `<button data-agency-info="${r.presentation.agencyOfferId}">閱讀經紀合約</button>` : ""}<button data-ui="saves">保存今天</button><button class="primary" data-life="advance">${life().day === 6 ? "看看這一週" : "迎接明天 →"}</button></div>`,
+        )}${r.gains.map((g) => `<div><small>${g.name}</small><b>+${g.amount}</b></div>`).join("")}</div>${notes.map((n) => `<p class="result-note">${escape(n)}</p>`).join("")}<div class="panel-actions">${r.presentation?.jobOfferId ? `<button data-job="${r.presentation.jobOfferId}">閱讀通告合約</button>` : ""}${r.presentation?.agencyOfferId ? `<button data-agency-info="${r.presentation.agencyOfferId}">閱讀經紀合約</button>` : ""}<button data-ui="saves">保存今天</button><button class="primary" data-life="advance">${life().day === 6 ? "看看這一週" : "迎接明天 →"}</button></div>`,
     );
   }
   function advance() {
