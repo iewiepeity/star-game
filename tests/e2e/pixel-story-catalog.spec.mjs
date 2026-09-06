@@ -81,11 +81,19 @@ for (const npcId of [...Object.keys(NPC_ARCS), "silver_pc"]) {
       }
       await expect(page.locator("#loading")).toBeHidden();
       await page.locator("[data-stage-start]").click();
+      // Let the cast reach their marks. The transient skip button disappears
+      // automatically on arrival and is not a stable dialogue advance control.
+      await expect
+        .poll(async () => (await read(page)).story?.phase, {
+          message: `${chapter.id}: actors arrive at their marks`,
+          timeout: 20000,
+        })
+        .toBe("beat");
       for (let step = 0; step < 40; step++) {
         if (await page.locator("[data-stage-choice]").first().isVisible())
           break;
         const next = page
-          .locator("#career-page-next, [data-stage-next], [data-stage-skip]")
+          .locator("#career-page-next, [data-stage-next]")
           .first();
         if (await next.isVisible()) await next.click();
         else await page.waitForTimeout(100);
