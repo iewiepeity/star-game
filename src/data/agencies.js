@@ -7,7 +7,7 @@ export const AGENCIES={
   shortName:"星光",
   type:"綜合型經紀公司",
   scale:"中型公司",
-  description:"星望市歷史最久的中型經紀公司之一，戲劇、廣告與綜藝資源均衡，重視新人的長期栽培而非速成流量。",
+  description:"星望市歷史最久的中型經紀公司之一，戲劇、廣告與綜藝資源均衡，重視新人的長期栽培而非速成流量。可先選戲劇、廣告或綜藝作為主修，再逐步拓展副修，不要求同時練滿所有領域。",
   specialties:["戲劇","廣告","綜藝"],
   requirements:{contractReadiness:20,abilities:[["鏡頭感",60],["親和力",50]]},
   contract:{durationWeeks:104,commissionRate:.2,creativeFreedom:55,guaranteedAuditions:1,description:"兩年新人合約，公司提供資源培訓與通告引薦"}

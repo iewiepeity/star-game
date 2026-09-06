@@ -1,6 +1,6 @@
 {
-  "version": "0.12.0",
-  "bytes": 114729626,
+  "version": "0.13.0",
+  "bytes": 114768672,
   "entries": [
     {
       "url": "./index.html",
@@ -60,7 +60,7 @@
     },
     {
       "url": "./src/bind/forum.js",
-      "bytes": 865
+      "bytes": 1457
     },
     {
       "url": "./src/bind/gallery.js",
@@ -76,7 +76,7 @@
     },
     {
       "url": "./src/bind/npc.js",
-      "bytes": 2255
+      "bytes": 3490
     },
     {
       "url": "./src/bind/planner.js",
@@ -188,7 +188,7 @@
     },
     {
       "url": "./src/core/state.js",
-      "bytes": 15742
+      "bytes": 16789
     },
     {
       "url": "./src/core/stats.js",
@@ -216,7 +216,7 @@
     },
     {
       "url": "./src/data/agencies.js",
-      "bytes": 2740
+      "bytes": 2848
     },
     {
       "url": "./src/data/calendar-events.js",
@@ -448,7 +448,7 @@
     },
     {
       "url": "./src/logic/community-interactions.js",
-      "bytes": 2042
+      "bytes": 2850
     },
     {
       "url": "./src/logic/competitors.js",
@@ -500,7 +500,7 @@
     },
     {
       "url": "./src/logic/event-queue.js",
-      "bytes": 2378
+      "bytes": 3608
     },
     {
       "url": "./src/logic/exploration.js",
@@ -528,7 +528,7 @@
     },
     {
       "url": "./src/logic/job-engine.js",
-      "bytes": 21666
+      "bytes": 26834
     },
     {
       "url": "./src/logic/job-list-model.js",
@@ -548,7 +548,7 @@
     },
     {
       "url": "./src/logic/media-engine.js",
-      "bytes": 2642
+      "bytes": 4871
     },
     {
       "url": "./src/logic/npc-autonomy.js",
@@ -576,11 +576,11 @@
     },
     {
       "url": "./src/logic/npc-proactive.js",
-      "bytes": 2427
+      "bytes": 2503
     },
     {
       "url": "./src/logic/npc-storylines.js",
-      "bytes": 7175
+      "bytes": 11686
     },
     {
       "url": "./src/logic/onboarding.js",
@@ -604,7 +604,7 @@
     },
     {
       "url": "./src/logic/playable-depth-engine.js",
-      "bytes": 16885
+      "bytes": 16883
     },
     {
       "url": "./src/logic/portfolio.js",
@@ -620,7 +620,7 @@
     },
     {
       "url": "./src/logic/romance-engine.js",
-      "bytes": 11408
+      "bytes": 14733
     },
     {
       "url": "./src/logic/routine-rules.js",
@@ -659,8 +659,16 @@
       "bytes": 6338
     },
     {
+      "url": "./src/logic/short-contact.js",
+      "bytes": 3389
+    },
+    {
+      "url": "./src/logic/social-context.js",
+      "bytes": 4671
+    },
+    {
       "url": "./src/logic/social-drafts.js",
-      "bytes": 1698
+      "bytes": 4104
     },
     {
       "url": "./src/logic/tutorial.js",
@@ -672,7 +680,7 @@
     },
     {
       "url": "./src/logic/weekly-task.js",
-      "bytes": 1875
+      "bytes": 4459
     },
     {
       "url": "./src/logic/work-lifecycle.js",
@@ -680,7 +688,7 @@
     },
     {
       "url": "./src/logic/work-profile.js",
-      "bytes": 2513
+      "bytes": 3203
     },
     {
       "url": "./src/logic/work-progression.js",
@@ -708,7 +716,7 @@
     },
     {
       "url": "./src/pixel/career-ui.js",
-      "bytes": 24635
+      "bytes": 25671
     },
     {
       "url": "./src/pixel/career.js",
@@ -748,7 +756,7 @@
     },
     {
       "url": "./src/pixel/feature-ui.js",
-      "bytes": 21215
+      "bytes": 21987
     },
     {
       "url": "./src/pixel/furniture-layers.js",
@@ -760,7 +768,7 @@
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 27145
+      "bytes": 27236
     },
     {
       "url": "./src/pixel/life.js",
@@ -804,7 +812,7 @@
     },
     {
       "url": "./src/pixel/planner-tools.js",
-      "bytes": 5725
+      "bytes": 5866
     },
     {
       "url": "./src/pixel/preferences.js",
@@ -900,7 +908,7 @@
     },
     {
       "url": "./src/views/forum.js",
-      "bytes": 5798
+      "bytes": 6609
     },
     {
       "url": "./src/views/gallery.js",
@@ -908,7 +916,7 @@
     },
     {
       "url": "./src/views/jobs.js",
-      "bytes": 15603
+      "bytes": 15700
     },
     {
       "url": "./src/views/log.js",
@@ -924,7 +932,7 @@
     },
     {
       "url": "./src/views/npc.js",
-      "bytes": 9949
+      "bytes": 11989
     },
     {
       "url": "./src/views/people.js",
@@ -940,7 +948,7 @@
     },
     {
       "url": "./src/views/planner.js",
-      "bytes": 16926
+      "bytes": 16057
     },
     {
       "url": "./src/views/player-look.js",
@@ -968,7 +976,7 @@
     },
     {
       "url": "./src/views/social.js",
-      "bytes": 5670
+      "bytes": 6530
     },
     {
       "url": "./src/views/stats-app.js",

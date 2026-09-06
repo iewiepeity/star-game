@@ -1,3 +1,5 @@
+import { shortContact } from "../logic/short-contact.js";
+import { requestRomanceConversation } from "../logic/npc-storylines.js";
 import { creativeApp } from "../views/creative.js";
 import {
   createCreativeProject,
@@ -234,7 +236,6 @@ export function createFeatureUI(api) {
     galleryItem: "gallerySelection",
     achievementFilter: "achievementFilter",
     forumCategory: "forumCategory",
-    forumThread: "forumThread",
     selectJob: "selectedJobId",
     selectAgency: "selectedAgencyId",
   };
@@ -312,6 +313,16 @@ export function createFeatureUI(api) {
     const npc = d.selectNpc || d.openCastNpc || d.sceneNpc;
     if (npc) {
       person(npc);
+      return true;
+    }
+    if (d.forumThread) {
+      mutate((g) => {
+        g.forumThread = d.forumThread;
+        g.forumReadIds ??= [];
+        if (!g.forumReadIds.includes(d.forumThread))
+          g.forumReadIds.push(d.forumThread);
+        g.forumReadIds = g.forumReadIds.slice(-300);
+      });
       return true;
     }
     const target = d.phoneOpen || d.openApp || d.timelineOpen;
@@ -402,6 +413,14 @@ export function createFeatureUI(api) {
       api.book("npc", d.npcId, d.npcInteract);
       return true;
     }
+    if (d.shortContact || d.romanceTalk) {
+      mutate(() =>
+        d.shortContact
+          ? shortContact(d.shortContact, d.contactType)
+          : requestRomanceConversation(d.romanceTalk),
+      );
+      return true;
+    }
     if (d.romanceAction) {
       if (d.romanceAction === "breakup")
         api.show(
@@ -431,6 +450,12 @@ export function createFeatureUI(api) {
     }
     if (d.socialReply) {
       mutate(() => replyToNpcPost(d.socialReply, d.replyType));
+      return true;
+    }
+    if (d.forumArchive !== undefined) {
+      mutate((g) => {
+        g.forumArchive = !g.forumArchive;
+      });
       return true;
     }
     if (d.forumReact) {

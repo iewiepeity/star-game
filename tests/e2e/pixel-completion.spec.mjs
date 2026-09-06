@@ -109,9 +109,9 @@ test("social likes, replies, formal publishing and forum reactions work in the n
   await start(page);
   await apps(page);
   await page.locator('[data-pixel-app="social"]').last().click();
-  await page.locator('[data-social-like="npc-sufei"]').click();
+  await page.locator('[data-social-like="npc-sufei-1"]').click();
   expect((await read(page)).state.life.game.likedSocialPosts).toContain(
-    "npc-sufei",
+    "npc-sufei-1",
   );
   await page.locator('[data-social-reply="sufei"]').first().click();
   expect(

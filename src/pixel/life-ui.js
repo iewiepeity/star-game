@@ -1,3 +1,4 @@
+import { npcSocialPost } from "../logic/social-context.js";
 import {
   applyPlannerTool,
   plannerToolsMarkup,
@@ -32,7 +33,7 @@ import { hasVisited } from "../logic/city-progression.js";
 import { roomIllustration } from "./city-rooms.js";
 import { CITY_CATALOG, hiddenRoomOpen } from "./city-catalog.js";
 import { AGENCIES } from "../data/agencies.js";
-import { OFFICIAL_SOCIAL_POSTS, NPC_SOCIAL_COPY } from "../data/social.js";
+import { OFFICIAL_SOCIAL_POSTS } from "../data/social.js";
 import { explorationResultNotes } from "./location-day-copy.js";
 export function createLifeUI(api) {
   const { show, heading, escape, checkpoint, toast, leaveOverlay } = api;
@@ -409,7 +410,7 @@ export function createLifeUI(api) {
       ...contacts.map((id) => ({
         id,
         name: PEOPLE[id].name,
-        text: NPC_SOCIAL_COPY[id],
+        text: npcSocialPost(id, l.game)?.text || "今天先把近況記下來。",
         likes: 12,
         comments: [],
       })),

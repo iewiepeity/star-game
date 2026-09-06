@@ -11,6 +11,9 @@ import { normalizeBirthday } from "./birthday.js";
 import { syncLegacyPlayerName } from "./player-name.js";
 export function initialState() {
   return {
+    shortContacts: [],
+    forumReadIds: [],
+    forumArchive: false,
     screen: "create",
     createStep: 1,
     tab: "planner",
@@ -254,6 +257,35 @@ function migrateLegacySchedules(next) {
 }
 export function hydrateState(saved) {
   const next = Object.assign(initialState(), saved);
+  for (const [id, rel] of Object.entries(next.relationships || {})) {
+    if (
+      rel &&
+      !rel.mediaAcknowledged &&
+      ["dating", "committed", "engaged", "married"].includes(rel.romance) &&
+      (rel.romanceVisibility === "public" ||
+        (next.rumors || []).some(
+          (r) =>
+            r.npcId === id &&
+            (r.response === "confirm" ||
+              next.eventFlags?.includes(`rumor-response:${r.id}:confirm`)),
+        ))
+    ) {
+      rel.visibility = "public";
+      rel.mediaAcknowledged = true;
+    }
+  }
+
+  next.shortContacts = Array.isArray(saved.shortContacts)
+    ? saved.shortContacts
+        .filter(
+          (x) => x && typeof x.npcId === "string" && Number.isInteger(x.week),
+        )
+        .slice(-120)
+    : [];
+  next.forumReadIds = Array.isArray(saved.forumReadIds)
+    ? saved.forumReadIds.filter((x) => typeof x === "string").slice(-300)
+    : [];
+  next.forumArchive = saved.forumArchive === true;
   if (!Object.prototype.hasOwnProperty.call(saved, "realName"))
     next.realName = typeof saved.name === "string" ? saved.name : "";
   if (!Object.prototype.hasOwnProperty.call(saved, "stageName"))
@@ -285,7 +317,11 @@ export function hydrateState(saved) {
     next.outfitId = "newcomer";
   next.savedLooks = normalizeSavedLooks(next, saved.savedLooks);
   next.wardrobePreview = null;
-  next.partTimeShifts = Object.fromEntries(Object.entries(saved.partTimeShifts || {}).filter(([, count]) => Number.isInteger(count) && count >= 0));
+  next.partTimeShifts = Object.fromEntries(
+    Object.entries(saved.partTimeShifts || {}).filter(
+      ([, count]) => Number.isInteger(count) && count >= 0,
+    ),
+  );
   const rawVisits =
     saved.visitedLocationsByWeek &&
     typeof saved.visitedLocationsByWeek === "object"

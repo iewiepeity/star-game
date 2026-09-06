@@ -1,0 +1,102 @@
+import { state } from "../core/state.js";
+import { NPCS } from "../data/npcs.js";
+import { adjustRelationship } from "./npc-engine.js";
+const REPLIES = [
+  [
+    "剛好看到你的訊息。今天有一小段空檔，你呢？",
+    "今天總算忙完了。聽到你的聲音，才想起我還沒喝水。",
+  ],
+  [
+    "你說的那件小事我記得，後來有比較順利嗎？",
+    "有件小事本來想等見面再說，現在先講給你聽。",
+  ],
+  [
+    "剛才路上看到一個很像你會喜歡的地方，下次再一起去。",
+    "今天沒什麼大事，能這樣隨便聊幾句也很好。",
+  ],
+  [
+    "謝謝你想到我。等手邊的事告一段落，我也想聽聽你的近況。",
+    "先不談工作好了。你今天有吃到什麼好吃的嗎？",
+  ],
+];
+export function shortContact(id, type = "message") {
+  if (
+    !NPCS[id] ||
+    !state.knownPeople.includes(id) ||
+    !["message", "call"].includes(type)
+  )
+    return { ok: false, message: "目前無法聯絡。" };
+  const rel = state.relationships[id];
+  if ((rel?.hostility || 0) >= 45)
+    return { ok: false, message: "對方目前想保留距離，請先處理彼此的衝突。" };
+  state.shortContacts ??= [];
+  const recent = state.shortContacts.filter((x) => x.week === state.week);
+  if (recent.filter((x) => x.npcId === id).length >= 2)
+    return {
+      ok: false,
+      message: "這週已經聊過兩次近況，其他的留到下次見面吧。",
+    };
+  if (recent.length >= 5)
+    return {
+      ok: false,
+      message: "這週已經留了不少時間聯絡朋友，先把自己的生活照顧好吧。",
+    };
+  const count = state.shortContacts.filter((x) => x.npcId === id).length;
+  const text =
+    REPLIES[
+      (state.week + count + Object.keys(NPCS).indexOf(id)) % REPLIES.length
+    ][type === "call" ? 1 : 0];
+  adjustRelationship(id, {
+    closeness: 1,
+    trust: 1,
+    affection: type === "call" ? 2 : 1,
+    source: type === "call" ? "空檔打電話" : "訊息聊近況",
+  });
+  const record = {
+    id: `short:${state.week}:${id}:${recent.filter((x) => x.npcId === id).length}`,
+    week: state.week,
+    npcId: id,
+    type,
+    text,
+  };
+  state.shortContacts.push(record);
+  state.shortContacts = state.shortContacts.slice(-120);
+  state.npcMessages ??= [];
+  state.npcMessages.push({
+    ...record,
+    title: type === "call" ? "電話裡的近況" : "收到回覆",
+    source: "short-contact",
+    read: false,
+  });
+  return {
+    ok: true,
+    message: `${NPCS[id].name}：「${text}」這次聯絡不占整日行程。`,
+  };
+}
+
+export function queueShortCheckIn() {
+  const key = `check-in:${state.week}`;
+  if (state.week % 2 || state.npcMessages?.some((m) => m.id === key))
+    return false;
+  const people = (state.knownPeople || []).filter(
+    (id) =>
+      NPCS[id] &&
+      (state.relationships[id]?.closeness || 0) >= 20 &&
+      (state.relationships[id]?.hostility || 0) < 20,
+  );
+  if (!people.length) return false;
+  const npcId = people[Math.floor(state.week / 2) % people.length];
+  state.npcMessages ??= [];
+  state.npcMessages.push({
+    id: key,
+    npcId,
+    week: state.week,
+    title: "有空再回就好",
+    text:
+      REPLIES[Math.floor(state.week / 2) % REPLIES.length][0] +
+      " 有空傳個訊息就好，不用特地空下一天。",
+    source: "short-contact",
+    read: false,
+  });
+  return true;
+}

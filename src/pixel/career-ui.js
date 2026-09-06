@@ -1,3 +1,6 @@
+import { shortContact } from "../logic/short-contact.js";
+import { romanceProgress } from "../logic/romance-engine.js";
+import { requestRomanceConversation } from "../logic/npc-storylines.js";
 import { eventContext } from "../logic/event-context.js";
 import { createStoryDirector } from "./story-director.js";
 import { withCore, CHOICES, DAY_NAMES, definition } from "./life.js";
@@ -197,7 +200,7 @@ export function createCareerUI(api) {
     show(
       "career-job",
       j.title,
-      `<div class="career-feature">${roomIllustration(ROOMS[productionRoom(j.category)])}<div><span>${esc(j.category)} · ${"★".repeat(j.stars)}</span><h3>${stageNames[r.stage]}</h3><p>殺青總酬勞 ${money(info.pay)}（經紀抽成另計）</p><p>${r.stage === "active" ? `剩餘 ${r.remainingSessions} 次 · 第 ${r.deadlineWeek} 週前完成` : `${j.sessions} 次工作 · 簽約後 ${j.deadlineWeeks} 週內完成`}</p></div></div><p>${esc(plain(j.synopsis || j.audition?.prompt))}</p><details><summary>角色要求與履歷條件</summary>${q.rows.map((v) => `<p>${v.met ? "✓" : "○"} ${esc(v.name)} ${Math.round(v.current)} / ${v.required}</p>`).join("")}<p>訓練 ${q.training}/${q.trainingRequired} 次</p><p>${esc(q.commitmentReason || q.doctrineReason || "")}</p></details><p class="result-note">${esc(r.notice || (!info.access.ok ? info.access.reason : !q.met ? "先補足角色要求，再來試試。" : "可以登記這次徵選。"))}</p><div class="panel-actions">${commands}${btn("查看行程", 'data-ui="schedule"')}</div>`,
+      `<div class="career-feature">${roomIllustration(ROOMS[productionRoom(j.category)])}<div><span>${esc(j.category)} · ${"★".repeat(j.stars)}</span><h3>${stageNames[r.stage]}</h3><p>殺青總酬勞 ${money(info.pay)}（經紀抽成另計）</p><p>${r.stage === "active" ? `剩餘 ${r.remainingSessions} 次 · 第 ${r.deadlineWeek} 週前完成` : `${j.sessions} 次工作 · 簽約後 ${j.deadlineWeeks} 週內完成`}</p></div></div><p>${esc(plain(j.synopsis || j.audition?.prompt))}</p><details><summary>角色要求與履歷條件</summary>${q.rows.map((v) => `<p>${v.met ? "✓" : "○"} ${esc(v.name)}（${v.core ? "必要" : "加分，未達仍可試鏡"}）${Math.round(v.current)} / ${v.required}</p>`).join("")}<p>訓練 ${q.training}/${q.trainingRequired} 次</p><p>${esc(q.commitmentReason || q.doctrineReason || "")}</p></details><p class="result-note">${esc(r.notice || (!info.access.ok ? info.access.reason : !q.met ? "先補足角色要求，再來試試。" : "可以登記這次徵選。"))}</p><div class="panel-actions">${commands}${btn("查看行程", 'data-ui="schedule"')}</div>`,
     );
   }
   function agency(id) {
@@ -269,7 +272,7 @@ export function createCareerUI(api) {
     show(
       "career-contact",
       npc.name,
-      `<div class="contact-portrait"><img src="${npc.portrait}" alt="${npc.name}"><div><p>${esc(npc.job)}</p><p>親近 ${rel.closeness || 0} · 信任 ${rel.trust || 0}</p><p>${esc(romanceStageLabel(rel.romance || "none"))}</p></div></div><div class="command-list">${Object.entries(
+      `<div class="contact-portrait"><img src="${npc.portrait}" alt="${npc.name}"><div><p>${esc(npc.job)}</p><p>親近 ${rel.closeness || 0} · 信任 ${rel.trust || 0}</p><p>${esc(romanceStageLabel(rel.romance || "none"))}</p></div></div><p>${esc(withCore(life(), () => romanceProgress(id)))}</p><div class="command-list"><button data-short-contact="${id}" data-contact-type="message">傳訊息 · 不占一天</button><button data-short-contact="${id}" data-contact-type="call">打電話 · 不占一天</button><button data-romance-talk="${id}">聊聊我們的關係</button></div><p>每人每週可短聯絡 2 次，合計最多 5 次。下列見面會預留一天。</p><div class="command-list">${Object.entries(
         NPC_INTERACTIONS,
       )
         .map(([type, v]) =>
@@ -483,6 +486,17 @@ export function createCareerUI(api) {
     }
     if (d.agencyInfo) {
       agency(d.agencyInfo);
+      return true;
+    }
+    if (d.shortContact || d.romanceTalk) {
+      const result = withCore(life(), () =>
+        d.shortContact
+          ? shortContact(d.shortContact, d.contactType)
+          : requestRomanceConversation(d.romanceTalk),
+      );
+      save();
+      api.toast(result.message);
+      contact(d.shortContact || d.romanceTalk);
       return true;
     }
     if (d.contact) {
