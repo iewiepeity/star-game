@@ -21,6 +21,7 @@ import {
   inside,
 } from "./navigation.js";
 import { importSprites, actorFrame, activityFrame } from "./sprites.js";
+import { createStoryActors } from "./story-actors.js";
 const OLD_NPCS = ["jiqing", "sufei", "jiqing-actions", "sufei-actions"];
 const actorKey = (state) => `${state.avatarId || "raven"}-${state.outfitId}`;
 const oldHero = (key) => [
@@ -43,6 +44,7 @@ export function createWorld(controller) {
       this.heldNpc = null;
       this.keys = new Set();
       this.assetHistory = { rooms: [], heroes: [] };
+      this.storyActors = createStoryActors(this, controller);
     }
     preload() {
       this.load.on("progress", (value) =>
@@ -427,7 +429,7 @@ export function createWorld(controller) {
         controller.transitioning = false;
       }
     }
-    transition(id, after) {
+    transition(id, after, onError) {
       if (!ROOMS[id]) return;
       this.go(
         this.room.objects.find((o) => o.id === "door").target,
@@ -448,11 +450,13 @@ export function createWorld(controller) {
           } catch {
             controller.transitioning = false;
             controller.toast("地點素材載入失敗，請重新開啟地圖再試。");
+            onError?.();
           }
         },
       );
     }
     async restoreRoom() {
+      this.storyActors.clear();
       controller.transitioning = true;
       try {
         await this.ensureAssets();
@@ -481,6 +485,15 @@ export function createWorld(controller) {
           Math.max(viewWidth, WORLD.width),
           Math.max(viewHeight, WORLD.height),
         );
+      this.center();
+    }
+    restoreStoryOrigin(origin) {
+      const point = nearest(this.grid, origin.position || this.room.entry);
+      Object.assign(this.player, { x: point.x, y: point.y, path: [] });
+      controller.state().position = { x: point.x, y: point.y };
+      controller.state().activity = origin.activity || null;
+      this.updateSeatForeground();
+      actorFrame(this.player, false, 0);
       this.center();
     }
     center() {
@@ -668,6 +681,7 @@ export function createWorld(controller) {
     }
     update(_time, delta) {
       if (!this.player) return;
+      if (this.storyActors.update(delta)) return;
       if (this.paused) {
         this.keys.clear();
         return;
@@ -795,6 +809,7 @@ export function createWorld(controller) {
     }
     snapshot() {
       return {
+        story: this.storyActors.snapshot(),
         scene: controller.state().sceneId,
         retainedAssets: {
           rooms: this.assetHistory.rooms.length,
@@ -827,6 +842,7 @@ export function createWorld(controller) {
           .filter((a) => a.id !== "player")
           .map((a) => ({
             id: a.id,
+            visible: a.sprite.visible,
             x: a.x,
             y: a.y,
             status: a.status,

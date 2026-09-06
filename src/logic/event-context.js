@@ -11,6 +11,7 @@ export function eventContext(event = {}, meta = {}) {
     for (const key of ["npcId", "npc"])
       if (NPCS[value[key]]) ids.add(value[key]);
     for (const id of value.npcIds || []) if (NPCS[id]) ids.add(id);
+    for (const id of value.cast || []) if (NPCS[id]) ids.add(id);
     for (const key of ["effect", "effects", "choices"]) collect(value[key]);
   }
   collect(event);

@@ -167,6 +167,18 @@ export function eventStoryArt(event){
  return SCENE_ART.cinema;
 }
 
+// Pixel scenes may offer a full-size illustration, but must never substitute a
+// generic dressing room for an NPC-specific scene that has no authored CG.
+export function authoredEventArt(event, outcome = {}) {
+ const exact = Object.entries(EXACT_EVENT_ART).find(([id]) => String(event?.id || "").includes(id));
+ if (exact) return exact[1];
+ if (/^npc-romance-/.test(event?.id || "") && ["yes", "build-together", "private-vow"].includes(outcome.choice)) {
+  if (event.id.includes(":romance:engaged:")) return cg("milestone-romance-wedding.webp", "把承諾變成生活");
+  if (event.id.includes(":romance:committed:")) return cg("milestone-romance-proposal.webp", "關於更遠的以後");
+ }
+ return null;
+}
+
 export const STORY_ART_ASSETS=Object.freeze([
  ...Object.values(SCENE_ART),...Object.values(EXACT_EVENT_ART),...Object.values(NPC_ROUTE_ART),
  ...MILESTONE_RULES.map(([,art])=>art)

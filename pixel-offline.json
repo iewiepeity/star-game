@@ -1,6 +1,6 @@
 {
-  "version": "0.7.1",
-  "bytes": 113770067,
+  "version": "0.8.0",
+  "bytes": 113802344,
   "entries": [
     {
       "url": "./pixel.html",
@@ -12,7 +12,7 @@
     },
     {
       "url": "./pixel-ui.css",
-      "bytes": 26237
+      "bytes": 26506
     },
     {
       "url": "./pixel-apps.css",
@@ -244,7 +244,7 @@
     },
     {
       "url": "./src/data/invitation-content.js",
-      "bytes": 8680
+      "bytes": 8761
     },
     {
       "url": "./src/data/job-feature-beats.js",
@@ -356,7 +356,7 @@
     },
     {
       "url": "./src/data/story-art.js",
-      "bytes": 15984
+      "bytes": 16696
     },
     {
       "url": "./src/data/wardrobe.js",
@@ -452,7 +452,7 @@
     },
     {
       "url": "./src/logic/event-context.js",
-      "bytes": 1481
+      "bytes": 1547
     },
     {
       "url": "./src/logic/event-engine.js",
@@ -476,7 +476,7 @@
     },
     {
       "url": "./src/logic/hidden-route.js",
-      "bytes": 8519
+      "bytes": 9088
     },
     {
       "url": "./src/logic/industry-news.js",
@@ -664,11 +664,11 @@
     },
     {
       "url": "./src/pixel/career-ui.js",
-      "bytes": 24231
+      "bytes": 24644
     },
     {
       "url": "./src/pixel/career.js",
-      "bytes": 22955
+      "bytes": 23196
     },
     {
       "url": "./src/pixel/cast.js",
@@ -684,7 +684,7 @@
     },
     {
       "url": "./src/pixel/city-ui.js",
-      "bytes": 7597
+      "bytes": 8187
     },
     {
       "url": "./src/pixel/core-bridge.js",
@@ -716,7 +716,7 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 39685
+      "bytes": 40602
     },
     {
       "url": "./src/pixel/menu-icons.js",
@@ -763,12 +763,28 @@
       "bytes": 8391
     },
     {
+      "url": "./src/pixel/story-actors.js",
+      "bytes": 6835
+    },
+    {
+      "url": "./src/pixel/story-blocking.js",
+      "bytes": 1579
+    },
+    {
+      "url": "./src/pixel/story-director.js",
+      "bytes": 9829
+    },
+    {
+      "url": "./src/pixel/story-scenes.js",
+      "bytes": 9451
+    },
+    {
       "url": "./src/pixel/tutorial-ui.js",
       "bytes": 2006
     },
     {
       "url": "./src/pixel/world.js",
-      "bytes": 28601
+      "bytes": 29326
     },
     {
       "url": "./src/render.js",

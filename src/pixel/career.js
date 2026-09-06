@@ -1,4 +1,6 @@
 import { eventContext } from "../logic/event-context.js";
+import { adaptSavedInvitation } from "./story-scenes.js";
+import { hiddenRoutePresentation } from "../logic/hidden-route.js";
 import { state } from "../core/state.js";
 import { withCore } from "./core-bridge.js";
 import { JOB_BY_ID } from "../data/jobs.js";
@@ -572,6 +574,10 @@ export function currentStory(life) {
         context: eventContext(game.eventOutcome),
       };
     const item = game.activeEvent || activateNextEvent();
+    if (item)
+      item.event = hiddenRoutePresentation(
+        adaptSavedInvitation(item.event, game),
+      );
     return item
       ? {
           event: item.event,

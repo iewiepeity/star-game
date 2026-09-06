@@ -210,6 +210,13 @@ function goTo(sceneId, itemId) {
   else cityUI.route(sceneId, () => world.interact(itemId));
 }
 function menu() {
+  if (state.life.storyStage) {
+    show(
+      "story-menu",
+      `${heading("A MOMENT TO PAUSE", "稍作停留")}<div class="command-list"><button class="command-row" data-ui="close"><span><strong>繼續故事</strong><small>回到剛才的這一幕</small></span><b>→</b></button><button class="command-row" data-ui="saves"><span><strong>存檔與讀檔</strong></span><b>→</b></button><button class="command-row" data-ui="settings"><span><strong>系統設定</strong><small>配色、文字與聲音</small></span><b>→</b></button></div>`,
+    );
+    return;
+  }
   show(
     "menu",
     `${heading("STARLIGHT DAYS", "我的生活")}<nav class="command-menu" aria-label="遊戲功能">${[
@@ -470,6 +477,7 @@ function narrate({
   choices,
   context,
   contextNote,
+  readerKey,
 }) {
   leaveOverlay();
   panelType = "career-dialogue";
@@ -486,7 +494,7 @@ function narrate({
     else pages[pages.length - 1] += part;
   }
   if (!pages.length) pages.push("……");
-  const key = `${state.life.game.week}-${state.life.day}-${title}`;
+  const key = readerKey || `${state.life.game.week}-${state.life.day}-${title}`;
   let index =
     state.life.reader?.key === key
       ? Math.min(pages.length - 1, state.life.reader.index)
@@ -606,10 +614,13 @@ const controller = {
   state: () => state,
   paused: () =>
     paused ||
+    !!world?.storyActors.active ||
     panel.open ||
     !!state.dialogue ||
     panelType === "career-dialogue" ||
     controller.transitioning,
+  storyPaused: () =>
+    paused || panel.open || !!state.dialogue || controller.transitioning,
   transitioning: false,
   toast,
   checkpoint,
@@ -668,6 +679,8 @@ const cityUI = createCityUI({
 });
 const lifeUI = createLifeUI({
   travelTo: (...args) => cityUI.route(...args),
+  storyTravelTo: (id, after, onError) =>
+    cityUI.route(id, after, true, true, onError),
   agencies: () => cityUI.agencies(),
   narrate,
   state: () => state,
@@ -680,6 +693,7 @@ const lifeUI = createLifeUI({
   leaveOverlay,
   paused: () =>
     paused ||
+    !!state.life.storyStage ||
     panel.open ||
     !!state.dialogue ||
     panelType === "career-dialogue" ||
@@ -1111,6 +1125,10 @@ createWorld(controller);
 $("dialogue").addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     event.preventDefault();
+    if (state.life.storyStage) {
+      menu();
+      return;
+    }
     endDialogue();
   }
   if (event.key === "Tab") {

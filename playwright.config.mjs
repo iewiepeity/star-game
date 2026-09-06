@@ -24,6 +24,7 @@ export default defineConfig({
         "**/pixel-career.spec.mjs",
         "**/pixel-polish.spec.mjs",
         "**/pixel-completion.spec.mjs",
+        "**/pixel-stories.spec.mjs",
       ],
       use: {
         browserName: "chromium",
@@ -46,6 +47,7 @@ export default defineConfig({
         "**/pixel-career.spec.mjs",
         "**/pixel-polish.spec.mjs",
         "**/pixel-completion.spec.mjs",
+        "**/pixel-stories.spec.mjs",
       ],
       use: {
         browserName: "webkit",
@@ -69,6 +71,7 @@ export default defineConfig({
         "**/pixel-career.spec.mjs",
         "**/pixel-polish.spec.mjs",
         "**/pixel-completion.spec.mjs",
+        "**/pixel-stories.spec.mjs",
       ],
       use: {
         browserName: "webkit",
@@ -91,6 +94,7 @@ export default defineConfig({
         "**/pixel-career.spec.mjs",
         "**/pixel-polish.spec.mjs",
         "**/pixel-completion.spec.mjs",
+        "**/pixel-stories.spec.mjs",
       ],
       use: { browserName: "firefox", viewport: { width: 1366, height: 900 } },
     },

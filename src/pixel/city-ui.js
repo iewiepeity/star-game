@@ -13,12 +13,16 @@ export function createCityUI(api) {
     selectedId = null,
     travelTimer = null,
     scheduledArrival = null,
+    storyTrip = false,
+    scheduledFailure = null,
     mapObserver = null;
   const s = () => api.state();
   function cancelRoute() {
     clearTimeout(travelTimer);
     travelTimer = null;
     scheduledArrival = null;
+    storyTrip = false;
+    scheduledFailure = null;
   }
   function details(id) {
     const place = CITY_PLACES.find((p) => p.id === publicRoom(id));
@@ -91,9 +95,10 @@ export function createCityUI(api) {
     }
     if (preselect) details(preselect);
   }
-  function enter(id, after) {
+  function enter(id, after, story = false, onError = null) {
     cancelRoute();
-    if (!ROOMS[id] || (id === "editing_room" && !hiddenRoomOpen(s()))) return;
+    if (!ROOMS[id] || (id === "editing_room" && !hiddenRoomOpen(s()) && !story))
+      return;
     if (!after) {
       api.takeover();
       api.world().cancelActivity();
@@ -101,9 +106,9 @@ export function createCityUI(api) {
     }
     api.leaveOverlay();
     if (s().sceneId === id) after?.();
-    else api.world().transition(id, after);
+    else api.world().transition(id, after, onError);
   }
-  function route(id, after, automatic = false) {
+  function route(id, after, automatic = false, story = false, onError = null) {
     if (!automatic) {
       api.takeover();
       api.world().cancelActivity();
@@ -117,6 +122,8 @@ export function createCityUI(api) {
     // Every trip is shown on the city map. Scheduled routines use this same gate.
     show(id);
     scheduledArrival = after;
+    storyTrip = story;
+    scheduledFailure = onError;
     if (automatic)
       travelTimer = setTimeout(
         () => {
@@ -125,7 +132,7 @@ export function createCityUI(api) {
             return;
           }
           const callback = scheduledArrival;
-          enter(id, callback);
+          enter(id, callback, story, onError);
         },
         Math.max(300, 1100 / s().life.speed),
       );
@@ -149,6 +156,13 @@ export function createCityUI(api) {
   function handle(b) {
     const d = b.dataset;
     if (d.mapPlace) {
+      // A story trip must retain its arrival callback and agreed destination.
+      // Clicking a landmark while the short route preview is visible must not
+      // silently turn it into an unrelated free-roam trip.
+      if (storyTrip) {
+        details(selectedId);
+        return true;
+      }
       cancelRoute();
       selectedId = d.mapPlace;
       details(d.mapPlace);
@@ -156,7 +170,7 @@ export function createCityUI(api) {
     }
     if (d.mapEnter) {
       const cb = scheduledArrival;
-      enter(d.mapEnter, cb);
+      enter(d.mapEnter, cb, storyTrip, scheduledFailure);
       return true;
     }
     if (d.mapZoom || d.mapHome !== undefined) {

@@ -1,4 +1,4 @@
-# Pixel life · v0.7.1
+# Pixel life · v0.8.0
 
 Entry: `/pixel.html`. Original `/index.html` progress and the pixel save namespace remain separate. The original 18 app entry points and the previously listed missing interactions are now accessible inside the pixel world. See the parity inventory for supported operations and limits.
 
@@ -39,3 +39,11 @@ See `PIXEL-INTEGRITY.md` for the latest audit and `PIXEL-FEATURE-PARITY.md` for 
 Run `npm run check` for original and pixel domain checks and the production build. Run `npx playwright test 'pixel-.*\.spec\.mjs' --workers=3` for the six browser/viewport projects. Download an offline pack and test reloading/entering an unvisited room with the network disabled. Asset-failure tests block service workers so cached responses cannot bypass intentional request failures.
 
 Package the **entire `dist/`** folder, including original shell files, all pixel styles, manifests, modules and assets. This allows the shared service worker to install successfully. Version query strings must retain the pixel HTML fallback while offline.
+
+## Story staging (v0.8.0)
+
+`story-scenes.js` maps all 30 core arcs, 50 longform chapters and eight hidden-route chapters to reviewed city sets, reuses those sets for the 100 branch follow-ups, and preserves every authored beat. Invitations first show the incoming message; only acceptance stages a visit. Declining/rescheduling stays a message. Existing recollections do not spawn actors. `story-blocking.js` finds a connected group of distinct floor marks. `story-actors.js` reserves the cast, walks cardinal paths, faces each speaker, animates reading/dance/listening, frames the cast above the dialogue, and releases them afterward.
+
+`story-director.js` persists presentation phase, selected invitation reply, beat and return position in `life.storyStage`. The shared event engine alone commits effects. Merely arriving, skipping animation or loading cannot settle a choice. Private story invitations may access their authored interior for that scene without opening its public unlock. Scene download failure offers retry. Menus and hidden pages pause staging; a reload resumes the same line/cast. The original activity and room are restored after departure via the city map. Authored CG can be opened at full size after a choice; generic fallback art is not used for an NPC scene.
+
+Hidden-route entry predicates are evaluated when enqueuing, then replaced by serializable requirements. This avoids storing functions inside the pixel transaction. The second-run / familiar-face / trust gates are retained; contact unlock follows the on-screen encounter choice.

@@ -226,6 +226,48 @@ test("the complete offline pack reloads and enters an unvisited room without a n
     .poll(async () => (await read(page))?.scene, { timeout: 20000 })
     .toBe("livehouse");
   await expect(page.locator("#loading")).toBeHidden();
+  // Resume a pending story in an unvisited room with the network still off.
+  await page.addInitScript(() => {
+    const seed = sessionStorage.getItem("pixel-offline-story");
+    if (seed) {
+      localStorage.setItem("star-game-pixel-phase-one-v1", seed);
+      sessionStorage.removeItem("pixel-offline-story");
+    }
+  });
+  await page.evaluate(() => {
+    const s = window.__pixelRead().state;
+    s.life.game.activeEvent = {
+      source: "人物主線",
+      event: {
+        id: "npc-arc-sufei-same-audition",
+        npcId: "sufei",
+        title: "同一份角色名單",
+        text: "在試鏡前，陪彼此對一次戲。",
+        choices: [
+          {
+            id: "practice",
+            label: "陪彼此對戲",
+            outcome: "約好一起全力以赴。",
+            effect: { npc: "sufei", trust: 3 },
+          },
+        ],
+      },
+    };
+    s.life.game.eventOutcome = null;
+    s.life.storyStage = null;
+    sessionStorage.setItem("pixel-offline-story", JSON.stringify({ state: s }));
+  });
+  await page.reload();
+  await page.locator("[data-stage-start]").click();
+  await expect(page.locator("[data-stage-skip]")).toBeVisible({
+    timeout: 20000,
+  });
+  await page.locator("[data-stage-skip]").click();
+  await expect(page.locator("[data-stage-choice]")).toBeVisible();
+  expect((await read(page)).scene).toBe("rehearsal");
+  expect((await read(page)).story.cast).toEqual(["sufei"]);
+  await page.locator("[data-stage-choice]").click();
+  await expect(page.locator("[data-stage-done]")).toBeVisible();
   await context.setOffline(false);
 });
 

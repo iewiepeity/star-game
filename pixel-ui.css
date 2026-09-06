@@ -1166,6 +1166,9 @@ progress::-moz-progress-bar {
 }
 
 /* Journal context distinguishes remembered stories from a person in the room. */
+.story-illustration { margin: 16px 0; text-align: center; }
+.story-illustration img { display: block; width: 100%; max-height: 65dvh; object-fit: contain; border-radius: 12px; }
+.story-illustration figcaption { margin-top: 10px; font-size: 13px; color: var(--muted); }
 #dialogue .speech .story-context {
   margin: 0 0 10px;
   padding-right: 54px;

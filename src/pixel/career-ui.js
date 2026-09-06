@@ -1,4 +1,5 @@
 import { eventContext } from "../logic/event-context.js";
+import { createStoryDirector } from "./story-director.js";
 import { withCore, CHOICES, DAY_NAMES, definition } from "./life.js";
 import {
   bookCareer,
@@ -85,6 +86,14 @@ export function createCareerUI(api) {
     api.checkpoint();
     api.changed();
   };
+  const director = createStoryDirector({
+    ...api,
+    save,
+    escape: esc,
+    choices: () => currentStory(life())?.choices || [],
+    choose: (id) => chooseStory(life(), id),
+    fallback: (story) => narrative(story, true),
+  });
   function hub() {
     const game = life().game;
     show(
@@ -393,7 +402,8 @@ export function createCareerUI(api) {
         .join("")}</details>`,
     );
   }
-  function narrative(story) {
+  function narrative(story, fallback = false) {
+    if (!fallback && director.present(story)) return;
     const e = story.event || story.outcome,
       art = eventStoryArt(e);
     const context = story.context || eventContext(e),
@@ -450,6 +460,7 @@ export function createCareerUI(api) {
     );
   }
   function handle(target) {
+    if (director.handle(target)) return true;
     const d = target.dataset;
     if (d.career) {
       (
