@@ -1,6 +1,6 @@
 {
-  "version": "0.14.1",
-  "bytes": 114783231,
+  "version": "0.14.2",
+  "bytes": 114788376,
   "entries": [
     {
       "url": "./index.html",
@@ -804,7 +804,7 @@
     },
     {
       "url": "./src/pixel/offline.js",
-      "bytes": 4518
+      "bytes": 6676
     },
     {
       "url": "./src/pixel/onboarding.js",
@@ -820,7 +820,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 4045
+      "bytes": 4442
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -865,6 +865,10 @@
     {
       "url": "./src/pixel/tutorial-ui.js",
       "bytes": 2006
+    },
+    {
+      "url": "./src/pixel/update-flow.js",
+      "bytes": 2590
     },
     {
       "url": "./src/pixel/world.js",

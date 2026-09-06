@@ -2,6 +2,13 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.14.2", date: "2026-09-06", title: "更新按鈕，別已讀不回",
+    notes: [
+      "「儲存並更新」開始回報進度。就算另一個分頁搶先更新，也會接著重新載入，不再站在原地裝盆栽。",
+      "新版還在下載會等它準備好，切換卡住也能重試。先確定旅程存好了才出發，行李沒帶齊不發車。",
+    ],
+  },
+  {
     version: "0.14.1", date: "2026-09-06", title: "本遊戲終於開始寫日記",
     notes: [
       "設定頁現在會亮出你正在玩的版本。下次遇到怪事，報版號就好，不必先請通靈師出場。",
@@ -64,4 +71,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.37.1";
+export const CORE_VERSION = "1.37.2";

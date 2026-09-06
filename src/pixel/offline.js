@@ -1,10 +1,18 @@
+import { waitForPixelUpdate, activatePixelUpdate } from "./update-flow.js";
+
 export function setupPixelOffline(api) {
   let registration = null,
     installPrompt = null,
-    downloading = false;
+    downloading = false,
+    applyingUpdate = false;
   const status = (text) => {
     const el = document.getElementById("offline-status");
     if (el) el.textContent = text;
+  };
+  const updateStatus = (text) => {
+    const el = document.getElementById("pixel-update-status");
+    if (el) el.textContent = text;
+    api.toast(text);
   };
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
@@ -95,25 +103,72 @@ export function setupPixelOffline(api) {
         api.toast("此瀏覽器無法檢查更新");
         return;
       }
+      const label = button.textContent;
+      button.disabled = true;
+      button.textContent = "檢查新版中…";
+      status("正在檢查並準備新版…");
       try {
         await registration.update();
+        await waitForPixelUpdate(registration);
         if (registration.waiting)
           api.show(
             "update-confirm",
-            `${api.heading("A NEW CHAPTER", "發現新版本", "套用前會儲存目前進度，然後重新開啟遊戲。")}<button data-ui="settings">稍後</button><button data-offline="apply-update">儲存並更新</button>`,
+            `${api.heading("A NEW CHAPTER", "發現新版本", "套用前會儲存目前進度，然後重新開啟遊戲。")}<p id="pixel-update-status" role="status" aria-live="polite">新版已準備好，存檔後就能出發。</p><div class="buttons"><button data-ui="settings">稍後</button><button class="primary" data-offline="apply-update">儲存並更新</button><button data-offline="reload-update" hidden>重新載入遊戲</button></div>`,
           );
-        else api.toast("目前已是可取得的最新版本");
-      } catch {
-        api.toast("目前無法連線檢查更新");
+        else {
+          status("目前已是可取得的最新版本");
+          api.toast("目前已是可取得的最新版本");
+        }
+      } catch (error) {
+        const message = error.message.startsWith("新版")
+          ? error.message
+          : "目前無法連線檢查更新，請稍後再試。";
+        status(message);
+        api.toast(message);
+      } finally {
+        button.disabled = false;
+        button.textContent = label;
       }
     }
-    if (action === "apply-update" && registration?.waiting) {
-      if (!api.checkpoint()) return;
-      const reload = () => location.reload();
-      navigator.serviceWorker.addEventListener("controllerchange", reload, {
-        once: true,
-      });
-      registration.waiting.postMessage({ type: "SKIP_WAITING" });
+    if (["apply-update", "reload-update"].includes(action)) {
+      if (applyingUpdate) return;
+      applyingUpdate = true;
+      button.disabled = true;
+      const label = button.textContent;
+      button.textContent = "正在儲存進度…";
+      let saved = false,
+        reloading = false;
+      try {
+        if (!(await api.checkpoint())) {
+          updateStatus("目前無法儲存進度，請稍後再試；這次尚未更新。");
+          return;
+        }
+        saved = true;
+        updateStatus("進度已儲存，正在切換新版…");
+        button.textContent = "進度已儲存，更新中…";
+        if (action === "apply-update" && registration) {
+          await waitForPixelUpdate(registration);
+          await activatePixelUpdate(registration, navigator.serviceWorker);
+        }
+        location.reload();
+        reloading = true;
+      } catch {
+        updateStatus(
+          saved
+            ? "進度已保留，但新版切換未完成。可以重試或重新載入遊戲。"
+            : "目前無法儲存進度，請稍後再試；這次尚未更新。",
+        );
+        const fallback = document.querySelector(
+          '[data-offline="reload-update"]',
+        );
+        if (fallback && saved) fallback.hidden = false;
+      } finally {
+        if (!reloading) {
+          applyingUpdate = false;
+          button.disabled = false;
+          button.textContent = label;
+        }
+      }
     }
   }
   return {
