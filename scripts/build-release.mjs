@@ -12,6 +12,7 @@ const files = [
   "pixel.css",
   "pixel-ui.css",
   "pixel-apps.css",
+  "pixel-theme.css",
   "pixel.webmanifest",
   "pixel-offline.json",
   "manifest.webmanifest",

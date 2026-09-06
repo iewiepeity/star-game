@@ -1,10 +1,10 @@
 {
-  "version": "0.8.0",
-  "bytes": 113802344,
+  "version": "0.9.0",
+  "bytes": 114241850,
   "entries": [
     {
       "url": "./pixel.html",
-      "bytes": 3954
+      "bytes": 4146
     },
     {
       "url": "./pixel.css",
@@ -17,6 +17,10 @@
     {
       "url": "./pixel-apps.css",
       "bytes": 22901
+    },
+    {
+      "url": "./pixel-theme.css",
+      "bytes": 24600
     },
     {
       "url": "./pixel.webmanifest",
@@ -708,7 +712,7 @@
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 26843
+      "bytes": 27018
     },
     {
       "url": "./src/pixel/life.js",
@@ -716,7 +720,7 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 40602
+      "bytes": 41718
     },
     {
       "url": "./src/pixel/menu-icons.js",
@@ -736,7 +740,7 @@
     },
     {
       "url": "./src/pixel/onboarding.js",
-      "bytes": 3604
+      "bytes": 4576
     },
     {
       "url": "./src/pixel/planner-tools.js",
@@ -784,7 +788,7 @@
     },
     {
       "url": "./src/pixel/world.js",
-      "bytes": 29326
+      "bytes": 29536
     },
     {
       "url": "./src/render.js",
@@ -1851,12 +1855,28 @@
       "bytes": 120746
     },
     {
+      "url": "./assets/city/generation-prompt.txt",
+      "bytes": 3391
+    },
+    {
+      "url": "./assets/city/simplified-prompt.txt",
+      "bytes": 3258
+    },
+    {
       "url": "./assets/city/starwish-city-soft.jpg",
       "bytes": 687080
     },
     {
       "url": "./assets/city/starwish-city.jpg",
       "bytes": 1095240
+    },
+    {
+      "url": "./assets/fonts/Cubic_11-OFL.txt",
+      "bytes": 5364
+    },
+    {
+      "url": "./assets/fonts/Cubic_11.woff2",
+      "bytes": 400228
     },
     {
       "url": "./assets/icons/app-icon.svg",

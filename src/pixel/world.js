@@ -177,6 +177,7 @@ export function createWorld(controller) {
       return controller.paused() || document.hidden;
     }
     loadRoom() {
+      this.uiTick = null;
       this.children.removeAll(true);
       this.actors.clear();
       this.heldNpc = null;
@@ -704,6 +705,9 @@ export function createWorld(controller) {
       }
       if (state.activity) {
         state.activity.elapsed += dt;
+        controller.activityProgress?.(
+          Math.min(1, state.activity.elapsed / ACTIVITY_TYPES[state.activity.kind].duration),
+        );
         activityFrame(
           this.player,
           state.activity.kind,
@@ -784,6 +788,7 @@ export function createWorld(controller) {
       this.pending = null;
       this.targetRing.setVisible(false);
       state.activity = { itemId, kind, elapsed: 0 };
+      controller.activityProgress?.(0);
       this.updateSeatForeground();
       activityFrame(
         this.player,

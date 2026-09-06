@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="pixel.css" />
     <link rel="stylesheet" href="pixel-ui.css" />
   <link rel="stylesheet" href="./pixel-apps.css">
+    <link rel="preload" href="assets/fonts/Cubic_11.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="pixel-theme.css">
 </head>
   <body>
     <header class="topbar">
@@ -46,7 +48,7 @@
         ><span id="load-progress">整理房間與行李…</span>
       </div>
       <section class="scene-title">
-        <span class="eyebrow">STARLIGHT DAYS · v0.8.0</span>
+        <span class="eyebrow">STARLIGHT DAYS · v0.9.0</span>
         <h1 id="room-title">我的住處</h1>
         <p id="room-subtitle">一切從這個小房間開始</p>
       </section>
@@ -57,7 +59,7 @@
           max="1"
           value="0"
           aria-label="活動進度"
-        ></progress
+        ></progress><output id="activity-percent">0%</output
         ><button data-ui="stop-activity">結束動作</button>
       </div>
       <div id="world-hint">點地面走走 · 點家具與人物互動</div>

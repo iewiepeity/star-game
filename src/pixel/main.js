@@ -13,6 +13,7 @@ import {
   editCreation,
   finishCreation,
   rerollCreation,
+  refreshCreationStats,
   prologueData,
   advanceOpening,
 } from "./onboarding.js";
@@ -126,17 +127,19 @@ function changed() {
       activity.elapsed / ACTIVITY_TYPES[activity.kind].duration;
   }
   lifeUI.changed();
-  if (audioUnlocked)
-    syncAudio(
-      state.sceneId === "home"
-        ? "room"
-        : state.sceneId === "cafe"
-          ? "social"
-          : state.sceneId.includes("agency")
-            ? "industry"
-            : "planning",
-      state.life.game,
-    );
+  if (audioUnlocked) syncRoomAudio();
+}
+function syncRoomAudio() {
+  syncAudio(
+    state.sceneId === "home"
+      ? "room"
+      : state.sceneId === "cafe"
+        ? "social"
+        : state.sceneId.includes("agency")
+          ? "industry"
+          : "planning",
+    state.life.game,
+  );
 }
 function setDialogueVisible(visible) {
   if (visible) $("toast").classList.remove("visible");
@@ -321,12 +324,26 @@ function phone() {
 }
 
 function heading(kicker, title, description = "") {
-  return `<span class="eyebrow">${kicker}</span><h2 id="panel-title">${title}</h2>${description ? `<p class="lede">${description}</p>` : ""}`;
+  return `<header class="panel-heading"><span class="eyebrow">${kicker}</span><h2 id="panel-title">${title}</h2>${description ? `<p class="lede">${description}</p>` : ""}</header>`;
 }
 function welcome() {
   show(
     "welcome",
-    `${heading("CHAPTER 01 · 來到星望市", "第一週，先在城市站穩腳步", "行李才剛放下。打開城市地圖，走進想去的地方。第一週的生活，由你自己安排。")}<div class="help-lines"><div><b>看看本週行程</b><span>已替你擬好第一週的安排；每天一件事，也可以自己調整。</span></div><div><b>走進城市</b><span>點地圖進入每個空間。到店就能購物，到教室就能上課，不需額外登記。</span></div><div><b>照自己的步調</b><span>親自走過去，或讓角色依行程自動執行；遇到選擇會停下來。</span></div></div><div class="identity-picker"><span>先決定主角性別</span><div role="group" aria-label="主角性別">${["女性", "男性"].map((g) => `<button data-create-gender="${g}" aria-pressed="${state.identity.gender === g}">${g}</button>`).join("")}</div><small>開始旅程後固定性別，同性別外型仍可切換。</small></div>${avatarChoices()}${creationFields(state, escape)}<div class="buttons"><button class="primary" data-ui="begin">開始我的一天 →</button></div><p class="tiny-note">每一個地點，都有屬於它的人與日常。</p>`,
+    `${heading("NEW GAME · 星望市", "你的故事，從這裡開始", "一只行李，一個夢想。先認識即將出發的自己。")}
+    <div class="creation-layout">
+      <section class="creation-look"><h3 class="section-caption"><span>01</span> 選擇主角</h3>
+        <div class="identity-picker"><div role="group" aria-label="主角性別">${["女性", "男性"].map((g) => `<button data-create-gender="${g}" aria-pressed="${state.identity.gender === g}">${g}</button>`).join("")}</div></div>
+        ${avatarChoices()}
+        <p class="tiny-note">選定性別後，同性別的兩種外型仍能自由切換。</p>
+      </section>
+      <section class="creation-details"><h3 class="section-caption"><span>02</span> 留下你的名字</h3>${creationFields(state, escape)}</section>
+    </div>
+    <details class="newcomer-guide"><summary>星望市生活小提醒</summary><div class="help-lines">
+      <div><b>安排一週</b><span>每天一件事。第一週已擬好行程，也可以自己調整。</span></div>
+      <div><b>走進城市</b><span>點地圖前往教室、商店與公司；到店就能購物，到教室就能上課。</span></div>
+      <div><b>照自己的步調</b><span>親自走走，或交給自動行程。重要選擇都會等你決定。</span></div>
+    </div></details>
+    <div class="creation-footer"><span>夢想沒有標準答案。<small>接下來，一起翻開序章。</small></span><button class="primary" data-ui="begin">開始我的一天 →</button></div>`,
   );
 }
 function travel() {
@@ -473,6 +490,7 @@ function narrate({
   title,
   text,
   portrait: face,
+  portraitKind = "npc",
   art,
   choices,
   context,
@@ -503,7 +521,7 @@ function narrate({
     state.life.reader = { key, index };
     checkpoint();
     $("dialogue").innerHTML =
-      `<div class="conversation career-conversation ${face ? "" : "no-portrait"}">${face ? `<figure class="dialogue-portrait npc-crop"><img src="${face}" alt="肩上肖像"></figure>` : ""}<div class="speech">${context ? `<p class="story-context">${escape(context)}${contextNote ? `<small>${escape(contextNote)}</small>` : ""}</p>` : ""}${art ? `<img class="story-art" src="${art}" alt="故事插畫">` : ""}<div class="dialogue-heading"><h2>${escape(title)}</h2><small>${index + 1} / ${pages.length}</small></div><p>${escape(pages[index])}</p><div class="choices">${index < pages.length - 1 ? '<button class="primary" id="career-page-next">繼續 →</button>' : choices.map((c) => `<button ${c.attrs}>${escape(c.label)}${c.note ? `<small>${escape(c.note)}</small>` : ""}</button>`).join("")}</div></div><div class="dialogue-tools"><button data-ui="saves">存檔</button></div></div>`;
+      `<div class="conversation career-conversation ${face ? "" : "no-portrait"}">${face ? `<figure class="dialogue-portrait ${portraitKind === "player" ? "player-crop" : "npc-crop"}"><img src="${face}" alt="${portraitKind === "player" ? escape(state.playerName) + "的" : ""}肩上肖像"></figure>` : ""}<div class="speech">${context ? `<p class="story-context">${escape(context)}${contextNote ? `<small>${escape(contextNote)}</small>` : ""}</p>` : ""}${art ? `<img class="story-art" src="${art}" alt="故事插畫">` : ""}<div class="dialogue-heading"><h2 id="dialogue-name">${escape(title)}</h2>${pages.length > 1 ? `<small>${index + 1} / ${pages.length}</small>` : ""}</div><p>${escape(pages[index])}</p><div class="choices" data-choice-count="${index < pages.length - 1 ? 1 : choices.length}">${index < pages.length - 1 ? '<button class="primary" id="career-page-next">繼續 →</button>' : choices.map((c) => `<button ${c.attrs}><span class="choice-label">${escape(c.label)}</span>${c.note ? `<small>${escape(c.note)}</small>` : ""}</button>`).join("")}</div></div><div class="dialogue-tools"><button data-ui="saves" aria-label="保存故事進度">存檔</button></div></div>`;
     $("career-page-next")?.addEventListener("click", () => {
       index++;
       page();
@@ -625,6 +643,10 @@ const controller = {
   toast,
   checkpoint,
   changed,
+  activityProgress: (value) => {
+    $("activity-progress").value = value;
+    $("activity-percent").textContent = `${Math.round(value * 100)}%`;
+  },
   interact,
   selectObject,
   speed: () => state.life.speed,
@@ -726,7 +748,9 @@ document.addEventListener(
       audioUnlocked = true;
       try {
         await enableAudio();
-        changed();
+        // Do not replace button text between pointerdown and click: WebKit
+        // cancels the first tap when its text node disappears.
+        syncRoomAudio();
       } catch {
         audioUnlocked = false;
       }
@@ -819,8 +843,9 @@ document.addEventListener("click", async (event) => {
   if (target.dataset.onboarding || target.dataset.chooseAspiration) {
     if (target.dataset.onboarding === "reroll") {
       rerollCreation(state);
-      welcome();
-      document.querySelector(".creation-stats").open = true;
+      refreshCreationStats(state, panel);
+      $("reroll-status").textContent = "新的能力已擲出！可以再次重擲。";
+      checkpoint();
     } else if (
       advanceOpening(state, {
         skip: target.dataset.onboarding === "skip",

@@ -4,15 +4,23 @@ import { withCore } from "./core-bridge.js";
 import { normalizeBirthday } from "../core/birthday.js";
 import { SCENES } from "../views/prologue.js";
 import { ASPIRATIONS } from "../logic/city-progression.js";
+import { portraitAsset } from "../data/wardrobe.js";
+export function refreshCreationStats(state, root) {
+  for (const value of root.querySelectorAll("[data-creation-stat]"))
+    value.textContent = state.life.game.stats[value.dataset.creationStat];
+}
 export function creationFields(state, esc) {
   const g = state.life.game;
   return `<div class="creation-fields"><label>本名<input data-create-field="realName" maxlength="16" value="${esc(g.realName || state.playerName)}" autocomplete="name"></label><label>藝名（選填）<input data-create-field="stageName" maxlength="16" value="${esc(g.stageName)}" autocomplete="nickname"></label><label>生日月份<input data-create-field="birthMonth" type="number" min="1" max="12" value="${g.birthMonth}"></label><label>生日日期<input data-create-field="birthDay" type="number" min="1" max="31" value="${g.birthDay}"></label></div><details class="creation-stats"><summary>我的初始能力 · 可以重新擲骰</summary><div class="ability-grid">${Object.entries(
     g.stats,
   )
-    .map(([name, v]) => `<div><small>${name}</small><b>${v}</b></div>`)
+    .map(
+      ([name, v]) =>
+        `<div><small>${name}</small><b data-creation-stat="${esc(name)}">${v}</b></div>`,
+    )
     .join(
       "",
-    )}</div><button data-onboarding="reroll">↻ 重新擲骰</button><p class="tiny-note">21 項能力各為 0～150；隱藏特質會在故事中逐漸表現。</p></details>`;
+    )}</div><div class="reroll-bar"><button data-onboarding="reroll">⚄ 重新擲骰</button><span role="status" id="reroll-status">找到喜歡的起點，就出發吧。</span></div><p class="tiny-note">21 項能力各為 0～150；隱藏特質會在故事中逐漸表現。</p></details>`;
 }
 export function editCreation(state, field, value) {
   if (
@@ -49,17 +57,28 @@ export function prologueData(state) {
     i = Math.max(0, Math.min(5, g.prologueStep || 0)),
     scene = SCENES[i];
   return {
-    title: scene.title,
+    title: i === 5 ? "你的第一個夢想" : scene.title,
+    portrait: portraitAsset(state.avatarId, state.outfitId),
+    portraitKind: "player",
+    context: `${state.playerName} · 來到星望市`,
+    contextNote: `序章 ${i + 1} / 6`,
     text:
       i === 4
         ? "城市地圖列出了教室、產業據點和新人零工。走進教室就能上課，到服飾店就能購物；如果想簽經紀公司，仍得準備履歷、投遞與面談。沒有任何公司已經在等你簽約。"
-        : scene.text,
+        : i === 5
+          ? "這只是第一個方向，不會鎖定職涯。選好後，從地圖出發，安排自己的課程與生活。"
+          : scene.text,
     choices:
       i === 5
         ? Object.entries(ASPIRATIONS).map(([id, a]) => ({
             label: a.label,
             attrs: `data-choose-aspiration="${id}"`,
-            note: "只是第一個方向，之後仍可自由發展",
+            note: {
+              acting: "從台詞與角色開始",
+              vocal: "讓聲音成為第一束光",
+              speech: "練習串起每個人的故事",
+              creation: "把靈感寫成自己的作品",
+            }[id],
           }))
         : [
             { label: scene.action, attrs: 'data-onboarding="next"' },

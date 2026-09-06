@@ -1,29 +1,42 @@
-# Pixel life v0.6.0 · UI and identity
+# 像素版 v0.9.0：介面、開場與課程進度
 
-The v0.5 settings were an uneven group of large buttons, transient messages covered the bottom controls, and any of the four avatars could be selected after the game started. This update gives the existing pixel interfaces a consistent visual system and restores the original gender-change constraint.
+預覽：[進入像素生活 v0.9.0](http://127.0.0.1:4194/pixel.html?v=0.9.0)
 
-## Player-visible changes
+## 這次的六項改善
 
-- Five device-level palettes: cream, rose, sage, lilac and night. Changes apply immediately to HUD, menus, map information, schedule, shops/wardrobe, profile, creative/career cards, phone, saves, results and bottom dialogue. Original scene and portrait artwork stays unchanged.
-- Settings group palette previews, five direct speed choices, pause, camera and utility actions. Compact menus retain a single vertical list and fit short desktop/mobile viewports.
-- Toasts sit near the screen center with no pointer blocking. They enter the native dialog's top layer when a panel is open and clear before story dialogue.
-- Gender is selected before starting and then locked. The profile lists only the two matching appearances. A v0.5 save keeps the gender of its current avatar.
-- Another gender requires entering the clinic, selecting the target appearance, confirming and paying the original $60,000 cost. Wardrobe ownership is retained. Insufficient funds, the wrong venue and an ongoing primary action are guarded. The original clinic service is instant and does not consume a day.
-- Failed appearance loading restores state and money; no partial transaction is checkpointed. Recoverable room/texture loading errors no longer display the blocking startup screen after the game is already running.
+| 你指出的問題 | 現在的處理 |
+| --- | --- |
+| 文字排版與字體不一致 | 標題、選單、數字與短選項使用繁體中文像素字體「俐方體11號」。長篇劇情保留清楚的閱讀字體，調整行高、字級、欄寬與段落間距。 |
+| 重擲骰子跳回頂端 | 只更新能力數字，不重新建立整個創建視窗。姓名、藝名、能力區展開狀態及按下時的捲動位置保留；鍵盤也可連續重擲。 |
+| 序章缺少主角立繪 | 六段序章與夢想選擇都顯示目前主角的原有插畫；使用主角專用的肩上裁切，讀檔後也會恢復。 |
+| 選項排列不整齊 | 夢想選擇固定為 2 × 2；縮短重複說明。一般對話選項使用整齊的格線或單欄，沒有肖像的旁白也不再保留空白肖像欄。 |
+| 課程進度看起來不動 | 進度條逐幀同步活動時間，加入百分比；重進場景時重設畫面更新計時。課程仍只在完成時結算一次。 |
+| 全部介面過於陽春 | 共用新的像素邊框、紙色底、短陰影、欄位與按鈕樣式，套用到主選單、設定、創建、行程、創作、人物、商店、換裝、手機各功能及對話介面。保留奶油、玫瑰、鼠尾草、丁香、夜色五種主題。 |
 
-## Scope and compatibility
+主選單仍由一個入口開啟；八項指令在標準桌面高度可直接看見。手機的創作表單改為縱向排列，空白作品區有圖示與簡短引導。滑鼠點擊視窗不再出現瀏覽器預設的藍色外框，鍵盤操作保留主題色焦點提示。
 
-`PIXEL-FEATURE-PARITY.md` inventories all 18 original app entries and additional game mechanisms. This update does not assert full migration. The original complete dossiers, manual romance controls, forums/social interactions, collection views, some agency tools, audio and data-transfer/settings tools remain incomplete.
+另外修正 Safari 首次點擊「今日行動」可能失效：音效啟用時不再改寫正在按下的按鈕文字，避免點擊被中斷。
 
-Pixel save key: `star-game-pixel-phase-one-v1`, unchanged. New preference key: `star-game-pixel-preferences-v1`. Normalization adds an identity to older pixel saves. Original runtime saves remain separate; there is no automatic original-to-pixel save migration.
+## 字體與美術
 
-The production build includes `pixel-ui.css` after `pixel.css`. A standalone copy must include both stylesheets, all `src/` modules and referenced assets. Current standalone release metadata reports v0.6.0.
+使用作者提供的 [Cubic 11／俐方體11號](https://github.com/ACh-K/Cubic-11)，以未修改的 WOFF2 隨遊戲提供，包含 SIL Open Font License。字體與新樣式一併納入離線內容。原有角色插畫、像素小人、場景圖與配色選擇保留。
 
-## Verification
+## 存檔與版本
 
-- Full repository `npm run check`: formatting, lint, content validation, 340 domain tests, five-year simulation, world reactions, asset/PWA audits and build passed.
-- After final changes: lint, production build and 64 targeted identity/persistence/city/sprite tests passed.
-- Browser regression: 139 passed, 5 intentionally skipped (12.9 minutes), covering desktop Chromium, mobile Chromium, touch tablet Chromium, mobile WebKit, tablet WebKit and desktop Firefox. The repeated all-32-room sweep runs on desktop only; it passed there.
-- Actual 4194 preview verified as v0.6.0 with five themes, theme persistence, preserved legacy male save, exactly two matching appearances, 27 map destinations and a toast above the HUD. No page errors.
+- 像素版 v0.9.0，遊戲核心及快取版本 1.32.0。
+- 既有像素存檔可直接接續；觀看完整序章需要新建角色。
+- 本次更新的是本機 4194 預覽與輸出資料夾，沒有推送 GitHub main。
+- 測試使用瀏覽器與裝置尺寸模擬，沒有宣稱已逐台驗證所有實機。
 
-Browser tests use ephemeral contexts; they do not alter the user's existing preview save. UI palette screenshots and `preview-verification.json` accompany the deliverable.
+## 驗證方式
+
+- `npm run check` 通過：369 項 Node 測試，以及內容、資產、五年養成、世界反應、PWA 與正式打包檢查。
+- 課程檢查涵蓋九種訓練：表演、聲樂、舞蹈、口條、創意、詞曲、編劇、儀態、社交。測試實際開始課程，持續比對畫面百分比與活動時間，確認成果只結算一次、重讀也不重發。
+- 開場實測連續重擲、鍵盤重擲、姓名保留、序章肖像、四個夢想的格線與序章中途讀檔。
+- 開啟手機內全部 17 項功能入口，加上手機本身共 18 個入口；檢查視窗邊界與水平溢出，並逐一切換五種主題。
+- 額外重跑第一週行程、同週多次創作、社群貼文、立即買衣及插畫／像素換裝同步、NPC 邀約、多人故事、途中存讀檔與失敗重試。
+- 4194 發布目錄另做驗證；完整離線下載後中斷網路，重新開啟仍可載入字體、進入未訪問場景並完成 NPC 故事。
+
+瀏覽器尺寸：Chromium 桌面 1280 × 720、手機 390 × 844、平板 820 × 1180；WebKit 手機 390 × 844、平板橫向 1180 × 820；Firefox 桌面 1366 × 900。
+
+最終結果：跨六種瀏覽器／尺寸設定的 **138 項端對端測試全部通過**。4194 發布版本另有 **10 項測試通過**；完整離線生命週期僅在桌面執行一次，另兩種尺寸略過重複下載。新字體、新樣式與主要程式共九個檔案，已確認原始碼、正式建置、4194 預覽及輸出快照逐位元組一致。

@@ -6,6 +6,7 @@ import {
 } from "./planner-tools.js";
 import { createCareerUI } from "./career-ui.js";
 import { careerDecision } from "./career.js";
+import { menuIcon } from "./menu-icons.js";
 import { ACTIONS } from "../data/actions.js";
 import {
   CHOICES,
@@ -376,13 +377,13 @@ export function createLifeUI(api) {
     const projects = life().game.creativeProjects;
     show(
       "creative",
-      `${heading("MY STUDIO", "創作筆記", "一個想法，慢慢成為自己的作品。創作可排入每個尚未使用的日子。")}<button data-pixel-app="creative">開啟完整創作工作室</button><form id="project-form"><div class="project-fields"><label>作品類型<select id="project-type">${Object.entries(
+      `${heading("MY STUDIO", "創作筆記", "一個想法，慢慢成為自己的作品。創作可排入每個尚未使用的日子。")}<button data-pixel-app="creative">開啟完整創作工作室</button><form id="project-form" class="draft-form"><div class="project-fields"><label>作品類型<select id="project-type">${Object.entries(
         CREATIVE_TYPES,
       )
         .map(([id, v]) => `<option value="${id}">${v.label}</option>`)
         .join(
           "",
-        )}</select></label><label>作品名稱<input id="project-title" maxlength="40" placeholder="給這個靈感一個名字" required></label><button class="primary" type="submit">建立草稿</button></div></form><div class="project-list">${projects.length ? projects.map((p) => `<article><div class="section-heading"><strong>${escape(p.title)}</strong><small>${CREATIVE_TYPES[p.type].label}</small></div><progress max="100" value="${p.progress}" aria-label="作品完成度"></progress><div class="section-heading"><small>${p.progress}% · 品質 ${p.quality}</small><button data-project-detail="${escape(p.id)}">製作與投稿</button><button data-offer="creative" data-project="${escape(p.id)}" ${["draft", "rejected"].includes(p.status) ? "" : "disabled"}>今天繼續寫</button></div></article>`).join("") : '<p class="empty-note">還沒有作品。先記下一個你想說的故事。</p>'}</div>${buttons()}`,
+        )}</select></label><label>作品名稱<input id="project-title" maxlength="40" placeholder="給這個靈感一個名字" required></label><button class="primary" type="submit">建立草稿</button></div></form><div class="project-list">${projects.length ? projects.map((p) => `<article><div class="section-heading"><strong>${escape(p.title)}</strong><small>${CREATIVE_TYPES[p.type].label}</small></div><progress max="100" value="${p.progress}" aria-label="作品完成度"></progress><div class="section-heading"><small>${p.progress}% · 品質 ${p.quality}</small><button data-project-detail="${escape(p.id)}">製作與投稿</button><button data-offer="creative" data-project="${escape(p.id)}" ${["draft", "rejected"].includes(p.status) ? "" : "disabled"}>今天繼續寫</button></div></article>`).join("") : `<div class="draft-empty"><i>${menuIcon("creative")}</i><div><strong>第一份作品，從一個念頭開始</strong><p>選擇作品類型、取個名字，就能建立草稿。</p></div></div>`}</div>${buttons()}`,
     );
     document.getElementById("project-form").addEventListener("submit", (e) => {
       e.preventDefault();

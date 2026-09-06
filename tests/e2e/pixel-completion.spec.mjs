@@ -218,6 +218,15 @@ test("the complete offline pack reloads and enters an unvisited room without a n
   await context.setOffline(true);
   await page.reload();
   await expect(page.locator("#loading")).toBeHidden();
+  await page.evaluate(() => document.fonts.ready);
+  expect(
+    await page.evaluate(() =>
+      [...document.fonts].some(
+        (font) => font.family === "Cubic 11" && font.status === "loaded",
+      ),
+    ),
+  ).toBe(true);
+  await expect(page.locator('link[href^="pixel-theme.css"]')).toHaveCount(1);
   await apps(page);
   await page.locator('[data-pixel-app="map"]').last().click();
   await page.locator('[data-map-place="livehouse"]').click();
