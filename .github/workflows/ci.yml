@@ -23,8 +23,25 @@ jobs:
       - run: npm ci
       - run: npm run check
   e2e:
+    name: e2e (${{ matrix.project }})
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: tablet
+            browser: chromium
+          - project: mobile-webkit
+            browser: webkit
+          - project: tablet-webkit
+            browser: webkit
+          - project: firefox
+            browser: firefox
+          - project: desktop
+            browser: chromium
+          - project: mobile
+            browser: chromium
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -39,13 +56,13 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
-      - run: npx playwright install --with-deps chromium webkit firefox
-      - run: npm run test:e2e
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: npm run test:e2e -- --project=${{ matrix.project }} --reporter=line
       - name: Upload Playwright diagnostics
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: playwright-diagnostics
+          name: playwright-diagnostics-${{ matrix.project }}
           path: |
             playwright-report/
             test-results/
