@@ -18,6 +18,11 @@ export function walkable(room, point) {
     !room.blocks.some((block) => inside(point, block))
   );
 }
+// The path planner and moving actors must agree on the space around their feet.
+export function footClear(room, point) {
+  return [[0, 0], [4, 0], [-4, 0], [0, 4], [0, -4]].every(([dx, dy]) =>
+    walkable(room, { x: point.x + dx, y: point.y + dy }));
+}
 export function buildGrid(room) {
   const size = WORLD.grid,
     cols = Math.ceil(WORLD.width / size),
@@ -27,15 +32,7 @@ export function buildGrid(room) {
     for (let x = 0; x < cols; x++) {
       const pt = { x: x * size + size / 2, y: y * size + size / 2 };
       // Leave enough foot clearance along furniture edges.
-      if (
-        [
-          [0, 0],
-          [4, 0],
-          [-4, 0],
-          [0, 4],
-          [0, -4],
-        ].every(([dx, dy]) => walkable(room, { x: pt.x + dx, y: pt.y + dy }))
-      )
+      if (footClear(room, pt))
         nodes.push({ ...pt, id: y * cols + x, gx: x, gy: y });
     }
   return {
@@ -44,6 +41,7 @@ export function buildGrid(room) {
     cols,
     size,
     room,
+    edges: new Map(),
   };
 }
 export function nearest(grid, point) {
@@ -59,10 +57,10 @@ export function nearest(grid, point) {
 }
 const distance = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 function segmentClear(room, a, b) {
-  const steps = Math.max(1, Math.ceil(distance(a, b) / 2));
+  const steps = Math.max(1, Math.ceil(distance(a, b)));
   for (let i = 0; i <= steps; i++)
     if (
-      !walkable(room, {
+      !footClear(room, {
         x: a.x + ((b.x - a.x) * i) / steps,
         y: a.y + ((b.y - a.y) * i) / steps,
       })
@@ -139,6 +137,11 @@ export function findPath(grid, from, to) {
         next = grid.byId.get(id);
       if (!next || next.gx !== node.gx + dx || next.gy !== node.gy + dy)
         continue;
+      // Valid endpoints alone can still cut across a slanted furniture corner.
+      const edge = [current, id].sort((a, b) => a - b).join(":");
+      const clear = grid.edges?.get(edge) ?? segmentClear(grid.room, node, next);
+      grid.edges?.set(edge, clear);
+      if (!clear) continue;
       const turn =
         previous && (node.x - previous.x !== 0) !== (dx !== 0) ? 2 : 0;
       const value = cost.get(current) + grid.size + turn;

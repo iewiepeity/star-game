@@ -1,5 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { initialPixelState } from "../../src/pixel/model.js";
+import { CHOICES, initialLife } from "../../src/pixel/life.js";
+import { bookCareer, careerCommand } from "../../src/pixel/career.js";
+import { ROOMS } from "../../src/pixel/data.js";
 import { recordMeeting } from "../../src/pixel/life.js";
 const read = (p) => p.evaluate(() => window.__pixelRead?.());
 async function start(page, fn = () => {}) {
@@ -25,6 +28,7 @@ async function apps(page) {
 test("all information apps open within the pixel world and fit the viewport", async ({
   page,
 }, info) => {
+  test.setTimeout(60000); // Thirteen app screenshots across touch and desktop engines.
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await start(page);
@@ -500,4 +504,59 @@ test("integrity: greeting a saved known NPC does not announce a new acquaintance
   await page.locator('#dialogue [data-ui="next-dialogue"]').click();
   await expect(page.locator("#toast")).toHaveText("聊完近況，下次再見");
   expect((await read(page)).state.life.game.knownPeople).toEqual(["sufei"]);
+});
+
+
+test("manager replies appear in the pixel dialogue and preserve the selected compromise after reload", async ({ page }, info) => {
+  await start(page, s => {
+    s.life = initialLife("e2e-parity-manager");
+    s.life.speed = 16;
+    s.life.game.agencyApplications.starlight = {status:"offer", appliedWeek:1};
+    s.life.game.agencyOffer = {agencyId:"starlight", offeredWeek:1};
+    expect(careerCommand(s.life, "accept-agency", "starlight").ok).toBe(true);
+    s.sceneId = "agency_starlight";
+    s.position = { ...ROOMS.agency_starlight.entry };
+    expect(bookCareer(s.life, CHOICES, "manager_interact", {type:"career"}, 0).ok).toBe(true);
+  });
+  await page.locator("#run-label").click();
+  await page.locator('[data-start="career_task"]').click();
+  await expect(page.locator('[data-career-decision]')).toHaveCount(3);
+  await expect(page.locator('[data-career-decision="compromise"]')).toBeVisible();
+  const before = await read(page);
+  expect(before.state.life.ledger).toHaveLength(0);
+  await page.screenshot({path:info.outputPath("pixel-manager-choices.png")});
+  await page.locator('[data-career-decision="compromise"]').click();
+  await expect.poll(async () => (await read(page)).state.life.ledger.length).toBe(1);
+  const game = (await read(page)).state.life.game;
+  expect(game.managerState.history.at(-1).choice).toBe("compromise");
+  expect(game.managerPrepUntil).toBe(game.week + 1);
+  await page.reload();
+  await expect(page.locator("#loading")).toBeHidden();
+  const restored = (await read(page)).state.life.game;
+  expect(restored.managerState.history).toEqual(game.managerState.history);
+});
+
+test("daily moments remain readable in the pixel result window and survive reload", async ({page}, info) => {
+  await start(page, s => { s.life = initialLife("e2e-parity-rest"); s.life.speed = 16; s.life.plan[0] = {id:"rest"}; });
+  await page.locator("#run-label").click();
+  await page.locator('[data-start="rest"]').click();
+  await expect(page.locator('.daily-moment')).toBeVisible();
+  const before = (await read(page)).state.life;
+  const moment = before.ledger[0].moments[0];
+  await expect(page.locator('.daily-moment')).toContainText(moment.title);
+  await expect(page.locator('.daily-moment')).toContainText(moment.outcome);
+  expect(await page.locator('#panel').evaluate(e => e.scrollWidth <= e.clientWidth + 2)).toBe(true);
+  if (page.viewportSize().width <= 600) {
+    const saved = await page.locator("#save-status").boundingBox();
+    const resources = await page.locator(".resource-hud").boundingBox();
+    expect(saved.y + saved.height).toBeLessThanOrEqual(resources.y);
+  }
+  await page.screenshot({path:info.outputPath("pixel-daily-moment.png")});
+  await page.reload();
+  await expect(page.locator("#loading")).toBeHidden();
+  await page.locator("#run-label").click();
+  await expect(page.locator('.daily-moment')).toBeVisible();
+  const restored = (await read(page)).state.life;
+  expect(restored.game.eventHistory).toEqual(before.game.eventHistory);
+  expect(restored.ledger).toEqual(before.ledger);
 });

@@ -13,10 +13,16 @@ function choose(kind,key,pool){
  return picked.event;
 }
 
-function renderEvent(event){
+function applyMoment(event){
  const effects=applyEffects(event.effect,event.title);
  state.eventHistory.push({week:state.week,kind:classifyEvent(event),title:event.title,outcome:event.outcome,effects});
- return`<aside class="random-story"><span>${classifyEvent(event)}</span><h3>${event.title}</h3><p>${event.text}</p><strong>${event.outcome}</strong>${effects.length?`<small>${effects.join("・")}</small>`:""}</aside>`;
+ return {kind:classifyEvent(event),title:event.title,text:event.text,outcome:event.outcome,effects};
+}
+
+function renderEvent(event){
+ if(!event)return "";
+ const effects=event.effects;
+ return`<aside class="random-story"><span>${event.kind}</span><h3>${event.title}</h3><p>${event.text}</p><strong>${event.outcome}</strong>${effects.length?`<small>${effects.join("・")}</small>`:""}</aside>`;
 }
 
 export function prepareScheduleEvent(actionId){
@@ -24,18 +30,21 @@ export function prepareScheduleEvent(actionId){
  state.pendingRandomEvent=event?{kind:"schedule",key:actionId,index:state.randomEventHistory[`schedule:${actionId}`]}:null;
 }
 
-export function resolveScheduleEvent(actionId){
+export function resolveScheduleMoment(actionId){
  const pending=state.pendingRandomEvent;
  let event=pending?.kind==="schedule"&&pending.key===actionId?SCHEDULE_EVENTS[actionId]?.[pending.index]:null;
  if(!event)event=choose("schedule",actionId,SCHEDULE_EVENTS[actionId]);
  state.pendingRandomEvent=null;
- return event?renderEvent(event):"";
+ return event?applyMoment(event):null;
 }
 
-export function resolveLocationEvent(locationId,choice){
+export function resolveLocationMoment(locationId,choice){
  const all=eligibleEvents(LOCATION_EVENTS[locationId]||[]);
  // 「專注體驗」不會讓尚未認識的 NPC 無預警闖入；主動探索才可能觸發初遇。
  const pool=choice==="explore"?all:all.filter(event=>!event.effect?.npc||state.knownPeople.includes(event.effect.npc));
  const event=choose("location",locationId,pool.length?pool:all.filter(event=>!event.effect?.npc));
- return event?renderEvent(event):"";
+ return event?applyMoment(event):null;
 }
+
+export function resolveScheduleEvent(actionId){return renderEvent(resolveScheduleMoment(actionId));}
+export function resolveLocationEvent(locationId,choice){return renderEvent(resolveLocationMoment(locationId,choice));}

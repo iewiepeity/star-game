@@ -52,39 +52,42 @@ export function createLifeUI(api) {
     `<div class="panel-actions"><button data-ui="menu">◀ 選單</button><button class="primary" data-ui="close">回到場景</button></div>`;
   const row = (title, note, attributes = "", right = "→") =>
     `<button class="command-row" ${attributes}><span><strong>${escape(title)}</strong>${note ? `<small>${escape(note)}</small>` : ""}</span><b>${right}</b></button>`;
+  // Keep text nodes stable during a tap: WebKit cancels clicks when the
+  // simulation tick replaces the pressed label between down and up.
+  function hudText(id, value) {
+    const node = document.getElementById(id);
+    if (node.textContent !== value) node.textContent = value;
+  }
   function changed() {
     const l = life(),
       g = l.game,
       p = l.pending;
-    document.getElementById("date-label").textContent =
-      `第 ${Math.floor((g.week - 1) / 52) + 1} 年 · ${((g.week - 1) % 52) + 1} 週`;
-    document.getElementById("day-label").textContent =
-      DAY_NAMES[l.day] || "週末回顧";
-    document.getElementById("money-label").textContent = money(g.money);
-    document.getElementById("energy-label").textContent = `體力 ${g.stamina}`;
-    document.getElementById("fatigue-label").textContent = `疲勞 ${g.fatigue}`;
-    document.getElementById("mood-label").textContent = `心情 ${g.mood}`;
-    document.getElementById("today-label").textContent = p
+    hudText("date-label", `第 ${Math.floor((g.week - 1) / 52) + 1} 年 · ${((g.week - 1) % 52) + 1} 週`);
+    hudText("day-label", DAY_NAMES[l.day] || "週末回顧");
+    hudText("money-label", money(g.money));
+    hudText("energy-label", `體力 ${g.stamina}`);
+    hudText("fatigue-label", `疲勞 ${g.fatigue}`);
+    hudText("mood-label", `心情 ${g.mood}`);
+    hudText("today-label", p
       ? `${p.phase === "result" ? "完成" : "進行中"} · ${label(p.assignment)}`
       : l.day === 7
         ? "七天的努力，整理成一週的回憶。"
-        : `今日 · ${label(l.plan[l.day])}`;
-    document.getElementById("speed-label").textContent = `${l.speed}×`;
-    document.getElementById("run-label").textContent =
-      p?.phase === "result"
+        : `今日 · ${label(l.plan[l.day])}`);
+    hudText("speed-label", `${l.speed}×`);
+    hudText("run-label", p?.phase === "result"
         ? "查看成果"
         : l.day === 7
           ? "本週回顧"
           : p
             ? "繼續行動"
-            : "今日行動";
-    document.getElementById("auto-control").textContent = l.auto
+            : "今日行動");
+    hudText("auto-control", l.auto
       ? "Ⅱ 接手操作"
-      : "▷ 自動行程";
+      : "▷ 自動行程");
     if (p?.phase === "performing")
-      document.getElementById("activity-label").textContent = label(
+      hudText("activity-label", label(
         p.assignment,
-      );
+      ));
   }
   function schedule(day = selectedDay) {
     const l = life();
@@ -326,7 +329,7 @@ export function createLifeUI(api) {
       return api.narrate({
         title: r.presentation.title || r.label,
         context: r.presentation.context,
-        text: notes.join(" "),
+        text: [...notes, ...(r.moments || []).map(m => `${m.title}。${m.text} ${m.outcome}${m.effects.length ? `（${m.effects.join("、")}）` : ""}`)].join(" "),
         portrait: r.presentation.portrait,
         choices: [
           {
@@ -347,7 +350,7 @@ export function createLifeUI(api) {
         )
         .join(
           "",
-        )}${r.gains.map((g) => `<div><small>${g.name}</small><b>+${g.amount}</b></div>`).join("")}</div>${notes.map((n) => `<p class="result-note">${escape(n)}</p>`).join("")}<div class="panel-actions">${r.presentation?.jobOfferId ? `<button data-job="${r.presentation.jobOfferId}">閱讀通告合約</button>` : ""}${r.presentation?.agencyOfferId ? `<button data-agency-info="${r.presentation.agencyOfferId}">閱讀經紀合約</button>` : ""}<button data-ui="saves">保存今天</button><button class="primary" data-life="advance">${life().day === 6 ? "看看這一週" : "迎接明天 →"}</button></div>`,
+        )}${r.gains.map((g) => `<div><small>${g.name}</small><b>+${g.amount}</b></div>`).join("")}</div>${notes.map((n) => `<p class="result-note">${escape(n)}</p>`).join("")}${(r.moments || []).map(m => `<article class="daily-moment"><span class="eyebrow">今日小記 · ${escape(m.kind)}</span><h3>${escape(m.title)}</h3><p>${escape(m.text)}</p><p class="moment-outcome">${escape(m.outcome)}</p>${m.effects.length ? `<small>${m.effects.map(escape).join(" · ")}</small>` : ""}</article>`).join("")}<div class="panel-actions">${r.presentation?.jobOfferId ? `<button data-job="${r.presentation.jobOfferId}">閱讀通告合約</button>` : ""}${r.presentation?.agencyOfferId ? `<button data-agency-info="${r.presentation.agencyOfferId}">閱讀經紀合約</button>` : ""}<button data-ui="saves">保存今天</button><button class="primary" data-life="advance">${life().day === 6 ? "看看這一週" : "迎接明天 →"}</button></div>`,
     );
   }
   function advance() {

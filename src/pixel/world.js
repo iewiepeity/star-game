@@ -33,6 +33,7 @@ import {
 } from "./data.js";
 import {
   buildGrid,
+  footClear,
   findPath,
   nearest,
   walkable,
@@ -960,15 +961,7 @@ export function createWorld(controller) {
         dt,
         speed,
         (point) =>
-          [
-            [0, 0],
-            [4, 0],
-            [-4, 0],
-            [0, 4],
-            [0, -4],
-          ].every(([dx, dy]) =>
-            walkable(this.room, { x: point.x + dx, y: point.y + dy }),
-          ) &&
+          footClear(this.room, point) &&
           (scripted ||
             bodyClear(
               actor,
@@ -1064,15 +1057,7 @@ export function createWorld(controller) {
             y: this.player.y + (dy * factor) / steps,
           };
           if (
-            [
-              [0, 0],
-              [4, 0],
-              [-4, 0],
-              [0, 4],
-              [0, -4],
-            ].every(([dx, dy]) =>
-              walkable(this.room, { x: point.x + dx, y: point.y + dy }),
-            ) &&
+            footClear(this.room, point) &&
             bodyClear(this.player, point, [...this.actors.values()])
           ) {
             this.player.x = point.x;

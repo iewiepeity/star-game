@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { ROOMS, PEOPLE, itinerary } from "../src/pixel/data.js";
-import { buildGrid, findPath, walkable } from "../src/pixel/navigation.js";
+import { buildGrid, findPath, footClear } from "../src/pixel/navigation.js";
 import {
   createStorage,
   initialPixelState,
@@ -28,7 +28,7 @@ for (const [id, room] of Object.entries(ROOMS))
         );
         for (let t = 0; t <= 1; t += 0.1)
           assert.ok(
-            walkable(room, {
+            footClear(room, {
               x: previous.x + (step.x - previous.x) * t,
               y: previous.y + (step.y - previous.y) * t,
             }),

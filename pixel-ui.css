@@ -87,7 +87,7 @@ button {
   color: var(--ui-ink);
   background: var(--ui-paper);
   border: 1px solid var(--ui-border);
-  border-radius: 9px;
+  border-radius: 0;
   box-shadow:
     inset 0 1px var(--ui-highlight),
     0 2px 0 var(--ui-shadow);
@@ -135,7 +135,7 @@ button.primary:hover {
   background: var(--ui-paper);
   color: var(--ui-ink);
   border: 1px solid var(--ui-border);
-  border-radius: 8px;
+  border-radius: 0;
   box-shadow: inset 0 1px 3px var(--ui-shadow);
 }
 #panel input::placeholder,
@@ -156,7 +156,7 @@ button.primary:hover {
   color: var(--ui-accent);
   background: var(--ui-paper);
   border: 1px solid var(--ui-border);
-  border-radius: 12px;
+  border-radius: 0;
   box-shadow:
     inset 0 0 0 4px var(--ui-soft),
     0 2px 0 var(--ui-shadow);
@@ -166,7 +166,7 @@ button.primary:hover {
 }
 .resource-hud span {
   border: 1px solid var(--ui-border);
-  border-radius: 7px;
+  border-radius: 0;
   background: var(--ui-paper);
   color: var(--ui-ink);
   box-shadow: none;
@@ -174,7 +174,7 @@ button.primary:hover {
 .money-hud {
   background: var(--ui-paper);
   border: 1px solid var(--ui-border);
-  border-radius: 10px;
+  border-radius: 0;
 }
 .money-hud b {
   color: var(--ui-accent);
@@ -188,7 +188,7 @@ button.primary:hover {
   color: var(--ui-ink);
   border: 1px solid var(--ui-border);
   border-left: 3px solid var(--ui-accent);
-  border-radius: 3px 12px 12px 3px;
+  border-radius: 0;
   box-shadow: 0 3px 15px var(--ui-shadow);
 }
 .scene-title .eyebrow,
@@ -206,7 +206,7 @@ button.primary:hover {
 .corner-button {
   background: var(--ui-paper);
   border: 1px solid var(--ui-edge);
-  border-radius: 11px;
+  border-radius: 0;
   color: var(--ui-ink);
   box-shadow:
     inset 0 2px var(--ui-highlight),
@@ -226,7 +226,7 @@ button.primary:hover {
 }
 .player-chip img {
   background: var(--ui-tint);
-  border-radius: 7px;
+  border-radius: 0;
 }
 .player-chip small,
 #today-label {
@@ -255,21 +255,21 @@ progress {
 }
 progress::-webkit-progress-bar {
   background: var(--ui-soft);
-  border-radius: 6px;
+  border-radius: 0;
 }
 progress::-webkit-progress-value {
   background: var(--ui-accent);
-  border-radius: 6px;
+  border-radius: 0;
 }
 progress::-moz-progress-bar {
   background: var(--ui-accent);
-  border-radius: 6px;
+  border-radius: 0;
 }
 #panel {
   background: var(--ui-paper);
   color: var(--ui-ink);
   border: 1px solid var(--ui-edge);
-  border-radius: 16px;
+  border-radius: 0;
   box-shadow:
     inset 0 0 0 4px var(--ui-soft),
     0 16px 60px var(--ui-shadow);
@@ -289,7 +289,7 @@ progress::-moz-progress-bar {
   width: 32px;
   margin-top: 10px;
   background: var(--ui-accent);
-  border-radius: 3px;
+  border-radius: 0;
 }
 #panel .eyebrow {
   color: var(--ui-accent);
@@ -301,7 +301,7 @@ progress::-moz-progress-bar {
   color: var(--ui-muted);
 }
 #panel .close-panel {
-  border-radius: 50%;
+  border-radius: 0;
   background: var(--ui-soft);
   border: 1px solid var(--ui-border);
   color: var(--ui-muted);
@@ -312,7 +312,7 @@ progress::-moz-progress-bar {
   color: var(--ui-ink);
 }
 #panel[data-view="menu"] {
-  border-radius: 14px;
+  border-radius: 0;
   padding: 17px 13px;
 }
 #panel[data-view="menu"]::backdrop {
@@ -331,7 +331,7 @@ progress::-moz-progress-bar {
   border: 1px solid var(--ui-border);
   background: var(--ui-paper);
   color: var(--ui-ink);
-  border-radius: 10px;
+  border-radius: 0;
   min-height: 59px;
   padding: 9px 11px;
   gap: 11px;
@@ -341,7 +341,7 @@ progress::-moz-progress-bar {
   background: var(--ui-soft);
   color: var(--ui-accent);
   border: 1px solid var(--ui-border);
-  border-radius: 8px;
+  border-radius: 0;
   width: 38px;
   height: 38px;
   box-shadow: inset 0 1px var(--ui-highlight);
@@ -380,7 +380,7 @@ progress::-moz-progress-bar {
 #nearby button {
   border: 1px solid var(--ui-border);
   background: var(--ui-paper);
-  border-radius: 10px;
+  border-radius: 0;
   color: var(--ui-ink);
 }
 #panel .command-row:hover,
@@ -403,7 +403,7 @@ progress::-moz-progress-bar {
   background: var(--ui-soft);
   color: var(--ui-ink);
   border-color: var(--ui-border);
-  border-radius: 9px;
+  border-radius: 0;
 }
 #panel .week-strip small {
   color: inherit;
@@ -440,7 +440,7 @@ progress::-moz-progress-bar {
   background: var(--ui-soft);
   color: var(--ui-ink);
   border: 1px solid var(--ui-border);
-  border-radius: 10px;
+  border-radius: 0;
 }
 #panel .career-dashboard strong,
 #panel .week-reward strong,
@@ -475,7 +475,7 @@ progress::-moz-progress-bar {
   background: var(--ui-paper);
   color: var(--ui-ink);
   border-color: var(--ui-border);
-  border-radius: 12px;
+  border-radius: 0;
   box-shadow: 0 3px 0 var(--ui-shadow);
   overflow: hidden;
 }
@@ -498,7 +498,7 @@ progress::-moz-progress-bar {
 #panel .social-feed details {
   border: 1px solid var(--ui-border);
   background: var(--ui-soft);
-  border-radius: 9px;
+  border-radius: 0;
   color: var(--ui-ink);
 }
 #panel details > summary {
@@ -508,7 +508,7 @@ progress::-moz-progress-bar {
   background: var(--ui-soft);
   border-color: var(--ui-border);
   color: var(--ui-ink);
-  border-radius: 12px;
+  border-radius: 0;
 }
 #panel .wardrobe-grid .outfit-card strong {
   color: var(--ui-ink);
@@ -526,7 +526,7 @@ progress::-moz-progress-bar {
 #panel .avatar-choices button {
   background: var(--ui-soft);
   border: 1px solid var(--ui-border);
-  border-radius: 12px;
+  border-radius: 0;
   color: var(--ui-ink);
   overflow: hidden;
 }
@@ -573,7 +573,7 @@ progress::-moz-progress-bar {
   background: var(--ui-soft);
   color: var(--ui-ink);
   border-color: var(--ui-border);
-  border-radius: 11px;
+  border-radius: 0;
 }
 #panel .save-row {
   margin: 8px 0;
@@ -602,10 +602,10 @@ progress::-moz-progress-bar {
   gap: 10px;
 }
 #panel .panel-actions button {
-  border-radius: 8px;
+  border-radius: 0;
 }
 #panel .result-scene {
-  border-radius: 10px;
+  border-radius: 0;
   border-color: var(--ui-border);
   background: var(--ui-soft);
 }
@@ -625,7 +625,7 @@ progress::-moz-progress-bar {
 #panel[data-view="travel"] .map-detail {
   background: var(--ui-soft);
   color: var(--ui-ink);
-  border-radius: 10px;
+  border-radius: 0;
 }
 #panel[data-view="travel"] .map-detail small,
 #panel[data-view="travel"] .map-detail p {
@@ -633,7 +633,7 @@ progress::-moz-progress-bar {
 }
 #panel[data-view="travel"] .city-map-viewport {
   border-color: var(--ui-border);
-  border-radius: 8px;
+  border-radius: 0;
 }
 #panel[data-view="travel"] .map-landmark {
   background: transparent;
@@ -644,7 +644,7 @@ progress::-moz-progress-bar {
   background: var(--ui-paper);
   color: var(--ui-ink);
   border: 1px solid var(--ui-border);
-  border-radius: 6px;
+  border-radius: 0;
   box-shadow: 0 3px 8px var(--ui-shadow);
 }
 .map-landmark i {
@@ -673,7 +673,7 @@ progress::-moz-progress-bar {
   background: var(--ui-soft);
   color: var(--ui-ink);
   border-color: var(--ui-border);
-  border-radius: 9px;
+  border-radius: 0;
 }
 .conversation .choices button:hover {
   background: var(--ui-tint);
@@ -700,7 +700,7 @@ progress::-moz-progress-bar {
   line-height: 1.7;
   text-align: center;
   border: 1px solid #ffffff35;
-  border-radius: 14px;
+  border-radius: 0;
   box-shadow: 0 8px 30px #20171135;
   pointer-events: none;
   z-index: 100;
@@ -776,7 +776,7 @@ progress::-moz-progress-bar {
   overflow: hidden;
   background: var(--swatch-paper);
   border: 1px solid var(--swatch-trim);
-  border-radius: 5px;
+  border-radius: 0;
   height: 54px;
   display: block;
 }
@@ -799,7 +799,7 @@ progress::-moz-progress-bar {
   width: 37%;
   height: 5px;
   top: 24px;
-  border-radius: 2px;
+  border-radius: 0;
   background: var(--swatch-trim);
 }
 .theme-preview > em:last-child {
@@ -815,7 +815,7 @@ progress::-moz-progress-bar {
   padding: 12px 14px;
   background: var(--ui-soft);
   border: 1px solid var(--ui-border);
-  border-radius: 11px;
+  border-radius: 0;
 }
 .playback-setting > div:first-child {
   display: grid;
@@ -856,7 +856,7 @@ progress::-moz-progress-bar {
 .setting-action > i {
   display: grid;
   place-items: center;
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--ui-soft);
   color: var(--ui-accent);
   width: 38px;
@@ -881,7 +881,7 @@ progress::-moz-progress-bar {
   gap: 8px;
   align-items: center;
   border: 1px solid var(--ui-border);
-  border-radius: 9px;
+  border-radius: 0;
   padding: 9px 12px;
 }
 .camera-setting > span {
@@ -953,7 +953,7 @@ progress::-moz-progress-bar {
   gap: 18px;
   background: var(--ui-soft);
   padding: 18px;
-  border-radius: 12px;
+  border-radius: 0;
 }
 .clinic-intro > i {
   width: 48px;
@@ -982,7 +982,7 @@ progress::-moz-progress-bar {
   height: 230px;
   object-fit: cover;
   object-position: 50% 0;
-  border-radius: 12px;
+  border-radius: 0;
   background: var(--ui-soft);
 }
 .clinic-confirm-portrait b {
@@ -995,7 +995,7 @@ progress::-moz-progress-bar {
 }
 @media (max-width: 650px) {
   #panel {
-    border-radius: 12px;
+    border-radius: 0;
   }
   #panel[data-view="settings"] {
     width: calc(100vw - 24px);
@@ -1167,7 +1167,7 @@ progress::-moz-progress-bar {
 
 /* Journal context distinguishes remembered stories from a person in the room. */
 .story-illustration { margin: 16px 0; text-align: center; }
-.story-illustration img { display: block; width: 100%; max-height: 65dvh; object-fit: contain; border-radius: 12px; }
+.story-illustration img { display: block; width: 100%; max-height: 65dvh; object-fit: contain; border-radius: 0; }
 .story-illustration figcaption { margin-top: 10px; font-size: 13px; color: var(--muted); }
 #dialogue .speech .story-context {
   margin: 0 0 10px;
@@ -1200,7 +1200,7 @@ progress::-moz-progress-bar {
 }
 
 /* A fixed scene shortcut stays clear of the HUD and bottom controls. */
-#return-home { position:absolute; right:max(16px,env(safe-area-inset-right)); top:16px; z-index:12; min-height:44px; padding:8px 16px; border:1px solid #b99d80; border-radius:14px; background:#fff9ed; color:#594c40; box-shadow:0 3px 10px #594c4020; font:inherit; cursor:pointer; }
+#return-home { position:absolute; right:max(16px,env(safe-area-inset-right)); top:16px; z-index:12; min-height:44px; padding:8px 16px; border:1px solid #b99d80; border-radius: 0; background:#fff9ed; color:#594c40; box-shadow:0 3px 10px #594c4020; font:inherit; cursor:pointer; }
 #return-home:disabled { opacity:.55; cursor:default; }
 #return-home:focus-visible { outline:3px solid #9e6172; outline-offset:3px; }
 .object-options { display:flex; flex-wrap:wrap; gap:10px; margin:16px 0; }

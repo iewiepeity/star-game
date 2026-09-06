@@ -34,6 +34,7 @@ import {
 } from "../logic/scheduled-activities.js";
 import { resolvePersonalTask } from "../logic/personal-tasks.js";
 import { inviteNpc } from "../logic/npc-invitations.js";
+import { managerInteractionDecision } from "../logic/manager.js";
 import { npcInteractionDecision } from "../logic/npc-interaction-engine.js";
 import { queueCreativeActivity } from "../logic/creative-schedule.js";
 import { creativeActionState } from "../logic/creative-workflow.js";
@@ -445,7 +446,9 @@ export function careerDecision(life, a) {
         ? jobAuditionDecision(t)
         : t?.kind === "npc_interact"
           ? npcInteractionDecision(t)
-          : null;
+          : t?.kind === "manager_interact"
+            ? managerInteractionDecision(t)
+            : null;
     }
     if (a.id === "career_interview")
       return {

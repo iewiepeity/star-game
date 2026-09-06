@@ -45,6 +45,7 @@ import {
 } from "../logic/creative.js";
 import { resolvePersonalTask } from "../logic/personal-tasks.js";
 import { evaluateWeeklyTask } from "../logic/weekly-task.js";
+import { resolveScheduleMoment, resolveLocationMoment } from "../logic/random-events.js";
 import { meetNpc } from "../logic/npc-engine.js";
 
 export const DAY_NAMES = [
@@ -403,18 +404,20 @@ export function settleDay(life, choice = "focus") {
   if (reason) return { error: reason };
   // A resumed or programmatically invoked workday must not bypass its choice
   // and write a completed ledger entry while production is still pending.
-  if (assignment.id === "career_job") {
+  if (assignment.id === "career_job" ||
+      (assignment.id === "career_task" && life.game.scheduledActivities[assignment.taskId]?.kind === "manager_interact")) {
     const decision = careerDecision(life, assignment);
     if (decision && !decision.choices.some(item => item.id === choice)) {
       pending.decision = decision;
       pending.decisionMade = false;
       pending.phase = "decision";
-      return {pending: true, decision, error: "先確認製作版本，再繼續今天的工作。"};
+      return {pending: true, decision, error: "先選擇今天的回應，再繼續行程。"};
     }
   }
   const before = structuredClone(life.game);
   const notes = [];
   let presentation = null;
+  const moments = [];
   syncCoreSchedule(life, CHOICES);
   withCore(life, (game) => {
     game.runnerDay = life.day;
@@ -518,6 +521,12 @@ export function settleDay(life, choice = "focus") {
       if (game.socialPosts[0]) game.socialPosts[0].id = `pixel-${pending.id}`;
       notes.push(plain(r.text));
     }
+    // Resolve inside the daily ledger transaction: reload/replay cannot draw or
+    // award a second event, and ordinary room visits remain presentation-only.
+    const moment = def.action === "free"
+      ? resolveLocationMoment(def.venue, choice)
+      : def.action !== "personal_task" ? resolveScheduleMoment(def.action) : null;
+    if (moment) moments.push(moment);
     maybeQueueLifeEvent(
       ACTIONS[def.action] || { type: "life", label: def.label },
     );
@@ -535,11 +544,11 @@ export function settleDay(life, choice = "focus") {
     game.weekResults.push({
       day: DAY_NAMES[life.day],
       action: def.label,
-      result: notes.join(" "),
+      result: [...notes, ...moments.map(m => `${m.title}：${m.outcome}`)].join(" "),
       dayIndex: life.day,
       actionId: def.action,
       success: true,
-      text: notes.join(" "),
+      text: [...notes, ...moments.map(m => `${m.title}：${m.outcome}`)].join(" "),
     });
   });
   const deltas = {};
@@ -566,6 +575,7 @@ export function settleDay(life, choice = "focus") {
     gains,
     notes: notes.filter(Boolean),
     presentation,
+    moments,
   };
   // Original task completion can free redundant production days and NPC slots.
   adoptCoreSchedule(life, life.day + 1);

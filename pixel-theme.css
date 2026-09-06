@@ -1,4 +1,4 @@
-/* Starlight Days: pixel frames, quiet paper, readable story text. */
+/* Starlight Days: square RPG windows, tactile controls, readable story text. */
 @font-face {
   font-family: "Cubic 11";
   src: url("assets/fonts/Cubic_11.woff2") format("woff2");
@@ -9,7 +9,7 @@
 :root {
   --font-game: "Cubic 11", "PingFang TC", sans-serif;
   --font-reading: "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
-  --pixel-shadow: 3px 3px 0 var(--ui-shadow);
+  --pixel-shadow: 4px 4px 0 var(--ui-edge);
   --pixel-frame:
     inset 0 0 0 3px var(--ui-paper), inset 0 0 0 4px var(--ui-border);
   font-family: var(--font-reading);
@@ -23,11 +23,11 @@ button,
 input,
 select,
 textarea {
-  font-family: var(--font-reading);
+  font-family: var(--font-game);
   line-height: 1.5;
 }
 button {
-  border-radius: 4px;
+  border-radius: 0;
   border-color: var(--ui-edge);
   box-shadow:
     inset 0 2px var(--ui-highlight),
@@ -103,7 +103,7 @@ button:focus:not(:focus-visible) {
   line-height: 1.8;
 }
 #panel :is(input, select, textarea) {
-  border-radius: 3px;
+  border-radius: 0;
   box-shadow: inset 0 2px 0 var(--ui-shadow);
   min-height: 46px;
   padding: 10px 12px;
@@ -119,7 +119,7 @@ button:focus:not(:focus-visible) {
   box-shadow: inset 0 -4px var(--ui-soft);
 }
 .calendar-emblem {
-  border-radius: 3px;
+  border-radius: 0;
   border: 2px solid var(--ui-edge);
   box-shadow: var(--pixel-frame);
 }
@@ -132,12 +132,12 @@ button:focus:not(:focus-visible) {
   line-height: 1.4;
 }
 .resource-hud span {
-  border-radius: 3px;
+  border-radius: 0;
   background: var(--ui-soft);
   border-color: var(--ui-border);
 }
 .money-hud {
-  border-radius: 3px;
+  border-radius: 0;
   border: 0;
   border-left: 1px solid var(--ui-border);
   background: transparent;
@@ -146,7 +146,7 @@ button:focus:not(:focus-visible) {
   font-size: 28px;
 }
 .scene-title {
-  border-radius: 3px;
+  border-radius: 0;
   border: 2px solid var(--ui-edge);
   padding: 15px 22px;
   box-shadow: var(--pixel-shadow), var(--pixel-frame);
@@ -170,7 +170,7 @@ button:focus:not(:focus-visible) {
   gap: 12px;
 }
 .corner-button {
-  border-radius: 4px;
+  border-radius: 0;
   border: 2px solid var(--ui-edge);
   box-shadow: var(--pixel-frame), var(--pixel-shadow);
   font-size: 22px;
@@ -182,22 +182,21 @@ button:focus:not(:focus-visible) {
     var(--pixel-shadow);
 }
 .player-chip img {
-  border-radius: 3px;
+  border-radius: 0;
 }
 .runner-controls button {
-  border-radius: 3px;
+  border-radius: 0;
 }
 #panel {
   width: min(980px, calc(100vw - 48px));
   max-height: calc(100dvh - 48px);
   border: 2px solid var(--ui-edge);
-  border-radius: 5px;
+  border-radius: 0;
   padding: 28px;
   background: var(--ui-paper);
   box-shadow:
     var(--pixel-frame),
-    6px 6px 0 var(--ui-shadow),
-    0 18px 55px var(--ui-shadow);
+    6px 6px 0 var(--ui-edge);
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: var(--ui-edge) var(--ui-soft);
@@ -205,7 +204,7 @@ button:focus:not(:focus-visible) {
 }
 #panel::backdrop {
   background: var(--ui-backdrop);
-  backdrop-filter: blur(2px);
+  backdrop-filter: none;
 }
 .panel-heading {
   margin: 0 0 24px;
@@ -219,7 +218,7 @@ button:focus:not(:focus-visible) {
   height: 36px;
   min-height: 36px;
   border: 1px solid var(--ui-edge);
-  border-radius: 3px;
+  border-radius: 0;
   background: var(--ui-soft);
   font: 26px/1 var(--font-game);
 }
@@ -242,7 +241,7 @@ button:focus:not(:focus-visible) {
   bottom: auto;
   max-height: calc(100dvh - 32px);
   padding: 16px;
-  border-radius: 4px;
+  border-radius: 0;
 }
 #panel[data-view="menu"] .panel-heading {
   margin-bottom: 10px;
@@ -257,7 +256,7 @@ button:focus:not(:focus-visible) {
 #panel .command-menu button {
   padding: 7px 12px;
   min-height: 52px;
-  border-radius: 3px;
+  border-radius: 0;
   box-shadow: 0 2px 0 var(--ui-shadow);
 }
 #panel .command-menu strong {
@@ -272,7 +271,7 @@ button:focus:not(:focus-visible) {
 #panel .command-menu i {
   width: 36px;
   height: 36px;
-  border-radius: 3px;
+  border-radius: 0;
   border: 0;
   background: var(--ui-tint);
 }
@@ -289,7 +288,7 @@ button:focus:not(:focus-visible) {
 #nearby button {
   min-height: 66px;
   padding: 14px 16px;
-  border-radius: 3px;
+  border-radius: 0;
   text-align: left;
   gap: 16px;
 }
@@ -326,7 +325,7 @@ button:focus:not(:focus-visible) {
     .ability-grid > div,
     .project-list > article
   ) {
-  border-radius: 4px;
+  border-radius: 0;
   background: var(--ui-soft);
   border-color: var(--ui-border);
   box-shadow: none;
@@ -343,7 +342,7 @@ button:focus:not(:focus-visible) {
     .new-journey,
     .save-maintenance
   ) {
-  border-radius: 3px;
+  border-radius: 0;
 }
 #panel .week-strip button {
   padding: 12px 8px;
@@ -363,7 +362,7 @@ button:focus:not(:focus-visible) {
   grid-template-columns: minmax(8em, auto) minmax(0, 1fr);
   gap: 16px;
   padding: 12px 16px;
-  border-radius: 3px;
+  border-radius: 0;
 }
 #panel .help-lines b {
   width: auto;
@@ -421,7 +420,7 @@ button:focus:not(:focus-visible) {
 }
 #panel .creation-layout .avatar-choices button {
   padding: 12px 4px 9px;
-  border-radius: 3px;
+  border-radius: 0;
   background: var(--ui-soft);
 }
 .creation-layout .avatar-choices img {
@@ -454,7 +453,7 @@ button:focus:not(:focus-visible) {
 .creation-stats {
   margin: 20px 0 0;
   padding: 16px;
-  border-radius: 3px;
+  border-radius: 0;
   background: var(--ui-soft);
 }
 .creation-stats summary {
@@ -542,7 +541,7 @@ button:focus:not(:focus-visible) {
   padding: 20px;
   background: var(--ui-soft);
   border: 1px solid var(--ui-border);
-  border-radius: 3px;
+  border-radius: 0;
 }
 #panel .project-fields {
   align-items: end;
@@ -565,7 +564,7 @@ button:focus:not(:focus-visible) {
   padding: 24px 20px;
   background: var(--ui-soft);
   border: 1px dashed var(--ui-edge);
-  border-radius: 3px;
+  border-radius: 0;
 }
 .draft-empty > i {
   width: 56px;
@@ -603,7 +602,7 @@ button:focus:not(:focus-visible) {
     .pixel-tutorial,
     .transfer-summary
   ) {
-  border-radius: 3px;
+  border-radius: 0;
 }
 .theme-preview {
   box-shadow: var(--pixel-shadow);
@@ -629,7 +628,7 @@ button:focus:not(:focus-visible) {
     .social-profile,
     .npc-story-status
   ) {
-  border-radius: 4px;
+  border-radius: 0;
 }
 .pixel-app-library > button,
 .pixel-app-library i,
@@ -645,7 +644,7 @@ button:focus:not(:focus-visible) {
     .gallery-card,
     .stat-grid > div
   ) {
-  border-radius: 3px;
+  border-radius: 0;
 }
 .pixel-app-library b,
 .pocket-heading h2,
@@ -680,7 +679,7 @@ button:focus:not(:focus-visible) {
 .pixel-app
   :is(.creative-type-grid, .creative-direction-options, .creative-roles)
   button {
-  border-radius: 3px;
+  border-radius: 0;
 }
 .dialogue-dock {
   width: min(1160px, calc(100% - 40px));
@@ -690,7 +689,7 @@ button:focus:not(:focus-visible) {
   min-height: 210px;
   padding: 22px 24px 22px 240px;
   border: 2px solid var(--ui-edge);
-  border-radius: 5px;
+  border-radius: 0;
   background: var(--ui-paper);
   box-shadow:
     var(--pixel-frame),
@@ -754,7 +753,7 @@ button:focus:not(:focus-visible) {
   top: auto;
   width: 198px;
   height: 240px;
-  border-radius: 3px;
+  border-radius: 0;
   background: linear-gradient(transparent 15%, var(--ui-soft));
 }
 #dialogue .dialogue-tools {
@@ -763,7 +762,7 @@ button:focus:not(:focus-visible) {
 }
 #dialogue .dialogue-tools button {
   font: 14px/1.4 var(--font-game);
-  border-radius: 3px;
+  border-radius: 0;
   padding: 8px;
   min-height: 38px;
   background: var(--ui-soft);
@@ -794,7 +793,7 @@ button:focus:not(:focus-visible) {
   font-size: 16px;
   line-height: 1.5;
   text-align: left;
-  border-radius: 3px;
+  border-radius: 0;
   border: 1px solid var(--ui-border);
   border-left: 3px solid var(--ui-edge);
   background: var(--ui-soft);
@@ -832,7 +831,7 @@ button:focus:not(:focus-visible) {
 }
 #activity-strip {
   border: 2px solid var(--ui-edge);
-  border-radius: 3px;
+  border-radius: 0;
   padding: 10px 12px;
   gap: 12px;
   box-shadow: var(--pixel-shadow);
@@ -855,7 +854,7 @@ progress {
   background: var(--ui-soft);
   color: var(--ui-accent);
   overflow: hidden;
-  border-radius: 2px;
+  border-radius: 0;
 }
 progress::-webkit-progress-bar {
   background: var(--ui-soft);
@@ -876,10 +875,10 @@ progress::-moz-progress-bar {
   min-width: 50px;
 }
 #activity-strip button {
-  border-radius: 3px;
+  border-radius: 0;
 }
 #toast {
-  border-radius: 4px;
+  border-radius: 0;
   box-shadow: 4px 4px 0 var(--ui-shadow);
 }
 @media (max-width: 900px) {
@@ -1199,4 +1198,167 @@ progress::-moz-progress-bar {
   #panel .command-menu button:hover {
     transform: none;
   }
+}
+
+/* One visual language for native panels and shared classic applications. */
+:root {
+  --ui-edge: #877152;
+  --ui-border: #c4b18e;
+  --ui-shadow: #4b3b2940;
+}
+button {
+  font-family: var(--font-game);
+  font-weight: 400;
+  border-width: 2px;
+  box-shadow: inset 2px 2px 0 var(--ui-highlight),
+    inset -2px -2px 0 var(--ui-shadow), 2px 3px 0 var(--ui-edge);
+  transition: background-color 80ms steps(2), color 80ms steps(2);
+}
+button:active:not(:disabled):not(.map-landmark) {
+  transform: translate(1px, 2px);
+  box-shadow: inset 2px 2px 0 var(--ui-shadow);
+}
+button:disabled {
+  box-shadow: none;
+}
+#panel button,
+#dialogue button {
+  border-radius: 0;
+  font-family: var(--font-game);
+}
+#panel :is(input, textarea) {
+  font-family: var(--font-reading);
+  border: 2px solid var(--ui-edge);
+}
+#panel :is(select, summary, label),
+#panel .pixel-app :is(nav, .tag, .chip, .badge),
+.resource-hud, .runner-controls, #today-label, #return-home, #save-status {
+  font-family: var(--font-game);
+}
+#panel :is(button, select):focus-visible,
+#dialogue button:focus-visible {
+  outline: 3px dashed var(--ui-accent);
+  outline-offset: 3px;
+}
+#panel button:is(.active, .selected, [aria-pressed="true"], [aria-selected="true"]):not(.map-landmark) {
+  border-color: var(--ui-accent);
+  box-shadow: inset 3px 0 0 var(--ui-accent), inset 0 -3px 0 var(--ui-accent);
+}
+#panel .primary, #dialogue .primary, .runner-controls #run-label {
+  border-color: var(--ui-accent);
+  background: var(--ui-accent);
+  color: var(--ui-on-accent);
+}
+#panel .primary:hover, #dialogue .primary:hover {
+  background: var(--ui-accent);
+  box-shadow: inset 2px 2px 0 var(--ui-highlight), 3px 3px 0 var(--ui-edge);
+}
+#panel, #panel[data-view="menu"], #dialogue .conversation {
+  border: 3px solid var(--ui-edge);
+  background-image: none;
+}
+.panel-heading {
+  border-bottom: 3px double var(--ui-edge);
+}
+#panel .eyebrow {
+  color: var(--ui-accent);
+}
+#panel .close-panel {
+  min-width: 44px;
+  min-height: 44px;
+  border: 2px solid var(--ui-edge);
+  box-shadow: 2px 2px 0 var(--ui-edge);
+  top: 12px;
+  right: 12px;
+}
+#panel .panel-heading { padding-right: 52px; }
+#panel :is(.day-card, .career-card, .career-job-card, .project-card,
+  .preference-section, .transfer-summary, .week-reward, .save-row,
+  .pixel-app article, .pixel-app details, .pixel-app .inside-title,
+  .pixel-app-library > button) {
+  border: 2px solid var(--ui-border);
+  box-shadow: 2px 2px 0 var(--ui-shadow);
+  background-image: none;
+}
+#panel .pixel-app-library > button {
+  border-color: var(--ui-edge);
+}
+#panel .pixel-app-library i, #panel .command-menu i {
+  border: 2px solid var(--ui-edge);
+  box-shadow: inset 2px 2px 0 var(--ui-highlight);
+}
+#panel .command-menu button:hover { transform: none; }
+#dialogue .conversation {
+  box-shadow: var(--pixel-frame), 5px 5px 0 var(--ui-edge);
+}
+#dialogue .dialogue-heading h2 {
+  background: var(--ui-tint);
+  border-left: 4px solid var(--ui-accent);
+  padding: 2px 10px;
+}
+#dialogue .conversation .choices > button {
+  border: 2px solid var(--ui-edge);
+  border-left: 4px solid var(--ui-accent);
+  box-shadow: inset 2px 2px 0 var(--ui-highlight), 2px 2px 0 var(--ui-shadow);
+}
+#dialogue .conversation .choices > button::after {
+  content: "▸";
+  font-size: 18px;
+}
+#dialogue .conversation .choices > button:hover {
+  background: var(--ui-tint);
+  box-shadow: inset 2px 2px 0 var(--ui-highlight), 3px 3px 0 var(--ui-edge);
+}
+#dialogue .dialogue-portrait {
+  border: 3px solid var(--ui-edge);
+  box-shadow: 3px 3px 0 var(--ui-shadow);
+}
+.daily-moment {
+  margin: 20px 0;
+  padding: 18px 20px;
+  border: 2px solid var(--ui-edge);
+  background: var(--ui-soft);
+  box-shadow: inset 4px 0 0 var(--ui-accent), 3px 3px 0 var(--ui-shadow);
+}
+#panel .daily-moment h3 { margin: 6px 0 10px; }
+.daily-moment p { line-height: 1.85; }
+.moment-outcome {
+  border-top: 2px dotted var(--ui-border);
+  padding-top: 12px;
+}
+.daily-moment small { color: var(--ui-positive); }
+#toast {
+  border: 2px solid var(--ui-paper);
+  outline: 2px solid var(--ui-edge);
+  font-family: var(--font-game);
+}
+#activity-strip progress, progress {
+  border: 2px solid var(--ui-edge);
+}
+progress::-webkit-progress-value {
+  background: repeating-linear-gradient(90deg, var(--ui-accent) 0 8px, var(--ui-soft) 8px 10px);
+}
+progress::-moz-progress-bar {
+  background: repeating-linear-gradient(90deg, var(--ui-accent) 0 8px, var(--ui-soft) 8px 10px);
+}
+.calendar-emblem, .resource-hud span, .scene-title, .player-chip img {
+  border: 2px solid var(--ui-edge);
+}
+@media (max-width: 700px) {
+  #panel .close-panel { top: 8px; right: 8px; }
+  .daily-moment { padding: 14px; }
+  #dialogue .dialogue-heading h2 { padding: 2px 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  button { transition: none; }
+  button:active:not(:disabled):not(.map-landmark) { transform: none; }
+}
+
+#return-home { border: 2px solid var(--ui-edge); background: var(--ui-paper); color: var(--ui-ink); box-shadow: 3px 3px 0 var(--ui-edge); }
+.object-options [aria-pressed="true"] { background: var(--ui-tint); color: var(--ui-ink); }
+.object-state { color: var(--ui-muted); }
+@media (max-width: 600px) and (orientation: portrait) {
+  .money-hud { padding: 0 8px; }
+  .money-hud b { line-height: 1.15; }
+  .money-hud small { display: block; font-size: 10px; line-height: 1.2; margin-top: 2px; }
 }

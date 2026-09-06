@@ -157,6 +157,7 @@ test("new prose, partial quotations, unrelated locations, and non-explore result
 
 test("resuming a saved result shows corrected notes without modifying the stored result or numeric gains", () => {
   const { life, result } = completeVisit("explore_airport");
+  delete result.moments; // This fixture represents a save from before daily moments existed.
   result.notes = ["尚待外地發展系統開放", "你將朋友的來信收進手帳。"];
   result.presentation = { title: result.label, portrait: "portrait.webp" };
   life.game.activeEvent = null;

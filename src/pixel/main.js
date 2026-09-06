@@ -136,7 +136,8 @@ function changed() {
     state,
     appearanceBusy || controller.transitioning,
   );
-  $("return-home").textContent = state.sceneId === "home" ? "⌂ 在家" : "⌂ 回家";
+  const homeLabel = state.sceneId === "home" ? "⌂ 在家" : "⌂ 回家";
+  if ($("return-home").textContent !== homeLabel) $("return-home").textContent = homeLabel;
   lifeUI.changed();
   if (audioUnlocked) syncRoomAudio();
 }

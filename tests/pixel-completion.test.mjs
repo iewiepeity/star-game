@@ -15,7 +15,7 @@ import {
   recordMeeting,
   access,
 } from "../src/pixel/life.js";
-import { careerCommand, bookCareer } from "../src/pixel/career.js";
+import { careerCommand, bookCareer, careerDecision } from "../src/pixel/career.js";
 import { activityAllowed } from "../src/pixel/data.js";
 import { applyPlannerTool } from "../src/pixel/planner-tools.js";
 import {
@@ -253,9 +253,16 @@ test("signed manager meeting reaches company and updates original manager relati
   assert.ok(activityAllowed(d.room, d.item, d.pose));
   const before = l.game.managerState.history.length;
   beginDay(l, l.plan[0]);
-  const r = settleDay(l);
+  assert.deepEqual(careerDecision(l, l.plan[0]).choices.map(c => c.id), ["listen", "assert", "compromise"]);
+  assert.equal(settleDay(l).pending, true);
+  assert.equal(l.game.managerState.history.length, before);
+  const r = settleDay(l, "compromise");
   assert.ok(!r.error);
-  assert.ok(l.game.managerState.history.length > before);
+  assert.equal(l.game.managerState.history.at(-1).choice, "compromise");
+  assert.equal(l.game.managerPrepUntil, l.game.week + 1);
+  const saved = structuredClone(l.game);
+  settleDay(l, "assert");
+  assert.deepEqual(l.game, saved);
 });
 
 test("planner undo cannot discard a later reservation", () => {
