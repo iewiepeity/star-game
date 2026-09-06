@@ -1,8 +1,8 @@
 # 星途未定
 
-目前像素版：**v0.9.0**。網站首頁自動進入 [`pixel.html`](./pixel.html)；也可直接使用這個像素版網址。包含全城地圖、32 個空間、角色換裝、NPC 互動、行程與職涯流程。最新介面與驗證見 [`PIXEL-UI-REFRESH.md`](./PIXEL-UI-REFRESH.md)。
+目前像素版：**v0.10.0**。網站首頁自動進入 [`pixel.html`](./pixel.html)；也可直接使用這個像素版網址。包含全城地圖、32 個空間、角色換裝、NPC 互動、行程與職涯流程。完整敘事重寫與原文備查見 [`文本交付紀錄`](./docs/narrative/2026-09-06/NARRATIVE-REWRITE.md)。最新介面與驗證見 [`PIXEL-UI-REFRESH.md`](./PIXEL-UI-REFRESH.md)。
 
-原版保留於 [`classic.html`](./classic.html)。首頁切換不會刪除存檔；原版存檔可在像素版「存檔與讀檔 → 搬入這台裝置的原版存檔」預覽並匯入。核心及離線快取版本為 **1.32.1**。
+原版保留於 [`classic.html`](./classic.html)。首頁切換不會刪除存檔；原版存檔可在像素版「存檔與讀檔 → 搬入這台裝置的原版存檔」預覽並匯入。核心及離線快取版本為 **1.33.0**。
 
 目前發行候選版本：**v1.29.0 Beta**。正式頁面只部署通過 Core 與桌機／手機 E2E 的 commit；版本紀錄、發布流程與真人盲測規格見 [`CHANGELOG.md`](./CHANGELOG.md)、[`RELEASE.md`](./RELEASE.md)、[`BETA-PLAYTEST.md`](./BETA-PLAYTEST.md)。
 

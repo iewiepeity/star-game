@@ -2,7 +2,7 @@ export const NPC_RELATION_EDGES=[
  {a:"jiqing",b:"guchengxi",type:"friend",label:"多年好友",strength:72,note:"訪談合作多年，私下也會交換業界消息。"},
  {a:"jiqing",b:"tangtang",type:"mentor",label:"照顧後輩",strength:58,note:"喬映澄很會替楚星梨擋掉不必要的尖銳提問。"},
  {a:"shenyao",b:"guchengxi",type:"collaborator",label:"長期合作",strength:78,note:"彼此對作品要求很高，合作時幾乎不用多說。"},
- {a:"shenyao",b:"xiayutong",type:"rival",label:"理念競爭",strength:52,note:"兩人在影像美學與演員調度上常有不同主張。"},
+ {a:"shenyao",b:"xiayutong",type:"rival",label:"理念競爭",strength:52,note:"電影宣傳上綜藝時，他想讓觀眾先認識角色，她想先讓來賓放鬆；兩人常為訪問節奏爭論。"},
  {a:"tangtang",b:"lujingran",type:"rival",label:"音樂圈競爭",strength:46,note:"路線不同，但榜單與獎季難免被放在一起比較。"},
  {a:"tangtang",b:"linxiafan",type:"collaborator",label:"造型合作",strength:64,note:"黎曼青替她做過幾次重要舞臺造型。"},
  {a:"guchengxi",b:"sufei",type:"friend",label:"劇場舊識",strength:66,note:"兩人都從表演訓練體系出身，對劇組倫理很有共識。"},
@@ -18,10 +18,10 @@ export const NPC_CAREER_PROFILES={
  guchengxi:{field:"演員",specialties:["電影","電視劇","廣告"],castSpecialties:["電影","電視劇","廣告"],level:4,momentum:74},
  linxiafan:{field:"時尚",specialties:["廣告","綜藝"],castSpecialties:[],level:4,momentum:66},
  lujingran:{field:"歌手",specialties:["歌曲","綜藝"],castSpecialties:["歌曲","綜藝"],level:3,momentum:61},
- xiayutong:{field:"導演",specialties:["電影","電視劇","廣告"],castSpecialties:[],level:3,momentum:64},
+ xiayutong:{field:"綜藝製作",specialties:["綜藝","廣告"],castSpecialties:[],level:3,momentum:64},
  sufei:{field:"演員",specialties:["電視劇","電影","綜藝"],castSpecialties:["電視劇","電影","綜藝"],level:3,momentum:59},
- chengyian:{field:"企劃",specialties:["廣告","綜藝"],castSpecialties:[],level:4,momentum:72},
- hanzhiyuan:{field:"製作",specialties:["廣告","綜藝","歌曲"],castSpecialties:[],level:4,momentum:69}
+ chengyian:{field:"攝影",specialties:["廣告","綜藝"],castSpecialties:[],level:4,momentum:72},
+ hanzhiyuan:{field:"經紀",specialties:["廣告","綜藝","歌曲"],castSpecialties:[],level:4,momentum:69}
 };
 
 export const NPC_INTERACTIONS={

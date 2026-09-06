@@ -1,6 +1,6 @@
 {
-  "version": "0.9.0",
-  "bytes": 114243829,
+  "version": "0.10.0",
+  "bytes": 114652889,
   "entries": [
     {
       "url": "./index.html",
@@ -8,7 +8,7 @@
     },
     {
       "url": "./pixel.html",
-      "bytes": 4146
+      "bytes": 4147
     },
     {
       "url": "./pixel.css",
@@ -220,19 +220,35 @@
     },
     {
       "url": "./src/data/calendar-events.js",
-      "bytes": 7398
+      "bytes": 14870
     },
     {
       "url": "./src/data/calendar.js",
       "bytes": 318
     },
     {
+      "url": "./src/data/career-story-content.js",
+      "bytes": 13887
+    },
+    {
       "url": "./src/data/city-map.js",
       "bytes": 2328
     },
     {
+      "url": "./src/data/creative-story-content.js",
+      "bytes": 15599
+    },
+    {
       "url": "./src/data/deepening-content.js",
-      "bytes": 13380
+      "bytes": 5755
+    },
+    {
+      "url": "./src/data/ending-story-content.js",
+      "bytes": 12496
+    },
+    {
+      "url": "./src/data/ensemble-story-content.js",
+      "bytes": 15916
     },
     {
       "url": "./src/data/focuses.js",
@@ -252,23 +268,27 @@
     },
     {
       "url": "./src/data/invitation-content.js",
-      "bytes": 8761
+      "bytes": 14322
+    },
+    {
+      "url": "./src/data/job-authored-content.js",
+      "bytes": 115074
     },
     {
       "url": "./src/data/job-feature-beats.js",
-      "bytes": 10218
+      "bytes": 585
     },
     {
       "url": "./src/data/job-foundation-beats.js",
-      "bytes": 12013
+      "bytes": 506
     },
     {
       "url": "./src/data/job-production-scenes.js",
-      "bytes": 3420
+      "bytes": 1230
     },
     {
       "url": "./src/data/job-storylines.js",
-      "bytes": 7679
+      "bytes": 1865
     },
     {
       "url": "./src/data/jobs-catalog.js",
@@ -284,27 +304,27 @@
     },
     {
       "url": "./src/data/life-events.js",
-      "bytes": 10171
+      "bytes": 24249
     },
     {
       "url": "./src/data/living-world-content.js",
-      "bytes": 6553
+      "bytes": 10932
     },
     {
       "url": "./src/data/location-events.js",
-      "bytes": 41085
+      "bytes": 53604
     },
     {
       "url": "./src/data/longform-content.js",
-      "bytes": 14836
+      "bytes": 30468
     },
     {
       "url": "./src/data/longform-scene-beats.js",
-      "bytes": 25100
+      "bytes": 112713
     },
     {
       "url": "./src/data/managers.js",
-      "bytes": 2300
+      "bytes": 3903
     },
     {
       "url": "./src/data/map-locations.js",
@@ -312,23 +332,23 @@
     },
     {
       "url": "./src/data/npc-arc-events.js",
-      "bytes": 14533
+      "bytes": 29398
     },
     {
       "url": "./src/data/npc-first-meetings.js",
-      "bytes": 6159
+      "bytes": 7080
     },
     {
       "url": "./src/data/npc-interaction-events.js",
-      "bytes": 32976
+      "bytes": 50154
     },
     {
       "url": "./src/data/npc-network.js",
-      "bytes": 3383
+      "bytes": 3437
     },
     {
       "url": "./src/data/npc-story-content.js",
-      "bytes": 3694
+      "bytes": 8300
     },
     {
       "url": "./src/data/npcs.js",
@@ -340,31 +360,39 @@
     },
     {
       "url": "./src/data/playable-depth-content.js",
-      "bytes": 3129
+      "bytes": 8265
     },
     {
       "url": "./src/data/portraits.js",
       "bytes": 371
     },
     {
+      "url": "./src/data/romance-scenes.js",
+      "bytes": 47268
+    },
+    {
       "url": "./src/data/romance.js",
-      "bytes": 2506
+      "bytes": 3100
     },
     {
       "url": "./src/data/schedule-events.js",
-      "bytes": 19955
+      "bytes": 29603
     },
     {
       "url": "./src/data/season-art.js",
       "bytes": 3827
     },
     {
+      "url": "./src/data/sequel-story-content.js",
+      "bytes": 8005
+    },
+    {
       "url": "./src/data/social.js",
-      "bytes": 2227
+      "bytes": 2656
     },
     {
       "url": "./src/data/story-art.js",
-      "bytes": 16696
+      "bytes": 17005
     },
     {
       "url": "./src/data/wardrobe.js",
@@ -404,11 +432,11 @@
     },
     {
       "url": "./src/logic/career-phases.js",
-      "bytes": 8654
+      "bytes": 10503
     },
     {
       "url": "./src/logic/career.js",
-      "bytes": 8821
+      "bytes": 5952
     },
     {
       "url": "./src/logic/city-hints.js",
@@ -448,15 +476,15 @@
     },
     {
       "url": "./src/logic/creative.js",
-      "bytes": 15453
+      "bytes": 12419
     },
     {
       "url": "./src/logic/cross-event-engine.js",
-      "bytes": 4123
+      "bytes": 4568
     },
     {
       "url": "./src/logic/deepening-engine.js",
-      "bytes": 13820
+      "bytes": 15325
     },
     {
       "url": "./src/logic/economy.js",
@@ -468,7 +496,7 @@
     },
     {
       "url": "./src/logic/event-engine.js",
-      "bytes": 9849
+      "bytes": 11311
     },
     {
       "url": "./src/logic/event-queue.js",
@@ -488,7 +516,7 @@
     },
     {
       "url": "./src/logic/hidden-route.js",
-      "bytes": 9088
+      "bytes": 18648
     },
     {
       "url": "./src/logic/industry-news.js",
@@ -500,7 +528,7 @@
     },
     {
       "url": "./src/logic/job-engine.js",
-      "bytes": 19889
+      "bytes": 21666
     },
     {
       "url": "./src/logic/job-list-model.js",
@@ -508,11 +536,11 @@
     },
     {
       "url": "./src/logic/life-events.js",
-      "bytes": 770
+      "bytes": 957
     },
     {
       "url": "./src/logic/lived-story-engine.js",
-      "bytes": 9863
+      "bytes": 9326
     },
     {
       "url": "./src/logic/manager.js",
@@ -552,7 +580,7 @@
     },
     {
       "url": "./src/logic/npc-storylines.js",
-      "bytes": 7826
+      "bytes": 7175
     },
     {
       "url": "./src/logic/onboarding.js",
@@ -576,7 +604,7 @@
     },
     {
       "url": "./src/logic/playable-depth-engine.js",
-      "bytes": 16176
+      "bytes": 16885
     },
     {
       "url": "./src/logic/portfolio.js",
@@ -592,7 +620,7 @@
     },
     {
       "url": "./src/logic/romance-engine.js",
-      "bytes": 9494
+      "bytes": 11408
     },
     {
       "url": "./src/logic/routine-rules.js",
@@ -604,7 +632,7 @@
     },
     {
       "url": "./src/logic/runner.js",
-      "bytes": 20436
+      "bytes": 20861
     },
     {
       "url": "./src/logic/scandal-engine.js",
@@ -628,11 +656,11 @@
     },
     {
       "url": "./src/logic/sequel-engine.js",
-      "bytes": 6070
+      "bytes": 6338
     },
     {
       "url": "./src/logic/social-drafts.js",
-      "bytes": 1591
+      "bytes": 1698
     },
     {
       "url": "./src/logic/tutorial.js",
@@ -680,7 +708,7 @@
     },
     {
       "url": "./src/pixel/career.js",
-      "bytes": 23196
+      "bytes": 23644
     },
     {
       "url": "./src/pixel/cast.js",
@@ -724,7 +752,7 @@
     },
     {
       "url": "./src/pixel/life.js",
-      "bytes": 21180
+      "bytes": 21737
     },
     {
       "url": "./src/pixel/main.js",
@@ -748,7 +776,7 @@
     },
     {
       "url": "./src/pixel/onboarding.js",
-      "bytes": 4576
+      "bytes": 4708
     },
     {
       "url": "./src/pixel/planner-tools.js",
@@ -788,7 +816,7 @@
     },
     {
       "url": "./src/pixel/story-scenes.js",
-      "bytes": 9451
+      "bytes": 9438
     },
     {
       "url": "./src/pixel/tutorial-ui.js",
@@ -888,7 +916,7 @@
     },
     {
       "url": "./src/views/prologue.js",
-      "bytes": 4003
+      "bytes": 4748
     },
     {
       "url": "./src/views/room.js",

@@ -1,0 +1,468 @@
+{
+  "date": "2026-09-06",
+  "baseCommit": "5d8cee0acc9627809f23606826ad9f54b1a4af71",
+  "note": "字數是原始碼中的漢字數，含註解、重複與規則提示，不能當成不重複劇情字數。原文逐檔完整保留；已發生的玩家存檔歷史不在替換範圍。",
+  "archiveSha256": "4c7c0151a09d588ef49209c87776da6f167fc627992332953d8cf65eac40d4df",
+  "patchSha256": "6b814f8d875f3c600ac13074ce169823ea3adec72505b474438c32ca73fea358",
+  "files": [
+    {
+      "path": "src/data/calendar-events.js",
+      "action": "replaced",
+      "beforeSha256": "189bdf0c2b131ab494ad7453b4c031eba1f11b32074a2519e2eea73c1aa43556",
+      "afterSha256": "5514dcf1d0de5d3293280070e12e2f1f0a528276d15060533742a72bf7db130a",
+      "beforeHanCharacters": 1302,
+      "afterHanCharacters": 2428,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/career-story-content.js",
+      "action": "added",
+      "beforeSha256": null,
+      "afterSha256": "b2b35afeef9bc3efe4e8f7aaa03a3500bd2a7c5396cea0dbcaca4ff512c29500",
+      "beforeHanCharacters": 0,
+      "afterHanCharacters": 3577,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/creative-story-content.js",
+      "action": "added",
+      "beforeSha256": null,
+      "afterSha256": "1284fc0700da0b05895199f518c3dbc8e67d24793dcef0398c909b1f3d20696f",
+      "beforeHanCharacters": 0,
+      "afterHanCharacters": 3937,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/deepening-content.js",
+      "action": "replaced",
+      "beforeSha256": "cbf0932dce9d918be0d2ed4b2794ee8393cb8b8de35ab39381b591c3f3c78639",
+      "afterSha256": "318fd5abdb325003f3b90596dc06003f8020639458ec36ea5b8b8deac55df91b",
+      "beforeHanCharacters": 3530,
+      "afterHanCharacters": 1354,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/ending-story-content.js",
+      "action": "added",
+      "beforeSha256": null,
+      "afterSha256": "84de88ae45d69baa32087d92caaf10ef0ed8c77c7dd1900cbcdaf6e080663cb9",
+      "beforeHanCharacters": 0,
+      "afterHanCharacters": 3078,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/ensemble-story-content.js",
+      "action": "added",
+      "beforeSha256": null,
+      "afterSha256": "15af3c3527898b435b6376c49ef328f86e9534cdab0803039642f3f135be7ac3",
+      "beforeHanCharacters": 0,
+      "afterHanCharacters": 4177,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/invitation-content.js",
+      "action": "replaced",
+      "beforeSha256": "a59ae60757e3392820ae96e2c3e43a70d4cd38e6e4077f919b7841adcae767cf",
+      "afterSha256": "faaad4bdf1087b5b9c8d62b72ad3d9ceb050d472d94968f72e0476cb033bb258",
+      "beforeHanCharacters": 2289,
+      "afterHanCharacters": 3801,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/job-authored-content.js",
+      "action": "added",
+      "beforeSha256": null,
+      "afterSha256": "8e056f2849dfa3e7a3b6837126b86a5d644ef21d8e6908de93ef77e9e82160d8",
+      "beforeHanCharacters": 0,
+      "afterHanCharacters": 32551,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/job-feature-beats.js",
+      "action": "replaced",
+      "beforeSha256": "e47fc24aa12ea1cbadd86c9cb4589430ba91e991f1afc76627810da432f827c8",
+      "afterSha256": "113a48da2c2bc504b4a83adb6a1401e379f6ba9380c0e9a6b7154cbd6a11d710",
+      "beforeHanCharacters": 2793,
+      "afterHanCharacters": 21,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/job-foundation-beats.js",
+      "action": "replaced",
+      "beforeSha256": "cd1032fa82c8983d60c77d0ffe7af44f7f646ea962432e65398217a33b3e8627",
+      "afterSha256": "e7f41e908c6ec45b9ce99051328ddfa4e03aa1925c2dd5259bbda565dad14ebd",
+      "beforeHanCharacters": 3418,
+      "afterHanCharacters": 27,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/job-production-scenes.js",
+      "action": "replaced",
+      "beforeSha256": "dfcbfd869125227ae5e9dd0616c89ff63b26af9993b63fa9d9a96dce08bd6d4b",
+      "afterSha256": "1376be53ba26e2726859529b79d3c2a3f9d5ba615f0f49b56fdc2ce02a065046",
+      "beforeHanCharacters": 848,
+      "afterHanCharacters": 84,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/job-storylines.js",
+      "action": "replaced",
+      "beforeSha256": "8f5c82631eca0054b063aa2be376fa2028603ea202b10dd8b2204ec2643f523f",
+      "afterSha256": "5f4d3d199fd02a55f058650ce062f5b1e20bb14aae6668199b1b6b827315350c",
+      "beforeHanCharacters": 1265,
+      "afterHanCharacters": 68,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/life-events.js",
+      "action": "replaced",
+      "beforeSha256": "9d59aa74c09ee28a6f04ab11ffde29cd9882bdbb5ccdc291992406827aefd672",
+      "afterSha256": "4debdf84d3a050092ef260659fc2c856104804295a31f18c5a3f112308f947da",
+      "beforeHanCharacters": 1826,
+      "afterHanCharacters": 3619,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/living-world-content.js",
+      "action": "replaced",
+      "beforeSha256": "70c571bf65909f324090e0d3283bf1c0527a085957507ed762d3222bc3a37e59",
+      "afterSha256": "0af1640cc90ac78133a95e456154b2b1d3a13fb6ba84a6975293d7f0e3b53452",
+      "beforeHanCharacters": 1781,
+      "afterHanCharacters": 2922,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/location-events.js",
+      "action": "replaced",
+      "beforeSha256": "e25bdf20c88c73036c8f6f388d081b6e51b26fdc60e7b9034e7c30169d928edb",
+      "afterSha256": "d995d8dcb4bc5dafe2f0a53233fa550f5c0232edcd51a3032b04a7c247ec5bb1",
+      "beforeHanCharacters": 10011,
+      "afterHanCharacters": 13759,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/longform-content.js",
+      "action": "replaced",
+      "beforeSha256": "924f7628657aad6cc2d926bf75b2c9b46b975328feef80b807851a27ba21a177",
+      "afterSha256": "0d05502f743043a6d4dd0a006049d5b603cd3d7fca2c90e3efdc397404ce2be9",
+      "beforeHanCharacters": 3659,
+      "afterHanCharacters": 7907,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/longform-scene-beats.js",
+      "action": "replaced",
+      "beforeSha256": "75f7f510af266a7a9666d7ab302958db3f86ef2a8f937b44ab17788773f126a6",
+      "afterSha256": "6ce1d141668dbcefba380931a6edb26cbbb2c2dd15c3e9b0b381d12eda77fe37",
+      "beforeHanCharacters": 7083,
+      "afterHanCharacters": 30577,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/managers.js",
+      "action": "replaced",
+      "beforeSha256": "f7ef86d146bc58caac7dff8781ae80f786c1afdfb2c1c7d13de9c7d782dd393c",
+      "afterSha256": "ed317fbb1d0becb334516d839c23b60840a96143fdd0daf2ae855ad98cab078c",
+      "beforeHanCharacters": 401,
+      "afterHanCharacters": 667,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/npc-arc-events.js",
+      "action": "replaced",
+      "beforeSha256": "c4e7b4ec3a40901f6e6834c56f3716b02107d32257d712221fc9df0f80f40e50",
+      "afterSha256": "6eb80a56f5acbb7071ff1148ab064528782f2b7594f361a7a40771364161b731",
+      "beforeHanCharacters": 3180,
+      "afterHanCharacters": 7406,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/npc-first-meetings.js",
+      "action": "replaced",
+      "beforeSha256": "9f4013deb98465a76fed6c112bd9a4e5cf2dffdad1fe5bc58a7be4c93403a21a",
+      "afterSha256": "5f32d4e27b24048463f1c61dda9ec03bfd20689eed1bbd9beb96b0989b90bd4b",
+      "beforeHanCharacters": 1592,
+      "afterHanCharacters": 1795,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/npc-interaction-events.js",
+      "action": "replaced",
+      "beforeSha256": "88fbadd390a0f4ca52d0b35a8bee45e8b22e2b68d3c8925e8259e39f6ad15d7f",
+      "afterSha256": "b309f0734768de24005d60ae02fd08256742429e76860c5b58110d9259b7313e",
+      "beforeHanCharacters": 7843,
+      "afterHanCharacters": 12362,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/npc-network.js",
+      "action": "replaced",
+      "beforeSha256": "c913ecd0aaecd7fd44239bebc72fe333b50b3479b72dc1c612aee9b7d3bcfe96",
+      "afterSha256": "768071079875ef251aa963877fc156fa5fd7a148d16a8fbc404ffb206905f146",
+      "beforeHanCharacters": 360,
+      "afterHanCharacters": 376,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/npc-story-content.js",
+      "action": "replaced",
+      "beforeSha256": "755d560fffea088aaff8677b0e52df68674882823e90060386c20d028860cce8",
+      "afterSha256": "477ceaffd8c5da6547177906dccbf9c5fdd34adc1b045595c6e307e97eafc7ad",
+      "beforeHanCharacters": 978,
+      "afterHanCharacters": 2285,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/playable-depth-content.js",
+      "action": "replaced",
+      "beforeSha256": "dd61c064bf4fe0a12a9eaeb851085756102e4cfb0eb9175f065d24e718cd3764",
+      "afterSha256": "59a7a6508dac0166feb1c20ec6cb5103e5442f082108b27063e82d3e82f957e6",
+      "beforeHanCharacters": 697,
+      "afterHanCharacters": 2058,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/romance-scenes.js",
+      "action": "added",
+      "beforeSha256": null,
+      "afterSha256": "5b859e4ee46f23e78d16943fc8dc885e2cbd1a5dc5e9c182181ae2891d73874d",
+      "beforeHanCharacters": 0,
+      "afterHanCharacters": 12513,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/romance.js",
+      "action": "replaced",
+      "beforeSha256": "7bff6c4818677e849077d2fd19e9963b2e21320a9907798e32394068c263f9cb",
+      "afterSha256": "589c07c164f06d47b776b1d6276682b5a216645e71fdfdb04697b2a8c2bfdc89",
+      "beforeHanCharacters": 364,
+      "afterHanCharacters": 535,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/schedule-events.js",
+      "action": "replaced",
+      "beforeSha256": "8441e919fe2ad966ef80a3481295a4df3a4b7dab5573ee0b8b3c295fd2a572b2",
+      "afterSha256": "ef452d62ee827bd77f2418a7e4d477aa35cec3c57102b6900c52750019325220",
+      "beforeHanCharacters": 4841,
+      "afterHanCharacters": 7701,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/sequel-story-content.js",
+      "action": "added",
+      "beforeSha256": null,
+      "afterSha256": "ef7db11812709776de60caf0aba65cbea9634792a14e5ea132fe325a083d1891",
+      "beforeHanCharacters": 0,
+      "afterHanCharacters": 2033,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/social.js",
+      "action": "replaced",
+      "beforeSha256": "1afaaaf8dfefd6a76364046ba1a002a2b3aa85926d046ebe23359b3c651cc1aa",
+      "afterSha256": "77a65a9566dd27459ec971debffd0d3095163ff8ef2ca0413950dd59df203086",
+      "beforeHanCharacters": 485,
+      "afterHanCharacters": 606,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/data/story-art.js",
+      "action": "replaced",
+      "beforeSha256": "13149dd2ea7604044cec8002fdc06481c0380bdc9a671a71f6ac083b1e6c4818",
+      "afterSha256": "76f86439c63867be64f79eb630b2438071c9e5eb3e0ac48d95292513838210b5",
+      "beforeHanCharacters": 1962,
+      "afterHanCharacters": 2065,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/logic/career-phases.js",
+      "action": "replaced",
+      "beforeSha256": "3eba4be8e2c5f32d71dd1e8c85bc6806eff25422267ee367c1cf36545ccae451",
+      "afterSha256": "662268dd9aa510e5bb3530813f5af5d49c3170c9ad47c429b012abe4fe4ff9ac",
+      "beforeHanCharacters": 1054,
+      "afterHanCharacters": 1547,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/career.js",
+      "action": "replaced",
+      "beforeSha256": "38dc05fae2f1adcb6e2ddefcf1dd91f7428939e5020d590685206d5289161d79",
+      "afterSha256": "7a2c6125e37f9c9a08542828681fa33e40be948d1d114d41b30ae78398b2f38d",
+      "beforeHanCharacters": 1018,
+      "afterHanCharacters": 234,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/creative.js",
+      "action": "replaced",
+      "beforeSha256": "58b43f57135d8f44f4e7c141ebb0ab87c8c4a64f79818a789482a38fc34c2ea4",
+      "afterSha256": "d3bf9f2ee8503493339ef71521f2802c57f4656f408e1464a114a96e27170d37",
+      "beforeHanCharacters": 1318,
+      "afterHanCharacters": 560,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/cross-event-engine.js",
+      "action": "replaced",
+      "beforeSha256": "b5516be587909a2cf43ca87535a3d41c9109eeaa2d5b43d69b41804e681a49d8",
+      "afterSha256": "7c15e48094099d0d8730cdc9355d6a5316465f94f140f69d53bd476d5787181d",
+      "beforeHanCharacters": 477,
+      "afterHanCharacters": 514,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/deepening-engine.js",
+      "action": "replaced",
+      "beforeSha256": "a4e33b21cd91403529f9398fdf3951a19b147954f9d4c1afe87f8d52eaa305cd",
+      "afterSha256": "6c8416645933f100310058673fd2bad55bfd9fa7cf86ad9a24f6103bd0ca85d9",
+      "beforeHanCharacters": 346,
+      "afterHanCharacters": 342,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/event-engine.js",
+      "action": "replaced",
+      "beforeSha256": "446917fb424a79318d76dc751bf3d8cd1e82dac87aa421dfae17ebb7ff7d2ac1",
+      "afterSha256": "135a85285131051a5443639ca85a9939dade630dacf1afc6f90912376b844442",
+      "beforeHanCharacters": 111,
+      "afterHanCharacters": 111,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/hidden-route.js",
+      "action": "replaced",
+      "beforeSha256": "82dd5baadcdca233cec3b0ace42dbdc69ac679933d56107a5ed5f0c3eaeb353a",
+      "afterSha256": "b49c8558e836754e1ffc7f72d0185529f067f5e435c122e7bc4bc1f6b7bea9c8",
+      "beforeHanCharacters": 1702,
+      "afterHanCharacters": 3965,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/job-engine.js",
+      "action": "replaced",
+      "beforeSha256": "d14466b24571eae1e72c2991cb1f64a242f73a5134787219626bbf0d70679c33",
+      "afterSha256": "9488dc475e9c2c7fd3a79430eabbb003e625b5b85266624d89ae62e79384f9b4",
+      "beforeHanCharacters": 769,
+      "afterHanCharacters": 779,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/life-events.js",
+      "action": "replaced",
+      "beforeSha256": "16ede5c24ffd1579fffd4505ad67014c86fcd74615ecf52f048341f617a79fb5",
+      "afterSha256": "8461b35b1776740eb898077e1ab168a4e09e8124e73b801bd68f1bf98ff6e400",
+      "beforeHanCharacters": 2,
+      "afterHanCharacters": 2,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/lived-story-engine.js",
+      "action": "replaced",
+      "beforeSha256": "203d9d2b4ed2d20fa4e71161fd79241fd45ac564c6a54a53de83c89729fd8fa0",
+      "afterSha256": "28a0957d8f864cd05c3ffba49a8e79025a83d008898da0af3a6c514ce0b4331a",
+      "beforeHanCharacters": 1443,
+      "afterHanCharacters": 1187,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/npc-storylines.js",
+      "action": "replaced",
+      "beforeSha256": "2dbff3007baf5efdb446a3ceaa5ba8422303a8d059d99ad202b79ef975209aa3",
+      "afterSha256": "042668831c8229ee074667ce2ea025288b08e845e1de1e1bfb07b85088abe1cf",
+      "beforeHanCharacters": 881,
+      "afterHanCharacters": 573,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/playable-depth-engine.js",
+      "action": "replaced",
+      "beforeSha256": "a794f42779a2f96301c25c2b3a4507207b41a4ec9b5da1bb2081cdb397c241a9",
+      "afterSha256": "e4995de639711e717f4280b14d812c0c1c79ee15ecf769ad93490a0c3cf2329c",
+      "beforeHanCharacters": 1242,
+      "afterHanCharacters": 1274,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/romance-engine.js",
+      "action": "replaced",
+      "beforeSha256": "acba49251d4fc93824833bd2dd142e4964d1a2d2856ddadda75844d5f317296e",
+      "afterSha256": "e23654ff8892d2f8111e0378269adc8887d187f4a2a545e85912c5da27024baf",
+      "beforeHanCharacters": 608,
+      "afterHanCharacters": 910,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/runner.js",
+      "action": "replaced",
+      "beforeSha256": "8e0682aab40e4ae3dc2b5571f552798c711a6599dc1f7f957c3b01502e25f3ab",
+      "afterSha256": "c5c9d0f70f680817c7196876c380950f659cd71137cf65d000e4794f278304aa",
+      "beforeHanCharacters": 707,
+      "afterHanCharacters": 707,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/sequel-engine.js",
+      "action": "replaced",
+      "beforeSha256": "12c0361399fe713ccbcbf9aa76723a044312e1c4b6ee9756d6a30285582d7df7",
+      "afterSha256": "6fbf5f379c8d3e538de2d2baa8d46282f03e940f71ebe645a8a7298c9195675c",
+      "beforeHanCharacters": 246,
+      "afterHanCharacters": 303,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/logic/social-drafts.js",
+      "action": "replaced",
+      "beforeSha256": "0b1737b94862328a707162d62f0337aa66b5a4a26802147f6baf8eb0e594a3b9",
+      "afterSha256": "e95f62d500cbc52828b1ba93e6c15b935b040f39f47757e55cab500ab215f806",
+      "beforeHanCharacters": 180,
+      "afterHanCharacters": 211,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/pixel/career.js",
+      "action": "replaced",
+      "beforeSha256": "5d8cd970defa78e51422865bd46c97eb05b0a9fb09ef4eda2abb88cb1f41e8e2",
+      "afterSha256": "a7120ecb52974cec406f218537d092238bb650a161fb3081c4c89aa25638002f",
+      "beforeHanCharacters": 599,
+      "afterHanCharacters": 614,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/pixel/life.js",
+      "action": "replaced",
+      "beforeSha256": "05e2c69dba0da8bd79a5b587016179b506c12bfe6b557189c8b8d696bf33c512",
+      "afterSha256": "ddc8c10cd49ab2e8df14ba49a60ec7a883879f3000d7b778a0fe8f08c35c9b49",
+      "beforeHanCharacters": 462,
+      "afterHanCharacters": 477,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/pixel/onboarding.js",
+      "action": "replaced",
+      "beforeSha256": "4fd52bb08b664e06b3f44d40a6826fbdd162a91a0846e7074c6aa464efce1043",
+      "afterSha256": "cd0044774a6dfa1bff11c4262443da1264add7741cd9fe193a9ee0058fb4e707",
+      "beforeHanCharacters": 212,
+      "afterHanCharacters": 250,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/pixel/story-scenes.js",
+      "action": "replaced",
+      "beforeSha256": "0f34b4e45f3d7999a8565536421842e2c4cd6d6bfba9f4428883b1f851f26c2e",
+      "afterSha256": "eb870b0c171e45b891f24484d903a9536cfbbb11c5e2f2387c4a96c6150c9ce9",
+      "beforeHanCharacters": 81,
+      "afterHanCharacters": 81,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/views/prologue.js",
+      "action": "replaced",
+      "beforeSha256": "34aba9114d19e34e08b76a09cff520fb56ebf84585c9f77590710fe9ca1d1f3e",
+      "afterSha256": "91cbeabe3468cf7435f9e83944bd7286c34cd982215ab1c4b3edd9c75a36ddeb",
+      "beforeHanCharacters": 490,
+      "afterHanCharacters": 702,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    }
+  ]
+}

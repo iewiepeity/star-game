@@ -3,7 +3,7 @@ import { NPC_LIST } from "../src/data/npcs.js";
 import { ABILITIES } from "../src/data/abilities.js";
 import { setSeed } from "../src/core/rng.js";
 import { tickDeepeningSystems } from "../src/logic/deepening-engine.js";
-import { activateNextEvent, resolveEvent, dismissActiveEvent } from "../src/logic/event-engine.js";
+import { activateNextEvent, resolveEvent, dismissActiveEvent, processQueuedEvents } from "../src/logic/event-engine.js";
 import { validateGameState } from "../src/core/save-schema.js";
 
 resetState();setSeed("five-year-human-audit");state.name="五年人工路徑稽核";
@@ -12,7 +12,7 @@ state.knownPeople=NPC_LIST.filter(n=>!n.special).map(n=>n.id);for(const id of st
 state.partnerId=state.knownPeople[0];state.relationships[state.partnerId].romance="dating";
 const decisions=[];
 for(let week=1;week<=260;week++){
- state.week=week;tickDeepeningSystems();
+ state.week=week;processQueuedEvents();tickDeepeningSystems();
  activateNextEvent();
  if(state.activeEvent?.event){const event=state.activeEvent.event,choice=event.choices?.[week%Math.max(1,event.choices.length)];resolveEvent(event,choice?.id);decisions.push({week,id:event.id,choice:choice?.id||null});dismissActiveEvent();}
  const valid=validateGameState(state);if(!valid.ok)throw new Error(`第 ${week} 週存檔失效：${valid.errors.join("、")}`);

@@ -2,7 +2,8 @@ import { titleTag } from "../core/utils.js";
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
 import { NPC_INVITATION_POOLS } from "../data/invitation-content.js";
-import { NPC_RELATION_EDGES, NPC_CAREER_PROFILES } from "../data/npc-network.js";
+import { NPC_RELATION_EDGES } from "../data/npc-network.js";
+import { ENSEMBLE_STORIES } from "../data/ensemble-story-content.js";
 import { enqueueVisibleEvent } from "./event-engine.js";
 
 const INVITATIONS=Object.freeze({
@@ -27,9 +28,10 @@ function dynamicCast(){
  return{cast,edge:pair};
 }
 
-function ensembleCopy({cast,edge}){
- const names=cast.map(id=>NPCS[id].name),fields=cast.map(id=>NPC_CAREER_PROFILES[id]?.field||NPCS[id].job),relation={friend:"彼此信任是否也容得下不同意",mentor:"照顧與替對方決定之間的界線",collaborator:"專業合作裡誰有最後決定權",rival:"競爭是否必須製造一個輸家",tense:"理念不合時是否還能完成同一件事",ally:"盟友在利益衝突時如何保持誠實"}[edge.type]||"合作如何容納不同底線";
- return{title:`${names.join(" × ")}・${relation}`,text:`${edge.note} 這次${fields.join("、")}被放進同一個公開企劃，原本私下能保留的分歧，現在必須在玩家面前做成真正決定。`};
+function ensembleCopy({cast,edge}) {
+ const story=ENSEMBLE_STORIES[`${edge.a}:${edge.b}`];
+ const third=cast[2] ? ` ${NPCS[cast[2]].name}也在場，先替兩邊核對現有素材與時段，等你們把問題談完。` : "";
+ return {...story,text:story.text+third};
 }
 
 function referenceText(){
@@ -38,7 +40,7 @@ function referenceText(){
  const award=[...(state.awards||[])].reverse()[0];
  if(award)return`對方先提到你在「${award.name||award.title||"頒獎季"}」留下的那一刻，接著才說今天找你的真正原因。`;
  const work=[...(state.completedWorks||[])].reverse()[0];
- if(work)return`${titleTag(work.title)}完成後，你們已經有一陣子只在工作消息裡看見彼此。`;
+ if(work)return`你最近完成${titleTag(work.title)}，對方先問起這段工作的近況。`;
  return"這次邀請沒有通告、曝光或人脈交換；它只占用你願不願意留給一個人的時間。";
 }
 
@@ -64,17 +66,27 @@ export function tickNpcInvitation(){
  return id;
 }
 
-export function tickEnsembleScene(){
+export function tickEnsembleScene() {
  if(state.week<30||state.week%13!==0)return null;
- const selected=dynamicCast();if(!selected)return null;const{cast}=selected,[a,b]=cast,na=NPCS[a],nb=NPCS[b],copy=ensembleCopy(selected),id=`ensemble:${cast.join(":")}:${state.week}`;
- enqueueVisibleEvent({id,kind:cast.length>2?"三人事件":"多人事件",priority:84,maxDelayWeeks:6,title:copy.title,text:copy.text,cast,beats:[
-  {label:`${cast.length} 條人生撞在同一份工作`,text:copy.text},
-  {label:`${na.name}的立場`,text:`${na.name}不是在爭輸贏，而是擔心退讓後，最重要的東西會被當成從未存在。`},
-  {label:`${cast.slice(1).map(id=>NPCS[id].name).join("與")}的立場`,text:`${nb.name}${cast.length>2?`與${NPCS[cast[2]].name}`:""}也沒有要你討好所有人；真正的問題是，合作能不能容納彼此都合理的堅持。`},
- ],choices:[
-  {id:"mediate",label:`把${cast.length===3?"三人":"兩人"}的底線寫成同一份合作條件`,note:"信任共同提高，但你必須承擔協調責任。",outcome:"你沒有叫任何一方顧全大局，而是讓所謂大局第一次包含每個人的底線。",effects:[...cast.map(npc=>({npc,trust:5,relation:2})),{ensemble:{id,cast,choice:"mediate",label:"共同條件"}}]},
-  {id:"side-a",label:`支持${na.name}，接受其他路線被關閉`,note:`${na.name}會記得你站過來；其他人也會記得代價由誰承擔。`,outcome:"你做了清楚而不討好的選擇。合作得以繼續，但關係不會假裝毫髮無傷。",effects:[{npc:a,trust:7,relation:4},...cast.slice(1).map(npc=>({npc,trust:-2,relation:-3})),{ensemble:{id,cast,choice:"side-a",label:`支持${na.name}`}}]},
-  {id:"side-b",label:`支持${nb.name}${cast.length>2?"一方":""}，接受${na.name}的路被關閉`,note:`${nb.name}會記得你站過來；${na.name}不會把不同意見當成沒發生。`,outcome:"你選擇了承擔取捨，而不是用漂亮話把衝突拖到下一次爆炸。",effects:[{npc:a,trust:-2,relation:-3},{npc:b,trust:7,relation:4},...(cast[2]?[{npc:cast[2],trust:4,relation:2}]:[]),{ensemble:{id,cast,choice:"side-b",label:`支持${nb.name}`}}]},
- ]},"人物關係網");
- return id;
+ const selected=dynamicCast();if(!selected)return null;
+ const {cast}=selected,[a,b]=cast,na=NPCS[a],nb=NPCS[b],copy=ensembleCopy(selected);
+ // Each production dispute and branch return is a unique shared memory.
+ const key=cast.slice(0,2).join(":");
+ const id=`ensemble:${key}:story`;
+ if ((state.eventHistory||[]).some(x=>x.id===id)) return null;
+ const choices=[
+  {id:"mediate",label:copy.mediate,note:"一起整理合作方式，彼此信任增加。",effects:[...cast.map(npc=>({npc,trust:5,relation:2})),{ensemble:{id,cast,choice:"mediate",label:"共同條件"}}]},
+  {id:"side-a",label:copy.sideA,note:`偏向${na.name}的做法；${nb.name}對這次合作的信任會下降。`,effects:[{npc:a,trust:7,relation:4},...cast.slice(1).map(npc=>({npc,trust:-2,relation:-3})),{ensemble:{id,cast,choice:"side-a",label:`支持${na.name}`}}]},
+  {id:"side-b",label:copy.sideB,note:`偏向${nb.name}的做法；${na.name}對這次合作的信任會下降。`,effects:[{npc:a,trust:-2,relation:-3},{npc:b,trust:7,relation:4},...(cast[2]?[{npc:cast[2],trust:4,relation:2}]:[]),{ensemble:{id,cast,choice:"side-b",label:`支持${nb.name}`}}]},
+ ].map((choice,index)=>({...choice,outcome:copy.outcomes[index],followUp:{delayWeeks:3,event:{
+   id:`${id}:${choice.id}:follow-up`,kind:"人物後續",cast,persistent:true,priority:82,
+   title:`${copy.title}・新的確認稿`,text:copy.after[index],
+   choices:[{id:"read",label:"核對後續安排",outcome:"你把新稿和當時的決定放在一起，知道哪裡真的改了，也知道誰仍在配合。",effect:{mood:1}}],
+ }}}));
+ const queued=enqueueVisibleEvent({id,kind:cast.length>2?"三人事件":"多人事件",priority:84,persistent:true,title:copy.title,text:copy.text,cast,beats:[
+  {label:"宣傳會議還沒結束",text:copy.text},
+  {label:`${na.name}的提議`,text:copy.a,speaker:a},
+  {label:`${nb.name}的考量`,text:copy.b,speaker:b},
+ ],choices},"人物關係網");
+ return queued&&queued!=="expired"?id:null;
 }

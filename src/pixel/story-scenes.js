@@ -13,7 +13,7 @@ const ARC_ROOMS = {
   guchengxi: ["theatre", "rehearsal", "theatre"],
   linxiafan: ["shop", "shop", "shop"],
   lujingran: ["recording", "record_company", "recording"],
-  xiayutong: ["film_company", "editing_room", "studio"],
+  xiayutong: ["studio", "editing_room", "studio"],
   sufei: ["cafe", "rehearsal", "studio"],
   chengyian: ["media_company", "media_company", "cafe"],
   hanzhiyuan: ["business", "business", "restaurant"],
@@ -25,7 +25,7 @@ const LONG_ROOMS = {
   guchengxi: ["film_company", "studio", "film_company", "theatre", "theatre"],
   linxiafan: ["shop", "shop", "shop", "shop", "shop"],
   lujingran: ["recording", "recording", "recording", "recording", "livehouse"],
-  xiayutong: ["rehearsal", "film_company", "studio", "cinema", "studio"],
+  xiayutong: ["rehearsal", "tv", "studio", "cinema", "studio"],
   sufei: ["cafe", "rehearsal", "tv", "cinema", "studio"],
   chengyian: [
     "media_company",
@@ -156,7 +156,7 @@ export function storyScene(event, game = {}, meta = {}) {
       Math.max(0, INVITATION_TYPES.indexOf(record?.type))
     ];
   const familiarRoom = {
-    jiqing: "tv",
+    jiqing: "radio",
     shenyao: "editing_room",
     tangtang: "recording",
     guchengxi: "rehearsal",

@@ -111,13 +111,13 @@ test("初次遇見 NPC 會顯示完整相遇劇情並保存來源",()=>{
  resetState();
  const result=meetNpc("lujingran","在月蝕 Live House 建立第一次印象。");
  assert.equal(result.met,true);
- assert.match(result.title,/江敘白.*還沒關掉的麥克風/);
- assert.match(result.text,/旋律不錯/);
+ assert.match(result.title,/江敘白.*電線比人難溝通/);
+ assert.match(result.text,/麥克風|導線|電線/);
  assert.equal(result.portrait,"./assets/portraits/lujingran.webp");
  assert.deepEqual(npcFirstMeeting("lujingran"),{
   week:1,
   source:"在月蝕 Live House 建立第一次印象。",
-  title:"還沒關掉的麥克風",
+  title:"電線比人難溝通",
   text:state.relationships.lujingran.firstMeetingText
  });
 });

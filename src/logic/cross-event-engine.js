@@ -10,26 +10,28 @@ function already(key) {
 }
 function queue(key, event) {
   if (already(key)) return null;
+  const id = `cross-${key}`;
+  const queued = enqueueVisibleEvent({ ...event, id, kind: "跨事件", priority: 84, maxDelayWeeks: 5 }, "跨事件");
+  if (!queued || queued === "expired") return null;
   state.crossEventHistory.push(key);
-  enqueueVisibleEvent({ ...event, id: `cross-${key}`, kind: "跨事件", priority: 84, maxDelayWeeks: 5 }, "跨事件");
-  return event.id;
+  return id;
 }
 
 export function tickCrossEventChains() {
-  const latestWork = [...(state.completedWorks || [])].reverse().find((work) => state.week - work.completedWeek <= 4);
+  const latestWork = [...(state.completedWorks || [])].reverse().find((work) => work.jobId && work.storyChoice && state.week - work.completedWeek >= 0 && state.week - work.completedWeek <= 4 && !already(`flagship-${work.id}`));
   if (latestWork?.jobId && latestWork.storyChoice) {
     const job = JOB_BY_ID[latestWork.jobId], npcId = latestWork.npcCast?.find((id) => NPCS[id]), npc = NPCS[npcId];
     const key = `flagship-${latestWork.id}`;
     return queue(key, {
-      title: `${job?.title || latestWork.title}，殺青之後才真正開始`,
-      text: `你在現場選擇「${latestWork.storyChoice}」留下的版本被剪進正式宣傳。${npc ? `${npc.name}傳來訊息：觀眾已經在討論你們那場戲。` : "宣傳團隊要求你決定接下來要怎麼說這部作品。"}`,
+      title: `${job?.title || latestWork.title}，完工之後的訪問`,
+      text: `宣傳窗口傳來${titleTag(latestWork.title)}的採訪題綱。你當初採取「${({steady:"穩定準備",bold:"大膽嘗試",signature:"第三個版本",protect:"保留企劃核心",breakthrough:"突破原設計"})[latestWork.storyChoice] || "現場調整"}」的做法，被列成其中一題。${npc ? `${npc.name}也收到這份題綱，問你要不要先核對合作經過。` : "對方問：這一段，想先提自己，還是一起完成它的人？"}`,
       choices: [
         { id: "team", label: "把焦點放回作品與團隊", outcome: "合作名單上的人記住你沒有獨占掌聲。", effect: { rep: "業界評價", value: 7, rep2: "可信度", value2: 4 } },
         { id: "spotlight", label: "抓住這波聲量主推自己", outcome: "你的名字衝上搜尋，但團隊也開始重新衡量你。", effect: { rep: "話題度", value: 10, rep2: "爭議度", value2: 3, fame: 3 } },
       ],
     });
   }
-  const creative = [...(state.creativeProjects || [])].reverse().find((p) => ["sold", "released"].includes(p.status) && state.week - (p.saleWeek || p.releaseWeek) >= 1);
+  const creative = [...(state.creativeProjects || [])].reverse().find((p) => ["sold", "released"].includes(p.status) && state.week - (p.saleWeek || p.releaseWeek) >= 1 && !already(`creative-after-${p.id}`));
   if (creative) {
     const key = `creative-after-${creative.id}`;
     const sold = creative.status === "sold";

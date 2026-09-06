@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { titleTag } from "../src/core/utils.js";
-import { JOB_CATALOG, JOB_BY_ID } from "../src/data/jobs.js";
+import { JOB_CATALOG } from "../src/data/jobs.js";
 import { JOB_STORYLINES } from "../src/data/job-storylines.js";
 
 test("作品標題只在尚未以書名號開頭時加上書名號", () => {
@@ -40,10 +40,21 @@ test("75 份工作的敘事與段落標題不會出現雙重書名號", () => {
   }
 });
 
-test("已知帶書名號與未帶書名號工作的試鏡文案只改標題組合", () => {
-  for (const id of ["J001", "J003", "J004", "J008"]) {
-    const job = JOB_BY_ID[id], story = JOB_STORYLINES[id];
-    assert.ok(story.audition.passed.startsWith(`「${titleTag(job.title)}，我們要你。」你笑了，攥緊的手才終於鬆開。`));
-    assert.equal(story.audition.failed, `${titleTag(job.title)}的名單翻到底，沒有你。你把螢幕按黑。那句「${job.audition.tip}」卻還留在眼前。`);
+test("重寫後的75份試鏡結果保留正確作品名，且每份有獨立通過與落選內容", () => {
+  for (const job of JOB_CATALOG) {
+    const story = JOB_STORYLINES[job.id];
+    const prefix = `${titleTag(job.title)}的試鏡結果到了。`;
+    assert.ok(story.audition.passed.startsWith(prefix), job.id);
+    assert.ok(story.audition.failed.startsWith(prefix), job.id);
+    assert.notEqual(story.audition.passed, story.audition.failed, job.id);
+    assert.ok(story.audition.passed.slice(prefix.length).length > 20, job.id);
+    assert.ok(story.audition.failed.slice(prefix.length).length > 20, job.id);
   }
+  const results = JOB_CATALOG.map((job) => {
+    const prefix = `${titleTag(job.title)}的試鏡結果到了。`;
+    const story = JOB_STORYLINES[job.id];
+    return { passed: story.audition.passed.slice(prefix.length), failed: story.audition.failed.slice(prefix.length) };
+  });
+  assert.equal(new Set(results.map((r) => r.passed)).size, 75);
+  assert.equal(new Set(results.map((r) => r.failed)).size, 75);
 });
