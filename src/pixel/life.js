@@ -5,6 +5,7 @@ import {
   careerDefinition,
   careerCost,
   careerAccess,
+  careerDecision,
   resolveCareerDay,
   syncCoreSchedule,
   adoptCoreSchedule,
@@ -399,6 +400,17 @@ export function settleDay(life, choice = "focus") {
     def = definition(life, assignment);
   const reason = access(life, assignment);
   if (reason) return { error: reason };
+  // A resumed or programmatically invoked workday must not bypass its choice
+  // and write a completed ledger entry while production is still pending.
+  if (assignment.id === "career_job") {
+    const decision = careerDecision(life, assignment);
+    if (decision && !decision.choices.some(item => item.id === choice)) {
+      pending.decision = decision;
+      pending.decisionMade = false;
+      pending.phase = "decision";
+      return {pending: true, decision, error: "先確認製作版本，再繼續今天的工作。"};
+    }
+  }
   const before = structuredClone(life.game);
   const notes = [];
   let presentation = null;

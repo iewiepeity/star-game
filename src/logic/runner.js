@@ -15,7 +15,7 @@ import {
 } from "./agency.js";
 import { resolveExploration } from "./exploration.js";
 import { prepareScheduleEvent, resolveScheduleEvent } from "./random-events.js";
-import { completeJobSession, jobAuditionDecision } from "./job-engine.js";
+import { completeJobSession, jobAuditionDecision, jobProductionDecision } from "./job-engine.js";
 import { lockEnding } from "./career.js";
 import { maybeQueueLifeEvent } from "./life-events.js";
 import {
@@ -51,6 +51,7 @@ function clearRunnerTimer() {
   }
 }
 export function decisionFor(id) {
+  if (id === "job_session") return jobProductionDecision(state.scheduledJobIds[state.runnerDay]);
   if (id === "personal_task") {
     const task = activityForDay(state.runnerDay);
     if (task?.kind === "job_audition") return jobAuditionDecision(task);
@@ -370,8 +371,15 @@ export function resolveDay(choice) {
     };
     markActivityDone(day);
   } else if (id === "job_session") {
+    const decision = jobProductionDecision(state.scheduledJobIds[day]);
+    if (decision && !decision.choices.some(item => item.id === choice)) {
+      state.runnerDecision = decision;
+      state.runnerPhase = "decision";
+      render();
+      return {ok: false, pending: true, decision};
+    }
     applyActivityLoad(a);
-    const result = completeJobSession(state.scheduledJobIds[day]),
+    const result = completeJobSession(state.scheduledJobIds[day], choice),
       progress = `${result.text} 當日${performanceLabel("work")}。`,
       meeting = firstMeetingResult(result.encounters, progress);
     title =

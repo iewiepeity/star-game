@@ -7,7 +7,7 @@ import { FLAGSHIP_JOB_BEATS, MANAGER_STANCES } from "../data/deepening-content.j
 import { NPC_AUTONOMOUS_BEATS, ROMANCE_STAGE_FLAVOR, WORLD_REACTION_SIGNALS } from "../data/living-world-content.js";
 import { NPC_LONGFORM_CHAPTERS, NPC_ROMANCE_VOICES } from "../data/longform-content.js";
 import { careerPhase, applyCareerDoctrineTick } from "./career-phases.js";
-import { enqueueVisibleEvent } from "./event-engine.js";
+import { enqueueVisibleEvent, queueEvent } from "./event-engine.js";
 import { tickNpcInvitation, tickEnsembleScene } from "./lived-story-engine.js";
 
 const jobById = Object.fromEntries(JOB_CATALOG.map((job) => [job.id, job]));
@@ -80,7 +80,7 @@ function captureWorkEchoes() {
     queued.push(queueWorldEcho({
       id: `work-echo:${work.id}`,
       dueWeek: Math.max(state.week + 1, (work.completedWeek || state.week) + 2),
-      title: `${titleTag(work.title)}沒有在殺青那天結束`,
+      title: `${titleTag(work.title)}沒有在完工那天結束`,
       text: flag.publicEcho,
       kind: "作品長尾",
       source: work.jobId,
@@ -155,50 +155,72 @@ function tickNpcAutonomousNarratives() {
   return updates;
 }
 
+function longformFollowUp(npcId, chapter, choice) {
+  if (!choice.followUp) return null;
+  const id = `npc-long:${npcId}:${chapter.id}`;
+  return {
+    ...choice.followUp,
+    event: {
+      id: `${id}:${choice.id}:follow-up`, kind: "人物後續", priority: 86, persistent: true,
+      title: `${NPCS[npcId].name}・${choice.followUp.title}`,
+      text: choice.followUp.text, cast: [npcId],
+      beats: [
+        { label: "數週之後", text: choice.followUp.text },
+        { label: "上一次的決定", text: `你當時選擇了「${choice.label}」。這次的消息，接續的正是那一次安排。` },
+      ],
+      outcome: choice.followUp.outcome,
+      effect: { ...choice.followUp.effect, npc: npcId, flag: `${id}:${choice.id}:resolved` },
+    },
+  };
+}
+
 function tickNpcLongform() {
   if (state.week < 14 || state.week % 5 !== 0) return null;
   const known = (state.knownPeople || []).filter((id) => NPC_LONGFORM_CHAPTERS[id]?.length);
-  if (!known.length) return null;
+  const pendingIds = new Set([state.activeEvent, ...state.eventQueue, ...state.queuedEvents]
+    .filter(Boolean).map(item => item.event?.id));
   const candidates = known.flatMap((npcId) => {
-    const progress = state.npcLongformProgress[npcId] || 0;
-    const chapter = NPC_LONGFORM_CHAPTERS[npcId][progress];
-    return chapter ? [{ npcId, chapter, id: `npc-long:${npcId}:${chapter.id}` }] : [];
+    // Resolve in narrative order, including old saves whose counters advanced
+    // while unread chapters expired. Never rewrite the saved event history.
+    const chapters = NPC_LONGFORM_CHAPTERS[npcId];
+    for (const [index, chapter] of chapters.entries()) {
+      const id = `npc-long:${npcId}:${chapter.id}`;
+      const resolved = chapter.choices.some(choice => state.eventFlags.includes(`${id}:${choice.id}:resolved`)
+        || state.eventHistory.some(record => record.id === `${id}:${choice.id}:follow-up`));
+      if (resolved) continue;
+      const record = state.eventHistory.find(item => item.id === id);
+      const choice = chapter.choices.find(item => record?.choice === item.id || state.eventFlags.includes(`${id}:${item.id}`));
+      if (choice) {
+        const follow = longformFollowUp(npcId, chapter, choice);
+        // Reconstruct only an absent old follow-up, keeping the original choice
+        // and its due week. New saves retain the exact queued scene snapshot.
+        if (follow && !pendingIds.has(follow.event.id)) {
+          const dueWeek = (record?.week || state.week) + (follow.delayWeeks || 1);
+          queueEvent(follow.event, { source: `${NPCS[npcId].name}・${chapter.title}`, dueWeek });
+        }
+        return [];
+      }
+      if (pendingIds.has(id)) return [];
+      return [{ npcId, chapter, index, id }];
+    }
+    return [];
   });
   const selected = leastExposed(candidates);
   if (!selected) return null;
-  const { npcId, chapter, id } = selected;
+  const { npcId, chapter, index, id } = selected;
   const npc = NPCS[npcId];
-  enqueueVisibleEvent({
-    id,
-    kind: "人物事件",
-    priority: 78,
-    maxDelayWeeks: 10,
-    title: `${npc.name}・${chapter.title}`,
-    text: chapter.text,
-    beats: chapter.beats,
-    cast: [npcId],
-    choices: chapter.choices.map((choice) => ({
+  const queued = enqueueVisibleEvent({
+    id, kind: "人物事件", priority: 78, persistent: true,
+    title: `${npc.name}・${chapter.title}`, text: chapter.text, beats: chapter.beats, cast: [npcId],
+    choices: chapter.choices.map(choice => ({
       ...choice,
       effect: { ...choice.effect, npc: npcId, flag: `${id}:${choice.id}` },
-      followUp: choice.followUp ? {
-        ...choice.followUp,
-        event: {
-          id: `${id}:${choice.id}:follow-up`,
-          kind: "人物後續",
-          title: `${npc.name}・${choice.followUp.title}`,
-          text: choice.followUp.text,
-          beats: [
-            { label: "數週之後", text: choice.followUp.text },
-            { label: "被記住的選擇", text: `對方記得你當時選擇「${choice.label}」，所以這次回來找的人仍然是你。` },
-          ],
-          outcome: choice.followUp.outcome,
-          effect: { ...choice.followUp.effect, npc: npcId, flag: `${id}:${choice.id}:resolved` },
-        },
-      } : null,
+      followUp: longformFollowUp(npcId, chapter, choice),
     })),
   }, "人物跨年主線");
-  state.npcLongformProgress[npcId] = (state.npcLongformProgress[npcId] || 0) + 1;
-  addFeed({ id: `feed:${id}`, type: "人物邀請", title: `${npc.name}希望你參與接下來的決定`, text: chapter.text, npcId });
+  if (!queued || queued === "expired") return null;
+  state.npcLongformProgress[npcId] = Math.max(state.npcLongformProgress[npcId] || 0, index + 1);
+  addFeed({ id: `feed:${id}`, type: "人物邀請", title: `${npc.name}希望聽聽你的想法`, text: chapter.text, npcId });
   return id;
 }
 

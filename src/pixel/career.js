@@ -23,6 +23,7 @@ import {
   scheduleJobSession,
   completeJobSession,
   jobAuditionDecision,
+  jobProductionDecision,
   signJob,
   jobScheduleOptions,
 } from "../logic/job-engine.js";
@@ -63,6 +64,7 @@ import { lockEnding } from "../logic/career.js";
 import {
   activateNextEvent,
   dismissActiveEvent,
+  pruneJobProductionEvents,
   resolveEvent,
   availableChoices,
 } from "../logic/event-engine.js";
@@ -436,6 +438,7 @@ export function attachReservationLocations(game) {
 }
 export function careerDecision(life, a) {
   return withCore(life, (game) => {
+    if (a.id === "career_job") return jobProductionDecision(a.jobId);
     if (a.id === "career_task") {
       const t = game.scheduledActivities[a.taskId];
       return t?.kind === "job_audition"
@@ -478,9 +481,12 @@ export function resolveCareerDay(life, a, choice) {
     return result;
   }
   if (a.id === "career_job") {
+    const decision = jobProductionDecision(a.jobId);
+    if (decision && !decision.choices.some(item => item.id === choice))
+      return {ok: false, pending: true, decision, text: "先確認製作版本，再開始今天的工作。"};
     applyActivityLoad(ACTIONS.job_session);
-    const r = completeJobSession(a.jobId);
-    state.scheduledJobIds[life.day] = null;
+    const r = completeJobSession(a.jobId, choice);
+    if (!r.pending) state.scheduledJobIds[life.day] = null;
     return r;
   }
   if (a.id === "career_interview") {
@@ -568,6 +574,7 @@ export function advanceCareerWeek(life) {
 }
 export function currentStory(life) {
   return withCore(life, (game) => {
+    pruneJobProductionEvents();
     if (game.eventOutcome)
       return {
         outcome: game.eventOutcome,
@@ -589,6 +596,7 @@ export function currentStory(life) {
 }
 export function chooseStory(life, id) {
   return withCore(life, (game) => {
+    pruneJobProductionEvents();
     const e = game.activeEvent?.event;
     if (!e || game.eventHistory.some((x) => x.id === e.id)) return null;
     const r = resolveEvent(e, id);
