@@ -153,3 +153,35 @@ test("友情足夠後可主動開啟感情談話，重按不產生重複事件",
     ),
   ).toHaveLength(1);
 });
+
+test("公開與地下戀切換會保存，但不重複領取曝光獎勵", async ({ page }) => {
+  await start(page, (s) => {
+    s.life.game.partnerId = "guchengxi";
+    Object.assign(s.life.game.relationships.guchengxi, {
+      romance: "dating", visibility: "underground", affection: 80,
+      romanceSinceWeek: 50,
+    });
+  });
+  async function profile() {
+    await app(page, "people");
+    await page.locator('[data-people-section="profiles"]').click();
+    await page.locator('[data-select-npc="guchengxi"]').first().click();
+    await page.locator('[data-npc-profile-tab="relationship"]').click();
+  }
+  await profile();
+  const before = (await read(page)).state.life;
+  await page.locator('[data-romance-action="public"]').click();
+  const first = (await read(page)).state.life.game;
+  expect(first.fans).toBeGreaterThan(before.game.fans);
+  await page.locator('[data-romance-action="underground"]').click();
+  await page.reload();
+  await expect(page.locator("#loading")).toBeHidden({ timeout: 15000 });
+  await profile();
+  await page.locator('[data-romance-action="public"]').click();
+  const after = (await read(page)).state.life;
+  expect(after.game.relationships.guchengxi.visibility).toBe("public");
+  expect(after.game.fans).toBe(first.fans);
+  expect(after.game.rep.話題度).toBe(first.rep.話題度);
+  expect(after.day).toBe(before.day);
+  expect(after.game.money).toBe(before.game.money);
+});

@@ -1,6 +1,6 @@
 {
-  "version": "0.16.0",
-  "bytes": 114867723,
+  "version": "0.16.1",
+  "bytes": 114871639,
   "entries": [
     {
       "url": "./index.html",
@@ -204,7 +204,7 @@
     },
     {
       "url": "./src/core/utils.js",
-      "bytes": 1218
+      "bytes": 1243
     },
     {
       "url": "./src/data/abilities.js",
@@ -440,7 +440,7 @@
     },
     {
       "url": "./src/logic/career.js",
-      "bytes": 5952
+      "bytes": 5961
     },
     {
       "url": "./src/logic/city-hints.js",
@@ -452,7 +452,7 @@
     },
     {
       "url": "./src/logic/community-interactions.js",
-      "bytes": 4456
+      "bytes": 4518
     },
     {
       "url": "./src/logic/community-likes.js",
@@ -480,7 +480,7 @@
     },
     {
       "url": "./src/logic/creative-team.js",
-      "bytes": 5420
+      "bytes": 5897
     },
     {
       "url": "./src/logic/creative-workflow.js",
@@ -508,7 +508,7 @@
     },
     {
       "url": "./src/logic/event-engine.js",
-      "bytes": 11311
+      "bytes": 11772
     },
     {
       "url": "./src/logic/event-queue.js",
@@ -576,7 +576,7 @@
     },
     {
       "url": "./src/logic/npc-ecosystem.js",
-      "bytes": 12761
+      "bytes": 12966
     },
     {
       "url": "./src/logic/npc-engine.js",
@@ -604,7 +604,7 @@
     },
     {
       "url": "./src/logic/overseas.js",
-      "bytes": 2794
+      "bytes": 3141
     },
     {
       "url": "./src/logic/persona-engine.js",
@@ -636,7 +636,7 @@
     },
     {
       "url": "./src/logic/romance-engine.js",
-      "bytes": 14733
+      "bytes": 15315
     },
     {
       "url": "./src/logic/routine-rules.js",
@@ -648,7 +648,7 @@
     },
     {
       "url": "./src/logic/runner.js",
-      "bytes": 20861
+      "bytes": 21171
     },
     {
       "url": "./src/logic/scandal-engine.js",
@@ -668,7 +668,7 @@
     },
     {
       "url": "./src/logic/scheduled-activities.js",
-      "bytes": 3182
+      "bytes": 3406
     },
     {
       "url": "./src/logic/sequel-engine.js",
@@ -696,7 +696,7 @@
     },
     {
       "url": "./src/logic/weekly-task.js",
-      "bytes": 4459
+      "bytes": 4629
     },
     {
       "url": "./src/logic/work-lifecycle.js",
@@ -736,7 +736,7 @@
     },
     {
       "url": "./src/pixel/career.js",
-      "bytes": 23799
+      "bytes": 23810
     },
     {
       "url": "./src/pixel/cast.js",
@@ -788,11 +788,11 @@
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 28336
+      "bytes": 28432
     },
     {
       "url": "./src/pixel/life.js",
-      "bytes": 22323
+      "bytes": 22479
     },
     {
       "url": "./src/pixel/location-day-copy.js",
@@ -832,7 +832,7 @@
     },
     {
       "url": "./src/pixel/planner-tools.js",
-      "bytes": 5866
+      "bytes": 5966
     },
     {
       "url": "./src/pixel/preferences.js",
@@ -840,7 +840,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 6334
+      "bytes": 7015
     },
     {
       "url": "./src/pixel/save-transfer.js",

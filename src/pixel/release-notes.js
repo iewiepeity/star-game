@@ -2,6 +2,15 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.16.1", date: "2026-09-07", title: "約定、感情與成長紀錄修整",
+    notes: [
+      "人物相處與職涯行程會等你選好回應；失效邀約不再被當成完成，也會釋放人物檔期。",
+      "快捷社群與創作的完成紀錄會算進每週目標，共演工作也不會排到已經過去的日子。",
+      "感情進展會重新確認心意、信任與相處時間；公開與地下戀切換不會重複增加粉絲。分手後也會同步更新關係狀態。",
+      "製作團隊已有預約時，先取消待辦製作日才能更換夥伴。海外行程會確認旅費，能力與聲望的增減也已校正。",
+    ],
+  },
+  {
     version: "0.16.0", date: "2026-09-06", title: "手機整修完畢，愛心終於有心",
     notes: [
       "人物檔案分成速覽、關係邀約、共同回憶與背景資料。朋友不再把整本自傳塞進你第一眼看到的畫面。",
@@ -92,4 +101,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.39.0";
+export const CORE_VERSION = "1.39.1";

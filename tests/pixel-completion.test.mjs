@@ -71,7 +71,7 @@ test("chat appointment settles exactly once and reservation completes", () => {
   const a = l.plan[0],
     taskId = a.taskId;
   beginDay(l, a);
-  const r = settleDay(l, "sufei-chat-steady");
+  const r = settleDay(l, careerDecision(l, a).choices[0].id);
   assert.ok(!r.error);
   assert.equal(l.game.scheduledActivities[taskId].status, "completed");
   const after = structuredClone(l.game);

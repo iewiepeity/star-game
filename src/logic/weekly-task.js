@@ -4,7 +4,7 @@ import { isAgencyContractActive } from "./agency.js";
 export function newcomerWeek() {
   return state.week === 1 && !isAgencyContractActive();
 }
-export function weeklyTaskCounts(planned = false) {
+export function weeklyTaskCounts(planned = false, plannedKinds = []) {
   const counts = { train: 0, work: 0, visit: 0, life: 0 };
   for (let day = 0; day < 7; day++) {
     const result = state.weekResults?.find((x) => x.dayIndex === day),
@@ -17,7 +17,8 @@ export function weeklyTaskCounts(planned = false) {
     );
     if (!planned && !result?.success) continue;
     if (planned && result && !result.success) continue;
-    const type = ACTIONS[id]?.type;
+    const type = ACTIONS[result?.actionId || id]?.type;
+    const taskKind = result?.taskKind || task?.kind || (planned && !result ? plannedKinds[day] : null);
     if (type === "train") counts.train++;
     if (
       id === "free" &&
@@ -36,13 +37,13 @@ export function weeklyTaskCounts(planned = false) {
         "creative_production",
         "creative_revision",
         "sequel_session",
-      ].includes(task?.kind)
+      ].includes(taskKind)
     )
       counts.work++;
     if (
       ["rest", "free", "social"].includes(type) ||
       ["rest", "free"].includes(id) ||
-      ["npc_interact", "social_post"].includes(task?.kind)
+      ["npc_interact", "social_post"].includes(taskKind)
     )
       counts.life++;
   }
@@ -74,11 +75,11 @@ export function weeklyTaskInfo() {
         : "$1,500・簽約＋10%",
   };
 }
-export function weeklyTaskMarkup() {
+export function weeklyTaskMarkup(plannedKinds = []) {
   if (state.forcedRestWeek === state.week)
     return `<section class="weekly-task"><b>醫療休養中・行程不可修改</b><p>先把七天留給恢復，這週不用追趕職涯目標。</p></section>`;
   const done = weeklyTaskCounts(),
-    plan = weeklyTaskCounts(true),
+    plan = weeklyTaskCounts(true, plannedKinds),
     task = weeklyTaskInfo();
   return `<section class="weekly-task" aria-label="每週目標"><details><summary>${task.label} · 職涯 ${done.work}／${plan.work}（完成／安排）</summary><p>${task.desc}</p><p>已完成：訓練 ${done.train}・職涯 ${done.work}・生活 ${done.life}・探訪 ${done.visit}</p><p>依目前安排：訓練 ${plan.train}・職涯 ${plan.work}・生活 ${plan.life}・探訪 ${plan.visit}。${weeklyTaskReady(plan) ? "活動條件可達成，仍需留意週末疲勞。" : "可自由調整，尚未滿足活動條件。"}</p><small>職涯活動包含打工、正式通告、完成試鏡（落選也計）、經紀人規劃與創作製作。生活包含休息、探訪、正式好友邀約與社群更新。</small></details></section>`;
 }

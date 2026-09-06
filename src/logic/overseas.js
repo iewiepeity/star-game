@@ -14,12 +14,14 @@ export function overseasDecision(){return{title:"星望國際機場・海外發�
 
 export function resolveOverseasVisit(choice){
  const eligibility=overseasEligibility();
- if(!eligibility.unlocked)return{text:"你的海外工作資料仍未備齊，這次只能在航廈觀察出境工作的節奏。"};
- const cost=Math.min(5000,state.money);state.money-=cost;state.overseasVisits=(state.overseasVisits||0)+1;
+ if(!eligibility.unlocked)return{ok:false,text:"你的海外工作資料仍未備齊，這次只能在航廈觀察出境工作的節奏。"};
+ if(!["festival","audition"].includes(choice))return{ok:false,text:"請先選擇這次海外行程的方向。"};
+ if(state.money<5000)return{ok:false,text:"海外行程需要 $5,000，請先留足旅費。"};
+ const cost=5000;state.money-=cost;state.overseasVisits=(state.overseasVisits||0)+1;
  if(choice==="audition"){
   const power=((state.stats.演技||0)+(state.stats.歌藝||0)+(state.stats.口才||0))/3,success=power+randomInt(0,60)>=105;
-  if(success){const fame=randomInt(8,14),fans=randomInt(1200,2600);state.fame+=fame;state.fans+=fans;state.rep.業界評價+=5;state.flags.push({week:state.week,label:"海外徵選留下名字",note:"第一次在陌生市場完成正式徵選，開始累積海外履歷。"});return{text:`花費－$${cost.toLocaleString("zh-TW")}。陌生語言與臨時改題沒有讓你失去節奏；評審在履歷上圈起你的名字。<b>知名度＋${fame}、粉絲＋${fans.toLocaleString("zh-TW")}、業界評價＋5</b>`}}
-  state.stats.口才=Math.min(1000,(state.stats.口才||0)+4);state.rep.業界評價+=1;return{text:`花費－$${cost.toLocaleString("zh-TW")}。這次沒有進入下一輪，但你拿到具體回饋，也第一次知道自己在不同市場裡缺少什麼。<b>口才＋4、業界評價＋1</b>`}
+  if(success){const fame=randomInt(8,14),fans=randomInt(1200,2600);state.fame+=fame;state.fans+=fans;state.rep.業界評價=Math.min(1000,(state.rep.業界評價||0)+5);state.flags.push({week:state.week,label:"海外徵選留下名字",note:"第一次在陌生市場完成正式徵選，開始累積海外履歷。"});return{ok:true,text:`花費－$${cost.toLocaleString("zh-TW")}。陌生語言與臨時改題沒有讓你失去節奏；評審在履歷上圈起你的名字。<b>知名度＋${fame}、粉絲＋${fans.toLocaleString("zh-TW")}、業界評價＋5</b>`}}
+  state.stats.口才=Math.min(1000,(state.stats.口才||0)+4);state.rep.業界評價=Math.min(1000,(state.rep.業界評價||0)+1);return{ok:true,text:`花費－$${cost.toLocaleString("zh-TW")}。這次沒有進入下一輪，但你拿到具體回饋，也第一次知道自己在不同市場裡缺少什麼。<b>口才＋4、業界評價＋1</b>`}
  }
- const fame=randomInt(4,8),fans=randomInt(500,1400);state.fame+=fame;state.fans+=fans;state.rep.業界評價+=4;state.stats.學識=Math.min(1000,(state.stats.學識||0)+3);state.flags.push({week:state.week,label:"第一次海外公開行程",note:"你帶著作品走進不同市場，也建立了第一批海外觀眾。"});return{text:`花費－$${cost.toLocaleString("zh-TW")}。映後交流與後台合作，讓作品不再只留在星望市。<b>知名度＋${fame}、粉絲＋${fans.toLocaleString("zh-TW")}、業界評價＋4、學識＋3</b>`}
+ const fame=randomInt(4,8),fans=randomInt(500,1400);state.fame+=fame;state.fans+=fans;state.rep.業界評價=Math.min(1000,(state.rep.業界評價||0)+4);state.stats.學識=Math.min(1000,(state.stats.學識||0)+3);state.flags.push({week:state.week,label:"第一次海外公開行程",note:"你帶著作品走進不同市場，也建立了第一批海外觀眾。"});return{ok:true,text:`花費－$${cost.toLocaleString("zh-TW")}。映後交流與後台合作，讓作品不再只留在星望市。<b>知名度＋${fame}、粉絲＋${fans.toLocaleString("zh-TW")}、業界評價＋4、學識＋3</b>`}
 }

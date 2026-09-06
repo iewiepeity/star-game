@@ -295,9 +295,14 @@ export function createLifeUI(api) {
       return false;
     const r = settleDay(l, l.pending.assignment.choice);
     if (r?.error) {
-      l.pending.phase = "travel";
       l.auto = false;
-      toast(r.error);
+      if (r.pending) {
+        checkpoint();
+        showDecision();
+      } else {
+        l.pending.phase = "travel";
+        toast(r.error);
+      }
       return true;
     }
     state().knownPeople = [

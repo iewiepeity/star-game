@@ -208,24 +208,30 @@ export function trustSignal(id) {
   return "仍保留著業界往來應有的界線";
 }
 
-export function romanceOpportunity(id) {
-  const rel = ensureRomanceFields(id),
-    need = NEXT_THRESHOLDS[rel.romance];
+export function romanceOpportunity(id, game = state) {
+  const rel = game.relationships?.[id];
+  if (!rel || !game.knownPeople?.includes(id)) return null;
+  const need = NEXT_THRESHOLDS[rel.romance || "none"];
   if (!need) return null;
-  const eligible = romanceEligibility(id);
+  const eligible = romanceEligibility(id, game);
   if (!eligible.ok) return null;
-  const since = Math.max(0, state.week - (rel.romanceSinceWeek || state.week));
+  const since = Math.max(0, game.week - (rel.romanceSinceWeek ?? game.week));
   if (
-    rel.affection < need.affection ||
-    rel.closeness < need.closeness ||
-    rel.trust < need.trust ||
+    (rel.affection || 0) < need.affection ||
+    (rel.closeness || 0) < need.closeness ||
+    (rel.trust || 0) < need.trust ||
     since < (need.minWeeks || 0) ||
-    playerAge() < (need.minAge || 0)
+    playerAge(game) < (need.minAge || 0)
   )
     return null;
-  if (need.next === "dating" && state.partnerId && state.partnerId !== id)
+  if (PARTNER_STAGES.has(need.next) && game.partnerId && game.partnerId !== id)
     return null;
-  return { from: rel.romance, next: need.next, need, route: eligible.route };
+  return {
+    from: rel.romance || "none",
+    next: need.next,
+    need,
+    route: eligible.route,
+  };
 }
 
 export function transitionRomance(id, next, source = "關係事件") {
@@ -254,6 +260,14 @@ export function transitionRomance(id, next, source = "關係事件") {
       ok: false,
       reason: `你目前已經和${NPCS[state.partnerId]?.name || "其他人"}交往，必須先處理現有關係。`,
     };
+  if (
+    !["rejected", "broken", "none"].includes(next) &&
+    romanceOpportunity(id)?.next !== next
+  )
+    return {
+      ok: false,
+      reason: "彼此的心意、信任或相處時間還未準備好，先照目前的步調相處。",
+    };
   const before = current;
   rel.romance = next;
   rel.romanceSinceWeek = state.week;
@@ -264,6 +278,12 @@ export function transitionRomance(id, next, source = "關係事件") {
   if (PARTNER_STAGES.has(next)) state.partnerId = id;
   if (["broken", "rejected", "none"].includes(next) && state.partnerId === id)
     state.partnerId = null;
+  if (["broken", "rejected", "none"].includes(next)) {
+    if (next === "broken" && rel.visibility === "public")
+      state.rep.話題度 = Math.min(1000, (state.rep.話題度 || 0) + 18);
+    rel.visibility = "private";
+    rel.mediaAcknowledged = false;
+  }
   if (next === "married") rel.visibility = "public";
   rel.romanceHistory.push({ week: state.week, from: before, to: next, source });
   rel.events = [
@@ -304,7 +324,10 @@ export function setRomanceVisibility(id, visibility, source = "共同決定") {
   rel.visibility = visibility;
   if (visibility === "public") rel.mediaAcknowledged = true;
   rel.romanceHistory.push({ week: state.week, visibility, source });
-  if (visibility === "public") {
+  if (
+    visibility === "public" &&
+    !state.eventFlags.includes(`romance:public:${id}`)
+  ) {
     state.rep.話題度 = Math.min(1000, (state.rep.話題度 || 0) + 25);
     state.fans += Math.max(20, Math.round((state.fans || 0) * 0.02));
     const flag = `romance:public:${id}`;
@@ -327,9 +350,6 @@ export function breakUp(id, source = "主動分手") {
   const result = transitionRomance(id, "broken", source);
   if (result.ok) {
     state.mood = Math.max(0, state.mood - 12);
-    if (rel.visibility === "public")
-      state.rep.話題度 = Math.min(1000, (state.rep.話題度 || 0) + 18);
-    rel.visibility = "private";
   }
   return result;
 }
@@ -384,7 +404,7 @@ export function romanceProgress(id) {
     return "友情與信任不等於戀愛心意。可以關心近況、談談私事，讓彼此有機會更靠近。";
   if (rel.closeness < need.closeness || rel.trust < need.trust)
     return "彼此已有在意，還需要更多相處與信任。";
-  if (state.week - (rel.romanceSinceWeek || state.week) < (need.minWeeks || 0))
+  if (state.week - (rel.romanceSinceWeek ?? state.week) < (need.minWeeks || 0))
     return "這段關係還需要一些共同生活的時間，暫時不必急著進下一步。";
   return "彼此已準備好，可以找個時間聊聊我們的關係。";
 }

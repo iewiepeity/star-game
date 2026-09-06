@@ -142,7 +142,7 @@ export function setWeeklyFocus(life, id) {
 }
 export function weeklyFocusMarkup(life) {
   const focus = FOCUSES[life.game.focus] || FOCUSES.growth;
-  return `${withCore(life, () => weeklyTaskMarkup())}<section class="weekly-focus" aria-label="本週策略"><div class="section-heading"><b>本週策略</b><small>從接下來的行動生效</small></div><div class="focus-options">${Object.entries(
+  return `${withCore(life, () => weeklyTaskMarkup(life.plan.map(a => a.id === "social" ? "social_post" : a.id === "creative" ? "creative_work" : null)))}<section class="weekly-focus" aria-label="本週策略"><div class="section-heading"><b>本週策略</b><small>從接下來的行動生效</small></div><div class="focus-options">${Object.entries(
     FOCUSES,
   )
     .map(

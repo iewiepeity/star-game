@@ -480,7 +480,7 @@ export function resolveCareerDay(life, a, choice) {
       state.stamina = Math.max(0, state.stamina - (task.stamina || 0));
     else applyActivityLoad(task);
     const result = resolvePersonalTask(task, choice);
-    markActivityDone(life.day);
+    markActivityDone(life.day, result.ok);
     return result;
   }
   if (a.id === "career_job") {

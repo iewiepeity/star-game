@@ -10,5 +10,5 @@ export function successRateLabel(chance){if(chance<15)return"幾乎不可能";if
 export function yearOf(){return Math.min(5,Math.ceil(state.week/52))}
 export function weekInYear(){return((state.week-1)%52)+1}
 export function playerPortraitPath(outfitId=state.outfitId,avatarId=state.avatarId){return portraitAsset(AVATARS[avatarId]?avatarId:"raven",OUTFITS[outfitId]?outfitId:"newcomer")}
-export function outfitBonus(statName){return OUTFITS[state.outfitId]?.bonuses?.[statName]||0}
-export function effectiveStat(statName){return Math.min(1000,(state.stats[statName]||0)+outfitBonus(statName))}
+export function outfitBonus(statName,game=state){return OUTFITS[game.outfitId]?.bonuses?.[statName]||0}
+export function effectiveStat(statName,game=state){return Math.min(1000,(game.stats[statName]||0)+outfitBonus(statName,game))}

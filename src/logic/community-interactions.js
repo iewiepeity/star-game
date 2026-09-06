@@ -27,8 +27,9 @@ const SOCIAL_REPLIES = {
 
 export function replyToNpcPost(npcId, type) {
   const npc = NPCS[npcId],
-    reply = contextualReplyOptions(npcId)[type];
-  if (!npc || !reply || !state.knownPeople.includes(npcId))
+    options = contextualReplyOptions(npcId),
+    reply = options[type];
+  if (!npc || !Object.hasOwn(options, type) || !state.knownPeople.includes(npcId))
     return { ok: false, message: "這則互動目前無法送出。" };
   state.socialReplies ??= {};
   const key = `${state.week}:${npcId}`;
@@ -102,7 +103,7 @@ export function forumReaction(threadId, type, draft = "") {
       },
     },
     reaction = map[type];
-  if (!reaction) return { ok: false, message: "這個回應不存在。" };
+  if (!Object.hasOwn(map, type)) return { ok: false, message: "這個回應不存在。" };
   state.forumReactions[key] = type;
   if (type !== "ignore") {
     state.forumComments ??= [];

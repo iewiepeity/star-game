@@ -338,6 +338,7 @@ export function resolveDay(choice) {
       choice,
     );
     text = result.text;
+    success = result.ok !== false;
     presentation = {
       venue: result.venue,
       requiresInteraction: Boolean(result.venue),
@@ -355,6 +356,13 @@ export function resolveDay(choice) {
     }
   } else if (id === "personal_task") {
     const task = activityForDay(day);
+    const decision = decisionFor(id);
+    if (decision && !decision.choices.some(item => item.id === choice)) {
+      state.runnerDecision = decision;
+      state.runnerPhase = "decision";
+      render();
+      return { ok: false, pending: true, decision };
+    }
     applyPersonalLoad(task);
     const result = resolvePersonalTask(task, choice);
     title = result.ok
@@ -369,7 +377,7 @@ export function resolveDay(choice) {
       relationshipCues: result.relationshipCues,
       requiresInteraction: Boolean(result.jobOfferId || result.portrait),
     };
-    markActivityDone(day);
+    markActivityDone(day, result.ok);
   } else if (id === "job_session") {
     const decision = jobProductionDecision(state.scheduledJobIds[day]);
     if (decision && !decision.choices.some(item => item.id === choice)) {

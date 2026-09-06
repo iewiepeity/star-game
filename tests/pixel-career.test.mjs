@@ -159,7 +159,7 @@ test("NPC reservation appears in one scene, respects dates and charges meal only
   for (const t of [0, 50, 100, 239])
     assert.equal(cityItinerary("sufei", t, { life: l }).scene, "restaurant");
   assert.equal(cityItinerary("sufei", 0, { life: l }).busy, false);
-  complete(l, l.plan[0], "listen");
+  complete(l, l.plan[0], careerDecision(l, l.plan[0]).choices[0].id);
   assert.equal(l.game.money, before - 700);
   assert.equal(l.game.npcSchedules.sufei[0].status, "completed");
   assert.ok(l.game.npcInteractionMemories.length);

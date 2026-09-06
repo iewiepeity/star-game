@@ -404,8 +404,7 @@ export function settleDay(life, choice = "focus") {
   if (reason) return { error: reason };
   // A resumed or programmatically invoked workday must not bypass its choice
   // and write a completed ledger entry while production is still pending.
-  if (assignment.id === "career_job" ||
-      (assignment.id === "career_task" && life.game.scheduledActivities[assignment.taskId]?.kind === "manager_interact")) {
+  if (CAREER_CHOICES[assignment.id]) {
     const decision = careerDecision(life, assignment);
     if (decision && !decision.choices.some(item => item.id === choice)) {
       pending.decision = decision;
@@ -547,7 +546,10 @@ export function settleDay(life, choice = "focus") {
       result: [...notes, ...moments.map(m => `${m.title}：${m.outcome}`)].join(" "),
       dayIndex: life.day,
       actionId: def.action,
-      success: true,
+      taskKind: assignment.id === "social" ? "social_post"
+        : assignment.id === "creative" ? "creative_work"
+        : assignment.id === "career_task" ? game.scheduledActivities[assignment.taskId]?.kind : null,
+      success: presentation?.ok !== false,
       text: [...notes, ...moments.map(m => `${m.title}：${m.outcome}`)].join(" "),
     });
   });
@@ -571,6 +573,7 @@ export function settleDay(life, choice = "focus") {
     day: life.day,
     label: def.label,
     assignment: structuredClone(assignment),
+    success: presentation?.ok !== false,
     deltas,
     gains,
     notes: notes.filter(Boolean),
