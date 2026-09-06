@@ -1,4 +1,9 @@
-import { applyPlannerTool, plannerToolsMarkup } from "./planner-tools.js";
+import {
+  applyPlannerTool,
+  plannerToolsMarkup,
+  setWeeklyFocus,
+  weeklyFocusMarkup,
+} from "./planner-tools.js";
 import { createCareerUI } from "./career-ui.js";
 import { careerDecision } from "./career.js";
 import { ACTIONS } from "../data/actions.js";
@@ -113,7 +118,7 @@ export function createLifeUI(api) {
       .join("");
     show(
       "schedule",
-      `${heading("WEEKLY PLAN", "我的一週", "第一週就能自由改排。課程與工作會帶你前往場地，不需先花一天登記。")}${plannerToolsMarkup(l)}<div class="week-strip" role="group" aria-label="七日行程">${l.plan.map((a, i) => `<button data-day="${i}" class="${i === selectedDay ? "selected" : ""}" ${i < l.day ? "disabled" : ""}><small>週${"一二三四五六日"[i]}</small><strong>${escape(label(a))}</strong><span>${i < l.day ? "已完成" : i === l.day ? "今天" : "可調整"}</span></button>`).join("")}</div><div class="section-heading"><b>安排 ${DAY_NAMES[selectedDay]}</b><span>餘下學費／外出費 ${money(estimate)}</span></div><nav class="schedule-filters" aria-label="行程類型">${["全部", "訓練", "工作", "探訪", "生活", "創作", "休息"].map((f) => `<button data-schedule-filter="${f}" aria-pressed="${filter === f}">${f}</button>`).join("")}</nav><div class="action-catalog">${cards}</div><div class="panel-actions"><button data-ui="menu">◀ 選單</button><button data-life="auto" ${l.pending ? "disabled" : ""}>自動執行行程</button><button class="primary" data-life="today">開始今天 →</button></div>`,
+      `${heading("WEEKLY PLAN", "我的一週", "第一週就能自由改排。課程與工作會帶你前往場地，不需先花一天登記。")}${weeklyFocusMarkup(l)}${plannerToolsMarkup(l)}<div class="week-strip" role="group" aria-label="七日行程">${l.plan.map((a, i) => `<button data-day="${i}" class="${i === selectedDay ? "selected" : ""}" ${i < l.day ? "disabled" : ""}><small>週${"一二三四五六日"[i]}</small><strong>${escape(label(a))}</strong><span>${i < l.day ? "已完成" : i === l.day ? "今天" : "可調整"}</span></button>`).join("")}</div><div class="section-heading"><b>安排 ${DAY_NAMES[selectedDay]}</b><span>餘下學費／外出費 ${money(estimate)}</span></div><nav class="schedule-filters" aria-label="行程類型">${["全部", "訓練", "工作", "探訪", "生活", "創作", "休息"].map((f) => `<button data-schedule-filter="${f}" aria-pressed="${filter === f}">${f}</button>`).join("")}</nav><div class="action-catalog">${cards}</div><div class="panel-actions"><button data-ui="menu">◀ 選單</button><button data-life="auto" ${l.pending ? "disabled" : ""}>自動執行行程</button><button class="primary" data-life="today">開始今天 →</button></div>`,
     );
   }
   function offer(assignment) {
@@ -316,6 +321,7 @@ export function createLifeUI(api) {
     if (r.presentation?.portrait)
       return api.narrate({
         title: r.presentation.title || r.label,
+        context: r.presentation.context,
         text: r.notes.join(" "),
         portrait: r.presentation.portrait,
         choices: [
@@ -452,8 +458,9 @@ export function createLifeUI(api) {
     );
   }
   function meeting(id) {
-    recordMeeting(life(), id);
+    const result = recordMeeting(life(), id, state().sceneId);
     checkpoint();
+    return result;
   }
   function takeover() {
     const l = life();
@@ -476,6 +483,13 @@ export function createLifeUI(api) {
     if (careerUI.handle(target)) return true;
     const d = target.dataset,
       l = life();
+    if (d.weeklyFocus) {
+      const r = setWeeklyFocus(l, d.weeklyFocus);
+      checkpoint();
+      schedule();
+      toast(r.message);
+      return true;
+    }
     if (d.plannerTool) {
       const r = applyPlannerTool(life(), d.plannerTool);
       checkpoint();

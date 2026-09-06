@@ -1,3 +1,4 @@
+import { FOCUSES } from "../data/focuses.js";
 import { CHOICES, planDay, access } from "./life.js";
 import { bookCareer } from "./career.js";
 import { SCHEDULE_PRESETS } from "../logic/schedule-assistant.js";
@@ -122,4 +123,29 @@ export function plannerToolsMarkup(life) {
     .join(
       "",
     )}<button data-planner-tool="repeat" ${life.previousPlan ? "" : "disabled"}>沿用上週</button><button data-planner-tool="rest">例行安排改休息</button><button data-planner-tool="due">優先安排待辦通告</button><button data-planner-tool="undo" ${undo.has(life) ? "" : "disabled"}>復原助手變更</button></div></details>`;
+}
+
+export function setWeeklyFocus(life, id) {
+  if (!Object.hasOwn(FOCUSES, id))
+    return { ok: false, message: "找不到這項策略" };
+  if (life.game.endingResult || life.day > 6)
+    return { ok: false, message: "下一週開始後再調整策略" };
+  if (life.pending)
+    return { ok: false, message: "先完成或取消今天的行動，再切換策略" };
+  life.game.focus = id;
+  return {
+    ok: true,
+    message: `已改為${FOCUSES[id].label}，從接下來的行動生效`,
+  };
+}
+export function weeklyFocusMarkup(life) {
+  const focus = FOCUSES[life.game.focus] || FOCUSES.growth;
+  return `<section class="weekly-focus" aria-label="本週策略"><div class="section-heading"><b>本週策略</b><small>從接下來的行動生效</small></div><div class="focus-options">${Object.entries(
+    FOCUSES,
+  )
+    .map(
+      ([id, f]) =>
+        `<button data-weekly-focus="${id}" aria-pressed="${life.game.focus === id}" ${life.pending ? "disabled" : ""}>${f.icon} ${f.label}</button>`,
+    )
+    .join("")}</div><p class="tiny-note">${focus.note}</p></section>`;
 }

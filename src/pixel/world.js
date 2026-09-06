@@ -380,6 +380,15 @@ export function createWorld(controller) {
         return;
       }
       this.go(nearest(this.grid, { x: actor.x + 50, y: actor.y + 12 }), () => {
+        if (
+          this.actors.get(id) !== actor ||
+          actor.exiting ||
+          Math.hypot(this.player.x - actor.x, this.player.y - actor.y) > 100
+        ) {
+          this.releaseNpc();
+          controller.toast("還沒走到對方面前，換一側靠近再聊吧");
+          return;
+        }
         this.player.facing = this.player.x > actor.x ? 1 : 2;
         actor.facing = this.player.x > actor.x ? 2 : 1;
         actorFrame(actor, false, controller.state().elapsed);

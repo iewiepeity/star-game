@@ -38,7 +38,7 @@ test("複合事件效果不再因重複 value 欄位互相覆蓋",()=>{
  resolveEvent(calendar,"network");
  assert.equal(state.stats.社交,102);assert.equal(state.rep.業界評價,102);
  const training=LIFE_EVENTS.train.find(event=>event.id==="train_peer");
- state.stats.學習=100;state.hidden.自律=500;
+ state.stats.學識=100;state.hidden.自律=500;
  resolveEvent(training,"ask");
- assert.equal(state.stats.學習,103);assert.equal(state.hidden.自律,501);
+ assert.equal(state.stats.學識,103);assert.equal(state.hidden.自律,501);
 });

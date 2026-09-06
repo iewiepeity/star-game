@@ -1,3 +1,4 @@
+import { eventContext } from "../logic/event-context.js";
 import { withCore, CHOICES, DAY_NAMES, definition } from "./life.js";
 import {
   bookCareer,
@@ -395,10 +396,13 @@ export function createCareerUI(api) {
   function narrative(story) {
     const e = story.event || story.outcome,
       art = eventStoryArt(e);
-    const npcId =
-      e.npcId || e.npc || e.effect?.npc || e.effects?.find((x) => x.npc)?.npc;
+    const context = story.context || eventContext(e),
+      npcId = context.npcIds[0],
+      names = context.npcIds.map((id) => NPCS[id].name).join("、");
     api.narrate({
       title: plain(e.title),
+      context: `${story.outcome ? (names ? "關係回顧" : "故事回顧") : context.channel === "message" ? "人物來信" : names ? "人物故事" : "旅程記事"}${context.week ? ` · 第 ${context.week} 週收錄` : ""}`,
+      contextNote: names ? `手帳裡的${names}` : "",
       text: plain(story.outcome ? e.outcome || "這次選擇已寫進旅程。" : e.text),
       portrait: NPCS[npcId]?.portrait,
       art: !NPCS[npcId] && art?.src,

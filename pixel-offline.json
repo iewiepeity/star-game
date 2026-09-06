@@ -1,6 +1,6 @@
 {
-  "version": "0.7.0",
-  "bytes": 113761919,
+  "version": "0.7.1",
+  "bytes": 113770067,
   "entries": [
     {
       "url": "./pixel.html",
@@ -12,7 +12,7 @@
     },
     {
       "url": "./pixel-ui.css",
-      "bytes": 25387
+      "bytes": 26237
     },
     {
       "url": "./pixel-apps.css",
@@ -451,12 +451,16 @@
       "bytes": 689
     },
     {
+      "url": "./src/logic/event-context.js",
+      "bytes": 1481
+    },
+    {
       "url": "./src/logic/event-engine.js",
-      "bytes": 9726
+      "bytes": 9849
     },
     {
       "url": "./src/logic/event-queue.js",
-      "bytes": 2339
+      "bytes": 2378
     },
     {
       "url": "./src/logic/exploration.js",
@@ -520,7 +524,7 @@
     },
     {
       "url": "./src/logic/npc-engine.js",
-      "bytes": 8151
+      "bytes": 8417
     },
     {
       "url": "./src/logic/npc-interaction-engine.js",
@@ -536,7 +540,7 @@
     },
     {
       "url": "./src/logic/npc-storylines.js",
-      "bytes": 7730
+      "bytes": 7826
     },
     {
       "url": "./src/logic/onboarding.js",
@@ -660,11 +664,11 @@
     },
     {
       "url": "./src/pixel/career-ui.js",
-      "bytes": 23830
+      "bytes": 24231
     },
     {
       "url": "./src/pixel/career.js",
-      "bytes": 22576
+      "bytes": 22955
     },
     {
       "url": "./src/pixel/cast.js",
@@ -704,15 +708,15 @@
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 26522
+      "bytes": 26843
     },
     {
       "url": "./src/pixel/life.js",
-      "bytes": 20421
+      "bytes": 21180
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 39408
+      "bytes": 39685
     },
     {
       "url": "./src/pixel/menu-icons.js",
@@ -736,7 +740,7 @@
     },
     {
       "url": "./src/pixel/planner-tools.js",
-      "bytes": 4596
+      "bytes": 5725
     },
     {
       "url": "./src/pixel/preferences.js",
@@ -744,11 +748,11 @@
     },
     {
       "url": "./src/pixel/save-transfer.js",
-      "bytes": 4233
+      "bytes": 4754
     },
     {
       "url": "./src/pixel/settings-ui.js",
-      "bytes": 4420
+      "bytes": 4689
     },
     {
       "url": "./src/pixel/sprites.js",
@@ -756,7 +760,7 @@
     },
     {
       "url": "./src/pixel/storage-ui.js",
-      "bytes": 7466
+      "bytes": 8391
     },
     {
       "url": "./src/pixel/tutorial-ui.js",
@@ -764,7 +768,7 @@
     },
     {
       "url": "./src/pixel/world.js",
-      "bytes": 28289
+      "bytes": 28601
     },
     {
       "url": "./src/render.js",

@@ -36,7 +36,7 @@ export function enqueueVisibleEvent(event,source="系統",meta={}){
   state.queuedEvents.push({dueWeek:state.week+1,event,source,queuedWeek,expiresWeek,priority:meta.priority??eventPriority(event,source)});
   return"deferred";
  }
- state.eventQueue.push({event,source,priority:meta.priority??eventPriority(event,source)});
+ state.eventQueue.push({event,source,queuedWeek:meta.queuedWeek??state.week,priority:meta.priority??eventPriority(event,source)});
  state.eventQueue.sort((a,b)=>(b.priority||0)-(a.priority||0));
  return true;
 }

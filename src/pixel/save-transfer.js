@@ -1,3 +1,4 @@
+import { NPCS } from "../data/npcs.js";
 import { initialPixelState, validatePixelState } from "./model.js";
 import { assertGameState } from "../core/save-schema.js";
 import { parseImportedSave } from "../core/persistence.js";
@@ -110,7 +111,7 @@ export function parsePixelTransfer(text) {
     source: "原版",
   };
 }
-export function newRun(previous) {
+export function newRun(previous, { inherit = false } = {}) {
   const next = initialPixelState();
   for (const k of ["unlockedAchievements", "endingHistory"])
     next.life.game[k] = structuredClone(previous.life.game[k] || []);
@@ -126,7 +127,17 @@ export function newRun(previous) {
       run: previous.life.game.runCount || 1,
       week: previous.life.game.week,
       endingId: previous.life.game.endingResult.endingId,
+      title: previous.life.game.endingResult.title,
+      rank: previous.life.game.endingResult.rank,
+      score: previous.life.game.endingResult.score,
+      route: previous.life.game.endingResult.route,
     });
+  if (inherit)
+    next.life.game.familiarNpcs = [
+      ...new Set(previous.life.game.knownPeople),
+    ].filter((id) => NPCS[id]);
+  next.life.game.inheritChoice = inherit;
+  next.life.game.dockAppIds = [...(previous.life.game.dockAppIds || [])];
   next.life.game.runCount = (previous.life.game.runCount || 1) + 1;
   return next;
 }

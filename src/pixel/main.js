@@ -462,7 +462,15 @@ function renderDialogue() {
   world?.keys.clear();
   $("dialogue").querySelector(".choices button")?.focus();
 }
-function narrate({ title, text, portrait: face, art, choices }) {
+function narrate({
+  title,
+  text,
+  portrait: face,
+  art,
+  choices,
+  context,
+  contextNote,
+}) {
   leaveOverlay();
   panelType = "career-dialogue";
   $("toast").classList.remove("visible");
@@ -487,7 +495,7 @@ function narrate({ title, text, portrait: face, art, choices }) {
     state.life.reader = { key, index };
     checkpoint();
     $("dialogue").innerHTML =
-      `<div class="conversation career-conversation ${face ? "" : "no-portrait"}">${face ? `<figure class="dialogue-portrait npc-crop"><img src="${face}" alt="肩上肖像"></figure>` : ""}<div class="speech">${art ? `<img class="story-art" src="${art}" alt="故事插畫">` : ""}<div class="dialogue-heading"><h2>${escape(title)}</h2><small>${index + 1} / ${pages.length}</small></div><p>${escape(pages[index])}</p><div class="choices">${index < pages.length - 1 ? '<button class="primary" id="career-page-next">繼續 →</button>' : choices.map((c) => `<button ${c.attrs}>${escape(c.label)}${c.note ? `<small>${escape(c.note)}</small>` : ""}</button>`).join("")}</div></div><div class="dialogue-tools"><button data-ui="saves">存檔</button></div></div>`;
+      `<div class="conversation career-conversation ${face ? "" : "no-portrait"}">${face ? `<figure class="dialogue-portrait npc-crop"><img src="${face}" alt="肩上肖像"></figure>` : ""}<div class="speech">${context ? `<p class="story-context">${escape(context)}${contextNote ? `<small>${escape(contextNote)}</small>` : ""}</p>` : ""}${art ? `<img class="story-art" src="${art}" alt="故事插畫">` : ""}<div class="dialogue-heading"><h2>${escape(title)}</h2><small>${index + 1} / ${pages.length}</small></div><p>${escape(pages[index])}</p><div class="choices">${index < pages.length - 1 ? '<button class="primary" id="career-page-next">繼續 →</button>' : choices.map((c) => `<button ${c.attrs}>${escape(c.label)}${c.note ? `<small>${escape(c.note)}</small>` : ""}</button>`).join("")}</div></div><div class="dialogue-tools"><button data-ui="saves">存檔</button></div></div>`;
     $("career-page-next")?.addEventListener("click", () => {
       index++;
       page();
@@ -503,9 +511,9 @@ function nextDialogue() {
   if (!d) return;
   if (d.reply) {
     if (!state.knownPeople.includes(d.npcId)) state.knownPeople.push(d.npcId);
-    lifeUI.meeting(d.npcId);
+    const met = lifeUI.meeting(d.npcId);
     endDialogue();
-    toast("這座城市，多了一個認識的人");
+    toast(met?.met ? "這座城市，多了一個認識的人" : "聊完近況，下次再見");
     return;
   }
   d.index++;
@@ -713,7 +721,8 @@ document.addEventListener(
   { passive: true },
 );
 document.addEventListener("click", (event) => {
-  if (audioUnlocked && event.target.closest("button")) playSfx("tap");
+  if (audioUnlocked && event.target.closest("button"))
+    playSfx(event.target.closest("button").dataset.previewSfx || "tap");
 });
 document.addEventListener("input", (event) => {
   if (event.target.dataset.volume) {

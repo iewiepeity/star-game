@@ -1,3 +1,4 @@
+import { eventContext } from "../logic/event-context.js";
 import { state } from "../core/state.js";
 import { withCore } from "./core-bridge.js";
 import { JOB_BY_ID } from "../data/jobs.js";
@@ -509,12 +510,18 @@ export function resolveCareerDay(life, a, choice) {
       ? ["鏡頭感", "親和力", "口才"]
       : ["歌藝", "肢體表現", "社交"];
   const power = names.reduce((s, n) => s + effectiveStat(n), 0) / 3;
-  const pct = successChanceWithCondition(
-    Math.max(
-      10,
-      Math.min(82, 32 + (power - 75) * 0.24 + (choice === "steady" ? 10 : -4)),
-    ),
-    audition ? "audition" : "work",
+  const pct = Math.min(
+    95,
+    successChanceWithCondition(
+      Math.max(
+        10,
+        Math.min(
+          82,
+          32 + (power - 75) * 0.24 + (choice === "steady" ? 10 : -4),
+        ),
+      ),
+      audition ? "audition" : "work",
+    ) + (state.focus === "fame" ? 5 : 0),
   );
   const action = ACTIONS[audition ? "audition" : "street"];
   applyActivityLoad(action);
@@ -523,7 +530,8 @@ export function resolveCareerDay(life, a, choice) {
     state.money +=
       randomInt(...action.income) +
       (success ? randomInt(...(action.successIncome || [0, 0])) : 0);
-  if (success) state.fame += audition ? 4 : 2;
+  if (success)
+    state.fame += (audition ? 4 : 2) + (state.focus === "fame" ? 2 : 0);
   const gain = audition ? (success ? 3 : 1) : success ? 2 : 1;
   if (!state.currentAgencyId)
     state.contract = Math.min(100, state.contract + gain);
@@ -558,10 +566,18 @@ export function advanceCareerWeek(life) {
 }
 export function currentStory(life) {
   return withCore(life, (game) => {
-    if (game.eventOutcome) return { outcome: game.eventOutcome };
+    if (game.eventOutcome)
+      return {
+        outcome: game.eventOutcome,
+        context: eventContext(game.eventOutcome),
+      };
     const item = game.activeEvent || activateNextEvent();
     return item
-      ? { event: item.event, choices: availableChoices(item.event) }
+      ? {
+          event: item.event,
+          choices: availableChoices(item.event),
+          context: eventContext(item.event, { ...item, week: game.week }),
+        }
       : null;
   });
 }

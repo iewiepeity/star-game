@@ -1,3 +1,4 @@
+import { ROOMS } from "./data.js";
 import { captureWeekStart } from "../logic/career-memory.js";
 import {
   CAREER_CHOICES,
@@ -408,6 +409,16 @@ export function settleDay(life, choice = "focus") {
     game.freeLocations[life.day] = def.venue || null;
     if (CAREER_CHOICES[assignment.id]) {
       presentation = resolveCareerDay(life, assignment, choice);
+      const meetings = presentation?.encounters?.filter((m) => m.met) || [];
+      if (meetings.length) {
+        presentation = {
+          ...presentation,
+          title: `工作相遇 · ${meetings.map((m) => m.npcName).join("、")}`,
+          portrait: meetings[0].portrait,
+          context: `${ROOMS[def.room].name} · 今天的共同演出`,
+        };
+        notes.push(...meetings.map((m) => plain(m.text)));
+      }
       notes.push(plain(presentation?.text));
     } else if (ACTIONS[def.action].type === "train") {
       const r = routineTraining(game, def.action, randomInt);
@@ -612,8 +623,19 @@ export function buyOutfit(life, id) {
   life.game.ownedOutfits[avatar].push(id);
   return "";
 }
-export function recordMeeting(life, id) {
-  return withCore(life, () => meetNpc(id, "在像素城市裡正式交換聯絡方式"));
+export function recordMeeting(life, id, roomId) {
+  const room = ROOMS[roomId];
+  return withCore(life, () =>
+    meetNpc(
+      id,
+      room
+        ? `第 ${life.game.week} 週${DAY_NAMES[life.day]}，在${room.name}交談後正式交換聯絡方式。`
+        : "在像素城市裡正式交換聯絡方式",
+      room
+        ? { context: "city", roomName: room.name, roomId, day: life.day }
+        : {},
+    ),
+  );
 }
 
 // Keep one durable weekly journal, plus the current ledger for crash-safe replay.

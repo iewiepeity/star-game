@@ -1,4 +1,4 @@
-# Pixel life · v0.7.0
+# Pixel life · v0.7.1
 
 Entry: `/pixel.html`. Original `/index.html` progress and the pixel save namespace remain separate. The original 18 app entry points and the previously listed missing interactions are now accessible inside the pixel world. See the parity inventory for supported operations and limits.
 
@@ -26,13 +26,13 @@ New games choose gender before locking it. Existing v0.5 saves keep their curren
 ## Feature integration
 
 - `feature-ui.js` + `pixel-apps.css`: original pure views within a themed pixel panel, with explicit handlers. Never import the original renderer or bind modules. Formal actions use the pixel booking flow.
-- `planner-tools.js`: five presets, previous-week reuse, due-job scheduling and guarded undo; later reservations or resource changes invalidate old snapshots.
-- `save-transfer.js`, `storage-ui.js`: validated original/pixel import, preview and transactional replacement, export, rollback, deletion recovery, new runs and retirement.
+- `planner-tools.js`: three selectable weekly focuses, five presets, previous-week reuse, due-job scheduling and guarded undo; later reservations or resource changes invalidate old snapshots.
+- `save-transfer.js`, `storage-ui.js`: validated original/pixel import, preview and transactional replacement, export, rollback, deletion recovery, new runs with optional familiar-face inheritance and retirement.
 - `onboarding.js`, `tutorial-ui.js`: original prologue, identity fields, ability rolls and contextual pixel tutorials.
 - `preferences.js`: palette, font size, volume and tutorial preferences independent of game slots. Audio uses an injected preference reader without changing original defaults.
 - `offline.js`: shared service-worker registration, explicit full-pack download, install and update controls. `scripts/build-pixel-offline.mjs` includes atlas JSON as well as image/code/audio assets.
 
-See `PIXEL-COMPLETION.md` and `PIXEL-FEATURE-PARITY.md`. Historical phase documents describe those earlier versions. Cross-device transfer is file-based, not cloud synchronization.
+See `PIXEL-INTEGRITY.md` for the latest audit and `PIXEL-FEATURE-PARITY.md` for the entry inventory. `event-context.js` preserves story participants and collection time across choices and reload, including legacy results. Historical phase documents describe those earlier versions. Cross-device transfer is file-based, not cloud synchronization.
 
 ## Verification and packaging
 

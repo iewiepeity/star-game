@@ -273,3 +273,150 @@ test("handbook search, categories and six custom shortcuts survive reload", asyn
   await expect(page.locator("#loading")).toBeHidden();
   expect((await read(page)).state.life.game.endingResult).toBeTruthy();
 });
+
+test("integrity: old relationship result shows the remembered NPC without spawning them in the theatre", async ({
+  page,
+}, info) => {
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await start(page, (s) => {
+    s.sceneId = "theatre";
+    s.position = { x: 770, y: 435 };
+    s.life.game.week = 4;
+    s.life.game.eventOutcome = {
+      id: "npc-story-sufei:stage:acquaintance",
+      week: 4,
+      kind: "人物事件",
+      title: "許映真｜關係開始有了名字",
+      outcome: "你和許映真的距離又近了一些。",
+      effects: ["心情＋1"],
+      choice: "steady",
+    };
+  });
+  await expect(page.locator(".story-context")).toContainText("關係回顧");
+  await expect(page.locator(".story-context")).toContainText("手帳裡的許映真");
+  await expect(page.locator("#dialogue .dialogue-portrait img")).toBeVisible();
+  await expect(page.locator("#dialogue .story-art")).toHaveCount(0);
+  const before = await read(page);
+  expect(before.npcs.some((n) => n.id === "sufei")).toBe(false);
+  const known = before.state.life.game.knownPeople;
+  await page.reload();
+  await expect(page.locator(".story-context")).toContainText("關係回顧");
+  await expect(page.locator("#dialogue .dialogue-portrait img")).toBeVisible();
+  expect(
+    await page
+      .locator("#dialogue .speech")
+      .evaluate((e) => e.scrollWidth <= e.clientWidth + 2),
+  ).toBe(true);
+  await page.screenshot({ path: info.outputPath("relationship-recap.png") });
+  await page.locator("[data-story-done]").click();
+  expect((await read(page)).state.life.game.knownPeople).toEqual(known);
+  expect((await read(page)).state.life.game.eventOutcome).toBeNull();
+  expect(errors).toEqual([]);
+});
+
+test("integrity: neutral story choice preserves the portrait and context after reload", async ({
+  page,
+}) => {
+  await start(page, (s) => {
+    s.life.game.activeEvent = {
+      source: "人物關係",
+      queuedWeek: 2,
+      event: {
+        id: "npc-story-sufei:stage:acquaintance",
+        title: "許映真｜關係開始有了名字",
+        text: "最近幾次碰面後，彼此漸漸熟悉。",
+        kind: "人物事件",
+        choices: [
+          {
+            id: "steady",
+            label: "照現在的步調就好",
+            effect: { mood: 1 },
+            outcome: "你沒有刻意加速這段關係。",
+          },
+        ],
+      },
+    };
+  });
+  await expect(page.locator(".story-context")).toContainText("人物故事");
+  await expect(page.locator("#dialogue .dialogue-portrait img")).toBeVisible();
+  await page.locator('[data-story-choice="steady"]').click();
+  await expect(page.locator(".story-context")).toContainText("第 2 週收錄");
+  await expect(page.locator("#dialogue .dialogue-portrait img")).toBeVisible();
+  const history = (await read(page)).state.life.game.eventHistory;
+  await page.reload();
+  await expect(page.locator(".story-context")).toContainText("關係回顧");
+  await expect(page.locator("#dialogue .dialogue-portrait img")).toBeVisible();
+  expect((await read(page)).state.life.game.eventHistory).toEqual(history);
+});
+
+test("integrity: weekly strategy controls save all three choices and fit narrow screens", async ({
+  page,
+}, info) => {
+  await start(page);
+  await page.locator('[data-ui="menu"]').first().click();
+  await page.locator('#panel [data-ui="schedule"]').click();
+  for (const focus of ["people", "fame", "growth"]) {
+    await page.locator(`[data-weekly-focus="${focus}"]`).click();
+    await expect(
+      page.locator(`[data-weekly-focus="${focus}"]`),
+    ).toHaveAttribute("aria-pressed", "true");
+    expect((await read(page)).state.life.game.focus).toBe(focus);
+  }
+  await page.locator('[data-weekly-focus="people"]').click();
+  expect(
+    await page
+      .locator("#panel")
+      .evaluate((e) => e.scrollWidth <= e.clientWidth + 2),
+  ).toBe(true);
+  await page.screenshot({ path: info.outputPath("weekly-focus.png") });
+  await page.reload();
+  await expect(page.locator("#loading")).toBeHidden();
+  expect((await read(page)).state.life.game.focus).toBe("people");
+});
+
+test("integrity: ending offers optional familiar-face inheritance without phantom contacts", async ({
+  page,
+}, info) => {
+  await start(page);
+  await page.locator('[data-ui="menu"]').first().click();
+  await page.locator('#panel [data-ui="settings"]').click();
+  await page.locator(".new-journey summary").click();
+  await page.locator('[data-storage="retire"]').click();
+  await page.locator('[data-storage="retire-confirm"]').click();
+  await page.locator('[data-storage="new"]').click();
+  await expect(page.locator('[data-run-inherit="no"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.locator('[data-run-inherit="yes"]').click();
+  await expect(page.locator('[data-run-inherit="yes"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.screenshot({ path: info.outputPath("inheritance.png") });
+  await page.locator('[data-storage="confirm"]').click();
+  await expect(page.locator('[data-ui="begin"]')).toBeVisible();
+  const g = (await read(page)).state.life.game;
+  expect(g.familiarNpcs).toEqual(["sufei"]);
+  expect(g.knownPeople).toEqual([]);
+  expect(g.money).toBe(18000);
+  expect(g.runCount).toBe(2);
+});
+
+test("integrity: greeting a saved known NPC does not announce a new acquaintance", async ({
+  page,
+}) => {
+  await start(page, (s) => {
+    s.sceneId = "rehearsal";
+    s.dialogue = {
+      npcId: "sufei",
+      index: 2,
+      reply: "又見面了，今天過得怎麼樣？",
+    };
+  });
+  await expect(page.locator("#dialogue-name")).toHaveText("許映真");
+  await page.locator('#dialogue [data-ui="next-dialogue"]').click();
+  await expect(page.locator("#toast")).toHaveText("聊完近況，下次再見");
+  expect((await read(page)).state.life.game.knownPeople).toEqual(["sufei"]);
+});

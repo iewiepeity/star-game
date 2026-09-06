@@ -1164,3 +1164,34 @@ progress::-moz-progress-bar {
  .scene-title h1 { margin:5px 0 2px; font-size:22px; }
  .scene-title p { font-size:11px; }
 }
+
+/* Journal context distinguishes remembered stories from a person in the room. */
+#dialogue .speech .story-context {
+  margin: 0 0 10px;
+  padding-right: 54px;
+  color: var(--ui-accent);
+  font-size: .78rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+#dialogue .speech .story-context small {
+  display: block;
+  margin-top: 3px;
+  font-size: .72rem;
+  font-weight: 400;
+}
+.weekly-focus, .inheritance-choice { margin: 12px 0 18px; }
+.focus-options { display: flex; gap: 8px; flex-wrap: wrap; }
+.focus-options button { flex: 1 1 110px; min-height: 44px; }
+.focus-options button[aria-pressed="true"] {
+  background: var(--ui-accent);
+  color: var(--ui-on-accent);
+  border-color: var(--ui-accent);
+}
+
+@media (max-width: 700px) {
+  #dialogue .conversation:not(.no-portrait) .speech > .story-context {
+    margin-left: 100px;
+    padding-right: 0;
+  }
+}

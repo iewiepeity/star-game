@@ -29,16 +29,35 @@ export function createStorageUI(api) {
   function extras() {
     return `<section class="transfer-tools"><h3>把旅程帶著走</h3><p class="tiny-note">匯出 JSON，在另一個瀏覽器或裝置匯入。也能匯入原版存檔；會先預覽內容。</p><div class="buttons"><button data-storage="export">匯出目前旅程</button><button data-storage="import">匯入存檔</button><button data-storage="legacy">搬入這台裝置的原版存檔</button><button data-storage="backup" ${storage.readBackup().state ? "" : "disabled"}>還原搬移前備份</button></div><input type="file" accept=".json,application/json" id="pixel-import-file" hidden></section><details class="save-maintenance"><summary>管理手動存檔 · 刪除與還原</summary>${[1, 2, 3, 4, 5].map((slot) => `<div class="save-row"><b>位置 ${slot}</b><button data-delete-slot="${slot}" ${storage.read(slot).state ? "" : "disabled"}>刪除</button><button data-undelete-slot="${slot}" ${storage.deleted(slot).state && !storage.read(slot).state ? "" : "disabled"}>復原刪除</button><button data-backup-slot="${slot}" ${storage.readBackup(slot).state ? "" : "disabled"}>載入上次覆寫前</button></div>`).join("")}</details>`;
   }
+  function inheritance() {
+    if (!api.state().life.game.endingResult) return "";
+    const enabled = pending.state.life.game.inheritChoice;
+    return `<section class="inheritance-choice"><h3>下一輪的眼熟印象</h3><p class="tiny-note">保留曾經相遇的眼熟印象。仍須重新見面、交換聯絡方式；不繼承關係數值、金錢或作品。</p><div class="focus-options"><button data-run-inherit="yes" aria-pressed="${enabled}">保留眼熟印象</button><button data-run-inherit="no" aria-pressed="${!enabled}">全新的相遇</button></div></section>`;
+  }
   function preview(item, kind = "import") {
     pending = { ...item, kind };
     const s = item.state;
     api.show(
       "transfer-preview",
-      `${api.heading("A JOURNEY TO KEEP", kind === "new" ? "開始新的人生？" : "確認接續這段旅程", kind === "new" ? "新角色從第一週開始；永久成就與結局收藏會保留。" : "目前進度會另存成搬移前備份，手動存檔也會保留。")}<div class="transfer-summary"><b>${esc(s.playerName)}</b><span>${esc(item.source || "像素版")} · 第 ${s.life.game.week} 週 · ${s.life.day === 7 ? "週末結算" : `週${"一二三四五六日"[s.life.day]}`}</span><span>$${s.life.game.money.toLocaleString()} · ${s.life.game.completedWorks.length} 部作品 · ${s.knownPeople.length} 位朋友</span></div><div class="buttons"><button data-ui="saves">取消</button><button class="primary" data-storage="confirm">${kind === "new" ? "建立新角色" : "確認載入"}</button></div>`,
+      `${api.heading("A JOURNEY TO KEEP", kind === "new" ? "開始新的人生？" : "確認接續這段旅程", kind === "new" ? "新角色從第一週開始；永久成就與結局收藏會保留。" : "目前進度會另存成搬移前備份，手動存檔也會保留。")}<div class="transfer-summary"><b>${esc(s.playerName)}</b><span>${esc(item.source || "像素版")} · 第 ${s.life.game.week} 週 · ${s.life.day === 7 ? "週末結算" : `週${"一二三四五六日"[s.life.day]}`}</span><span>$${s.life.game.money.toLocaleString()} · ${s.life.game.completedWorks.length} 部作品 · ${s.knownPeople.length} 位朋友</span></div>${kind === "new" ? inheritance() : ""}<div class="buttons"><button data-ui="saves">取消</button><button class="primary" data-storage="confirm">${kind === "new" ? "建立新角色" : "確認載入"}</button></div>`,
     );
   }
   function handle(button) {
     const d = button.dataset;
+    if (
+      d.runInherit &&
+      pending?.kind === "new" &&
+      api.state().life.game.endingResult
+    ) {
+      preview(
+        {
+          state: newRun(api.state(), { inherit: d.runInherit === "yes" }),
+          source: "新周目",
+        },
+        "new",
+      );
+      return true;
+    }
     if (d.deleteSlot) {
       api.show(
         "delete-slot",
