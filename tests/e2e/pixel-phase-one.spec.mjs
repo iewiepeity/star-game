@@ -101,9 +101,7 @@ test("walk, dress, enter every room, meet an NPC and reload the same save", asyn
   await object(page, "wardrobe");
   await page.locator('[data-fitting="audition"]').click();
   await page.locator('[data-outfit="audition"]').click();
-  await expect(page.locator("#toast")).toContainText(
-    "立繪與像素人物已一起換裝",
-  );
+  await expect(page.locator("#toast")).toContainText("已換上這套衣服");
   await close(page);
   await menu(page, "saves");
   await page.locator('[data-load="1"]').click();

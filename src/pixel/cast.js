@@ -61,12 +61,12 @@ export function cityItinerary(id, elapsed, state) {
 }
 const LINES = {
   shenyao: [
-    "你也在看這份公開徵選？先讀懂角色，再決定要不要試。",
+    "抱歉，剛才在想一個鏡頭，差點沒注意到你。你平常看哪一類電影？",
     "問問準備的方向",
     "別只練最漂亮的那一句。角色沉默的時候，也要知道他在想什麼。",
   ],
   tangtang: [
-    "我在等下一輪練習。你剛開始嗎？水放在旁邊，別憋著氣硬唱。",
+    "你好！我剛有一點空檔。先讓我喝口水，說話也是要換氣的嘛。",
     "請教練習節奏",
     "先找一個舒服的音域。能穩穩唱完，比今天硬衝高音更有用。",
   ],
@@ -91,7 +91,7 @@ const LINES = {
     "從準時報到、看懂流程開始。場務與助理也能讓你認識整個現場。",
   ],
   hanzhiyuan: [
-    "來看公司名錄？可以先比較方向，履歷準備好再談會更有效。",
+    "你好，請稍等，我把這個時間記下來就好。你想聊聊工作嗎？",
     "請教履歷內容",
     "把能證明你能力的東西放前面。作品不多沒關係，內容要是真的。",
   ],
@@ -105,6 +105,19 @@ const LINES = {
     "聊聊分鏡筆記",
     "我喜歡保留原稿。未完成，不代表只能被刪掉。",
   ],
+};
+// These are spoken introductions, not excerpts from the character bible.
+const INTRODUCTIONS = {
+  shenyao: "裴硯之，拍電影的。剛才那個問題沒有標準答案，我只是想聽你的看法。",
+  tangtang: "我叫楚星梨。台上唱歌，台下常常在找水壺——今天還好，它沒離家出走。",
+  guchengxi: "周予珩，是個演員。工作以外不用那麼拘謹，叫名字就好。",
+  linxiafan: "黎曼青，做造型的。你先說自己喜歡什麼，我再想怎麼幫你。",
+  lujingran: "江敘白，寫歌，也唱。剛才不是沒聽見，我想把那段旋律記完。",
+  xiayutong: "我叫宋知夏，做綜藝的。手機先收起來，不然聊兩句我又會開始記企劃。",
+  hanzhiyuan: "秦紹謙，做經紀工作。有問題可以先問，今天不用急著做決定。",
+  chengyian: "溫時嶼，攝影師。沒在拍照的時候，也喜歡到處看看。你的名字怎麼念？",
+  silver_pc:
+    "沈霧棠，做影像設計，也接動態捕捉的工作。剛才有一瞬間覺得你很眼熟……也可能是我認錯了。",
 };
 export function expandCast(people, conversations) {
   for (const [id, npc] of Object.entries(NPCS))
@@ -120,11 +133,11 @@ export function expandCast(people, conversations) {
       { speaker: id, text: first },
       {
         speaker: "player",
-        text: "我正在慢慢熟悉這座城市，也在尋找適合自己的開始。",
+        text: "很高興認識你。你方便聊一會兒嗎？",
       },
       {
         speaker: id,
-        text: `我是${NPCS[id].name}。${NPCS[id].profile?.values || "慢慢來，有機會再聊。"}`,
+        text: INTRODUCTIONS[id],
         choices: [
           { label, reply },
           { label: "讓對方先忙", reply: "謝謝你留意我的時間。我們下次再聊。" },

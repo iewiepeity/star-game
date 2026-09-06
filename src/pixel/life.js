@@ -23,6 +23,7 @@ import { ABILITIES, HIDDEN_TRAITS } from "../data/abilities.js";
 import { ACTIONS } from "../data/actions.js";
 import { OUTFITS, AVATARS } from "../data/wardrobe.js";
 import { MAP_LOCATIONS } from "../data/map-locations.js";
+import { locationDayCopy } from "./location-day-copy.js";
 import { TRAINING_VENUES, hasVisited } from "../logic/city-progression.js";
 import { recordPartTimeShift } from "../logic/work-progression.js";
 import { COMPANY_PART_TIME } from "../data/part-time.js";
@@ -479,13 +480,7 @@ export function settleDay(life, choice = "focus") {
       game.stamina = Math.max(0, game.stamina - (location.extraFatigue || 0));
       if (location.luck)
         game.luck = Math.min(1000, (game.luck || 0) + location.luck);
-      notes.push(
-        def.venue === "shop"
-          ? "逛逛新一季的服裝，留下穿搭靈感。"
-          : def.venue === "clinic"
-            ? "參觀公開諮詢區，記下形象管理的建議。"
-            : location.effect || location.note,
-      );
+      notes.push(locationDayCopy(def.venue));
       const visits = (game.visitedLocationsByWeek[game.week] ||= []);
       if (!visits.includes(def.venue)) visits.push(def.venue);
       // Growth belongs to the daily activity; walking into a room never grants gains.

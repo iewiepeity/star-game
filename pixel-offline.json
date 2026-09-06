@@ -1,6 +1,6 @@
 {
-  "version": "0.10.0",
-  "bytes": 114652889,
+  "version": "0.10.1",
+  "bytes": 114663017,
   "entries": [
     {
       "url": "./index.html",
@@ -328,7 +328,7 @@
     },
     {
       "url": "./src/data/map-locations.js",
-      "bytes": 6350
+      "bytes": 6368
     },
     {
       "url": "./src/data/npc-arc-events.js",
@@ -704,7 +704,7 @@
     },
     {
       "url": "./src/pixel/career-ui.js",
-      "bytes": 24644
+      "bytes": 24635
     },
     {
       "url": "./src/pixel/career.js",
@@ -712,11 +712,15 @@
     },
     {
       "url": "./src/pixel/cast.js",
-      "bytes": 5869
+      "bytes": 6886
     },
     {
       "url": "./src/pixel/city-catalog.js",
-      "bytes": 9796
+      "bytes": 7308
+    },
+    {
+      "url": "./src/pixel/city-interaction-copy.js",
+      "bytes": 5249
     },
     {
       "url": "./src/pixel/city-rooms.js",
@@ -748,15 +752,19 @@
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 27018
+      "bytes": 27145
     },
     {
       "url": "./src/pixel/life.js",
-      "bytes": 21737
+      "bytes": 21568
+    },
+    {
+      "url": "./src/pixel/location-day-copy.js",
+      "bytes": 5614
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 42035
+      "bytes": 41979
     },
     {
       "url": "./src/pixel/menu-icons.js",
@@ -892,11 +900,11 @@
     },
     {
       "url": "./src/views/npc.js",
-      "bytes": 9097
+      "bytes": 9949
     },
     {
       "url": "./src/views/people.js",
-      "bytes": 4408
+      "bytes": 4381
     },
     {
       "url": "./src/views/phone.js",

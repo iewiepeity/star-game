@@ -1,0 +1,108 @@
+{
+  "date": "2026-09-06",
+  "baseCommit": "1ea5f29728c723668f70dfdc2756d84c62365a4d",
+  "note": "字數是原始碼中的漢字數，含註解、重複與規則提示，不能當成不重複劇情字數。原文逐檔完整保留；已發生的玩家存檔歷史不在替換範圍。",
+  "archiveSha256": "50035aebf1c3d5f3d06f3b2830dbdb3dc6417659cab995009b1b38caf3958f70",
+  "patchSha256": "b3b7dd014c5cfe58672c6b9071e24d6d8063432a5acba357e06ad7b054d5357e",
+  "files": [
+    {
+      "path": "src/data/map-locations.js",
+      "action": "replaced",
+      "beforeSha256": "c942aa539ceb0247ebef2bb3bd329168837afe9ef50e538584a1819e25b5fb19",
+      "afterSha256": "d09bebd5417adfb50f7db40d1c44b2304404185ef509ebc6c178cc64db824cc1",
+      "beforeHanCharacters": 1099,
+      "afterHanCharacters": 1104,
+      "reason": "專屬文本、人物／題材一致性與分支後果"
+    },
+    {
+      "path": "src/pixel/career-ui.js",
+      "action": "replaced",
+      "beforeSha256": "2540c8c146db68dd5683edd3cf9557968d96702c78e39a6763ee0500a3f16fa1",
+      "afterSha256": "95fd41536d270267ebbe005acf5f9277a5eccfbbe67638e3e9c515c15c41ba96",
+      "beforeHanCharacters": 910,
+      "afterHanCharacters": 907,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/pixel/cast.js",
+      "action": "replaced",
+      "beforeSha256": "5e9a463ee0f1c5c171eb2502a84b8b72d92e3e9ae7e31d77c077d35b072cf176",
+      "afterSha256": "d146f6b6d57997b835d5b2750dec7d460d4596a8be2c1a48107e1743babf0d30",
+      "beforeHanCharacters": 708,
+      "afterHanCharacters": 932,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/pixel/city-catalog.js",
+      "action": "replaced",
+      "beforeSha256": "34d28d085fba486ecdeae8f626fc687a573a35ad3a8990c82e85742fc69c0c8c",
+      "afterSha256": "a8cdffe02df3b62a68df9e05e2304ca4371beb6454677e058920fbb6eb814dc6",
+      "beforeHanCharacters": 1453,
+      "afterHanCharacters": 852,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/pixel/city-interaction-copy.js",
+      "action": "added",
+      "beforeSha256": null,
+      "afterSha256": "9da7ed8e471143045fef263644c3abf085a8ccbfc0df82962e9a71a54d821087",
+      "beforeHanCharacters": 0,
+      "afterHanCharacters": 1368,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/pixel/life-ui.js",
+      "action": "replaced",
+      "beforeSha256": "61f06df13c4d5893e1810e4b99fbe84a537e32c6d21bbd5cb5e212ba56ff99e5",
+      "afterSha256": "8fb7ae3c89f321a63be7ca451bddab7377c3a62e19d6aa67df6e69b988e9b2d0",
+      "beforeHanCharacters": 873,
+      "afterHanCharacters": 871,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/pixel/life.js",
+      "action": "replaced",
+      "beforeSha256": "ddc8c10cd49ab2e8df14ba49a60ec7a883879f3000d7b778a0fe8f08c35c9b49",
+      "afterSha256": "1e5b4b1e319a939d85ef4563c3d31a69bb79e53980cf86dac1946be82e046416",
+      "beforeHanCharacters": 477,
+      "afterHanCharacters": 447,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/pixel/location-day-copy.js",
+      "action": "added",
+      "beforeSha256": null,
+      "afterSha256": "c87c36c155609b97f628a2c4e7d3bfaed0c5837b3c1cfe5b683b54948798a955",
+      "beforeHanCharacters": 0,
+      "afterHanCharacters": 1222,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/pixel/main.js",
+      "action": "replaced",
+      "beforeSha256": "6060265d3f07c048bb2af0a3a3b2c83ce2224d93d35f8e97a9ab8de2368a2e64",
+      "afterSha256": "0dbf5f39c0315f7cf1eec5a663670d48de723d480c2129d62dbe73e070fac250",
+      "beforeHanCharacters": 1429,
+      "afterHanCharacters": 1411,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/views/npc.js",
+      "action": "replaced",
+      "beforeSha256": "d517c9f071f124c6726081204161da6e1b0eec89e5933c23d11533ccc9b76185",
+      "afterSha256": "14afd75952047bbdab8f9be7a91d819567996505f5de36cd47443e4e426c31d3",
+      "beforeHanCharacters": 464,
+      "afterHanCharacters": 508,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    },
+    {
+      "path": "src/views/people.js",
+      "action": "replaced",
+      "beforeSha256": "06d2ce5a02e2f841c3fd1f8287a7c76c01b79a28864efa682929f0fc2506ce2d",
+      "afterSha256": "8eaa081a8bf76f984954c2f1deb349d45814648a77cab607bd1cc003dd42a877",
+      "beforeHanCharacters": 175,
+      "afterHanCharacters": 167,
+      "reason": "文本接入、階段前提、延遲回收與像素呈現一致性"
+    }
+  ]
+}

@@ -34,7 +34,7 @@ import {
   GENDER_CHANGE_COST,
 } from "./identity.js";
 import { createCityUI } from "./city-ui.js";
-import { CITY_CATALOG } from "./city-catalog.js";
+import { cityDetailText } from "./city-interaction-copy.js";
 import { arriveAt, CHOICES, planDay, access } from "./life.js";
 import { AGENCIES } from "../data/agencies.js";
 import { AVATARS, portraitAsset } from "../data/wardrobe.js";
@@ -481,7 +481,7 @@ function renderDialogue() {
   panel.close();
   panelType = "dialogue";
   $("dialogue").innerHTML =
-    `<div class="conversation"><figure class="dialogue-portrait ${player ? "player-crop" : "npc-crop"}"><img src="${player ? portrait() : PEOPLE[d.npcId].portrait}" alt="${escape(name)}的肩上肖像"></figure><div class="speech"><div class="dialogue-heading"><h2 id="dialogue-name">${escape(name)}</h2><span>${player ? "剛到星望市的你" : PEOPLE[d.npcId].job}</span></div><p id="dialogue-text">${escape(text)}</p><div class="choices">${node.choices && !d.reply ? node.choices.map((choice, i) => `<button data-choice="${i}">${choice.label}</button>`).join("") : `<button class="primary" data-ui="next-dialogue">${d.reply ? "下次見" : "繼續 →"}</button>`}</div></div><div class="dialogue-tools"><button data-ui="saves" aria-label="保存這段相遇">存檔</button><button data-ui="menu">選單</button><button data-ui="end-dialogue" aria-label="結束對話">×</button></div></div>`;
+    `<div class="conversation"><figure class="dialogue-portrait ${player ? "player-crop" : "npc-crop"}"><img src="${player ? portrait() : PEOPLE[d.npcId].portrait}" alt="${escape(name)}的肩上肖像"></figure><div class="speech"><div class="dialogue-heading"><h2 id="dialogue-name">${escape(name)}</h2><span>${player ? "你" : PEOPLE[d.npcId].job}</span></div><p id="dialogue-text">${escape(text)}</p><div class="choices">${node.choices && !d.reply ? node.choices.map((choice, i) => `<button data-choice="${i}">${choice.label}</button>`).join("") : `<button class="primary" data-ui="next-dialogue">${d.reply ? "下次見" : "繼續 →"}</button>`}</div></div><div class="dialogue-tools"><button data-ui="saves" aria-label="保存這段相遇">存檔</button><button data-ui="menu">選單</button><button data-ui="end-dialogue" aria-label="結束對話">×</button></div></div>`;
   setDialogueVisible(true);
   world?.keys.clear();
   $("dialogue").querySelector(".choices button")?.focus();
@@ -581,7 +581,7 @@ function interact(item) {
     case "detail":
       simple(
         item.name,
-        CITY_CATALOG[state.sceneId]?.gate || "看看這裡的日常。",
+        cityDetailText(state.sceneId),
       );
       break;
     case "wardrobe":
@@ -1005,7 +1005,7 @@ document.addEventListener("click", async (event) => {
     checkpoint();
     changed();
     panelType === "shop" ? lifeUI.shop() : wardrobe();
-    toast("立繪與像素人物已一起換裝");
+    toast("已換上這套衣服");
     return;
   }
   if (target.dataset.choice !== undefined) {
