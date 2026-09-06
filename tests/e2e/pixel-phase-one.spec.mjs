@@ -48,8 +48,9 @@ test("walk, dress, enter every room, meet an NPC and reload the same save", asyn
   page,
 }) => {
   // This end-to-end journey includes multiple real walks, outfit loads and
-  // a six-second practice. Keep per-action limits, but budget the whole trip.
-  test.setTimeout(120000);
+  // a six-second practice. Software-rendered CI can spend over two minutes
+  // on the full tour; the existing per-action limits still catch stuck controls.
+  test.setTimeout(180000);
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await start(page);

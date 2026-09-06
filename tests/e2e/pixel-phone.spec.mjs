@@ -236,6 +236,10 @@ test("forum has compact searchable rows, persistent hearts and real player reply
 test("phone app accents stay colorful across five themes and liked hearts stay pink", async ({
   page,
 }, info) => {
+  // Five full theme/app round trips share one test. Software-rendered CI
+  // needs a journey budget; individual controls must still respond promptly.
+  test.setTimeout(120000);
+  page.setDefaultTimeout(12000);
   await start(page);
   for (const theme of ["cream", "rose", "sage", "lilac", "night"]) {
     if (await page.locator("#panel").isVisible())
