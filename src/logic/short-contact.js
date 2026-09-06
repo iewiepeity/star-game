@@ -1,6 +1,7 @@
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
 import { adjustRelationship } from "./npc-engine.js";
+import { CONTACT_TOPICS, contactReply } from "./conversations.js";
 const REPLIES = [
   [
     "剛好看到你的訊息。今天有一小段空檔，你呢？",
@@ -19,13 +20,17 @@ const REPLIES = [
     "先不談工作好了。你今天有吃到什麼好吃的嗎？",
   ],
 ];
-export function shortContact(id, type = "message") {
+export function shortContact(id, type = "message", topic = null, draft = null) {
   if (
     !NPCS[id] ||
     !state.knownPeople.includes(id) ||
-    !["message", "call"].includes(type)
+    !["message", "call"].includes(type) ||
+    (topic !== null && !Object.hasOwn(CONTACT_TOPICS, topic))
   )
     return { ok: false, message: "目前無法聯絡。" };
+  const outgoing = draft === null ? null : String(draft).trim();
+  if (outgoing !== null && (!outgoing || outgoing.length > 200))
+    return { ok: false, message: "訊息請寫 1 到 200 個字，再按送出。" };
   const rel = state.relationships[id];
   if ((rel?.hostility || 0) >= 45)
     return { ok: false, message: "對方目前想保留距離，請先處理彼此的衝突。" };
@@ -42,7 +47,14 @@ export function shortContact(id, type = "message") {
       message: "這週已經留了不少時間聯絡朋友，先把自己的生活照顧好吧。",
     };
   const count = state.shortContacts.filter((x) => x.npcId === id).length;
+  const replyTopic =
+    outgoing && /吃飯|休息|喝水|照顧|辛苦|熬夜/.test(outgoing)
+      ? "care"
+      : outgoing && /工作|作品|排練|試鏡|演出|拍攝|經驗/.test(outgoing)
+        ? "work"
+        : topic;
   const text =
+    (replyTopic && contactReply(id, replyTopic)) ||
     REPLIES[
       (state.week + count + Object.keys(NPCS).indexOf(id)) % REPLIES.length
     ][type === "call" ? 1 : 0];
@@ -57,6 +69,14 @@ export function shortContact(id, type = "message") {
     week: state.week,
     npcId: id,
     type,
+    topic,
+    outgoingText:
+      outgoing ??
+      (topic
+        ? CONTACT_TOPICS[topic].text
+        : type === "call"
+          ? "有空聊幾分鐘嗎？想聽聽你的近況。"
+          : "最近過得怎麼樣？想到你，就來問候一下。"),
     text,
   };
   state.shortContacts.push(record);

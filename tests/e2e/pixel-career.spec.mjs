@@ -84,7 +84,9 @@ test("an invitation enters the agreed space and shows a sharp shoulder portrait 
   });
   await menu(page, "phone");
   await page.locator('[data-pixel-app="people"]').last().click();
+  await page.locator('[data-people-section="profiles"]').click();
   await page.locator('[data-select-npc="sufei"]').first().click();
+  await page.locator('[data-npc-profile-tab="relationship"]').click();
   await page.locator('[data-npc-interact="meal"]').click();
   await page.locator('[data-book-day="0"]').click();
   await today(page);

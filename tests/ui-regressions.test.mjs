@@ -128,6 +128,7 @@ test("探索相遇會把人物立繪交給逐日劇情，人物檔案也顯示�
  assert.equal(result.encounter?.met,true);
  assert.ok(result.encounter?.portrait);
  state.selectedNpc=result.encounter.npcId;
+ state.npcProfileTab="memories";
  const html=npcApp();
  assert.match(html,/FIRST ENCOUNTER/);
  assert.match(html,/初次|麥克風|練習室|候補|照片|履歷|鏡頭|對戲/);

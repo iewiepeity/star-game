@@ -1,3 +1,4 @@
+import { openConversation } from "../logic/conversations.js";
 import { shortContact } from "../logic/short-contact.js";
 import { requestRomanceConversation } from "../logic/npc-storylines.js";
 import { inviteNpc, invitationStatus } from "../logic/npc-invitations.js";
@@ -12,22 +13,60 @@ function openNpc(id) {
   state.selectedNpc = id;
   state.npcArtView = "bust";
   state.peopleSection = "profiles";
-  for (const message of state.npcMessages || [])
-    if (message.npcId === id) message.read = true;
+  state.npcProfileTab = "overview";
   openApp(state, "people");
   render();
 }
 export function bindNpc() {
+  document
+    .querySelector("[data-chat-draft]")
+    ?.addEventListener("input", (e) => {
+      state.chatDraft = e.target.value;
+    });
+  for (const button of document.querySelectorAll("[data-chat-open]"))
+    button.onclick = () => {
+      openConversation(button.dataset.chatOpen);
+      render();
+      const h = document.querySelector(".chat-history");
+      if (h) h.scrollTop = h.scrollHeight;
+    };
+  document.querySelector("[data-chat-back]")?.addEventListener("click", () => {
+    state.peopleThread = null;
+    renderUi();
+  });
+  for (const [attr, key] of [
+    ["npc-profile-tab", "npcProfileTab"],
+    ["chat-topic", "contactTopic"],
+  ])
+    for (const button of document.querySelectorAll(`[data-${attr}]`))
+      button.onclick = () => {
+        state[key] = button.getAttribute(`data-${attr}`);
+        if (key === "contactTopic") state.chatDraft = null;
+        renderUi();
+      };
+
   document
     .querySelectorAll("[data-short-contact], [data-romance-talk]")
     .forEach(
       (x) =>
         (x.onclick = () => {
           const r = x.dataset.shortContact
-            ? shortContact(x.dataset.shortContact, x.dataset.contactType)
+            ? shortContact(
+                x.dataset.shortContact,
+                x.dataset.contactType,
+                x.dataset.contactTopic || null,
+                state.chatDraft ?? null,
+              )
             : requestRomanceConversation(x.dataset.romanceTalk);
           state.notice = r.message;
+          if (
+            x.dataset.shortContact &&
+            state.peopleThread === x.dataset.shortContact
+          )
+            openConversation(x.dataset.shortContact);
           render();
+          const h = document.querySelector(".chat-history");
+          if (h) h.scrollTop = h.scrollHeight;
         }),
     );
 

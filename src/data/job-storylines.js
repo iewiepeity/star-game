@@ -13,11 +13,11 @@ function build(job){
   id:job.id,depth:jobDepthTier(job.id),theme:content.theme,
   flagshipChoices:AUTHORED_FLAGSHIP_CHOICES[job.id]||null,
   audition:Object.freeze({
-   arrival:`${job.audition.venue}。${content.audition.arrival}`,
+   arrival:content.audition.arrival,
    steady:choiceNarrative(job.audition.choices[0].label),
    bold:choiceNarrative(job.audition.choices[1].label),
-   passed:`${title}的試鏡結果到了。${content.audition.passed}`,
-   failed:`${title}的試鏡結果到了。${content.audition.failed}`
+   passed:content.audition.passed,
+   failed:content.audition.failed
   }),
   contract:Object.freeze({title:`${title}・確認工作範圍`,text:`${job.client}的合約桌上，工作範圍逐項攤開。${content.scope} 需於第 {deadline} 週前完成 ${job.sessions} 次工作。`}),
   production:Object.freeze(content.production.map((text,stage)=>Object.freeze({stage,label:STAGE_LABELS[stage],title:`${title}・${stage===0?content.theme:STAGE_LABELS[stage]}`,text}))),

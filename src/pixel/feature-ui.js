@@ -1,3 +1,5 @@
+import { openConversation } from "../logic/conversations.js";
+import { toggleCommunityLike } from "../logic/community-likes.js";
 import { shortContact } from "../logic/short-contact.js";
 import { requestRomanceConversation } from "../logic/npc-storylines.js";
 import { creativeApp } from "../views/creative.js";
@@ -176,13 +178,29 @@ export function createFeatureUI(api) {
     game.selectedNpc = id;
     game.peopleSection = "profiles";
     game.npcArtView = "bust";
-    for (const m of game.npcMessages || []) if (m.npcId === id) m.read = true;
+    game.npcProfileTab = "overview";
     open("people");
   }
-  function mutate(fn) {
+  function mutate(fn, trigger) {
+    const panel = document.querySelector("#panel"),
+      scroll = panel?.scrollTop || 0;
+    const active = trigger || document.activeElement?.closest("button");
+    const focusKey = active
+      ? Object.entries(active.dataset).map(([k, v]) => [k, v])
+      : [];
     const r = read(fn);
     save();
     open(current);
+    if (panel) panel.scrollTop = scroll;
+    if (focusKey.length) {
+      const next = [...document.querySelectorAll(".pixel-app button")].find(
+        (b) => focusKey.every(([k, v]) => b.dataset[k] === v),
+      );
+      next?.focus({ preventScroll: true });
+      if (r?.liked) {
+        next?.classList.add("heart-pop");
+      }
+    }
     if (r?.message || r?.reason) api.toast(r.message || r.reason);
   }
   function wardrobe() {
@@ -231,6 +249,9 @@ export function createFeatureUI(api) {
   const fieldMap = {
     peopleSection: "peopleSection",
     npcArt: "npcArtView",
+    npcProfileTab: "npcProfileTab",
+    socialFilter: "socialFilter",
+    chatTopic: "contactTopic",
     timelineFilter: "timelineFilter",
     galleryFilter: "galleryFilter",
     galleryItem: "gallerySelection",
@@ -307,6 +328,7 @@ export function createFeatureUI(api) {
     for (const [attr, key] of Object.entries(fieldMap))
       if (d[attr] !== undefined) {
         life().game[key] = d[attr];
+        if (attr === "chatTopic") life().game.chatDraft = null;
         open(current);
         return true;
       }
@@ -315,9 +337,33 @@ export function createFeatureUI(api) {
       person(npc);
       return true;
     }
+    if (d.chatOpen) {
+      read(() => openConversation(d.chatOpen));
+      open("people");
+      const history = document.querySelector(".chat-history");
+      if (history) history.scrollTop = history.scrollHeight;
+      return true;
+    }
+    if (d.chatBack !== undefined) {
+      life().game.peopleThread = null;
+      open("people");
+      return true;
+    }
+    if (d.socialComments) {
+      mutate((g) => {
+        g.socialExpandedPost =
+          g.socialExpandedPost === d.socialComments ? null : d.socialComments;
+      });
+      return true;
+    }
+    if (d.forumLike) {
+      mutate(() => toggleCommunityLike("forum", d.forumLike), button);
+      return true;
+    }
     if (d.forumThread) {
       mutate((g) => {
         g.forumThread = d.forumThread;
+        g.forumDraft = "";
         g.forumReadIds ??= [];
         if (!g.forumReadIds.includes(d.forumThread))
           g.forumReadIds.push(d.forumThread);
@@ -414,11 +460,33 @@ export function createFeatureUI(api) {
       return true;
     }
     if (d.shortContact || d.romanceTalk) {
-      mutate(() =>
-        d.shortContact
-          ? shortContact(d.shortContact, d.contactType)
-          : requestRomanceConversation(d.romanceTalk),
-      );
+      mutate(() => {
+        const r = d.shortContact
+          ? shortContact(
+              d.shortContact,
+              d.contactType,
+              d.contactTopic || null,
+              life().game.chatDraft ?? null,
+            )
+          : requestRomanceConversation(d.romanceTalk);
+        return r?.ok &&
+          d.shortContact &&
+          life().game.peopleThread === d.shortContact
+          ? {
+              ...r,
+              message:
+                d.contactType === "call"
+                  ? "通話結束，聊天紀錄已收進對話。"
+                  : "訊息已送出，對方的回覆在對話裡。",
+            }
+          : r;
+      });
+      if (d.shortContact && life().game.peopleThread === d.shortContact) {
+        read(() => openConversation(d.shortContact));
+        open("people");
+        const history = document.querySelector(".chat-history");
+        if (history) history.scrollTop = history.scrollHeight;
+      }
       return true;
     }
     if (d.romanceAction) {
@@ -440,12 +508,7 @@ export function createFeatureUI(api) {
       return true;
     }
     if (d.socialLike) {
-      mutate((g) => {
-        const a = g.likedSocialPosts,
-          index = a.indexOf(d.socialLike);
-        if (index >= 0) a.splice(index, 1);
-        else a.push(d.socialLike);
-      });
+      mutate(() => toggleCommunityLike("social", d.socialLike), button);
       return true;
     }
     if (d.socialReply) {
@@ -459,11 +522,14 @@ export function createFeatureUI(api) {
       return true;
     }
     if (d.forumReact) {
-      mutate((g) => forumReaction(g.forumThread, d.forumReact));
+      mutate((g) => forumReaction(g.forumThread, d.forumReact, g.forumDraft));
       return true;
     }
     if (d.forumRefresh !== undefined) {
-      mutate((g) => g.forumRefresh++);
+      mutate((g) => {
+        g.forumRefresh++;
+        return { message: "已更新討論，目前顯示所有已發布的留言。" };
+      });
       return true;
     }
     if (d.forumBack !== undefined || d.galleryBack !== undefined) {
@@ -562,6 +628,11 @@ export function createFeatureUI(api) {
   }
   function input(event) {
     const d = event.target.dataset;
+    if (d.chatDraft !== undefined || d.forumDraft !== undefined) {
+      life().game[d.chatDraft !== undefined ? "chatDraft" : "forumDraft"] =
+        event.target.value;
+      return;
+    }
     if (event.target.id === "creative-title") {
       life().game.creativeDraftTitle = event.target.value;
       return;
@@ -569,6 +640,8 @@ export function createFeatureUI(api) {
     const fields = {
       pocketQuery: "appQuery",
       peopleQuery: "peopleQuery",
+      forumQuery: "forumQuery",
+      forumSort: "forumSort",
       timelineQuery: "timelineQuery",
       jobQuery: "jobQuery",
       jobSort: "jobSort",

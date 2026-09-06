@@ -73,7 +73,9 @@ test("chat at the cafe performs, settles once, and has full-width mobile choices
   });
   await apps(page);
   await page.locator('[data-pixel-app="people"]').last().click();
+  await page.locator('[data-people-section="profiles"]').click();
   await page.locator('[data-select-npc="sufei"]').first().click();
+  await page.locator('[data-npc-profile-tab="relationship"]').click();
   await page.locator('[data-npc-interact="chat"]').click();
   await page.locator('[data-book-day="0"]').click();
   await page.locator('#panel [data-life="today"]').click();
@@ -118,6 +120,7 @@ test("social likes, replies, formal publishing and forum reactions work in the n
   expect((await read(page)).state.life.game.likedSocialPosts).toContain(
     "npc-sufei-1",
   );
+  await page.locator('[data-social-comments="npc-sufei-1"]').click();
   await page.locator('[data-social-reply="sufei"]').first().click();
   expect(
     (await read(page)).state.life.game.socialReplies["1:sufei"],
@@ -303,11 +306,9 @@ test("the complete offline pack reloads and enters an unvisited room without a n
   });
   await page.reload();
   await page.locator("[data-stage-start]").click();
-  await expect(page.locator("[data-stage-skip]")).toBeVisible({
-    timeout: 20000,
-  });
-  await page.locator("[data-stage-skip]").click();
-  await expect(page.locator("[data-stage-choice]")).toBeVisible();
+  // Let the actors enter naturally. The optional skip button disappears when
+  // entrance finishes, so racing a click against it made this offline check flaky.
+  await expect(page.locator("[data-stage-choice]")).toBeVisible({ timeout: 20000 });
   expect((await read(page)).scene).toBe("rehearsal");
   expect((await read(page)).story.cast).toEqual(["sufei"]);
   await page.locator("[data-stage-choice]").click();

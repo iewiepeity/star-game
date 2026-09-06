@@ -2,6 +2,17 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.16.0", date: "2026-09-06", title: "手機整修完畢，愛心終於有心",
+    notes: [
+      "人物檔案分成速覽、關係邀約、共同回憶與背景資料。朋友不再把整本自傳塞進你第一眼看到的畫面。",
+      "訊息各自住進朋友的對話框，能自己寫、看回覆、打短電話，也會記住已讀與每週額度。聊兩句不必先請一天假。",
+      "論壇縮小圖示，補上搜尋、排序與留言樓層；想用自己的話發言也可以。那顆巨型對話框已被請出攝影棚。",
+      "星語加上好友與個人動態篩選，留言可以展開。愛心會變實心、變色、輕輕跳一下，讀檔後也記得你喜歡誰。",
+      "手機 App 帶著各自的輔色上班，五種主題都有彩色朋友。試鏡結果也學會分段說人話：在哪裡、怎麼演、是否獲選，不再把事前勝算當結論。",
+      "第一次見面的回憶會用真正相遇的週次，回憶錄終於和日曆對好口供。",
+    ],
+  },
+  {
     version: "0.15.0", date: "2026-09-06", title: "抱枕戒掉油漆，行程學會煞車",
     notes: [
       "抱枕換色會保留布料的皺摺、陰影與輪廓。沙發扶手也不用陪它一起染頭髮了。",
@@ -81,4 +92,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.38.0";
+export const CORE_VERSION = "1.39.0";

@@ -1,0 +1,286 @@
+/* Phone apps keep the selected theme, with distinct ink and paper for each app. */
+:is(.pixel-app, .people-hub, .forum-page, .social-page, .audition-result-card) {
+  --phone-paper: var(--ui-paper, #fffdf7);
+  --phone-ink: var(--ui-ink, #343643);
+  --phone-muted: var(--ui-muted, #665f68);
+  --phone-edge: var(--ui-border, #b8b0ac);
+  --app-paper: var(--ui-sky, #e4effb);
+  --app-ink: var(--ui-sky-ink, #345471);
+  color: var(--phone-ink);
+}
+.pixel-app:is([data-app="people"], [data-app="stats"], [data-app="world"]),
+.pixel-app :is([data-pixel-app="people"], [data-pixel-app="stats"], [data-pixel-app="world"], [data-pocket-open="people"], [data-pocket-open="stats"], [data-pocket-open="world"]) { --app-paper: var(--ui-mint); --app-ink: var(--ui-mint-ink); }
+.pixel-app:is([data-app="social"], [data-app="creative"], [data-app="wardrobe"]),
+.pixel-app :is([data-pixel-app="social"], [data-pixel-app="creative"], [data-pixel-app="wardrobe"], [data-pocket-open="social"], [data-pocket-open="creative"], [data-pocket-open="wardrobe"]) { --app-paper: var(--ui-peach); --app-ink: var(--ui-peach-ink); }
+.pixel-app:is([data-app="forum"], [data-app="achievements"], [data-app="log"]),
+.pixel-app :is([data-pixel-app="forum"], [data-pixel-app="achievements"], [data-pixel-app="log"], [data-pocket-open="forum"], [data-pocket-open="achievements"], [data-pocket-open="log"]) { --app-paper: var(--ui-honey); --app-ink: var(--ui-honey-ink); }
+.pixel-app:is([data-app="agency"], [data-app="gallery"], [data-app="settings"]),
+.pixel-app :is([data-pixel-app="agency"], [data-pixel-app="gallery"], [data-pixel-app="settings"], [data-pocket-open="agency"], [data-pocket-open="gallery"], [data-pocket-open="settings"]) { --app-paper: var(--ui-lilac); --app-ink: var(--ui-lilac-ink); }
+#panel .pixel-app .app-toolbar { border-bottom: 3px solid var(--app-ink); padding-bottom: 14px; margin-bottom: 20px; }
+#panel .pixel-app .app-toolbar > span { background: var(--app-paper); color: var(--app-ink); padding: 5px 12px; font-size: 15px; }
+#panel .pixel-app-library > button { border-top: 4px solid var(--app-ink); }
+#panel .pixel-app :is(.pixel-app-library, .pocket-dock) button > i { background: var(--app-paper); color: var(--app-ink); border-color: var(--app-ink); }
+#panel .pixel-app :is(.pixel-app-library, .pocket-dock) svg { width: 28px; height: 28px; max-width: 28px; max-height: 28px; }
+#panel .pixel-app :is(.inside-title, .gallery-hero, .timeline-hero, .achievement-career) { background: var(--app-paper); border-left: 5px solid var(--app-ink); }
+#panel .pixel-app :is(.inside-title, .gallery-hero, .timeline-hero, .achievement-career) :is(h2, h3, p, span, small) { color: var(--app-ink); }
+#panel .pixel-app :is(.ability-grid, .world-stats, .stat-grid) > :nth-child(3n+1) { background: var(--ui-sky); }
+#panel .pixel-app :is(.ability-grid, .world-stats, .stat-grid) > :nth-child(3n+2) { background: var(--ui-mint); }
+#panel .pixel-app :is(.ability-grid, .world-stats, .stat-grid) > :nth-child(3n) { background: var(--ui-peach); }
+#panel .pixel-app :is(.job-sheet, .job-notice, .creative-notice, .achievement-progress, .timeline-filters, .gallery-filters) { background: var(--app-paper); color: var(--app-ink); }
+#panel .pixel-app :is(.job-catalog, .creative-project-card, .achievement-card, .timeline-item, .gallery-card) { border-top: 3px solid var(--app-ink); }
+/* A short profile, with one chapter on screen at a time. */
+:is(#panel .pixel-app, .people-hub) .npc-dossier { display: grid; grid-template-columns: 176px minmax(0, 1fr); align-items: start; gap: 20px; }
+:is(#panel .pixel-app, .people-hub) nav.npc-list { display: grid; gap: 8px; max-height: 520px; overflow-y: auto; margin: 0; padding: 2px 5px 8px 0; }
+:is(#panel .pixel-app, .people-hub) .npc-list button { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px; width: 100%; text-align: left; }
+:is(#panel .pixel-app, .people-hub) .npc-list i { display: block; font-size: 0; position: relative; flex: 0 0 38px; width: 38px; height: 48px; overflow: hidden; background: var(--app-paper); }
+:is(#panel .pixel-app, .people-hub) .npc-list i img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+:is(#panel .pixel-app, .people-hub) .npc-list span { display: grid; gap: 3px; }
+:is(#panel .pixel-app, .people-hub) .npc-list b { font-size: 16px; }
+:is(#panel .pixel-app, .people-hub) .npc-list small { font-size: 11px; }
+:is(#panel .pixel-app, .people-hub) .npc-profile { display: block; min-width: 0; }
+:is(#panel .pixel-app, .people-hub) .npc-profile-header { display: flex; align-items: center; gap: 24px; padding: 18px; border: 2px solid var(--phone-edge); background: var(--app-paper); }
+:is(#panel .pixel-app, .people-hub) .npc-profile-header .npc-figure { float: none; width: 130px; flex: 0 0 130px; margin: 0; border: 0; }
+:is(#panel .pixel-app, .people-hub) .npc-figure img { width: 130px; height: 170px; object-fit: cover; object-position: top; }
+:is(#panel .pixel-app, .people-hub) .npc-figure.full img { object-fit: contain; }
+:is(#panel .pixel-app, .people-hub) .npc-figure nav { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0 0; }
+:is(#panel .pixel-app, .people-hub) .npc-figure nav button { padding: 5px; font-size: 12px; min-height: 36px; }
+:is(#panel .pixel-app, .people-hub) .npc-profile-identity { min-width: 0; color: var(--app-ink); }
+:is(#panel .pixel-app, .people-hub) .npc-profile-identity h2 { margin: 6px 0; font-size: clamp(26px, 3vw, 36px); color: var(--phone-ink); }
+:is(#panel .pixel-app, .people-hub) .npc-profile-identity p { margin: 8px 0; color: var(--app-ink); font-size: 14px; }
+:is(#panel .pixel-app, .people-hub) .npc-profile-identity > :is(span, small) { display: block; font-size: 11px; color: var(--app-ink); }
+:is(#panel .pixel-app, .people-hub) .npc-profile-identity > button { margin-top: 10px; }
+:is(#panel .pixel-app, .people-hub) .npc-profile-tabs { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 7px; margin: 16px 0; }
+:is(#panel .pixel-app, .people-hub) .npc-profile-tabs button { padding: 9px 4px; font-size: 14px; min-height: 44px; }
+:is(#panel .pixel-app, .people-hub) .npc-profile-copy { display: block; }
+:is(#panel .pixel-app, .people-hub) .relationship-panel { margin: 0; }
+:is(#panel .pixel-app, .people-hub) .relationship-panel header h3 { margin: 5px 0; font-size: 22px; }
+:is(#panel .pixel-app, .people-hub) .relationship-panel header > span { font-size: 11px; color: var(--phone-muted); }
+:is(#panel .pixel-app, .people-hub) .relationship-signals { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; margin-top: 12px; }
+:is(#panel .pixel-app, .people-hub) .relationship-signals article { margin: 0; padding: 12px; background: var(--ui-peach, #fae5da); border: 1px solid var(--phone-edge); box-shadow: none; }
+:is(#panel .pixel-app, .people-hub) .relationship-signals article:nth-child(2) { background: var(--ui-sky, #e4effb); }
+:is(#panel .pixel-app, .people-hub) .relationship-signals article:nth-child(3) { background: var(--ui-honey, #f8edc9); }
+:is(#panel .pixel-app, .people-hub) .relationship-signals span { display: block; font-size: 11px; margin-bottom: 4px; }
+:is(#panel .pixel-app, .people-hub) .relationship-signals b { font-size: 13px; font-weight: 500; }
+:is(#panel .pixel-app, .people-hub) .relationship-hint { font-size: 13px; margin: 12px 0; }
+:is(#panel .pixel-app, .people-hub) .npc-overview-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+:is(#panel .pixel-app, .people-hub) .npc-overview-cards > article { margin: 0; padding: 12px; }
+:is(#panel .pixel-app, .people-hub) .npc-overview-cards h3 { margin: 5px 0; }
+:is(#panel .pixel-app, .people-hub) .npc-overview-cards p { font-size: 13px; margin: 6px 0; }
+:is(#panel .pixel-app, .people-hub) .npc-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+:is(#panel .pixel-app, .people-hub) .npc-actions > p { grid-column: 1 / -1; margin: 3px 0; font-size: 13px; }
+:is(#panel .pixel-app, .people-hub) .npc-action-option { display: grid; align-content: start; gap: 4px; }
+:is(#panel .pixel-app, .people-hub) .npc-action-option small { font-size: 12px; }
+:is(#panel .pixel-app, .people-hub) .npc-shared-memories article { border-left: 4px solid var(--app-ink); }
+/* Conversations have their own scroll position and a visible outgoing draft. */
+:is(#panel .pixel-app, .people-hub) .messenger .inside-title { margin: 0 0 14px; padding: 12px 16px; }
+:is(#panel .pixel-app, .people-hub) .messenger .inside-title h2 { margin: 0; font-size: 25px; }
+:is(#panel .pixel-app, .people-hub) .messenger .inside-title p { margin: 0; font-size: 12px; }
+.messenger-layout { display: grid; grid-template-columns: 260px minmax(0,1fr); border: 2px solid var(--phone-edge); min-height: 460px; }
+.conversation-list { border-right: 2px solid var(--phone-edge); background: var(--phone-paper); }
+:is(#panel .pixel-app, .people-hub) .conversation-list .list-tools { display: block; padding: 12px; margin: 0; }
+.conversation-list input { width: 100%; font-size: 13px; }
+.conversation-list output { font-size: 11px; display: block; margin-top: 6px; }
+:is(#panel .pixel-app, .people-hub) .conversation-list .contact-list { display: grid; grid-template-columns: 1fr; gap: 0; max-height: 460px; overflow-y: auto; padding: 0 4px 8px; }
+:is(#panel .pixel-app, .people-hub) .contact-list .contact-card { display: grid; grid-template-columns: 42px minmax(0,1fr); gap: 8px; width: 100%; text-align: left; margin: 0; padding: 12px 8px; border: 0; border-bottom: 1px solid var(--phone-edge); box-shadow: none; background: transparent; }
+:is(#panel .pixel-app, .people-hub) .contact-card.active { background: var(--app-paper); color: var(--app-ink); }
+.contact-avatar { display: block; position: relative; width: 42px; height: 48px; overflow: hidden; grid-row: span 2; background: var(--app-paper); }
+:is(#panel .pixel-app, .people-hub) .contact-avatar img { position: static; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+:is(#panel .pixel-app, .people-hub) .contact-card > span { display: grid; gap: 3px; min-width: 0; }
+:is(#panel .pixel-app, .people-hub) .contact-card b { font-size: 15px; }
+:is(#panel .pixel-app, .people-hub) .contact-card small { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; }
+:is(#panel .pixel-app, .people-hub) .contact-card em { grid-column: 2; font: inherit; font-size: 10px; color: var(--phone-muted); }
+.unread-count { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 5px; background: var(--ui-accent, #885969); color: var(--ui-on-accent, white); }
+.chat-thread { display: flex; flex-direction: column; min-width: 0; }
+:is(#panel .pixel-app, .people-hub) .chat-header { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--app-paper); border-bottom: 1px solid var(--phone-edge); }
+:is(#panel .pixel-app, .people-hub) .chat-header > img { width: 40px; height: 46px; object-fit: cover; object-position: top; }
+.chat-header > div { flex: 1; min-width: 0; }
+.chat-header b, .chat-header small { display: block; }
+.chat-header small { font-size: 11px; }
+.chat-header > button { font-size: 12px; }
+:is(#panel .pixel-app, .people-hub) .chat-back { display: none; }
+.chat-history { height: clamp(220px, 33vh, 350px); overflow-y: auto; overscroll-behavior: contain; padding: 16px; background: var(--ui-soft, #f3f1ed); }
+.chat-date { text-align: center; font-size: 11px; color: var(--phone-muted); margin: 8px 0 16px; }
+:is(#panel .pixel-app, .people-hub) article.chat-bubble { max-width: 86%; width: fit-content; margin: 0 0 14px; padding: 10px 14px; border: 1px solid var(--phone-edge); box-shadow: 2px 2px 0 var(--phone-edge); background: var(--phone-paper); }
+:is(#panel .pixel-app, .people-hub) article.chat-bubble.outgoing { margin-left: auto; background: var(--app-paper); border-color: var(--app-ink); }
+.chat-bubble small, .chat-bubble > span { display: block; font-size: 10px; color: var(--phone-muted); }
+:is(#panel .pixel-app, .people-hub) .chat-bubble p { margin: 4px 0; font-size: 14px; color: var(--phone-ink); }
+.chat-bubble > span { text-align: right; }
+.chat-composer { margin-top: auto; padding: 12px; border-top: 1px solid var(--phone-edge); background: var(--phone-paper); }
+:is(#panel .pixel-app, .people-hub) .chat-composer nav { margin: 0 0 10px; display: flex; gap: 8px; }
+.chat-composer nav button { flex: 1; }
+:is(#panel .pixel-app, .people-hub) .chat-draft { padding: 10px; margin: 0 0 10px; border: 1px dashed var(--app-ink); background: var(--app-paper); font-size: 13px; color: var(--app-ink); }
+.chat-send-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.chat-send-row > small { flex: 1 0 100%; font-size: 11px; }
+.chat-send-row > button { flex: 1; }
+:is(#panel .pixel-app, .people-hub) .chat-allowance { font-size: 11px; margin: 10px 0 0; }
+.chat-empty { display: grid; align-content: center; justify-items: center; padding: 24px; text-align: center; background: var(--ui-soft, #f3f1ed); }
+.chat-empty > span { font-size: 40px; color: var(--app-ink); }
+.chat-empty p, .chat-start { font-size: 13px; }
+/* A forum is a list of stories; its symbol never grows with the viewport. */
+:is(#panel .pixel-app, .forum-page) .forum-hero { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 22px; border: 2px solid var(--phone-edge); background: var(--ui-honey, #f8edc9); color: var(--ui-honey-ink, #715823); }
+.forum-hero > div > span { font-size: 11px; letter-spacing: 2px; }
+:is(#panel .pixel-app, .forum-page) .forum-hero h2 { margin: 4px 0; font-size: 30px; }
+:is(#panel .pixel-app, .forum-page) .forum-hero p { margin: 6px 0 0; font-size: 13px; color: inherit; }
+.forum-hero > b { flex: none; font-size: 13px; }
+.forum-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 16px 0; }
+.forum-tools > label:first-child { flex: 1; min-width: 170px; }
+.forum-tools input { width: 100%; }
+:is(#panel .pixel-app, .forum-page) .forum-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+:is(#panel .pixel-app, .forum-page) .forum-thread-list { display: grid; gap: 0; border: 2px solid var(--phone-edge); }
+:is(#panel .pixel-app, .forum-page) .forum-thread-list > button { display: grid; grid-template-columns: 40px minmax(0,1fr) 72px; align-items: center; gap: 14px; width: 100%; margin: 0; padding: 18px; border: 0; border-bottom: 1px solid var(--phone-edge); text-align: left; box-shadow: none; color: var(--phone-ink); background: var(--phone-paper); }
+:is(#panel .pixel-app, .forum-page) .forum-thread-list > button:hover { background: var(--ui-honey, #f8edc9); }
+:is(#panel .pixel-app, .forum-page) .forum-thread-list > button:last-child { border-bottom: 0; }
+:is(#panel .pixel-app, .forum-page) .forum-thread-icon { display: grid; place-items: center; width: 40px; height: 44px; max-width: 40px; max-height: 44px; background: var(--ui-honey, #f8edc9); color: var(--ui-honey-ink, #715823); border: 1px solid currentColor; font-size: 23px; }
+:is(#panel .pixel-app, .forum-page) .forum-thread-list svg { width: 24px; height: 24px; max-width: 24px; max-height: 24px; }
+.forum-thread-copy { display: grid; gap: 6px; min-width: 0; }
+:is(#panel .pixel-app, .forum-page) .forum-thread-copy b { font-size: 18px; line-height: 1.5; overflow-wrap: anywhere; }
+:is(#panel .pixel-app, .forum-page) .forum-thread-copy em { font-style: normal; font-weight: 400; font-size: 13px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; color: var(--phone-muted); }
+.forum-thread-copy small { font-size: 11px; font-weight: 400; }
+.forum-thread-list > button > strong { font-size: 13px; text-align: right; }
+.forum-chip { display: inline-block; padding: 2px 6px; color: var(--ui-honey-ink, #715823); background: var(--ui-honey, #f8edc9); font-size: 11px; }
+:is(#panel .pixel-app, .forum-page) .forum-thread-detail { padding: 24px; margin: 16px 0; border-top: 4px solid var(--ui-honey-ink, #715823); }
+.forum-author { display: flex; align-items: center; gap: 12px; }
+.forum-author > i, .forum-replies > article > i { display: grid; place-items: center; flex: 0 0 36px; width: 36px; height: 36px; background: var(--ui-sky, #e4effb); color: var(--ui-sky-ink, #345471); font-style: normal; }
+.forum-author > div { flex: 1; }
+.forum-author small { display: block; font-size: 11px; }
+:is(#panel .pixel-app, .forum-page) .forum-thread-detail h2 { font-size: 26px; margin: 20px 0 12px; }
+:is(#panel .pixel-app, .forum-page) .forum-thread-detail p { color: var(--phone-ink); font-size: 15px; }
+.forum-thread-detail footer { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 14px; border-top: 1px solid var(--phone-edge); }
+.forum-thread-detail footer > span { font-size: 12px; }
+.forum-player-reply { padding: 16px; background: var(--ui-sky, #e4effb); border: 1px solid var(--phone-edge); }
+:is(#panel .pixel-app, .forum-page) .forum-player-reply h3 { margin: 0 0 12px; font-size: 19px; }
+.forum-reply-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.forum-reply-choices button { display: grid; gap: 8px; text-align: left; padding: 14px; }
+.forum-reply-choices span { font-size: 13px; font-weight: 400; }
+.forum-reply-choices small { font-size: 11px; }
+.forum-reply-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 20px 0 12px; }
+:is(#panel .pixel-app, .forum-page) .forum-replies > article { display: flex; align-items: flex-start; gap: 14px; padding: 18px 0; margin: 0; border: 0; border-bottom: 1px solid var(--phone-edge); box-shadow: none; background: transparent; }
+.forum-replies > article > div { flex: 1; min-width: 0; }
+.forum-replies header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; }
+.forum-replies header small, .sent-label { font-size: 11px; }
+:is(#panel .pixel-app, .forum-page) .forum-replies p { font-size: 14px; margin: 8px 0; color: var(--phone-ink); }
+:is(#panel .pixel-app, .forum-page) .forum-replies > .own-reply { background: var(--ui-mint, #e5efde); padding: 18px 12px; }
+.forum-end, .forum-disclaimer, .forum-empty { padding: 18px; text-align: center; font-size: 12px; color: var(--phone-muted); }
+/* Hearts change shape, color and wording, and keep their state across saves. */
+:is(#panel .pixel-app, .forum-page, .social-page) button.community-heart { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 8px 10px; background: var(--phone-paper); color: var(--phone-muted); box-shadow: none; border: 1px solid var(--phone-edge); font-size: 13px; }
+:is(#panel .pixel-app, .forum-page, .social-page) .community-heart svg { display: block; flex: 0 0 20px; width: 20px; height: 20px; max-width: 20px; max-height: 20px; }
+:is(#panel .pixel-app, .forum-page, .social-page) button.community-heart.liked { background: #fce2e8; color: #a12e54; border-color: #ba5370; box-shadow: inset 0 -2px 0 #e6a7b8; }
+.heart-pop svg { animation: phone-heart-pop .28s steps(3, end); }
+@keyframes phone-heart-pop { 0% { transform: scale(.8); } 55% { transform: scale(1.3); } 100% { transform: scale(1); } }
+/* Social feed: a compact identity, readable cards, and deliberate reply drawers. */
+:is(#panel .pixel-app, .social-page) header.social-profile { display: grid; grid-template-columns: 64px minmax(0,1fr) auto; align-items: center; gap: 18px; padding: 20px; margin: 0 0 16px; background: var(--ui-peach, #fae5da); border-top: 4px solid var(--ui-peach-ink, #884e3f); }
+:is(#panel .pixel-app, .social-page) .social-profile > i { width: 64px; height: 78px; display: block; overflow: hidden; position: relative; background: var(--phone-paper); border: 1px solid var(--phone-edge); }
+:is(#panel .pixel-app, .social-page) .social-profile > i img { width: 140px; max-width: none; height: auto; position: absolute; top: 0; left: 50%; transform: translateX(-50%); }
+:is(#panel .pixel-app, .social-page) .social-profile h2 { margin: 3px 0; font-size: 26px; }
+:is(#panel .pixel-app, .social-page) .social-profile p { margin: 0; font-size: 12px; }
+.social-profile > div > span { font-size: 11px; }
+:is(#panel .pixel-app, .social-page) .social-profile dl { display: flex; gap: 18px; margin: 0; padding: 0; }
+:is(#panel .pixel-app, .social-page) .social-profile dl div { display: grid; gap: 4px; padding: 0; border: 0; text-align: center; }
+:is(#panel .pixel-app, .social-page) .social-profile dl small { font-size: 11px; }
+:is(#panel .pixel-app, .social-page) .social-compose details { margin: 0 0 14px; padding: 12px 16px; background: var(--phone-paper); }
+:is(#panel .pixel-app, .social-page) .social-feed-tabs { display: flex; gap: 10px; border-bottom: 2px solid var(--phone-edge); margin: 18px 0 0; padding-bottom: 12px; }
+:is(#panel .pixel-app, .social-page) .social-feed { display: grid; grid-template-columns: minmax(0,1fr); gap: 14px; max-width: 780px; margin: 18px auto; }
+:is(#panel .pixel-app, .social-page) article.social-post { margin: 0; padding: 20px; border: 2px solid var(--phone-edge); background: var(--phone-paper); }
+:is(#panel .pixel-app, .social-page) .social-post > header { display: flex; align-items: center; gap: 12px; padding: 0; margin: 0 0 14px; border: 0; background: transparent; }
+:is(#panel .pixel-app, .social-page) .social-post > header > i { position: relative; flex: 0 0 42px; width: 42px; height: 48px; overflow: hidden; background: var(--ui-lilac, #eee5f7); color: var(--ui-lilac-ink, #675082); display: grid; place-items: center; font-style: normal; }
+:is(#panel .pixel-app, .social-page) .social-post > header > i img { position: absolute; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+:is(#panel .pixel-app, .social-page) .social-post > header > i .player-look-image { height: auto; width: 100px; max-width: none; left: 50%; transform: translateX(-50%); }
+:is(#panel .pixel-app, .social-page) .social-post > header small { display: block; font-size: 11px; }
+:is(#panel .pixel-app, .social-page) .social-post > p { font-size: 15px; color: var(--phone-ink); }
+:is(#panel .pixel-app, .social-page) .social-work-media { display: block; width: auto; height: auto; max-width: 100%; max-height: 240px; margin: 12px auto; object-fit: contain; }
+:is(#panel .pixel-app, .social-page) .social-post > footer { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; border-top: 1px solid var(--phone-edge); padding-top: 12px; }
+:is(#panel .pixel-app, .social-page) .social-reply-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 14px; }
+:is(#panel .pixel-app, .social-page) .social-reply-actions button { padding: 8px 10px; font-size: 13px; background: var(--ui-sky, #e4effb); }
+:is(#panel .pixel-app, .social-page) .social-comments { padding: 12px; margin-top: 12px; background: var(--ui-soft, #f3f1ed); }
+:is(#panel .pixel-app, .social-page) .social-comments p { font-size: 13px; margin: 5px 0; }
+.social-empty { padding: 24px; text-align: center; }
+/* An audition has an outcome, not a pre-audition probability at the end. */
+:is(#panel, .job-audition-story, body) .audition-result-card { border: 2px solid var(--phone-edge); padding: 22px; margin: 18px 0; background: var(--phone-paper); }
+.audition-result-card > header { display: flex; justify-content: space-between; gap: 16px; align-items: center; border-bottom: 1px solid var(--phone-edge); padding-bottom: 12px; }
+.audition-result-card > header > span { font-size: 11px; letter-spacing: 2px; }
+.audition-result-card > header > strong { background: var(--ui-peach, #fae5da); color: var(--ui-peach-ink, #884e3f); padding: 6px 12px; font-size: 18px; }
+.audition-result-card.passed > header > strong { background: var(--ui-mint, #e5efde); color: var(--ui-mint-ink, #456140); }
+.audition-result-card > h3 { font-size: 26px; margin: 18px 0; }
+.audition-result-card dl { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin: 0 0 18px; }
+.audition-result-card dl > div { padding: 10px; background: var(--ui-sky, #e4effb); }
+.audition-result-card dt { font-size: 11px; color: var(--phone-muted); }
+.audition-result-card dd { margin: 4px 0 0; font-size: 14px; }
+.audition-result-steps { display: grid; gap: 8px; }
+.audition-result-steps article { padding: 12px; border-left: 3px solid var(--phone-edge); }
+.audition-result-steps small { font-size: 12px; color: var(--phone-muted); }
+.audition-result-steps p { margin: 6px 0 0; font-size: 15px; line-height: 1.8; }
+.audition-next-step { background: var(--ui-honey, #f8edc9); color: var(--ui-honey-ink, #715823); padding: 12px; font-size: 13px; }
+@media (max-width: 760px) {
+  :is(#panel .pixel-app, .people-hub) .npc-dossier { grid-template-columns: minmax(0,1fr); gap: 14px; }
+  :is(#panel .pixel-app, .people-hub) nav.npc-list { display: flex; flex-wrap: nowrap; overflow-x: auto; max-height: none; gap: 8px; }
+  :is(#panel .pixel-app, .people-hub) .npc-list button { flex: 0 0 150px; }
+  .messenger-layout { grid-template-columns: minmax(0,1fr); min-height: 300px; }
+  .conversation-list { border: 0; }
+  .messenger-layout .chat-empty, .messenger-layout.has-thread .conversation-list { display: none; }
+  :is(#panel .pixel-app, .people-hub) .chat-back { display: block; }
+  .chat-history { height: 280px; }
+  :is(#panel .pixel-app, .social-page) header.social-profile { grid-template-columns: 54px minmax(0,1fr); gap: 12px; padding: 16px; }
+  :is(#panel .pixel-app, .social-page) .social-profile > i { width: 54px; height: 68px; }
+  :is(#panel .pixel-app, .social-page) .social-profile dl { grid-column: 1 / -1; justify-content: space-around; }
+  .forum-reply-choices { grid-template-columns: 1fr; }
+}
+@media (max-width: 500px) {
+  #panel .pixel-app .app-toolbar { gap: 6px; margin-bottom: 14px; }
+  #panel .pixel-app .app-toolbar > span { display: none; }
+  :is(#panel .pixel-app, .people-hub) .npc-profile-header { gap: 14px; padding: 12px; }
+  :is(#panel .pixel-app, .people-hub) .npc-profile-header .npc-figure { width: 100px; flex-basis: 100px; }
+  :is(#panel .pixel-app, .people-hub) .npc-figure img { width: 100px; height: 150px; }
+  :is(#panel .pixel-app, .people-hub) .npc-profile-identity h2 { font-size: 27px; }
+  :is(#panel .pixel-app, .people-hub) .npc-profile-identity p { font-size: 12px; }
+  :is(#panel .pixel-app, .people-hub) .npc-profile-tabs { gap: 5px; }
+  :is(#panel .pixel-app, .people-hub) .npc-profile-tabs button { font-size: 12px; padding: 8px 4px; }
+  :is(#panel .pixel-app, .people-hub) .relationship-signals { grid-template-columns: 1fr; gap: 6px; }
+  :is(#panel .pixel-app, .people-hub) .relationship-signals article { display: grid; grid-template-columns: 66px minmax(0,1fr); gap: 8px; padding: 10px; }
+  :is(#panel .pixel-app, .people-hub) .relationship-signals span { margin: 0; }
+  :is(#panel .pixel-app, .people-hub) .npc-overview-cards { grid-template-columns: 1fr; }
+  .chat-history { height: 240px; padding: 12px; }
+  .chat-header { flex-wrap: wrap; }
+  .chat-header > div { flex: 1; }
+  .chat-composer { padding: 10px; }
+  :is(#panel .pixel-app, .people-hub) .chat-composer nav { gap: 6px; }
+  :is(#panel .pixel-app, .people-hub) .chat-composer nav button { font-size: 12px; padding: 8px; }
+  :is(#panel .pixel-app, .people-hub) .chat-header > img { display: none; }
+  :is(#panel .pixel-app, .forum-page) .forum-hero { display: block; padding: 16px; }
+  .forum-hero > b { display: inline-block; margin-top: 12px; }
+  .forum-tools { gap: 8px; }
+  .forum-tools > label:first-child { flex-basis: 100%; }
+  .forum-tools > button, .forum-tools > label { flex: 1; font-size: 12px; }
+  .forum-tools select { width: 100%; }
+  :is(#panel .pixel-app, .forum-page) .forum-thread-list > button { grid-template-columns: 28px minmax(0,1fr); gap: 10px; padding: 14px 10px; }
+  :is(#panel .pixel-app, .forum-page) .forum-thread-icon { width: 28px; height: 32px; font-size: 18px; align-self: start; }
+  .forum-thread-list > button > strong { grid-column: 2; text-align: left; font-size: 11px; }
+  :is(#panel .pixel-app, .forum-page) .forum-thread-copy b { font-size: 17px; }
+  :is(#panel .pixel-app, .forum-page) .forum-thread-detail { padding: 16px; }
+  :is(#panel .pixel-app, .forum-page) .forum-thread-detail h2 { font-size: 23px; }
+  :is(#panel .pixel-app, .social-page) article.social-post { padding: 16px; }
+  :is(#panel .pixel-app, .social-page) .social-feed-tabs { gap: 6px; }
+  :is(#panel .pixel-app, .social-page) .social-feed-tabs button { flex: 1; padding: 8px 4px; font-size: 13px; }
+  .audition-result-card dl { grid-template-columns: 1fr; gap: 6px; }
+  :is(#panel, body) .audition-result-card { padding: 14px; }
+  .audition-result-card > h3 { font-size: 23px; }
+}
+@media (prefers-reduced-motion: reduce) { .heart-pop svg { animation: none; } }
+/* Both apps accept player-written text as well as the suggested starters. */
+:is(#panel .pixel-app, .people-hub, .forum-page) textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 76px; max-height: 240px; border: 1px solid var(--phone-edge); border-radius: 0; background: var(--phone-paper); color: var(--phone-ink); padding: 10px 12px; font: inherit; font-size: 14px; line-height: 1.7; }
+.chat-draft-label { display: grid; gap: 6px; }
+.chat-draft-label > span, .forum-custom-composer label > span { font-size: 11px; color: var(--phone-muted); }
+.forum-custom-composer label { display: grid; gap: 8px; }
+.forum-custom-composer button { margin-top: 12px; }
+:is(#panel .pixel-app, .people-hub) .npc-portrait-frame { position: relative; overflow: hidden; width: 130px; height: 170px; }
+:is(#panel .pixel-app, .people-hub) .npc-figure.bust .npc-portrait-frame img { position: absolute; width: 225px; max-width: none; height: auto; left: 50%; top: 0; transform: translateX(-50%); }
+.chat-bubble p, .forum-thread-detail > p, .forum-replies p { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 500px) {
+  :is(#panel .pixel-app, .people-hub) .npc-portrait-frame { width: 100px; height: 150px; }
+  :is(#panel .pixel-app, .people-hub) .npc-figure.bust .npc-portrait-frame img { width: 195px; }
+  :is(#panel .pixel-app, .people-hub, .forum-page) :is(textarea, [data-forum-query], [data-people-query], [data-forum-sort]) { font-size: 16px; }
+}
+@media (max-width: 760px) {
+  /* In a conversation the contact header already names the screen; reclaim the
+     list heading's space so the composer stays within the phone viewport. */
+  :is(#panel .pixel-app, .people-hub) .messenger.thread-open .inside-title { display: none; }
+}

@@ -1,3 +1,4 @@
+import { auditionResultCard } from "../views/audition-result.js";
 import { canAccessJob } from "./industry.js";
 import { jobExperienceTier } from "./work-progression.js";
 import { JOB_BY_ID, JOB_CATALOG } from "../data/jobs.js";
@@ -465,8 +466,8 @@ export function resolveAudition(id, choice) {
   record.auditionActivityId = null;
   record.auditionChoice = choice;
   record.notice = passed
-    ? `${role.label}試鏡通過・${successRateLabel(pct)}`
-    : `${role.label}未獲選・${successRateLabel(pct)}`;
+    ? `${role.label}試鏡通過・可閱讀正式合約`
+    : `${role.label}未獲選・本次徵選已結束`;
   storyFeed(record, {
     phase: "audition",
     title: `${titleTag(job.title)}試鏡`,
@@ -493,13 +494,16 @@ export function resolveScheduledJobAudition(task, choice) {
     result = job && resolveAudition(job.id, choice),
     copy = result?.story?.audition;
   if (!job || !result) return { ok: false, text: "這場試鏡已失效。" };
+  const audition = { passed: result.passed, work: job.title, role: result.role.label, venue: job.audition.venue, client: job.client, arrival: copy?.arrival || job.audition.prompt, choice: choice === "bold" ? copy?.bold : copy?.steady, feedback: result.passed ? copy?.passed : copy?.failed };
+
   return {
     ok: true,
     title: result.passed
       ? `${titleTag(job.title)}試鏡通過！`
       : `${titleTag(job.title)}這次沒有獲選`,
+    audition,
     jobOfferId: result.passed ? job.id : null,
-    text: `<section class="job-audition-story"><span>${job.client}・${job.audition.venue}</span><p>${copy?.arrival || job.audition.prompt}</p><strong>${choice === "bold" ? copy?.bold : copy?.steady}</strong><p>${result.passed ? copy?.passed : copy?.failed}</p></section><aside class="job-session-progress">試鏡角色：${result.role.label}・機會評估 ${result.label}</aside>${result.passed ? `<section class="audition-contract-offer"><span>NEXT STEP・正式合約</span><b>製作方已在現場送出合約</b><p>試鏡通過後直接確認，不必再回工作信箱尋找這份通告。</p><button class="main-btn" data-sign-job-now="${job.id}">立即簽署${titleTag(job.title)} →</button></section>` : ""}`,
+    text: `${auditionResultCard(audition)}${result.passed ? `<section class="audition-contract-offer"><span>NEXT STEP・正式合約</span><b>製作方已在現場送出合約</b><p>試鏡通過後直接確認，不必再回工作信箱尋找這份通告。</p><button class="main-btn" data-sign-job-now="${job.id}">立即簽署${titleTag(job.title)} →</button></section>` : ""}`,
   };
 }
 export function signJob(id) {

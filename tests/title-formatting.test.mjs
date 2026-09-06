@@ -1,3 +1,4 @@
+import { auditionResultCard } from "../src/views/audition-result.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { titleTag } from "../src/core/utils.js";
@@ -36,24 +37,27 @@ test("75 份工作的敘事與段落標題不會出現雙重書名號", () => {
       assert.equal(typeof text, "string", `${job.id}.${field}`);
       assert.ok(!text.includes("《《"), `${job.id}.${field}: ${text}`);
     }
-    assert.ok(story.audition.passed.includes(job.title), job.id);
+    assert.ok(auditionResultCard({ work: job.title, feedback: story.audition.passed, passed: true }).includes(job.title), job.id);
   }
 });
 
 test("重寫後的75份試鏡結果保留正確作品名，且每份有獨立通過與落選內容", () => {
   for (const job of JOB_CATALOG) {
     const story = JOB_STORYLINES[job.id];
-    const prefix = `${titleTag(job.title)}的試鏡結果到了。`;
-    assert.ok(story.audition.passed.startsWith(prefix), job.id);
-    assert.ok(story.audition.failed.startsWith(prefix), job.id);
+
+    for (const passed of [true, false]) {
+      const html = auditionResultCard({ work: job.title, passed, feedback: passed ? story.audition.passed : story.audition.failed });
+      assert.ok(html.includes(job.title), job.id);
+      assert.ok(html.includes(passed ? "試鏡通過" : "這次未獲選"));
+    }
     assert.notEqual(story.audition.passed, story.audition.failed, job.id);
-    assert.ok(story.audition.passed.slice(prefix.length).length > 20, job.id);
-    assert.ok(story.audition.failed.slice(prefix.length).length > 20, job.id);
+    assert.ok(story.audition.passed.length > 20, job.id);
+    assert.ok(story.audition.failed.length > 20, job.id);
   }
   const results = JOB_CATALOG.map((job) => {
-    const prefix = `${titleTag(job.title)}的試鏡結果到了。`;
+
     const story = JOB_STORYLINES[job.id];
-    return { passed: story.audition.passed.slice(prefix.length), failed: story.audition.failed.slice(prefix.length) };
+    return { passed: story.audition.passed, failed: story.audition.failed };
   });
   assert.equal(new Set(results.map((r) => r.passed)).size, 75);
   assert.equal(new Set(results.map((r) => r.failed)).size, 75);

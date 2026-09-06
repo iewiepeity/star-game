@@ -41,10 +41,10 @@ test("短聯絡可使用、說明感情卡關並保存上限，不占當天行�
   await start(page);
   const before = (await read(page)).state.life;
   await app(page, "people");
-  await page.locator('[data-select-npc="guchengxi"]').first().click();
-  await expect(page.locator("#panel")).toContainText(
-    "友情與信任不等於戀愛心意",
-  );
+  await page.locator('[data-chat-open="guchengxi"]').first().click();
+  await page.locator('[data-select-npc="guchengxi"]').click();
+  await expect(page.locator("#panel")).toContainText("友情與信任不等於戀愛心意");
+  await page.locator('[data-chat-open="guchengxi"]').first().click();
   await page
     .locator('[data-short-contact="guchengxi"][data-contact-type="call"]')
     .click();
@@ -59,10 +59,8 @@ test("短聯絡可使用、說明感情卡關並保存上限，不占當天行�
   await page.reload();
   await expect(page.locator("#loading")).toBeHidden({ timeout: 15000 });
   await app(page, "people");
-  await page.locator('[data-select-npc="guchengxi"]').first().click();
-  await page
-    .locator('[data-short-contact="guchengxi"][data-contact-type="call"]')
-    .click();
+  if (!(await page.locator(".chat-header").isVisible())) await page.locator('[data-chat-open="guchengxi"]').first().click();
+  await expect(page.locator('[data-short-contact="guchengxi"][data-contact-type="call"]')).toBeDisabled();
   life = (await read(page)).state.life;
   expect(life.game.shortContacts).toHaveLength(2);
 });
@@ -80,6 +78,7 @@ test("社群回覆有接話，論壇記住已讀並可查看歷史", async ({ pa
     ];
   });
   await app(page, "social");
+  await page.locator('[data-social-comments="npc-guchengxi-60"]').click();
   await page.locator('[data-social-reply="guchengxi"]').first().click();
   await expect(
     page
@@ -142,7 +141,9 @@ test("友情足夠後可主動開啟感情談話，重按不產生重複事件",
     s.life.game.npcStoryHistory = ["guchengxi:romance:ambiguous:0"];
   });
   await app(page, "people");
+  await page.locator('[data-people-section="profiles"]').click();
   await page.locator('[data-select-npc="guchengxi"]').first().click();
+  await page.locator('[data-npc-profile-tab="relationship"]').click();
   await page.locator('[data-romance-talk="guchengxi"]').click();
   await page.locator('[data-romance-talk="guchengxi"]').click();
   const g = (await read(page)).state.life.game;

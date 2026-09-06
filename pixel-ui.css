@@ -117,7 +117,7 @@ button.primary,
 #panel
   button[aria-pressed="true"]:not(.map-landmark):not(.theme-choice):not(
     [data-avatar]
-  ):not([data-outfit]),
+  ):not([data-outfit]):not(.community-heart),
 #panel .schedule-filters button[aria-pressed="true"] {
   background: var(--ui-accent);
   color: var(--ui-on-accent);

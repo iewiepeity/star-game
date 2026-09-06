@@ -1,6 +1,6 @@
 {
-  "version": "0.15.0",
-  "bytes": 114811877,
+  "version": "0.16.0",
+  "bytes": 114867723,
   "entries": [
     {
       "url": "./index.html",
@@ -8,7 +8,7 @@
     },
     {
       "url": "./pixel.html",
-      "bytes": 4576
+      "bytes": 4619
     },
     {
       "url": "./pixel.css",
@@ -16,7 +16,7 @@
     },
     {
       "url": "./pixel-ui.css",
-      "bytes": 27237
+      "bytes": 27259
     },
     {
       "url": "./pixel-apps.css",
@@ -25,6 +25,10 @@
     {
       "url": "./pixel-theme.css",
       "bytes": 47119
+    },
+    {
+      "url": "./phone.css",
+      "bytes": 30638
     },
     {
       "url": "./pixel.webmanifest",
@@ -60,7 +64,7 @@
     },
     {
       "url": "./src/bind/forum.js",
-      "bytes": 1457
+      "bytes": 2366
     },
     {
       "url": "./src/bind/gallery.js",
@@ -76,7 +80,7 @@
     },
     {
       "url": "./src/bind/npc.js",
-      "bytes": 3490
+      "bytes": 4817
     },
     {
       "url": "./src/bind/planner.js",
@@ -104,7 +108,7 @@
     },
     {
       "url": "./src/bind/social.js",
-      "bytes": 1846
+      "bytes": 2247
     },
     {
       "url": "./src/bind/summary.js",
@@ -156,7 +160,7 @@
     },
     {
       "url": "./src/core/persistence.js",
-      "bytes": 7746
+      "bytes": 7887
     },
     {
       "url": "./src/core/player-name.js",
@@ -188,7 +192,7 @@
     },
     {
       "url": "./src/core/state.js",
-      "bytes": 16789
+      "bytes": 17085
     },
     {
       "url": "./src/core/stats.js",
@@ -288,7 +292,7 @@
     },
     {
       "url": "./src/data/job-storylines.js",
-      "bytes": 1865
+      "bytes": 1762
     },
     {
       "url": "./src/data/jobs-catalog.js",
@@ -448,7 +452,11 @@
     },
     {
       "url": "./src/logic/community-interactions.js",
-      "bytes": 2850
+      "bytes": 4456
+    },
+    {
+      "url": "./src/logic/community-likes.js",
+      "bytes": 899
     },
     {
       "url": "./src/logic/competitors.js",
@@ -461,6 +469,10 @@
     {
       "url": "./src/logic/contract-negotiation.js",
       "bytes": 2114
+    },
+    {
+      "url": "./src/logic/conversations.js",
+      "bytes": 3585
     },
     {
       "url": "./src/logic/creative-schedule.js",
@@ -515,6 +527,10 @@
       "bytes": 2003
     },
     {
+      "url": "./src/logic/forum-feed.js",
+      "bytes": 3830
+    },
+    {
       "url": "./src/logic/hidden-route.js",
       "bytes": 18648
     },
@@ -528,7 +544,7 @@
     },
     {
       "url": "./src/logic/job-engine.js",
-      "bytes": 26834
+      "bytes": 26862
     },
     {
       "url": "./src/logic/job-list-model.js",
@@ -604,7 +620,7 @@
     },
     {
       "url": "./src/logic/playable-depth-engine.js",
-      "bytes": 16883
+      "bytes": 16954
     },
     {
       "url": "./src/logic/portfolio.js",
@@ -660,7 +676,7 @@
     },
     {
       "url": "./src/logic/short-contact.js",
-      "bytes": 3389
+      "bytes": 4308
     },
     {
       "url": "./src/logic/social-context.js",
@@ -760,7 +776,7 @@
     },
     {
       "url": "./src/pixel/feature-ui.js",
-      "bytes": 21987
+      "bytes": 24614
     },
     {
       "url": "./src/pixel/furniture-layers.js",
@@ -772,11 +788,11 @@
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 28081
+      "bytes": 28336
     },
     {
       "url": "./src/pixel/life.js",
-      "bytes": 22293
+      "bytes": 22323
     },
     {
       "url": "./src/pixel/location-day-copy.js",
@@ -784,7 +800,7 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 44477
+      "bytes": 44498
     },
     {
       "url": "./src/pixel/menu-icons.js",
@@ -824,7 +840,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 5304
+      "bytes": 6334
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -895,8 +911,16 @@
       "bytes": 5568
     },
     {
+      "url": "./src/views/audition-result.js",
+      "bytes": 1034
+    },
+    {
       "url": "./src/views/city-map.js",
       "bytes": 5082
+    },
+    {
+      "url": "./src/views/community-heart.js",
+      "bytes": 604
     },
     {
       "url": "./src/views/confirm-dialog.js",
@@ -920,7 +944,7 @@
     },
     {
       "url": "./src/views/forum.js",
-      "bytes": 6609
+      "bytes": 6537
     },
     {
       "url": "./src/views/gallery.js",
@@ -944,11 +968,11 @@
     },
     {
       "url": "./src/views/npc.js",
-      "bytes": 11989
+      "bytes": 13509
     },
     {
       "url": "./src/views/people.js",
-      "bytes": 4381
+      "bytes": 7089
     },
     {
       "url": "./src/views/phone.js",
@@ -988,7 +1012,7 @@
     },
     {
       "url": "./src/views/social.js",
-      "bytes": 6530
+      "bytes": 8007
     },
     {
       "url": "./src/views/stats-app.js",

@@ -11,8 +11,8 @@ import {
 } from "../logic/npc-engine.js";
 import { npcCareerSnapshot, npcNetworkFor } from "../logic/npc-ecosystem.js";
 import {
-  romanceProgress,
   affectionSignal,
+  romanceProgress,
   ensureRomanceFields,
   romanceEligibility,
   romanceRoute,
@@ -47,7 +47,7 @@ const visibilityLabel = (value) =>
 
 function interactionButtons(current, story, rel) {
   return (
-    `<p>${esc(romanceProgress(current))}</p><button data-short-contact="${current}" data-contact-type="message">傳訊息 · 不占一天</button><button data-short-contact="${current}" data-contact-type="call">打電話 · 不占一天</button><button data-romance-talk="${current}">聊聊我們的關係</button><p>每人每週短聯絡 2 次，合計 5 次；下列正式邀約占一天。</p>` +
+    `<button data-chat-open="${current}">開啟對話 · 不占一天</button><button data-romance-talk="${current}">聊聊我們的關係</button><p>每人每週短聯絡 2 次，合計 5 次；下列正式邀約占一天。</p>` +
     Object.entries(NPC_INTERACTIONS)
       .map(([id, d]) => {
         const conflict = rel.hostility || 0;
@@ -171,7 +171,7 @@ function sharedMemoryPanel(id) {
     .slice(-8)
     .reverse();
   if (!items.length) return "";
-  return `<section class="npc-shared-memories"><header><span>SHARED MEMORIES</span><h3>你們共同記得的事</h3></header>${items.map((item) => `<article><small>第 ${item.week} 週・相處紀錄</small><b>${esc(item.title)}</b><p>${esc(item.text)}</p></article>`).join("")}</section>`;
+  return `<section class="npc-shared-memories"><header><span>SHARED MEMORIES</span><h3>你們共同記得的事</h3></header>${items.map((item) => `<article><small>第 ${item.type === "first_meeting" ? state.relationships[id]?.firstMet?.week || state.relationships[id]?.metWeek || item.week : item.week} 週・相處紀錄</small><b>${esc(item.title)}</b><p>${esc(item.text)}</p></article>`).join("")}</section>`;
 }
 
 export function npcApp() {
@@ -188,8 +188,55 @@ export function npcApp() {
     meeting = npcFirstMeeting(current),
     familiar = state.familiarNpcs.includes(current),
     artView = state.npcArtView === "full" ? "full" : "bust",
-    art = npc.portrait || npc.bust;
-  return `<div class="npc-dossier"><nav class="npc-list">${ids
+    art =
+      artView === "full" ? npc.portrait || npc.bust : npc.bust || npc.portrait;
+  const tabs = {
+    overview: "人物速覽",
+    relationship: "關係與邀約",
+    memories: "共同回憶",
+    about: "背景資料",
+  };
+  const tab = Object.hasOwn(tabs, state.npcProfileTab)
+    ? state.npcProfileTab
+    : "overview";
+  const relationship = `<section class="relationship-panel ${rel.hostility >= 45 ? "conflict" : ""}"><header><span>RELATIONSHIP</span><h3>${esc(story.stage.label)}・${esc(romanceStageLabel(rel.romance))}</h3><small>${esc(visibilityLabel(rel.visibility))}</small></header><div class="relationship-signals"><article><span>相處感覺</span><b>${esc(affectionSignal(current))}</b></article><article><span>信任觀察</span><b>${esc(trustSignal(current))}</b></article><article><span>衝突跡象</span><b>${esc(hostilitySignal(current))}</b></article></div><p class="relationship-hint">${esc(romanceProgress(current))}</p></section>`;
+  const meetingCard = `<article class="npc-first-meeting npc-memory-card"><small>FIRST ENCOUNTER・第 ${meeting.week} 週</small><h3>初次相遇・${esc(meeting.title)}</h3><p>${esc(meeting.text)}</p><small>${esc(meeting.source)}</small></article>`;
+  const careerCard = `<article class="npc-career-card"><small>職涯近況・${esc(npc.special ? npc.job : career.field)}</small><h3>${trendLabel(career.trend)}</h3><p>近期作品 ${career.works}・獎項 ${career.awards}</p><small>擅長領域：${career.specialties.map(esc).join("、") || "跨領域"}</small></article>`;
+  const content = {
+    overview:
+      relationship +
+      `<div class="npc-overview-cards">${careerCard}<article class="npc-memory-card"><small>初次相遇・第 ${meeting.week} 週</small><p>${esc(meeting.title)}</p><button data-npc-profile-tab="memories">翻翻共同回憶 →</button></article></div>`,
+    relationship: `<section class="npc-relationship-actions"><h3>把關係放進生活裡</h3><p>${esc(routeHint(current, rel))}</p>${npcInvitationPanel(current)}<div class="npc-actions">${interactionButtons(current, story, rel)}</div>${romanceActions(current, rel)}</section>`,
+    memories:
+      meetingCard +
+      sharedMemoryPanel(current) +
+      (story.events.length
+        ? `<p>你們留下了 ${story.events.length} 次關係變化的紀錄。</p>`
+        : ""),
+    about:
+      section(
+        "基本資料",
+        [
+          ["性別", npc.gender],
+          ["生日", npc.birthday],
+          ["血型", npc.bloodType],
+          ["身高", npc.height],
+          ["職業", npc.job],
+          ["出沒地點", npc.location],
+        ],
+        true,
+      ) +
+      section(
+        "工作資料",
+        [
+          ["職業", npc.job],
+          ["擅長", p.strengths],
+        ],
+        true,
+      ) +
+      `<section class="npc-network"><h3>你知道的關係網</h3>${network.length ? network.map((item) => `<article><span>${esc(item.label)}</span><b>${esc(item.name)}</b><small>${esc(item.text)}</small></article>`).join("") : "<p>目前還沒有一起參與的工作或聽說的圈內近況。</p>"}</section>`,
+  };
+  return `<div class="npc-dossier"><nav class="npc-list" aria-label="人物名單">${ids
     .map((id) => {
       const n = NPCS[id],
         r = state.relationships[id],
@@ -198,18 +245,14 @@ export function npcApp() {
     })
     .join(
       "",
-    )}</nav><section class="npc-profile"><div class="npc-figure ${artView}" style="--npc-accent:${npc.accent}"><img src="${art}" alt="${esc(npc.name)}${artView === "full" ? "全身" : "半身"}立繪" loading="lazy" decoding="async"><span>已認識${familiar ? "・似曾相識" : ""}</span><nav aria-label="立繪顯示方式"><button class="${artView === "bust" ? "active" : ""}" data-npc-art="bust" aria-pressed="${artView === "bust"}">半身</button><button class="${artView === "full" ? "active" : ""}" data-npc-art="full" aria-pressed="${artView === "full"}">全身</button></nav></div><div class="npc-profile-copy"><header><span>PERSONAL FILE・${npc.age} 歲</span><h2>${esc(npc.name)}</h2><p>${esc(publicIntroduction(npc))}</p></header><section class="relationship-panel ${rel.hostility >= 45 ? "conflict" : ""}"><header><span>RELATIONSHIP</span><h3>${esc(story.stage.label)}・${esc(romanceStageLabel(rel.romance))}</h3><small>${esc(visibilityLabel(rel.visibility))}</small></header><div class="relationship-signals"><article><span>相處感覺</span><b>${esc(affectionSignal(current))}</b></article><article><span>信任觀察</span><b>${esc(trustSignal(current))}</b></article><article><span>衝突跡象</span><b>${esc(hostilitySignal(current))}</b></article></div><p class="relationship-hint">${esc(routeHint(current, rel))}</p>${npcInvitationPanel(current)}<div class="npc-actions">${interactionButtons(current, story, rel)}</div>${romanceActions(current, rel)}${sharedMemoryPanel(current)}${story.events.length ? `<p>你們留下了 ${story.events.length} 次關係變化的紀錄。</p>` : ""}</section><details class="npc-first-meeting"><summary>初次相遇・${esc(meeting.title)}</summary><header><span>FIRST ENCOUNTER・第 ${meeting.week} 週</span><h3>${esc(meeting.title)}</h3><small>${esc(meeting.source)}</small></header><p>${esc(meeting.text)}</p></details><details class="npc-career-card"><summary>職涯近況</summary><span>${esc(npc.special ? npc.job : career.field)}</span><h3>${trendLabel(career.trend)}</h3><p>近期作品 ${career.works}・獎項 ${career.awards}</p><small>擅長領域：${career.specialties.map(esc).join("、") || "跨領域"}</small></details>${section(
-    "基本資料",
-    [
-      ["性別", npc.gender],
-      ["生日", npc.birthday],
-      ["血型", npc.bloodType],
-      ["身高", npc.height],
-      ["職業", npc.job],
-      ["出沒地點", npc.location],
-    ],
-  )}${section("工作資料", [
-    ["職業", npc.job],
-    ["擅長", p.strengths],
-  ])}<section class="npc-network"><h3>關係網</h3>${network.length ? network.map((item) => `<article><span>${esc(item.label)}</span><b>${esc(item.name)}</b><small>${esc(item.text)}</small></article>`).join("") : `<p>目前還沒有一起參與的工作或聽說的圈內近況。</p>`}</section></div></section></div>`;
+    )}</nav><section class="npc-profile"><header class="npc-profile-header"><div class="npc-figure ${artView}" style="--npc-accent:${npc.accent}"><div class="npc-portrait-frame"><img src="${art}" alt="${esc(npc.name)}${artView === "full" ? "全身" : "半身"}立繪" decoding="async"></div><nav aria-label="立繪顯示方式"><button class="${artView === "bust" ? "active" : ""}" data-npc-art="bust" aria-pressed="${artView === "bust"}">半身</button><button class="${artView === "full" ? "active" : ""}" data-npc-art="full" aria-pressed="${artView === "full"}">全身</button></nav></div><div class="npc-profile-identity"><span>PERSONAL FILE・${npc.age} 歲</span><h2>${esc(npc.name)}</h2><b>${esc(npc.job)}</b><p>${esc(publicIntroduction(npc))}</p><small>已認識${familiar ? "・似曾相識" : ""}</small><button data-chat-open="${current}">✉ 傳訊息</button></div></header><nav class="npc-profile-tabs" aria-label="檔案章節">${Object.entries(
+    tabs,
+  )
+    .map(
+      ([id, label]) =>
+        `<button data-npc-profile-tab="${id}" aria-pressed="${tab === id}" aria-controls="npc-profile-content">${label}</button>`,
+    )
+    .join(
+      "",
+    )}</nav><div id="npc-profile-content" class="npc-profile-copy" data-profile-section="${tab}">${content[tab]}</div></section></div>`;
 }

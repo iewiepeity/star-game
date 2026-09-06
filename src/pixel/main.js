@@ -835,7 +835,7 @@ const featureUI = createFeatureUI({
 document.addEventListener("input", (event) => {
   if (event.target.dataset.createField)
     editCreation(state, event.target.dataset.createField, event.target.value);
-  if (event.target.matches(".pixel-app input")) featureUI.input(event);
+  if (event.target.matches(".pixel-app input, .pixel-app textarea")) featureUI.input(event);
 });
 document.addEventListener("change", (event) => {
   if (event.target.matches(".pixel-app select")) featureUI.input(event);

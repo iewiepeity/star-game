@@ -1,0 +1,4 @@
+import { esc } from "../core/utils.js";
+export function auditionResultCard(result) {
+  return `<section class="audition-result-card ${result.passed ? "passed" : "failed"}"><header><span>AUDITION RESULT</span><strong>${result.passed ? "試鏡通過" : "這次未獲選"}</strong></header><h3>${esc(result.work)}</h3><dl><div><dt>參與定位</dt><dd>${esc(result.role)}</dd></div><div><dt>試鏡地點</dt><dd>${esc(result.venue)}</dd></div><div><dt>製作方</dt><dd>${esc(result.client)}</dd></div></dl><div class="audition-result-steps"><article><small>01 · 現場</small><p>${esc(result.arrival)}</p></article><article><small>02 · 你的表現方式</small><p>${esc(result.choice)}</p></article><article><small>03 · 製作方回覆</small><p>${esc(result.feedback)}</p></article></div><p class="audition-next-step">${result.passed ? "下一步：閱讀正式合約，確認條件後再簽署。" : "下一步：這次徵選已結束。整理回饋、安排練習，也可以尋找下一份適合的工作。"}</p></section>`;
+}

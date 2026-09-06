@@ -44,7 +44,9 @@ test("75 份工作都有試鏡、簽約、四段製作、完成與違約專屬�
   assert.equal(Object.keys(JOB_STORYLINES).length, 75);
   for (const job of JOB_CATALOG) {
     const s = JOB_STORYLINES[job.id];
-    assert.ok(s.audition.passed.includes(job.title));
+    assert.ok(s.audition.passed.length > 20);
+    assert.ok(s.audition.failed.length > 20);
+    assert.ok(s.contract.title.includes(job.title));
     assert.equal(s.production.length, 4);
     assert.ok(s.contract.text.includes(job.client));
     assert.ok(s.breach.text.length > 30);

@@ -387,7 +387,7 @@ export function beginDay(life, assignment = life.plan[life.day]) {
 }
 const plain = (text) =>
   String(text || "")
-    .replace(/<[^>]*>/g, "")
+    .replace(/<[^>]*>/g, " ")
     .replace(/&[^;]+;/g, "");
 export function settleDay(life, choice = "focus") {
   const pending = life.pending;
@@ -435,7 +435,7 @@ export function settleDay(life, choice = "focus") {
         };
         notes.push(...meetings.map((m) => plain(m.text)));
       }
-      notes.push(plain(presentation?.text));
+      if (!presentation?.audition) notes.push(plain(presentation?.text));
     } else if (ACTIONS[def.action].type === "train") {
       const r = routineTraining(game, def.action, randomInt);
       notes.push(`學習效率 ${Math.round(r.multiplier * 100)}%`);

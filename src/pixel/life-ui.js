@@ -1,3 +1,4 @@
+import { auditionResultCard } from "../views/audition-result.js";
 import { npcSocialPost } from "../logic/social-context.js";
 import {
   applyPlannerTool,
@@ -342,7 +343,7 @@ export function createLifeUI(api) {
       });
     show(
       "result",
-      `${heading("A DAY TO REMEMBER", `${DAY_NAMES[r.day]} · ${r.label}`)}<div class="result-scene">${roomIllustration(ROOMS[definition(life(), r.assignment).room])}<span>今日完成</span></div><div class="result-values">${Object.entries(
+      `${heading(r.presentation?.audition ? "AUDITION DAY" : "A DAY TO REMEMBER", r.presentation?.audition ? `${DAY_NAMES[r.day]} · 試鏡結果` : `${DAY_NAMES[r.day]} · ${r.label}`)}${r.presentation?.audition ? auditionResultCard(r.presentation.audition) : `<div class="result-scene">${roomIllustration(ROOMS[definition(life(), r.assignment).room])}<span>今日完成</span></div>`}<div class="result-values">${Object.entries(
         r.deltas,
       )
         .filter(([, v]) => v)

@@ -1,3 +1,4 @@
+import { toggleCommunityLike } from "../logic/community-likes.js";
 import { SOCIAL_POST_TEMPLATES } from "../data/social.js";
 import { state } from "../core/state.js";
 import { scheduleActivity } from "../logic/scheduled-activities.js";
@@ -5,6 +6,23 @@ import { render } from "../render.js";
 import { replyToNpcPost } from "../logic/community-interactions.js";
 import { socialDrafts } from "../logic/social-drafts.js";
 export function bindSocial() {
+  document.querySelectorAll("[data-social-filter]").forEach(
+    (b) =>
+      (b.onclick = () => {
+        state.socialFilter = b.dataset.socialFilter;
+        render();
+      }),
+  );
+  document.querySelectorAll("[data-social-comments]").forEach(
+    (b) =>
+      (b.onclick = () => {
+        state.socialExpandedPost =
+          state.socialExpandedPost === b.dataset.socialComments
+            ? null
+            : b.dataset.socialComments;
+        render();
+      }),
+  );
   document.querySelectorAll("[data-social-post]").forEach(
     (x) =>
       (x.onclick = () => {
@@ -23,7 +41,7 @@ export function bindSocial() {
         }
         const r = scheduleActivity(
           "social_post",
-          { type, text:t.text, label:t.label },
+          { type, text: t.text, label: t.label },
           `社群更新：${t.label}`,
           { fatigue: 2, stamina: 2 },
         );
@@ -34,10 +52,7 @@ export function bindSocial() {
   document.querySelectorAll("[data-social-like]").forEach(
     (x) =>
       (x.onclick = () => {
-        const id = x.dataset.socialLike,
-          index = state.likedSocialPosts.indexOf(id);
-        if (index >= 0) state.likedSocialPosts.splice(index, 1);
-        else state.likedSocialPosts.push(id);
+        toggleCommunityLike("social", x.dataset.socialLike);
         render();
       }),
   );
