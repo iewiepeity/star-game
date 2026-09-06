@@ -130,6 +130,7 @@ test("邀約先選雙方空檔，確認前不更動行程或扣款", async ({ pa
     return id;
   });
   const before = await snapshot(page);
+  await page.locator('[data-npc-profile-tab="relationship"]').click();
   await page.locator(`[data-npc-id="${id}"][data-npc-interact="meal"]`).click();
   await expect(page.locator('[data-invitation-day="0"]')).toBeDisabled();
   expect(await snapshot(page)).toEqual(before);
