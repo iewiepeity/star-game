@@ -269,7 +269,9 @@ test("深化首頁、行程、地圖與手機在桌機與手機專案都可操�
   await expect(page.locator(".home-briefing")).toContainText("② 有人在找你");
   await expect(page.locator(".home-briefing")).toContainText("③ 本章目標");
   await page.locator('.tablet-dock [data-open-app="people"]').click();
-  await expect(page.locator(".message-inbox")).toContainText("到家跟我說");
+  await page.locator('[data-chat-open="jiqing"]').click();
+  await expect(page.locator(".chat-history")).toContainText("到家跟我說");
+  expect(await page.evaluate(async () => (await import("/src/core/state.js")).state.npcMessages[0].read)).toBe(true);
   await page.locator(".window-close[data-close-app]").click();
   await page.locator('.tablet-dock [data-open-app="planner"]').click();
   await expect(page.locator(".planner-command-bar")).toContainText("疲勞趨勢");
@@ -301,7 +303,7 @@ test("人物整合、原創輸入、線索樣式與存檔版面不再互相遮�
   ).toBe("static");
   expect(
     await page
-      .locator(".npc-profile-copy>header")
+      .locator(".npc-profile-header")
       .evaluate((el) => getComputedStyle(el).position),
   ).toBe("static");
   await page.locator(".window-close[data-close-app]").click();
