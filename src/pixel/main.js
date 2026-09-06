@@ -30,7 +30,8 @@ import {
   applyPixelTheme,
   applyPixelFont,
 } from "./preferences.js";
-import { settingsMarkup } from "./settings-ui.js";
+import { PIXEL_VERSION } from "./release-notes.js";
+import { settingsMarkup, releaseNotesMarkup } from "./settings-ui.js";
 import {
   avatarsForGender,
   selectAvatar,
@@ -259,6 +260,9 @@ function nearby() {
     "nearby",
     `${heading("AROUND ME · 附近", "看看身邊有什麼")}<nav id="nearby" aria-label="場景互動物件">${ROOMS[state.sceneId].objects.map((item) => `<button data-object="${item.id}">${item.name}<span>${item.action === "inspect" ? "看看 →" : "使用 →"}</span></button>`).join("")}${actors.map((id) => `<button data-npc="${id}"><img src="${PEOPLE[id].head}" alt="">${PEOPLE[id].name}<span>聊聊 →</span></button>`).join("")}</nav>`,
   );
+}
+function releaseNotes() {
+  show("release-notes", `${heading("WHAT'S NEW · 星望市施工日誌", "版本更新紀錄")}${releaseNotesMarkup(escape)}`);
 }
 function settings() {
   show(
@@ -1144,6 +1148,9 @@ document.addEventListener("click", async (event) => {
     case "nearby":
       nearby();
       break;
+    case "release-notes":
+      releaseNotes();
+      break;
     case "settings":
       settings();
       break;
@@ -1212,6 +1219,7 @@ window.__pixelRead = () =>
   world
     ? { ...world.snapshot(), state: structuredClone(state), panel: panelType }
     : null;
+$("pixel-version-label").textContent = `STARLIGHT DAYS · v${PIXEL_VERSION}`;
 createWorld(controller);
 
 $("dialogue").addEventListener("keydown", (event) => {

@@ -1,6 +1,6 @@
 {
-  "version": "0.14.0",
-  "bytes": 114775373,
+  "version": "0.14.1",
+  "bytes": 114783231,
   "entries": [
     {
       "url": "./index.html",
@@ -8,7 +8,7 @@
     },
     {
       "url": "./pixel.html",
-      "bytes": 4255
+      "bytes": 4280
     },
     {
       "url": "./pixel.css",
@@ -24,7 +24,7 @@
     },
     {
       "url": "./pixel-theme.css",
-      "bytes": 29812
+      "bytes": 31840
     },
     {
       "url": "./pixel.webmanifest",
@@ -780,7 +780,7 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 44065
+      "bytes": 44433
     },
     {
       "url": "./src/pixel/menu-icons.js",
@@ -819,6 +819,10 @@
       "bytes": 2630
     },
     {
+      "url": "./src/pixel/release-notes.js",
+      "bytes": 4045
+    },
+    {
       "url": "./src/pixel/save-transfer.js",
       "bytes": 4754
     },
@@ -832,7 +836,7 @@
     },
     {
       "url": "./src/pixel/settings-ui.js",
-      "bytes": 4689
+      "bytes": 6081
     },
     {
       "url": "./src/pixel/sprites.js",

@@ -1,3 +1,4 @@
+import { PIXEL_VERSION, RELEASE_NOTES } from "../../src/pixel/release-notes.js";
 import { test, expect } from "@playwright/test";
 import { initialPixelState } from "../../src/pixel/model.js";
 import { CHOICES, initialLife } from "../../src/pixel/life.js";
@@ -559,4 +560,36 @@ test("daily moments remain readable in the pixel result window and survive reloa
   const restored = (await read(page)).state.life;
   expect(restored.game.eventHistory).toEqual(before.game.eventHistory);
   expect(restored.ledger).toEqual(before.ledger);
+});
+
+
+test("settings shows the running version and readable update history without advancing the journey", async ({ page }, info) => {
+  await start(page);
+  const before = (await read(page)).state.life;
+  await page.locator('[data-ui="menu"]').first().click();
+  await page.locator('#panel [data-ui="settings"]').click();
+  await expect(page.locator('.version-summary')).toContainText(`v${PIXEL_VERSION}`);
+  await expect(page.locator('#pixel-version-label')).toContainText(`v${PIXEL_VERSION}`);
+  await page.screenshot({path:info.outputPath("settings-version.png")});
+  await page.locator('[data-ui="release-notes"]').click();
+  await expect(page.locator('#panel-title')).toHaveText("版本更新紀錄");
+  await expect(page.locator('.release-entry')).toHaveCount(RELEASE_NOTES.length);
+  await expect(page.locator('.release-entry').first()).toHaveAttribute("open", "");
+  await expect(page.locator('.release-entry').first()).toContainText(RELEASE_NOTES[0].notes[0]);
+  expect(await page.locator('#panel').evaluate(e => e.scrollWidth <= e.clientWidth + 2)).toBe(true);
+  await page.screenshot({path:info.outputPath("release-history.png")});
+  const last = page.locator('.release-entry').last();
+  await last.locator('summary').focus();
+  await last.locator('summary').press('Enter');
+  await expect(last).toHaveAttribute('open', '');
+  await expect(last.locator('li').first()).toBeVisible();
+  await page.getByRole('button', {name:'回到設定', exact:true}).click();
+  await expect(page.locator('.version-summary')).toBeVisible();
+  await expect(page.locator('[aria-label="演出速度"]')).toBeVisible();
+  const after = (await read(page)).state.life;
+  expect(after.day).toBe(before.day);
+  expect(after.game.money).toBe(before.game.money);
+  expect(after.game.rngCursor).toBe(before.game.rngCursor);
+  expect(after.ledger).toEqual(before.ledger);
+  expect(after.pending).toEqual(before.pending);
 });

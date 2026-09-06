@@ -1362,3 +1362,45 @@ progress::-moz-progress-bar {
   .money-hud b { line-height: 1.15; }
   .money-hud small { display: block; font-size: 10px; line-height: 1.2; margin-top: 2px; }
 }
+
+/* The in-game changelog is a small journal, using the same pixel frames. */
+.version-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  border: 2px solid var(--ui-edge);
+  background: var(--ui-soft);
+  box-shadow: 3px 3px 0 var(--ui-shadow);
+}
+.version-summary span, .version-summary small { display: block; color: var(--ui-muted); font-size: 13px; }
+.version-summary strong { display: block; font: 24px/1.5 var(--font-game); color: var(--ui-accent); }
+.version-summary button { min-height: 44px; }
+.version-summary button span { display: inline; color: inherit; }
+.release-history { display: grid; gap: 14px; margin: 24px 0; }
+.release-entry {
+  border: 2px solid var(--ui-edge);
+  background: var(--ui-soft);
+  box-shadow: 3px 3px 0 var(--ui-shadow);
+  padding: 0 18px;
+}
+.release-entry[open] { background: var(--ui-paper); }
+.release-entry summary { cursor: pointer; padding: 16px 0; min-height: 44px; }
+.release-entry summary::marker { color: var(--ui-accent); }
+.release-meta { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font: 15px/1.6 var(--font-game); }
+.release-meta b { color: var(--ui-accent); font-weight: 400; }
+.release-meta time { color: var(--ui-muted); font-size: 13px; }
+.release-meta em { font-style: normal; color: var(--ui-on-accent); background: var(--ui-accent); padding: 1px 8px; font-size: 12px; }
+.release-title { display: block; margin-top: 6px; font: 22px/1.5 var(--font-game); overflow-wrap: anywhere; }
+.release-entry ul { border-top: 2px dotted var(--ui-border); margin: 0; padding: 16px 0 18px 22px; }
+.release-entry li { font-size: calc(15px * var(--reading-scale, 1)); line-height: 1.85; overflow-wrap: break-word; }
+.release-entry li + li { margin-top: 10px; }
+@media (max-width: 600px) {
+  .version-summary { padding: 14px; }
+  .version-summary button { width: 100%; }
+  .release-entry { padding: 0 14px; }
+  .release-title { font-size: 20px; }
+}

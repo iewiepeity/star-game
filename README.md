@@ -1,14 +1,18 @@
 # 星途未定
 
-目前像素版：**v0.14.0**。網站首頁自動進入 [`pixel.html`](./pixel.html)；也可直接使用這個像素版網址。包含全城地圖、32 個空間、角色換裝、NPC 互動、行程與職涯流程。完整敘事重寫與原文備查見 [`文本交付紀錄`](./docs/narrative/2026-09-06/NARRATIVE-REWRITE.md)。最新介面與驗證見 [`PIXEL-UI-REFRESH.md`](./PIXEL-UI-REFRESH.md)。
+目前像素版：**v0.14.1**。網站首頁自動進入 [`pixel.html`](./pixel.html)；也可直接使用這個像素版網址。包含全城地圖、32 個空間、角色換裝、NPC 互動、行程與職涯流程。完整敘事重寫與原文備查見 [`文本交付紀錄`](./docs/narrative/2026-09-06/NARRATIVE-REWRITE.md)。最新介面與驗證見 [`PIXEL-UI-REFRESH.md`](./PIXEL-UI-REFRESH.md)。
 
 玩家視角與內部設定分離修正見 [`玩家文字修正紀錄`](./docs/narrative/2026-09-06-player-view/NARRATIVE-REWRITE.md)。
 
-原版保留於 [`classic.html`](./classic.html)。首頁切換不會刪除存檔；原版存檔可在像素版「存檔與讀檔 → 搬入這台裝置的原版存檔」預覽並匯入。核心及離線快取版本為 **1.37.0**。
+原版保留於 [`classic.html`](./classic.html)。首頁切換不會刪除存檔；原版存檔可在像素版「存檔與讀檔 → 搬入這台裝置的原版存檔」預覽並匯入。核心及離線快取版本為 **1.37.1**。
 
-目前發行候選版本：**v1.29.0 Beta**。正式頁面只部署通過 Core 與桌機／手機 E2E 的 commit；版本紀錄、發布流程與真人盲測規格見 [`CHANGELOG.md`](./CHANGELOG.md)、[`RELEASE.md`](./RELEASE.md)、[`BETA-PLAYTEST.md`](./BETA-PLAYTEST.md)。
+正式頁面只部署通過 Core 與桌機／手機 E2E 的 commit；版本紀錄、發布流程與真人盲測規格見 [`CHANGELOG.md`](./CHANGELOG.md)、[`RELEASE.md`](./RELEASE.md)、[`BETA-PLAYTEST.md`](./BETA-PLAYTEST.md)。
 
 純規則版繁體中文娛樂圈五年成長模擬遊戲。玩家從新人租屋處出發，自訂角色、訓練能力、投遞經紀公司、參加試鏡、完成作品、經營人際與戀愛、面對輿論與市場，最後依五年留下的作品、獎項、關係、財產與公眾位置進入結算。遊戲不需要 AI／API Key，也不需要登入；GitHub Pages 開啟後即可在瀏覽器單機遊玩。
+
+## 遊戲內更新紀錄（v0.14.1）
+
+設定頁直接顯示目前像素版號，可開啟「版本更新紀錄」，用玩家口吻翻閱近期八次版本的改善。版號與離線內容清單共用版本資料；無須連線即可閱讀。
 
 ## 原版內容補齊與像素介面（v0.14.0）
 
