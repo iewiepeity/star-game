@@ -47,6 +47,8 @@ test("whole-city map supports touch search, zoom and direct entry with a visible
   );
   await page.locator('[data-map-place="shop"]').click();
   await page.locator('[data-map-place="home"]').hover();
+  await expect(page.locator('#map-detail')).toHaveAttribute("data-place", "home");
+  await page.locator(".map-heading").hover();
   await expect(page.locator('[data-map-enter="shop"]')).toBeVisible();
   const bounds = await page.locator('[data-map-enter="shop"]').boundingBox();
   expect(bounds.y + bounds.height).toBeLessThan(page.viewportSize().height);

@@ -48,7 +48,7 @@
         ><span id="load-progress">整理房間與行李…</span>
       </div>
       <section class="scene-title">
-        <span class="eyebrow" id="pixel-version-label">STARLIGHT DAYS · v0.14.2</span>
+        <span class="eyebrow" id="pixel-version-label">STARLIGHT DAYS · v0.15.0</span>
         <h1 id="room-title">我的住處</h1>
         <p id="room-subtitle">一切從這個小房間開始</p>
       </section>
@@ -73,22 +73,25 @@
       >
         ▣<span>存檔</span>
       </button>
-      <div class="daily-status">
-        <div class="player-chip">
+      <button class="daily-status player-card" data-ui="profile" aria-label="查看我的角色">
+        <span class="player-chip">
+          <span class="player-portrait-frame">
           <img
             id="player-head"
             src="assets/avatars/raven-newcomer.webp"
             alt="你的角色"
-          /><span
+          /></span><span class="player-card-copy"
+            ><small class="player-card-caption">我的星途</small
             ><b id="player-name">星途新人</b
             ><small id="outfit-label">新人私服</small></span
           >
-        </div>
+        </span>
         <span id="today-label">今日 · 認識排練室</span>
-      </div>
+      </button>
       <div class="runner-controls">
         <button data-life="speed" id="speed-label" aria-label="切換速度">
           1×</button
+        ><button data-ui="schedule" id="week-control">▦ 當週行程</button
         ><button data-life="auto" id="auto-control">▷ 自動行程</button
         ><button data-life="today" id="run-label">今日行動</button>
       </div>

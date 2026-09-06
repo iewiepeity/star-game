@@ -167,7 +167,9 @@ export function createLifeUI(api) {
     const def = definition(life(), p.assignment);
     leaveOverlay();
     p.phase = "travel";
-    const arrive = () => world().interact(def.item);
+    const arrive = () => {
+      if (life().pending === p && p.phase === "travel") world().interact(def.item);
+    };
     if (state().sceneId !== def.room) api.travelTo(def.room, arrive, true);
     else arrive();
     checkpoint();
@@ -589,6 +591,22 @@ export function createLifeUI(api) {
       changed();
     }
     if (d.life === "auto") {
+      if (l.auto) {
+        l.auto = false;
+        autoWait = 0;
+        api.cancelTravel?.();
+        world().cancelActivity();
+        world().stopRoute();
+        const completed = l.pending?.phase === "result";
+        if (!completed) cancelDay(l);
+        leaveOverlay();
+        checkpoint();
+        changed();
+        toast(completed
+          ? "已停止自動行程，今天已完成的成果會保留。"
+          : "已取消自動行程與今天尚未完成的動作，可以重新安排。");
+        return true;
+      }
       if (l.game.endingResult) {
         careerUI.ending();
         return true;
@@ -598,12 +616,7 @@ export function createLifeUI(api) {
         careerUI.stories();
         return true;
       }
-      if (l.auto) {
-        l.auto = false;
-        checkpoint();
-        changed();
-        toast("已停止自動行程，目前動作完成後會等你。");
-      } else if (l.day === 7) summary();
+      if (l.day === 7) summary();
       else {
         l.auto = true;
         if (l.pending?.phase === "result") {

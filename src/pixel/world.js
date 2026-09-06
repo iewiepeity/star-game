@@ -63,6 +63,8 @@ export function createWorld(controller) {
       this.heldNpc = null;
       this.keys = new Set();
       this.assetHistory = { rooms: [], heroes: [] };
+      this.routeRevision = 0;
+      this.transitionPending = false;
       this.storyActors = createStoryActors(this, controller);
     }
     preload() {
@@ -684,6 +686,12 @@ export function createWorld(controller) {
       this.heldNpc = null;
     }
     stopRoute() {
+      this.routeRevision++;
+      if (this.transitionPending) {
+        this.transitionPending = false;
+        controller.transitioning = false;
+        this.cameras.main.resetFX();
+      }
       this.pending = null;
       this.player.path = [];
       this.player.goal = null;
@@ -729,24 +737,32 @@ export function createWorld(controller) {
     }
     transition(id, after, onError) {
       if (!ROOMS[id]) return;
+      const revision = ++this.routeRevision;
       this.go(
         this.room.objects.find((o) => o.id === "door").target,
         async () => {
+          if (revision !== this.routeRevision) return;
+          this.transitionPending = true;
           controller.transitioning = true;
           try {
             await this.ensureAssets(id);
+            if (revision !== this.routeRevision) return;
             this.cameras.main.fadeOut(180, 250, 245, 235);
             this.time.delayedCall(185, () => {
+              if (revision !== this.routeRevision) return;
               this.events.emit("room-clear");
               controller.enterRoom(id);
               this.loadRoom();
               this.cameras.main.fadeIn(230, 250, 245, 235);
               controller.transitioning = false;
+              this.transitionPending = false;
               controller.checkpoint();
               after?.();
             });
           } catch {
+            if (revision !== this.routeRevision) return;
             controller.transitioning = false;
+            this.transitionPending = false;
             controller.toast("地點素材載入失敗，請重新開啟地圖再試。");
             onError?.();
           }

@@ -1,4 +1,5 @@
 import { appearanceValue, sourcePoint } from "./scene-objects.js";
+import { recolorCushions } from "./fabric-colors.js";
 // Runtime scene composition: remove each furniture patch from the static backdrop
 // and render it as a separate sprite. Source art stays lossless and unchanged on disk.
 // Only the current room's generated textures are retained.
@@ -147,28 +148,9 @@ export function createFurnitureLayers(scene, room, sourceImage, state) {
             "#7f735f",
           );
       } else if (item.appearance === "fabric" && value !== "original") {
-        // Tint the two cushion silhouettes, not the sofa or wall between them.
-        c.globalCompositeOperation = "color";
-        const color = value === "rose" ? "#b96f83" : "#7097b4";
-        poly(
-          [
-            [1117, 398],
-            [1145, 391],
-            [1176, 406],
-            [1170, 458],
-            [1121, 450],
-          ],
-          color,
-        );
-        poly(
-          [
-            [1269, 450],
-            [1314, 467],
-            [1306, 501],
-            [1250, 486],
-          ],
-          color,
-        );
+        const pixels = c.getImageData(0, 0, w, h);
+        recolorCushions(pixels, room, { x, y }, value);
+        c.putImageData(pixels, 0, 0);
       } else if (item.appearance === "light" && value === "off") {
         c.fillStyle = "rgba(35,40,48,.48)";
         c.beginPath();

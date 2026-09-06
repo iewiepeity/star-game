@@ -1,6 +1,6 @@
 {
-  "version": "0.14.2",
-  "bytes": 114788376,
+  "version": "0.15.0",
+  "bytes": 114811877,
   "entries": [
     {
       "url": "./index.html",
@@ -8,7 +8,7 @@
     },
     {
       "url": "./pixel.html",
-      "bytes": 4280
+      "bytes": 4576
     },
     {
       "url": "./pixel.css",
@@ -24,7 +24,7 @@
     },
     {
       "url": "./pixel-theme.css",
-      "bytes": 31840
+      "bytes": 47119
     },
     {
       "url": "./pixel.webmanifest",
@@ -716,7 +716,7 @@
     },
     {
       "url": "./src/pixel/career-ui.js",
-      "bytes": 25671
+      "bytes": 25702
     },
     {
       "url": "./src/pixel/career.js",
@@ -740,7 +740,7 @@
     },
     {
       "url": "./src/pixel/city-ui.js",
-      "bytes": 8187
+      "bytes": 11533
     },
     {
       "url": "./src/pixel/core-bridge.js",
@@ -755,12 +755,16 @@
       "bytes": 5577
     },
     {
+      "url": "./src/pixel/fabric-colors.js",
+      "bytes": 2855
+    },
+    {
       "url": "./src/pixel/feature-ui.js",
       "bytes": 21987
     },
     {
       "url": "./src/pixel/furniture-layers.js",
-      "bytes": 6815
+      "bytes": 6465
     },
     {
       "url": "./src/pixel/identity.js",
@@ -768,7 +772,7 @@
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 27645
+      "bytes": 28081
     },
     {
       "url": "./src/pixel/life.js",
@@ -780,7 +784,7 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 44433
+      "bytes": 44477
     },
     {
       "url": "./src/pixel/menu-icons.js",
@@ -816,11 +820,11 @@
     },
     {
       "url": "./src/pixel/preferences.js",
-      "bytes": 2630
+      "bytes": 2669
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 4442
+      "bytes": 5304
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -872,7 +876,7 @@
     },
     {
       "url": "./src/pixel/world.js",
-      "bytes": 41637
+      "bytes": 42300
     },
     {
       "url": "./src/render.js",

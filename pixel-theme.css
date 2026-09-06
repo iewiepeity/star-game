@@ -1404,3 +1404,224 @@ progress::-moz-progress-bar {
   .release-entry { padding: 0 14px; }
   .release-title { font-size: 20px; }
 }
+
+/* Theme-led palettes: supporting colors carry energy, work, time and people. */
+:root {
+  --ui-mint: #dcebdc; --ui-mint-ink: #355d45;
+  --ui-sky: #dce8f2; --ui-sky-ink: #365873;
+  --ui-peach: #f5ddc7; --ui-peach-ink: #7c5036;
+  --ui-lilac: #e8dff1; --ui-lilac-ink: #685080;
+  --ui-honey: #f2e5b9; --ui-honey-ink: #705b24;
+}
+:root[data-pixel-theme="rose"] {
+  --ui-mint: #e0ece2; --ui-sky: #e0eafa;
+  --ui-peach: #f7dfc9; --ui-lilac: #eadff5; --ui-honey: #f6eac4;
+}
+:root[data-pixel-theme="sage"] {
+  --ui-mint: #d7e6cd; --ui-sky: #dae7ee;
+  --ui-peach: #f1d9c9; --ui-lilac: #e6ddef; --ui-honey: #eee2b8;
+}
+:root[data-pixel-theme="lilac"] {
+  --ui-mint: #dbeae5; --ui-sky: #dce6f6;
+  --ui-peach: #f3ded7; --ui-lilac: #e3d8f0; --ui-honey: #f0e6c7;
+}
+:root[data-pixel-theme="night"] {
+  --ui-mint: #334c45; --ui-mint-ink: #c2e8cf;
+  --ui-sky: #33485f; --ui-sky-ink: #c4ddf4;
+  --ui-peach: #58433e; --ui-peach-ink: #f1cbb3;
+  --ui-lilac: #49405e; --ui-lilac-ink: #e5d0f6;
+  --ui-honey: #514b35; --ui-honey-ink: #f2dda1;
+}
+.resource-hud span:nth-child(1) { background: var(--ui-mint); color: var(--ui-mint-ink); }
+.resource-hud span:nth-child(2) { background: var(--ui-peach); color: var(--ui-peach-ink); }
+.resource-hud span:nth-child(3) { background: var(--ui-honey); color: var(--ui-honey-ink); }
+.money-hud b { color: var(--ui-honey-ink); }
+.calendar-emblem { background: var(--ui-tint); color: var(--ui-accent); }
+#panel .command-menu > button:nth-child(4n+1) i { background: var(--ui-sky); color: var(--ui-sky-ink); }
+#panel .command-menu > button:nth-child(4n+2) i { background: var(--ui-mint); color: var(--ui-mint-ink); }
+#panel .command-menu > button:nth-child(4n+3) i { background: var(--ui-peach); color: var(--ui-peach-ink); }
+#panel .command-menu > button:nth-child(4n) i { background: var(--ui-lilac); color: var(--ui-lilac-ink); }
+#panel .ability-grid > div:nth-child(3n+1), #panel .career-dashboard > div:nth-child(3n+1) { background: var(--ui-sky); color: var(--ui-sky-ink); }
+#panel .ability-grid > div:nth-child(3n+2), #panel .career-dashboard > div:nth-child(3n+2) { background: var(--ui-honey); color: var(--ui-honey-ink); }
+#panel .ability-grid > div:nth-child(3n), #panel .career-dashboard > div:nth-child(3n) { background: var(--ui-mint); color: var(--ui-mint-ink); }
+#panel .week-strip button:not(.selected):nth-child(3n+1) { background: var(--ui-sky); }
+#panel .week-strip button:not(.selected):nth-child(3n+2) { background: var(--ui-peach); }
+#panel .week-strip button:not(.selected):nth-child(3n) { background: var(--ui-mint); }
+#panel .daily-moment { border-left-color: var(--ui-sky-ink); background: var(--ui-sky); color: var(--ui-sky-ink); }
+
+/* The player is a readable character card, with a cropped bust and a full name. */
+.bottom-bar {
+  display: grid;
+  height: auto;
+  grid-template-columns: 104px minmax(210px, 1fr) auto 120px;
+  grid-template-rows: auto;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 20px max(10px, env(safe-area-inset-bottom));
+  min-height: 130px;
+}
+.bottom-bar .corner-button { width: 100%; min-width: 0; min-height: 66px; padding: 10px; gap: 8px; white-space: nowrap; }
+.bottom-bar .save-corner { grid-column: 1; grid-row: 1; }
+.bottom-bar .menu-button { grid-column: 4; grid-row: 1; }
+.bottom-bar .player-card {
+  display: grid;
+  grid-column: 2;
+  grid-row: 1;
+  grid-template-columns: 86px minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  gap: 0 14px;
+  align-items: center;
+  min-width: 0;
+  margin: 0;
+  padding: 0 12px 0 0;
+  border: 2px solid var(--ui-edge);
+  background: var(--ui-soft);
+  text-align: left;
+  box-shadow: 3px 3px 0 var(--ui-shadow);
+}
+.bottom-bar .player-card .player-chip { display: contents; }
+.bottom-bar .player-portrait-frame {
+  display: block;
+  position: relative;
+  grid-row: 1 / 3;
+  width: 86px;
+  height: 102px;
+  overflow: hidden;
+  border-right: 2px solid var(--ui-edge);
+  background: var(--ui-peach);
+}
+.bottom-bar .player-portrait-frame #player-head {
+  position: absolute;
+  left: 50%; top: 0;
+  width: 178px; height: auto;
+  min-width: 0; max-width: none; max-height: none;
+  object-fit: initial;
+  transform: translateX(-50%);
+  margin: 0; border: 0; box-shadow: none; background: transparent;
+}
+.bottom-bar .player-card-copy { display: grid; min-width: 0; gap: 1px; padding-top: 6px; }
+.bottom-bar .player-card-caption { display: block; font: 11px/1.4 var(--font-game); color: var(--ui-accent); }
+.bottom-bar #player-name { display: block; font: 24px/1.5 var(--font-game); color: var(--ui-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bottom-bar #outfit-label { display: block; font: 12px/1.5 var(--font-reading); color: var(--ui-muted); }
+.bottom-bar #today-label { grid-column: 2; font: 12px/1.5 var(--font-reading); padding: 4px 0 8px; color: var(--ui-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bottom-bar .runner-controls { display: grid; grid-column: 3; grid-row: 1; grid-template-columns: 48px repeat(3, auto); gap: 8px; margin: 0; }
+.bottom-bar .runner-controls button { grid-area: auto; min-width: 0; min-height: 52px; padding: 9px 12px; font: 16px/1.5 var(--font-game); white-space: nowrap; }
+.bottom-bar #speed-label { min-width: 0; background: var(--ui-honey); color: var(--ui-honey-ink); }
+.bottom-bar #run-label { grid-area: auto; }
+.bottom-bar #week-control { background: var(--ui-sky); color: var(--ui-sky-ink); border-color: var(--ui-sky-ink); }
+.bottom-bar #auto-control { background: var(--ui-mint); color: var(--ui-mint-ink); border-color: var(--ui-mint-ink); }
+.bottom-bar .save-corner { background: var(--ui-lilac); color: var(--ui-lilac-ink); }
+
+/* Career information uses compact illustrated symbols, not room screenshots. */
+#panel .career-tile {
+  display: grid; grid-template-columns: 52px minmax(0, 1fr) 20px;
+  align-items: center; gap: 16px; padding: 20px; text-align: left;
+  background: var(--ui-paper); border: 2px solid var(--ui-border);
+}
+#panel .career-tile > i { display: grid; place-items: center; width: 52px; height: 56px; background: var(--ui-sky); color: var(--ui-sky-ink); border: 2px solid currentColor; font: 30px/1 var(--font-game); }
+#panel .career-tile:nth-child(2n) > i { background: var(--ui-mint); color: var(--ui-mint-ink); }
+#panel .career-tile:nth-child(3n) > i { background: var(--ui-peach); color: var(--ui-peach-ink); }
+#panel .career-tile span { display: grid; gap: 5px; }
+#panel .career-tile strong { margin: 0; font: 21px/1.5 var(--font-game); }
+#panel .career-tile small { font: 13px/1.6 var(--font-reading); color: var(--ui-muted); }
+#panel .career-tile > b { color: var(--ui-accent); }
+#panel .career-feature-text { display: block; padding: 20px; background: var(--ui-sky); border-left: 5px solid var(--ui-sky-ink); }
+#panel .career-feature-text > div { min-width: 0; }
+#panel .career-feature-text p { margin: 7px 0; }
+
+/* Map overview stays on the left; destination information and a directory on the right. */
+#panel[data-view="travel"] #panel-content { grid-template-columns: minmax(0, 1fr) 300px; }
+#panel[data-view="travel"] .map-heading { grid-row: 1; position: relative; }
+#panel[data-view="travel"] .map-heading .panel-heading { margin: 0; padding: 0; border: 0; }
+#panel[data-view="travel"] .map-tools { grid-row: 2; }
+#panel[data-view="travel"] .map-help { font-size: 12px; margin: 4px 0 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
+#panel[data-view="travel"] .map-help summary { cursor: pointer; color: var(--ui-accent); padding: 4px 0; font-size: 12px; }
+#panel[data-view="travel"] .map-help .pixel-tutorial { margin: 8px 0 0; padding: 10px; }
+#panel[data-view="travel"] .city-map-sidebar { grid-column: 2; grid-row: 3; display: flex; flex-direction: column; gap: 14px; min-height: 0; min-width: 0; overflow: hidden; }
+#panel[data-view="travel"] .city-map-sidebar .map-detail { display: block; flex: none; grid-area: auto; width: auto; min-height: 165px; max-height: none; padding: 16px; overflow: visible; border: 2px solid var(--ui-border); border-top: 5px solid var(--ui-accent); background: var(--ui-soft); }
+#panel[data-view="travel"] .map-detail h3 { font-size: 22px; margin: 5px 0; }
+#panel[data-view="travel"] .map-detail p { display: block; font-size: 13px; line-height: 1.6; margin: 8px 0 12px; }
+#panel[data-view="travel"] .map-detail > button { width: 100%; margin: 8px 0 0; min-height: 44px; }
+.city-place-directory { display: flex; flex: 1; flex-direction: column; min-height: 0; border: 2px solid var(--ui-border); background: var(--ui-paper); }
+.city-place-directory > header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 5px; padding: 10px 12px; background: var(--ui-sky); color: var(--ui-sky-ink); }
+.city-place-directory header b { font: 18px/1.5 var(--font-game); }
+.city-place-directory header small { align-self: center; font-size: 11px; }
+.city-place-list { overflow: auto; min-height: 0; padding: 6px; scrollbar-width: thin; }
+#panel .city-place-row { display: grid; width: 100%; grid-template-columns: 27px minmax(0, 1fr) 14px; align-items: center; gap: 8px; padding: 10px 8px; margin: 0 0 5px; text-align: left; box-shadow: none; border: 1px solid transparent; }
+#panel .city-place-row[hidden], .map-no-results[hidden] { display: none; }
+#panel .city-place-row i { font: 14px/1.5 var(--font-game); color: var(--ui-accent); }
+#panel .city-place-row span { display: grid; min-width: 0; gap: 3px; }
+#panel .city-place-row strong { font: 16px/1.5 var(--font-game); }
+#panel .city-place-row small { font: 10px/1.5 var(--font-reading); opacity: .85; }
+#panel .city-place-row.map-preview { border-color: var(--ui-accent); background: var(--ui-tint); color: var(--ui-ink); }
+#panel .city-place-row[aria-pressed="true"] i { color: inherit; }
+#panel[data-view="travel"] .map-landmark.map-preview span { opacity: 1; background: var(--ui-accent); color: var(--ui-on-accent); }
+.map-no-results { font-size: 13px; padding: 12px; }
+@media (max-width: 1100px) {
+  .bottom-bar { grid-template-columns: 90px minmax(0, 1fr) 100px; grid-template-rows: auto auto; min-height: 0; gap: 10px; padding: 8px 14px max(8px, env(safe-area-inset-bottom)); }
+  .bottom-bar .runner-controls { grid-column: 1 / -1; grid-row: 2; grid-template-columns: 48px repeat(3, 1fr); }
+  .bottom-bar .player-card { grid-template-columns: 70px minmax(0, 1fr); gap: 0 12px; }
+  .bottom-bar .player-portrait-frame { width: 70px; height: 82px; }
+  .bottom-bar .player-portrait-frame #player-head { width: 148px; }
+  .bottom-bar #player-name { font-size: 23px; }
+  .bottom-bar .menu-button { grid-column: 3; grid-row: 1; }
+}
+@media (max-width: 650px) {
+  .bottom-bar { grid-template-columns: 62px minmax(0, 1fr) 70px; gap: 8px; padding: 7px 10px max(7px, env(safe-area-inset-bottom)); }
+  .bottom-bar .corner-button { min-height: 62px; font-size: 16px; display: grid; gap: 0; }
+  .bottom-bar .corner-button > span { font-size: 16px; }
+  .bottom-bar .player-card { grid-template-columns: 62px minmax(0, 1fr); gap: 0 9px; padding-right: 6px; }
+  .bottom-bar .player-portrait-frame { width: 62px; height: 82px; }
+  .bottom-bar .player-portrait-frame #player-head { width: 142px; }
+  .bottom-bar #player-name { font-size: 21px; }
+  .bottom-bar #outfit-label { font-size: 10px; }
+  .bottom-bar #today-label { font-size: 10px; padding-bottom: 6px; }
+  .bottom-bar .player-card-caption { font-size: 9px; }
+  .bottom-bar .runner-controls { grid-template-columns: 38px repeat(3, minmax(0, 1fr)); gap: 5px; }
+  .bottom-bar .runner-controls button { padding: 7px 3px; min-height: 44px; font-size: 14px; }
+  #panel .career-tile { grid-template-columns: 40px minmax(0, 1fr) 15px; gap: 12px; padding: 15px 12px; }
+  #panel .career-tile > i { width: 40px; height: 46px; font-size: 26px; }
+  #panel .career-tile strong { font-size: 20px; }
+  #panel .career-tile small { font-size: 12px; }
+  #panel[data-view="travel"] { height: calc(100dvh - 20px); padding: 12px; }
+  #panel[data-view="travel"] #panel-content { height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(160px, 1fr) auto; }
+  #panel[data-view="travel"] .city-map-viewport { height: 100%; min-height: 160px; aspect-ratio: auto; }
+  #panel[data-view="travel"] .city-map-sidebar { grid-column: 1; grid-row: 4; max-height: 300px; gap: 8px; }
+  #panel[data-view="travel"] .city-map-sidebar .map-detail { min-height: 0; padding: 10px; display: grid; grid-template-columns: minmax(0, 1fr) 106px; gap: 8px; align-items: center; }
+  #panel[data-view="travel"] .map-detail h3 { font-size: 17px; margin: 3px 0; }
+  #panel[data-view="travel"] .map-detail p { font-size: 11px; margin: 4px 0; }
+  #panel[data-view="travel"] .map-detail > button { margin: 0; padding: 8px; font-size: 13px; }
+  .city-place-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; max-height: 130px; padding: 4px; }
+  .city-place-directory > header { padding: 5px 9px; }
+  .city-place-directory header b { font-size: 15px; }
+  #panel .city-place-row { grid-template-columns: 20px minmax(0, 1fr); gap: 4px; padding: 7px 5px; margin: 0; }
+  #panel .city-place-row > b { display: none; }
+  #panel .city-place-row strong { font-size: 13px; }
+  #panel .city-place-row small { font-size: 9px; }
+}
+@media (max-height: 550px) and (min-width: 651px) {
+  .bottom-bar { grid-template-columns: 58px minmax(150px, 1fr) auto 74px; gap: 8px; padding: 5px 10px; }
+  .bottom-bar .runner-controls { grid-column: 3; grid-row: 1; grid-template-columns: 36px repeat(3, auto); gap: 4px; }
+  .bottom-bar .runner-controls button { font-size: 12px; min-height: 42px; padding: 5px; }
+  .bottom-bar .menu-button { grid-column: 4; }
+  .bottom-bar .corner-button { font-size: 15px; min-height: 52px; }
+  .bottom-bar .player-card { grid-template-columns: 48px minmax(0, 1fr); gap: 0 8px; }
+  .bottom-bar .player-portrait-frame { width: 48px; height: 60px; }
+  .bottom-bar .player-portrait-frame #player-head { width: 105px; }
+  .bottom-bar #player-name { font-size: 18px; }
+  .bottom-bar .player-card-caption, .bottom-bar #outfit-label { display: none; }
+  #panel[data-view="travel"] #panel-content { grid-template-columns: minmax(0, 1fr) 245px; }
+  #panel[data-view="travel"] .map-help { position: absolute; right: 56px; top: 0; z-index: 3; }
+  #panel[data-view="travel"] .map-help[open] { width: min(480px, calc(100vw - 120px)); padding: 8px; background: var(--ui-paper); border: 2px solid var(--ui-edge); }
+  #panel[data-view="travel"] .city-map-sidebar { gap: 6px; }
+  #panel[data-view="travel"] .city-map-sidebar .map-detail { display: grid; grid-template-columns: minmax(0, 1fr) 84px; align-items: center; gap: 8px; min-height: 0; padding: 8px; }
+  #panel[data-view="travel"] .map-detail h3 { font-size: 16px; margin: 2px 0; }
+  #panel[data-view="travel"] .map-detail small { font-size: 9px; }
+  #panel[data-view="travel"] .map-detail p { font-size: 10px; margin: 2px 0; }
+  #panel[data-view="travel"] .map-detail > button { margin: 0; padding: 5px; font-size: 12px; }
+  .city-place-directory > header { padding: 3px 8px; }
+  .city-place-directory header b { font-size: 15px; }
+  #panel .city-place-row { padding: 5px; gap: 4px; margin-bottom: 3px; }
+  #panel .city-place-row strong { font-size: 13px; }
+  #panel .city-place-row small { font-size: 9px; }
+}

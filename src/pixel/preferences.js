@@ -3,31 +3,31 @@ export const THEMES = [
   {
     id: "cream",
     name: "奶油晨光",
-    note: "米白紙張 · 乾燥玫瑰",
+    note: "奶油底 · 玫瑰與晴空藍",
     colors: ["#fbf6ed", "#e7d9c3", "#91616d"],
   },
   {
     id: "rose",
     name: "櫻花手帳",
-    note: "花瓣粉 · 莓果紅",
+    note: "櫻花粉 · 薄荷與奶油黃",
     colors: ["#fff3f4", "#eed3dd", "#98536c"],
   },
   {
     id: "sage",
     name: "鼠尾草庭院",
-    note: "霧白綠 · 森林綠",
+    note: "森林綠 · 杏桃與蜂蜜黃",
     colors: ["#f3f6ee", "#d7e3d0", "#526e56"],
   },
   {
     id: "lilac",
     name: "紫藤微光",
-    note: "柔霧紫 · 灰紫色",
+    note: "紫藤色 · 晴空與薄荷綠",
     colors: ["#f7f3fc", "#ded7ee", "#766091"],
   },
   {
     id: "night",
     name: "午夜星河",
-    note: "低亮度 · 星藍紫",
+    note: "星藍紫 · 琥珀與月光綠",
     colors: ["#262a37", "#3c4358", "#d9b9e3"],
   },
 ];

@@ -11,7 +11,6 @@ import {
   currentStory,
   chooseStory,
   NPC_INTERACTIONS,
-  productionRoom,
 } from "./career.js";
 import { AGENCIES } from "../data/agencies.js";
 import { JOB_BY_ID } from "../data/jobs.js";
@@ -43,8 +42,6 @@ import {
 } from "../logic/creative-team.js";
 import { eventStoryArt } from "../data/story-art.js";
 import { romanceStageLabel } from "../logic/romance-engine.js";
-import { ROOMS } from "./data.js";
-import { roomIllustration } from "./city-rooms.js";
 const esc = (value) =>
   String(value ?? "").replace(
     /[&<>"']/g,
@@ -103,16 +100,16 @@ export function createCareerUI(api) {
       "career",
       "職涯與故事",
       `<div class="career-dashboard"><div><small>正式作品</small><strong>${game.completedWorks.length}</strong></div><div><small>簽約準備度</small><strong>${game.contract}%</strong></div><div><small>經紀公司</small><strong>${AGENCIES[game.currentAgencyId]?.name || "自由新人"}</strong></div></div><div class="career-grid">${[
-        ["board", "公開徵選與通告", "tv"],
-        ["agencies", "經紀公司", "business"],
-        ["portfolio", "作品與獎項", "theatre"],
-        ["stories", "故事與來信", "home"],
-        ["contacts", "人物與約定", "cafe"],
-        ["projects", "原創製作", "recording"],
+        ["board", "公開徵選與通告", "查看機會、試鏡與工作合約", "▤"],
+        ["agencies", "經紀公司", "前往商務中心・拜訪公司", "◇"],
+        ["portfolio", "作品與獎項", "翻閱作品履歷與獎項收藏", "★"],
+        ["stories", "故事與來信", "看看今天誰捎來了消息", "✉"],
+        ["contacts", "人物與約定", "聯絡朋友、安排下一次相聚", "♧"],
+        ["projects", "原創製作", "把靈感慢慢做成一部作品", "♫"],
       ]
         .map(
-          ([id, label, room]) =>
-            `<button class="career-tile" data-career="${id}">${roomIllustration(ROOMS[room])}<strong>${label}</strong></button>`,
+          ([id, label, note, icon]) =>
+            `<button class="career-tile" data-career="${id}"><i aria-hidden="true">${icon}</i><span><strong>${label}</strong><small>${note}</small></span><b aria-hidden="true">→</b></button>`,
         )
         .join(
           "",
@@ -200,7 +197,7 @@ export function createCareerUI(api) {
     show(
       "career-job",
       j.title,
-      `<div class="career-feature">${roomIllustration(ROOMS[productionRoom(j.category)])}<div><span>${esc(j.category)} · ${"★".repeat(j.stars)}</span><h3>${stageNames[r.stage]}</h3><p>殺青總酬勞 ${money(info.pay)}（經紀抽成另計）</p><p>${r.stage === "active" ? `剩餘 ${r.remainingSessions} 次 · 第 ${r.deadlineWeek} 週前完成` : `${j.sessions} 次工作 · 簽約後 ${j.deadlineWeeks} 週內完成`}</p></div></div><p>${esc(plain(j.synopsis || j.audition?.prompt))}</p><details><summary>角色要求與履歷條件</summary>${q.rows.map((v) => `<p>${v.met ? "✓" : "○"} ${esc(v.name)}（${v.core ? "必要" : "加分，未達仍可試鏡"}）${Math.round(v.current)} / ${v.required}</p>`).join("")}<p>訓練 ${q.training}/${q.trainingRequired} 次</p><p>${esc(q.commitmentReason || q.doctrineReason || "")}</p></details><p class="result-note">${esc(r.notice || (!info.access.ok ? info.access.reason : !q.met ? "先補足角色要求，再來試試。" : "可以登記這次徵選。"))}</p><div class="panel-actions">${commands}${btn("查看行程", 'data-ui="schedule"')}</div>`,
+      `<div class="career-feature career-feature-text"><div><span>${esc(j.category)} · ${"★".repeat(j.stars)}</span><h3>${stageNames[r.stage]}</h3><p>殺青總酬勞 ${money(info.pay)}（經紀抽成另計）</p><p>${r.stage === "active" ? `剩餘 ${r.remainingSessions} 次 · 第 ${r.deadlineWeek} 週前完成` : `${j.sessions} 次工作 · 簽約後 ${j.deadlineWeeks} 週內完成`}</p></div></div><p>${esc(plain(j.synopsis || j.audition?.prompt))}</p><details><summary>角色要求與履歷條件</summary>${q.rows.map((v) => `<p>${v.met ? "✓" : "○"} ${esc(v.name)}（${v.core ? "必要" : "加分，未達仍可試鏡"}）${Math.round(v.current)} / ${v.required}</p>`).join("")}<p>訓練 ${q.training}/${q.trainingRequired} 次</p><p>${esc(q.commitmentReason || q.doctrineReason || "")}</p></details><p class="result-note">${esc(r.notice || (!info.access.ok ? info.access.reason : !q.met ? "先補足角色要求，再來試試。" : "可以登記這次徵選。"))}</p><div class="panel-actions">${commands}${btn("查看行程", 'data-ui="schedule"')}</div>`,
     );
   }
   function agency(id) {
@@ -239,7 +236,7 @@ export function createCareerUI(api) {
     show(
       "career-agency",
       a.name,
-      `<div class="career-feature">${roomIllustration(ROOMS[`agency_${id}`])}<div><p>${esc(a.description || a.style || a.tagline || "")}</p><b>${offer ? "正式錄取通知" : app?.status === "applied" ? `履歷已送達 · 第 ${app.appliedWeek + 1} 週可約面談` : g.currentAgencyId === id ? `合約至第 ${g.agencyContractEndWeek} 週` : "公開接待與履歷審核"}</b></div></div><div class="career-requirements">${data.rows.map((r) => `<div><span>${esc(r.label)}</span><b>${Math.round(r.current)} / ${r.required}${r.unit}</b><progress max="${r.required}" value="${r.current}"></progress></div>`).join("")}</div><p>合約 ${data.terms.durationWeeks} 週 · 抽成 ${Math.round(data.terms.commissionRate * 100)}% · 創作自由 ${data.terms.creativeFreedom}</p><div class="panel-actions">${actions}${btn("練習試鏡，累積準備", 'data-offer="audition_practice"')}</div>`,
+      `<div class="career-feature career-feature-text"><div><p>${esc(a.description || a.style || a.tagline || "")}</p><b>${offer ? "正式錄取通知" : app?.status === "applied" ? `履歷已送達 · 第 ${app.appliedWeek + 1} 週可約面談` : g.currentAgencyId === id ? `合約至第 ${g.agencyContractEndWeek} 週` : "公開接待與履歷審核"}</b></div></div><div class="career-requirements">${data.rows.map((r) => `<div><span>${esc(r.label)}</span><b>${Math.round(r.current)} / ${r.required}${r.unit}</b><progress max="${r.required}" value="${r.current}"></progress></div>`).join("")}</div><p>合約 ${data.terms.durationWeeks} 週 · 抽成 ${Math.round(data.terms.commissionRate * 100)}% · 創作自由 ${data.terms.creativeFreedom}</p><div class="panel-actions">${actions}${btn("練習試鏡，累積準備", 'data-offer="audition_practice"')}</div>`,
       "投遞 → 下一週回覆 → 現場面談 → 閱讀合約 → 簽約",
     );
   }
@@ -337,7 +334,7 @@ export function createCareerUI(api) {
     show(
       "career-project",
       p.title,
-      `<div class="buttons"><button data-pixel-app="creative">完整作品資料與製作分工</button></div><div class="career-feature">${roomIllustration(ROOMS[p.type === "song" ? "recording" : p.type === "show" ? "tv" : "studio"])}<div><b>${{ draft: "創作中", rejected: "修改後可再投", ready: "草稿完成", contracted: "準備製作", production: "製作中", ready_release: "準備發行", released: "正式發行", sold: "已售企劃權" }[p.status] || p.status}</b><p>草稿 ${p.progress}% · 製作 ${p.productionProgress}%</p><p>品質 ${p.quality} · 團隊 ${p.team.length} 人</p></div></div><div class="command-list">${actions}</div>${
+      `<div class="buttons"><button data-pixel-app="creative">完整作品資料與製作分工</button></div><div class="career-feature career-feature-text"><div><b>${{ draft: "創作中", rejected: "修改後可再投", ready: "草稿完成", contracted: "準備製作", production: "製作中", ready_release: "準備發行", released: "正式發行", sold: "已售企劃權" }[p.status] || p.status}</b><p>草稿 ${p.progress}% · 製作 ${p.productionProgress}%</p><p>品質 ${p.quality} · 團隊 ${p.team.length} 人</p></div></div><div class="command-list">${actions}</div>${
         ["draft", "rejected", "ready"].includes(p.status)
           ? `<details><summary>作品方向</summary>${Object.entries(
               CREATIVE_DIRECTIONS[p.type],
@@ -458,7 +455,7 @@ export function createCareerUI(api) {
     show(
       "career-ending",
       e.title,
-      `<div class="career-feature">${roomIllustration(ROOMS.home)}<div><span>${esc(e.rank)}</span><h3>${esc(e.route)}</h3><p>${e.portfolio.works} 部作品 · ${e.awardWins} 座獎 · ${e.score} 分</p></div></div><p>${esc(e.summary)}</p><div class="panel-actions">${btn("保存這段人生", 'data-ui="saves"')}${btn("查看作品", 'data-pixel-app="log"')}${btn("開啟下一段人生", 'data-storage="new"')}</div>`,
+      `<div class="career-feature career-feature-text"><div><span>${esc(e.rank)}</span><h3>${esc(e.route)}</h3><p>${e.portfolio.works} 部作品 · ${e.awardWins} 座獎 · ${e.score} 分</p></div></div><p>${esc(e.summary)}</p><div class="panel-actions">${btn("保存這段人生", 'data-ui="saves"')}${btn("查看作品", 'data-pixel-app="log"')}${btn("開啟下一段人生", 'data-storage="new"')}</div>`,
       "這段旅程的作品、選擇與關係已保存。",
     );
   }

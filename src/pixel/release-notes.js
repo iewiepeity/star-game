@@ -2,6 +2,16 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.15.0", date: "2026-09-06", title: "抱枕戒掉油漆，行程學會煞車",
+    notes: [
+      "抱枕換色會保留布料的皺摺、陰影與輪廓。沙發扶手也不用陪它一起染頭髮了。",
+      "下方角色卡放大姓名與半身立繪；奶油、櫻花、鼠尾草、紫藤與午夜主題，都邀請了幾位配色朋友來串門子。",
+      "「當週行程」搬到每日操作旁，想改星期三不用先在選單裡找路。取消自動行程也會立刻停下今天未完成的動作，不再嘴上答應、雙腿加班。",
+      "職涯與故事收起場景圖，讓資訊當主角。點經紀公司會真的帶你到商務中心，履歷不必隔空投遞。",
+      "城市地圖新增文字名錄，滑鼠移到建築就能看介紹。路痴現在有兩種方式找到咖啡，值得慶祝。",
+    ],
+  },
+  {
     version: "0.14.2", date: "2026-09-06", title: "更新按鈕，別已讀不回",
     notes: [
       "「儲存並更新」開始回報進度。就算另一個分頁搶先更新，也會接著重新載入，不再站在原地裝盆栽。",
@@ -71,4 +81,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.37.2";
+export const CORE_VERSION = "1.38.0";

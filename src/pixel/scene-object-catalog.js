@@ -18,7 +18,7 @@ export const SCENE_PROPS = {
     ["printer", "印表機", [950, 344, 107, 73], "machine", "power"],
     ["drawers", "文件抽屜", [931, 407, 141, 88], "cabinet"],
     ["tower", "電腦主機", [844, 404, 53, 79], "machine"],
-    ["cushions", "沙發抱枕", [1109, 389, 220, 118], "cushion", "fabric"],
+    ["cushions", "沙發抱枕", [1107, 387, 220, 130], "cushion", "fabric"],
     ["corner-plant", "沙發旁的盆栽", [1352, 411, 98, 188], "plant"],
     ["coffee-table", "茶几", [631, 577, 243, 159], "table"],
     ["table-plant", "茶几上的盆栽", [721, 578, 61, 66], "plant"],
