@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 test.use({ serviceWorkers: "block" });
 async function create(page) {
-  await page.goto("/");
+  await page.goto("/classic.html");
   await page.locator("#player-real-name").fill("工作新人");
   await page.locator("#to-stats").click();
   await page.locator("#start").click();

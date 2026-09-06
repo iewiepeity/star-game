@@ -15,7 +15,7 @@ async function fillIdentity(page, name) {
     .toBe(name);
 }
 async function createPlayer(page, name = "測試新人") {
-  await page.goto("/");
+  await page.goto("/classic.html");
   const enterIdentity = async () => {
     await fillIdentity(page, name);
     await page.locator("#to-stats").click();
@@ -49,7 +49,7 @@ async function openApp(page, id) {
   await ((await entry.isVisible().catch(() => false)) ? entry : button).click();
 }
 test("創角後可閱讀童年卡片序章並接到平板教學", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/classic.html");
   await fillIdentity(page, "序章測試");
   await page.locator("#to-stats").click();
   await page.locator("#start").click();
@@ -61,7 +61,7 @@ test("創角後可閱讀童年卡片序章並接到平板教學", async ({ page 
   await expect(page.locator(".guide-toast")).toContainText("點房間裡的物件");
 });
 test("創角可分別設定本名與藝名並依場合顯示", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/classic.html");
   await fillIdentity(page, "林星予");
   await page.locator("#player-stage-name").fill("星予");
   await page.locator("#player-stage-name").dispatchEvent("input");

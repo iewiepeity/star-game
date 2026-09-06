@@ -8,6 +8,7 @@ const packageJson = JSON.parse(
 );
 const files = [
   "index.html",
+  "classic.html",
   "pixel.html",
   "pixel.css",
   "pixel-ui.css",

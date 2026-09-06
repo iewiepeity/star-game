@@ -1,7 +1,11 @@
 {
   "version": "0.9.0",
-  "bytes": 114241850,
+  "bytes": 114243512,
   "entries": [
+    {
+      "url": "./index.html",
+      "bytes": 1313
+    },
     {
       "url": "./pixel.html",
       "bytes": 4146
@@ -369,6 +373,10 @@
     {
       "url": "./src/data/work-art.js",
       "bytes": 1060
+    },
+    {
+      "url": "./src/entry.js",
+      "bytes": 349
     },
     {
       "url": "./src/logic/achievement-engine.js",

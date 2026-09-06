@@ -52,7 +52,7 @@ test("PWA 更新由玩家確認，安裝階段不再強制接管", async () => {
 });
 
 test("CSS 新增語意 token、元件層與 reduced motion 保護", async () => {
-  const [index, css, cascade, a11y] = await Promise.all([read("index.html"), read("design-system.css"), read("cascade.css"), read("a11y.css")]);
+  const [index, css, cascade, a11y] = await Promise.all([read("classic.html"), read("design-system.css"), read("cascade.css"), read("a11y.css")]);
   assert.match(index, /design-system\.css/);
   assert.match(index, /cascade\.css/);
   assert.match(css, /@layer tokens, components, utilities/);

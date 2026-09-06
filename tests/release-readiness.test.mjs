@@ -7,7 +7,7 @@ import { roomView } from "../src/views/room.js";
 const root = new URL("../", import.meta.url);
 
 async function readLegacyCss() {
-  const html = await readFile(new URL("index.html", root), "utf8");
+  const html = await readFile(new URL("classic.html", root), "utf8");
   const files = [...html.matchAll(/href="\.\/(legacy-[^"]+\.css)"/g)].map(
     match => match[1],
   );

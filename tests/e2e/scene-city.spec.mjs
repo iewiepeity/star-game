@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { MAP_LOCATIONS } from "../../src/data/map-locations.js";
 test.use({ serviceWorkers: "block" });
 async function create(page) {
-  await page.goto("/");
+  await page.goto("/classic.html");
   await page.locator("#player-real-name").fill("星望散步");
   await page.locator("#to-stats").click();
   await page.locator("#start").click();

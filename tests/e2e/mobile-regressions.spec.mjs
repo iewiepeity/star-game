@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 async function createPlayer(page, name) {
-  await page.goto("/");
+  await page.goto("/classic.html");
   await page.locator("#player-real-name").fill(name);
   await page.locator("#player-real-name").dispatchEvent("input");
   await page.locator("#to-stats").click();

@@ -3,7 +3,7 @@ test.use({ serviceWorkers: "block" });
 
 async function boot(page) {
   await page.clock.install({ time: new Date("2026-01-01T00:00:00Z") });
-  await page.goto("/");
+  await page.goto("/classic.html");
   await page.locator("#player-real-name").fill("快轉測試");
   await page.locator("#to-stats").click();
   await page.locator("#start").click();

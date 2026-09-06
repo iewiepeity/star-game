@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.use({ serviceWorkers: "block" });
 
 test("多幕人物場景會顯示選擇代價與專屬後續提示",async({page})=>{
- await page.goto("/");
+ await page.goto("/classic.html");
  await page.evaluate(async()=>{
   const{state}=await import("/src/core/state.js");const{render}=await import("/src/render.js");
   state.screen="event";state.name="場景測試";state.week=40;
@@ -18,7 +18,7 @@ test("多幕人物場景會顯示選擇代價與專屬後續提示",async({page}
 });
 
 test("星途時間線在手機版集中顯示人物、作品與永久選擇",async({page})=>{
- await page.setViewportSize({width:390,height:844});await page.goto("/");
+ await page.setViewportSize({width:390,height:844});await page.goto("/classic.html");
  await page.evaluate(async()=>{
   const{state}=await import("/src/core/state.js");const{render}=await import("/src/render.js");
   state.screen="game";state.name="時間線測試";state.knownPeople=["jiqing"];state.relationships.jiqing={closeness:60,trust:60,affection:30,hostility:0,romance:"none",visibility:"private",romanceHistory:[],affectionHistory:[],hostilityHistory:[]};

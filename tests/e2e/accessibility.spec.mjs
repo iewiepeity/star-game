@@ -5,7 +5,7 @@ import { test, expect } from "@playwright/test";
 test.use({ serviceWorkers: "block" });
 
 test("鍵盤使用者可跳到遊戲內容且主要互動有可見焦點", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/classic.html");
   await page.keyboard.press("Tab");
   await expect(page.locator(".skip-link")).toBeFocused();
   await page.keyboard.press("Enter");
@@ -15,7 +15,7 @@ test("鍵盤使用者可跳到遊戲內容且主要互動有可見焦點", async
 
 test("減少動態偏好會停用非必要動畫", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
+  await page.goto("/classic.html");
   const durationSeconds = await page.locator("#app").evaluate((node) => {
     const value = getComputedStyle(node).animationDuration.trim();
     return value.endsWith("ms")
@@ -27,7 +27,7 @@ test("減少動態偏好會停用非必要動畫", async ({ page }) => {
 
 test("手機建立角色頁沒有水平溢出", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/classic.html");
   const overflow = await page.evaluate(
     () =>
       document.documentElement.scrollWidth -
@@ -37,7 +37,7 @@ test("手機建立角色頁沒有水平溢出", async ({ page }) => {
 });
 
 test("App 視窗會管理焦點、支援 Esc 並回到觸發入口", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/classic.html");
   await page.locator("#player-real-name").fill("鍵盤測試");
   await page.locator("#player-real-name").dispatchEvent("input");
   await page.locator("#to-stats").click();

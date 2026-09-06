@@ -5,7 +5,7 @@ import { readFile } from "node:fs/promises";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("UI hardening stylesheet is loaded and available offline", async () => {
-  const [index, worker, css] = await Promise.all([read("index.html"), read("service-worker.js"), read("ui-hardening.css")]);
+  const [index, worker, css] = await Promise.all([read("classic.html"), read("service-worker.js"), read("ui-hardening.css")]);
   assert.match(index, /ui-hardening\.css/);
   assert.match(worker, /ui-hardening\.css/);
   assert.match(css, /100dvh/);
