@@ -1,3 +1,19 @@
+import {
+  advanceMotion,
+  bodyClear,
+  clearMotion,
+  facingToward,
+} from "./actor-motion.js";
+import {
+  BEHAVIOR_KINDS,
+  initialBehavior,
+  objectApproaches,
+  chooseInteraction,
+  freePoint,
+  usableBehavior,
+  hash,
+} from "./npc-behavior.js";
+import { drawNpcGesture } from "./npc-gestures.js";
 import { pickObject } from "./scene-objects.js";
 import { createFurnitureLayers } from "./furniture-layers.js";
 import {
@@ -195,6 +211,7 @@ export function createWorld(controller) {
       const state = controller.state();
       this.room = ROOMS[state.sceneId];
       this.grid = buildGrid(this.room);
+      this.approaches = objectApproaches(this.room, this.grid);
       this.furniture = createFurnitureLayers(
         this,
         this.room,
@@ -214,9 +231,26 @@ export function createWorld(controller) {
         this.background(f.depth * 0.625).setMask(mask.createGeometryMask());
         this.events.once("room-clear", () => mask.destroy());
       }
-      const pos = walkable(this.room, state.position)
+      // Older saves allowed feet closer to furniture edges. Move only those
+      // positions to the nearest clear cell so the new footprint cannot trap them.
+      const savedOnFloor = walkable(this.room, state.position);
+      const hasClearance =
+        savedOnFloor &&
+        [
+          [0, 0],
+          [4, 0],
+          [-4, 0],
+          [0, 4],
+          [0, -4],
+        ].every(([dx, dy]) =>
+          walkable(this.room, {
+            x: state.position.x + dx,
+            y: state.position.y + dy,
+          }),
+        );
+      const pos = hasClearance
         ? state.position
-        : nearest(this.grid, this.room.entry);
+        : nearest(this.grid, savedOnFloor ? state.position : this.room.entry);
       this.player = this.addActor("player", actorKey(state), pos);
       this.player.shadow.setStrokeStyle(1, 0xad7580, 0.5);
       this.targetRing = this.add
@@ -274,7 +308,13 @@ export function createWorld(controller) {
         y: pos.y,
         facing: 0,
         path: [],
-        routeKey: null,
+        busy: false,
+        speed: 0,
+        walkDistance: 0,
+        blockedFor: 0,
+        turnWait: 0,
+        behavior: null,
+        goal: null,
       };
       actor.shadow = this.add.ellipse(
         pos.x,
@@ -301,6 +341,7 @@ export function createWorld(controller) {
           })
           .setOrigin(0.5)
           .setResolution(2);
+      actor.gesture = this.add.graphics().setVisible(false);
       this.actors.set(id, actor);
       actorFrame(actor, false, 0);
       return actor;
@@ -309,22 +350,24 @@ export function createWorld(controller) {
       actor.sprite.destroy();
       actor.shadow.destroy();
       actor.label?.destroy();
+      actor.gesture?.destroy();
       this.actors.delete(actor.id);
     }
     syncNpcs(first = false) {
+      const state = controller.state();
       for (const id of Object.keys(PEOPLE)) {
-        const plan = itinerary(
-          id,
-          controller.state().elapsed,
-          controller.state(),
-        );
+        const plan = itinerary(id, state.elapsed, state);
         let actor = this.actors.get(id);
         if (this.heldNpc === id) continue;
-        if (plan.scene !== controller.state().sceneId) {
+        if (plan.scene !== state.sceneId || plan.leaving) {
           if (actor) {
-            if (!actor.exiting)
+            if (!actor.exiting) {
+              this.interruptNpc(actor);
               actor.path = findPath(this.grid, actor, this.room.entry);
+              actor.goal = { ...this.room.entry };
+            }
             actor.exiting = true;
+            actor.status = "前往下一站";
             if (
               Math.hypot(
                 actor.x - this.room.entry.x,
@@ -336,44 +379,226 @@ export function createWorld(controller) {
           continue;
         }
         if (!actor) {
-          const saved = controller.state().npcPositions[id];
-          const start =
+          const saved = state.npcPositions[id],
+            occupied = [...this.actors.values()];
+          const preferred =
             first &&
-            saved?.sceneId === controller.state().sceneId &&
+            saved?.sceneId === state.sceneId &&
             walkable(this.room, saved)
               ? saved
-              : nearest(
-                  this.grid,
-                  first ? this.room.route[plan.node] : this.room.entry,
-                );
+              : first
+                ? this.room.route[plan.node]
+                : this.room.entry;
+          const start = freePoint(this.grid, preferred, occupied);
           actor = this.addActor(id, id, start);
-        }
-        const routeKey = `${plan.node}-${plan.leaving}`;
-        if (actor.routeKey !== routeKey) {
-          actor.routeKey = routeKey;
-          actor.path = findPath(
-            this.grid,
-            actor,
-            plan.leaving ? this.room.entry : this.room.route[plan.node],
+          actor.behavior = usableBehavior(
+            state.npcBehaviors?.[id],
+            state.sceneId,
+            this.room,
+            start,
           );
+          actor.behavior.remaining ||= 0.8 + (hash(id) % 5) * 0.2;
+          if (actor.behavior.phase !== "idle") {
+            const item = this.room.objects.find(
+              (o) => o.id === actor.behavior.objectId,
+            );
+            const target = this.approaches
+              .get(item?.id)
+              ?.find((p) => Math.hypot(p.x - start.x, p.y - start.y) < 8);
+            const claimed = [...this.actors.values()].some(
+              (a) => a !== actor && a.behavior?.objectId === item?.id,
+            );
+            if (actor.behavior.phase === "using" && target && !claimed) {
+              actor.focus = item;
+              actor.goal = target;
+              actor.facing = facingToward(actor, item);
+            } else {
+              actor.behavior.phase = "idle";
+              actor.behavior.objectId = null;
+              actor.behavior.remaining = 0.5;
+            }
+          }
         }
-        actor.status = plan.status;
-        actor.busy = plan.busy;
+        if (actor.busy !== !!plan.busy) this.interruptNpc(actor);
+        actor.busy = !!plan.busy;
+        actor.planStatus = plan.status;
         actor.exiting = false;
-        actor.label.setText(
-          `${PEOPLE[id].name} · ${actor.path.length ? "走動中" : plan.status}`,
-        );
       }
+    }
+    interruptNpc(actor) {
+      const old = actor.behavior;
+      actor.behavior = {
+        ...initialBehavior(),
+        sceneId: controller.state().sceneId,
+        cycle: old?.cycle || 0,
+        completed: old?.completed || 0,
+        recent: old?.recent || [],
+      };
+      actor.yielding = false;
+      actor.path = [];
+      actor.goal = null;
+      actor.focus = null;
+      actor.gesture?.clear().setVisible(false);
+      clearMotion(actor);
+      const state = controller.state();
+      state.npcBehaviors ||= {};
+      state.npcBehaviors[actor.id] = actor.behavior;
+    }
+    updateNpcBehavior(actor, dt) {
+      if (actor.exiting || this.heldNpc === actor.id) return;
+      const state = controller.state(),
+        b = actor.behavior;
+      if (!b) return;
+      if (actor.yielding) {
+        actor.status = "讓一讓路";
+        if (!actor.path.length) {
+          actor.yielding = false;
+          b.remaining = 0.8;
+        }
+        return;
+      }
+      if (b.phase === "walking") {
+        actor.status = `走向${actor.focus?.name || "下一個地方"}`;
+        if (!actor.path.length) {
+          if (
+            !actor.goal ||
+            Math.hypot(actor.x - actor.goal.x, actor.y - actor.goal.y) > 8
+          ) {
+            this.interruptNpc(actor);
+            return;
+          }
+          b.phase = "using";
+          b.remaining =
+            BEHAVIOR_KINDS[actor.focus.kind].duration + (hash(actor.id) % 3);
+          actor.facing = facingToward(actor, actor.focus);
+        }
+      }
+      if (b.phase === "using") {
+        b.remaining -= dt;
+        actor.status = actor.busy
+          ? actor.planStatus
+          : `${BEHAVIOR_KINDS[actor.focus.kind].verb}${actor.focus.kind === "mark" ? "" : actor.focus.name}`;
+        if (b.remaining <= 0) {
+          b.completed++;
+          b.recent = [...b.recent, b.objectId].slice(-3);
+          b.objectId = null;
+          b.phase = "idle";
+          b.remaining = 1.2 + (hash(actor.id) % 4) * 0.25;
+          actor.focus = null;
+          actor.gesture.clear().setVisible(false);
+        }
+      } else if (b.phase === "idle") {
+        actor.status = actor.busy ? actor.planStatus : "稍作停留";
+        b.remaining -= dt;
+        if (b.remaining <= 0) {
+          const others = [...this.actors.values()].filter((a) => a !== actor);
+          const reserved = new Set(
+            others.map((a) => a.behavior?.objectId).filter(Boolean),
+          );
+          const choice = chooseInteraction({
+            actor,
+            room: this.room,
+            grid: this.grid,
+            approaches: this.approaches,
+            occupied: others.flatMap((a) => [a, ...(a.goal ? [a.goal] : [])]),
+            reserved,
+            behavior: b,
+          });
+          b.cycle++;
+          if (choice) {
+            b.phase = "walking";
+            b.objectId = choice.item.id;
+            actor.focus = choice.item;
+            actor.goal = choice.target;
+            actor.path = choice.path;
+          } else b.remaining = 2;
+        }
+      }
+      state.npcBehaviors ||= {};
+      state.npcBehaviors[actor.id] = b;
+    }
+    detour(actor, goal) {
+      const others = [...this.actors.values()].filter(
+        (a) => a !== actor && a.sprite.visible,
+      );
+      const nodes = this.grid.nodes.filter((n) =>
+        others.every(
+          (o) =>
+            Math.hypot(n.x - o.x, n.y - o.y) >= 19 ||
+            Math.hypot(n.x - actor.x, n.y - actor.y) < 5,
+        ),
+      );
+      const grid = {
+        ...this.grid,
+        nodes,
+        byId: new Map(nodes.map((n) => [n.id, n])),
+      };
+      const path = findPath(grid, actor, goal),
+        end = path.at(-1) || actor;
+      return Math.hypot(end.x - goal.x, end.y - goal.y) < 14 ? path : [];
+    }
+    yieldActor(actor, requester) {
+      if (
+        actor.id === "player" ||
+        this.heldNpc === actor.id ||
+        actor.exiting ||
+        actor.yielding
+      )
+        return false;
+      const options = [...this.grid.nodes]
+        .filter((p) => {
+          const d = Math.hypot(p.x - actor.x, p.y - actor.y);
+          return (
+            d > 25 &&
+            d < 70 &&
+            Math.hypot(p.x - requester.x, p.y - requester.y) > 32 &&
+            bodyClear(actor, p, [...this.actors.values()], 23)
+          );
+        })
+        .sort(
+          (a, b) =>
+            Math.hypot(a.x - actor.x, a.y - actor.y) -
+            Math.hypot(b.x - actor.x, b.y - actor.y),
+        );
+      for (const point of options.slice(0, 18)) {
+        const path = this.detour(actor, point);
+        if (!path.length) continue;
+        this.interruptNpc(actor);
+        actor.yielding = true;
+        actor.path = path;
+        actor.goal = point;
+        return true;
+      }
+      return false;
     }
     go(point, callback) {
       if (this.paused) {
         controller.toast("先關閉視窗或繼續世界，再走動吧");
-        return;
+        return false;
       }
       this.cancelActivity();
       this.releaseNpc();
       this.pending = callback || null;
-      this.player.path = findPath(this.grid, this.player, point);
+      const destination = freePoint(
+        this.grid,
+        point,
+        [...this.actors.values()].filter((a) => a !== this.player),
+      );
+      this.player.path = findPath(this.grid, this.player, destination);
+      this.player.goal = destination;
+      clearMotion(this.player);
+      if (
+        !this.player.path.length &&
+        Math.hypot(
+          this.player.x - destination.x,
+          this.player.y - destination.y,
+        ) > 8
+      ) {
+        this.pending = null;
+        this.targetRing.setVisible(false);
+        controller.toast("這裡暫時走不到，換個位置試試。");
+        return false;
+      }
       this.manualPan = false;
       const last = this.player.path.at(-1) || this.player;
       this.targetRing.setPosition(last.x, last.y).setVisible(true);
@@ -401,7 +626,33 @@ export function createWorld(controller) {
         );
         return;
       }
-      this.go(nearest(this.grid, { x: actor.x + 50, y: actor.y + 12 }), () => {
+      const occupied = [...this.actors.values()].filter(
+        (a) => a !== this.player,
+      );
+      const candidates = this.grid.nodes
+        .filter((point) => {
+          const distance = Math.hypot(point.x - actor.x, point.y - actor.y);
+          return (
+            distance >= 32 &&
+            distance <= 65 &&
+            bodyClear(this.player, point, occupied, 23)
+          );
+        })
+        .sort(
+          (a, b) =>
+            Math.hypot(a.x - this.player.x, a.y - this.player.y) -
+            Math.hypot(b.x - this.player.x, b.y - this.player.y),
+        );
+      const target = candidates.find((point) => {
+        const path = findPath(this.grid, this.player, point);
+        const end = path.at(-1) || this.player;
+        return Math.hypot(end.x - point.x, end.y - point.y) < 8;
+      });
+      if (!target) {
+        controller.toast("這一側走不到對方面前，換個位置再聊吧。");
+        return;
+      }
+      const started = this.go(target, () => {
         if (
           this.actors.get(id) !== actor ||
           actor.exiting ||
@@ -411,13 +662,15 @@ export function createWorld(controller) {
           controller.toast("還沒走到對方面前，換一側靠近再聊吧");
           return;
         }
-        this.player.facing = this.player.x > actor.x ? 1 : 2;
-        actor.facing = this.player.x > actor.x ? 2 : 1;
+        this.player.facing = facingToward(this.player, actor);
+        actor.facing = facingToward(actor, this.player);
         actorFrame(actor, false, controller.state().elapsed);
         controller.talk(id);
       });
+      if (started === false) return;
+      this.interruptNpc(actor);
       this.heldNpc = id;
-      actor.path = [];
+      actor.status = "停下來等你";
     }
     arrive() {
       this.targetRing.setVisible(false);
@@ -428,11 +681,12 @@ export function createWorld(controller) {
     }
     releaseNpc() {
       this.heldNpc = null;
-      for (const actor of this.actors.values()) actor.routeKey = null;
     }
     stopRoute() {
       this.pending = null;
       this.player.path = [];
+      this.player.goal = null;
+      clearMotion(this.player);
       this.keys.clear();
       this.targetRing.setVisible(false);
     }
@@ -700,30 +954,51 @@ export function createWorld(controller) {
       });
     }
     moveActor(actor, dt, speed) {
-      let remaining = dt * speed,
-        moving = false;
-      while (actor.path.length && remaining > 0) {
-        const target = actor.path[0],
-          dx = target.x - actor.x,
-          dy = target.y - actor.y,
-          distance = Math.hypot(dx, dy);
-        if (distance > 0.01) {
-          actor.facing =
-            Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : dy < 0 ? 3 : 0;
-          moving = true;
+      const scripted = this.storyActors.active;
+      const moving = advanceMotion(
+        actor,
+        dt,
+        speed,
+        (point) =>
+          [
+            [0, 0],
+            [4, 0],
+            [-4, 0],
+            [0, 4],
+            [0, -4],
+          ].every(([dx, dy]) =>
+            walkable(this.room, { x: point.x + dx, y: point.y + dy }),
+          ) &&
+          (scripted ||
+            bodyClear(
+              actor,
+              point,
+              [...this.actors.values()].filter((a) => a.sprite.visible),
+            )),
+      );
+      if (!scripted && actor.blockedFor > 0.4 && actor.path.length) {
+        const ahead = actor.path[0],
+          blocker = [...this.actors.values()]
+            .filter((a) => a !== actor)
+            .sort(
+              (a, b) =>
+                Math.hypot(a.x - actor.x, a.y - actor.y) -
+                Math.hypot(b.x - actor.x, b.y - actor.y),
+            )[0];
+        if (
+          blocker &&
+          (actor.id === "player" ||
+            !blocker.path.length ||
+            actor.id < blocker.id)
+        )
+          this.yieldActor(blocker, actor);
+        if (actor.goal) {
+          const route = this.detour(actor, actor.goal);
+          if (route.length) actor.path = route;
         }
-        if (distance <= remaining) {
-          actor.x = target.x;
-          actor.y = target.y;
-          actor.path.shift();
-          remaining -= distance;
-          const next = actor.path[0];
-          if (next && (dx !== 0) !== (next.x - actor.x !== 0)) break;
-        } else {
-          actor.x += (dx / distance) * remaining;
-          actor.y += (dy / distance) * remaining;
-          remaining = 0;
-        }
+        if (actor.blockedFor > 2.5 && actor.id !== "player" && !actor.exiting)
+          this.interruptNpc(actor);
+        if (!actor.goal && ahead) actor.goal = actor.path.at(-1);
       }
       return moving;
     }
@@ -775,17 +1050,48 @@ export function createWorld(controller) {
       } else if (dx || dy) {
         // Substep direct input as well as path-following at accelerated speed;
         // a large frame may never jump across a furniture collision polygon.
-        const factor = (150 * Math.min(delta, 80)) / 1000 / Math.hypot(dx, dy);
-        const steps = Math.max(1, Math.ceil(factor / (WORLD.grid / 2)));
+        const realDt = Math.min(delta, 80) / 1000;
+        this.player.speed = Math.min(
+          150,
+          (this.player.speed || 0) + 600 * realDt,
+        );
+        const factor = this.player.speed * realDt,
+          steps = Math.max(1, Math.ceil(factor / 3));
+        const start = { x: this.player.x, y: this.player.y };
         for (let i = 0; i < steps; i++) {
-          const x = this.player.x + (dx * factor) / steps;
-          const y = this.player.y + (dy * factor) / steps;
-          if (walkable(this.room, { x, y: this.player.y })) this.player.x = x;
-          if (walkable(this.room, { x: this.player.x, y })) this.player.y = y;
+          const point = {
+            x: this.player.x + (dx * factor) / steps,
+            y: this.player.y + (dy * factor) / steps,
+          };
+          if (
+            [
+              [0, 0],
+              [4, 0],
+              [-4, 0],
+              [0, 4],
+              [0, -4],
+            ].every(([dx, dy]) =>
+              walkable(this.room, { x: point.x + dx, y: point.y + dy }),
+            ) &&
+            bodyClear(this.player, point, [...this.actors.values()])
+          ) {
+            this.player.x = point.x;
+            this.player.y = point.y;
+            this.player.walkDistance += factor / steps;
+          } else {
+            this.player.speed = 0;
+            const blocker = [...this.actors.values()].find(
+              (a) =>
+                a !== this.player &&
+                Math.hypot(a.x - point.x, a.y - point.y) < 20,
+            );
+            if (blocker) this.yieldActor(blocker, this.player);
+            break;
+          }
         }
-        this.player.facing =
-          Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : dy < 0 ? 3 : 0;
-        moved = true;
+        moved =
+          Math.hypot(this.player.x - start.x, this.player.y - start.y) > 0.001;
+        if (moved) this.player.facing = facingToward(start, this.player);
       } else {
         const was = this.player.path.length;
         moved = this.moveActor(this.player, dt, 165);
@@ -798,18 +1104,35 @@ export function createWorld(controller) {
       state.position = { x: this.player.x, y: this.player.y };
       for (const actor of this.actors.values())
         if (actor.id !== "player") {
-          const walking = this.moveActor(actor, dt, 42);
-          if (!walking && !actor.exiting && this.heldNpc !== actor.id)
-            activityFrame(
+          this.updateNpcBehavior(actor, dt);
+          const walking = this.moveActor(
+            actor,
+            dt,
+            actor.exiting ? 65 : 48 + (hash(actor.id) % 15),
+          );
+          const behavior = actor.behavior;
+          if (
+            !walking &&
+            !actor.exiting &&
+            this.heldNpc !== actor.id &&
+            behavior?.phase === "using" &&
+            actor.focus
+          )
+            drawNpcGesture(
               actor,
-              actor.id === "sufei" &&
-                state.sceneId === "rehearsal" &&
-                actor.status === "暖身中"
-                ? "dance"
-                : "read",
-              state.elapsed,
+              BEHAVIOR_KINDS[actor.focus.kind].pose,
+              BEHAVIOR_KINDS[actor.focus.kind].duration +
+                (hash(actor.id) % 3) -
+                behavior.remaining,
+              window.matchMedia("(prefers-reduced-motion: reduce)").matches,
             );
-          else actorFrame(actor, walking, state.elapsed);
+          else {
+            actor.gesture.clear().setVisible(false);
+            actorFrame(actor, walking, state.elapsed);
+          }
+          actor.label.setText(
+            `${PEOPLE[actor.id].name} · ${actor.status || actor.planStatus || "稍作停留"}`,
+          );
           actor.label.setVisible(
             this.hoveredNpc === actor.id ||
               this.heldNpc === actor.id ||
@@ -905,6 +1228,14 @@ export function createWorld(controller) {
             status: a.status,
             moving: !!a.path.length,
             exiting: !!a.exiting,
+            behavior: a.behavior
+              ? { ...a.behavior, recent: [...a.behavior.recent] }
+              : null,
+            object: a.behavior?.objectId || null,
+            facing: a.facing,
+            speed: a.speed,
+            blockedFor: a.blockedFor,
+            goal: a.goal ? { ...a.goal } : null,
           })),
         markerCount: 0,
         seatForegroundCount: [...this.seatForegrounds.values()].filter(

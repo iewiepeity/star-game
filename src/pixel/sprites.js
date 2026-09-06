@@ -56,6 +56,8 @@ export function importSprites(scene, key) {
   return texture;
 }
 export function actorFrame(actor, moving, elapsed) {
+  if (moving && Number.isFinite(actor.walkDistance))
+    elapsed = actor.walkDistance / 90;
   if (expandedActorFrame(actor, moving, elapsed)) return;
   const row = moving ? [0, 1, 0, 2][Math.floor(elapsed * 9) % 4] : 0;
   let col = actor.facing,

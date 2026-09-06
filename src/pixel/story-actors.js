@@ -32,6 +32,7 @@ export function createStoryActors(world, controller) {
       points,
     };
     for (const actor of world.actors.values()) {
+      if (actor.id !== "player") world.interruptNpc(actor);
       if (actor.id !== "player")
         scene.originals.set(actor.id, {
           x: actor.x,

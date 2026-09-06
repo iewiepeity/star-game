@@ -28,6 +28,7 @@ export default defineConfig({
         "**/pixel-ui-refresh.spec.mjs",
         "**/pixel-entry.spec.mjs",
         "**/pixel-scene-objects.spec.mjs",
+        "**/pixel-npc-behavior.spec.mjs",
       ],
       use: {
         browserName: "chromium",
@@ -54,6 +55,7 @@ export default defineConfig({
         "**/pixel-ui-refresh.spec.mjs",
         "**/pixel-entry.spec.mjs",
         "**/pixel-scene-objects.spec.mjs",
+        "**/pixel-npc-behavior.spec.mjs",
       ],
       use: {
         browserName: "webkit",
@@ -81,6 +83,7 @@ export default defineConfig({
         "**/pixel-ui-refresh.spec.mjs",
         "**/pixel-entry.spec.mjs",
         "**/pixel-scene-objects.spec.mjs",
+        "**/pixel-npc-behavior.spec.mjs",
       ],
       use: {
         browserName: "webkit",
@@ -107,6 +110,7 @@ export default defineConfig({
         "**/pixel-ui-refresh.spec.mjs",
         "**/pixel-entry.spec.mjs",
         "**/pixel-scene-objects.spec.mjs",
+        "**/pixel-npc-behavior.spec.mjs",
       ],
       use: { browserName: "firefox", viewport: { width: 1366, height: 900 } },
     },

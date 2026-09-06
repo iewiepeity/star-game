@@ -1,3 +1,4 @@
+import { normalizeBehaviors } from "./npc-behavior.js";
 import { normalizeObjectStates } from "./scene-objects.js";
 import { normalizeIdentity } from "./identity.js";
 import { AVATARS } from "../data/wardrobe.js";
@@ -23,6 +24,7 @@ export const initialPixelState = () => ({
   visited: ["home"],
   knownPeople: [],
   npcPositions: {},
+  npcBehaviors: {},
   flags: {},
   objectStates: {},
   dialogue: null,
@@ -116,6 +118,7 @@ export function validatePixelState(raw) {
     };
   }
   state.objectStates = normalizeObjectStates(raw.objectStates, ROOMS);
+  state.npcBehaviors = normalizeBehaviors(raw.npcBehaviors, ROOMS, PEOPLE);
   state.life = normalizeLife(raw.life, state.outfitId);
   normalizeIdentity(state, raw);
   if (!state.life.game.realName && !state.life.game.stageName)

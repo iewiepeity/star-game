@@ -1,6 +1,6 @@
 {
-  "version": "0.11.0",
-  "bytes": 114707187,
+  "version": "0.12.0",
+  "bytes": 114729626,
   "entries": [
     {
       "url": "./index.html",
@@ -703,6 +703,10 @@
       "bytes": 2666
     },
     {
+      "url": "./src/pixel/actor-motion.js",
+      "bytes": 2503
+    },
+    {
       "url": "./src/pixel/career-ui.js",
       "bytes": 24635
     },
@@ -776,11 +780,19 @@
     },
     {
       "url": "./src/pixel/model.js",
-      "bytes": 7033
+      "bytes": 7185
     },
     {
       "url": "./src/pixel/navigation.js",
       "bytes": 4250
+    },
+    {
+      "url": "./src/pixel/npc-behavior.js",
+      "bytes": 6421
+    },
+    {
+      "url": "./src/pixel/npc-gestures.js",
+      "bytes": 2428
     },
     {
       "url": "./src/pixel/offline.js",
@@ -816,7 +828,7 @@
     },
     {
       "url": "./src/pixel/sprites.js",
-      "bytes": 6347
+      "bytes": 6439
     },
     {
       "url": "./src/pixel/storage-ui.js",
@@ -824,7 +836,7 @@
     },
     {
       "url": "./src/pixel/story-actors.js",
-      "bytes": 6835
+      "bytes": 6895
     },
     {
       "url": "./src/pixel/story-blocking.js",
@@ -844,7 +856,7 @@
     },
     {
       "url": "./src/pixel/world.js",
-      "bytes": 31239
+      "bytes": 42022
     },
     {
       "url": "./src/render.js",
