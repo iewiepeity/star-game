@@ -374,7 +374,7 @@ test("the actual furniture replaces floating buttons; touch selects before walki
     await page.touchscreen.tap(x, y);
     await expect(page.locator("#panel-title")).toHaveText("休息一下");
     expect((await read(page)).player.moving).toBe(false);
-    await page.getByRole("button", { name: "走近看看 →" }).click();
+    await page.getByRole("button", { name: "使用休息一下", exact: true }).click();
   } else await page.mouse.click(x, y);
   await page.locator('[data-activity="rest"]').click();
   await activity(page, "rest");

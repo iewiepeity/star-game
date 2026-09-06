@@ -170,7 +170,7 @@ for (const [id, def] of Object.entries(CHOICES).filter(
   });
 }
 
-test("pixel visual system covers menus, creation, all app entrances and every theme", async ({
+test("pixel visual system covers menus, creation and every theme", async ({
   page,
 }, info) => {
   test.setTimeout(60000);
@@ -207,19 +207,36 @@ test("pixel visual system covers menus, creation, all app entrances and every th
     await layout(page);
     await page.screenshot({ path: info.outputPath(`settings-${theme}.png`) });
   }
-  await page.getByRole("button", { name: "關閉視窗" }).click();
-  await menu(page, "phone");
-  const ids = await page
-    .locator(".pixel-app-library [data-pixel-app]")
-    .evaluateAll((es) => es.map((e) => e.dataset.pixelApp));
-  expect(ids.length).toBe(17); // The phone itself is the eighteenth entrance.
-  for (const id of ids) {
-    await page.locator(`.pixel-app-library [data-pixel-app="${id}"]`).click();
-    await layout(page);
-    if (["stats", "social", "creative", "people", "wardrobe"].includes(id))
-      await page.screenshot({ path: info.outputPath(`app-${id}.png`) });
-    await page.getByRole("button", { name: "關閉視窗" }).click();
-    await menu(page, "phone");
-  }
   expect(errors).toEqual([]);
 });
+
+// Bound each visual tour instead of sharing one deadline across 5 themes and
+// 17 apps. Read the same complete library in each group, then visit every entry.
+for (let group = 0; group < 3; group++) {
+  test(`pixel visual system covers app entrances ${group + 1}/3`, async ({
+    page,
+  }, info) => {
+    test.setTimeout(60000);
+    const state = initialPixelState();
+    state.flags.intro = true;
+    await seed(page, state);
+    const errors = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    await menu(page, "phone");
+    const ids = await page
+      .locator(".pixel-app-library [data-pixel-app]")
+      .evaluateAll((es) => es.map((e) => e.dataset.pixelApp));
+    expect(ids.length).toBe(17); // The phone itself is the eighteenth entrance.
+    for (const id of ids.slice(group * 6, (group + 1) * 6)) {
+      await test.step(`open ${id}`, async () => {
+        await page.locator(`.pixel-app-library [data-pixel-app="${id}"]`).click();
+        await layout(page);
+        if (["stats", "social", "creative", "people", "wardrobe"].includes(id))
+          await page.screenshot({ path: info.outputPath(`app-${id}.png`) });
+        await page.getByRole("button", { name: "關閉視窗" }).click();
+        await menu(page, "phone");
+      });
+    }
+    expect(errors).toEqual([]);
+  });
+}

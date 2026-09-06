@@ -127,7 +127,9 @@ test("all 32 rooms load through map or connected interior entrances, retaining o
     info.project.name !== "desktop",
     "Full catalog traversal; responsive controls are covered in all six browsers above.",
   );
-  test.setTimeout(150000);
+  // Keep the traversal in one session to verify atlas eviction across all rooms.
+  // Each entrance retains its short deadline; allow the full catalog 10s/room.
+  test.setTimeout(Object.keys(ROOMS).length * 10000);
   const s = initialPixelState();
   s.knownPeople = ["silver_pc"];
   s.life.game.knownPeople = ["silver_pc"];
