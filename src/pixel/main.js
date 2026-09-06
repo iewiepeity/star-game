@@ -1,3 +1,9 @@
+import {
+  APPEARANCES,
+  appearanceValue,
+  setObjectAppearance,
+  canReturnHome,
+} from "./scene-objects.js";
 import { setupPixelOffline } from "./offline.js";
 import { tutorialMarkup, dismissTutorial } from "./tutorial-ui.js";
 import {
@@ -126,6 +132,11 @@ function changed() {
     $("activity-progress").value =
       activity.elapsed / ACTIVITY_TYPES[activity.kind].duration;
   }
+  $("return-home").disabled = !canReturnHome(
+    state,
+    appearanceBusy || controller.transitioning,
+  );
+  $("return-home").textContent = state.sceneId === "home" ? "⌂ 在家" : "⌂ 回家";
   lifeUI.changed();
   if (audioUnlocked) syncRoomAudio();
 }
@@ -245,7 +256,7 @@ function nearby() {
   const actors = [...world.actors.keys()].filter((id) => id !== "player");
   show(
     "nearby",
-    `${heading("AROUND ME · 附近", "看看身邊有什麼")}<nav id="nearby" aria-label="場景互動物件">${ROOMS[state.sceneId].objects.map((item) => `<button data-object="${item.id}">${item.name}<span>走近 →</span></button>`).join("")}${actors.map((id) => `<button data-npc="${id}"><img src="${PEOPLE[id].head}" alt="">${PEOPLE[id].name}<span>聊聊 →</span></button>`).join("")}</nav>`,
+    `${heading("AROUND ME · 附近", "看看身邊有什麼")}<nav id="nearby" aria-label="場景互動物件">${ROOMS[state.sceneId].objects.map((item) => `<button data-object="${item.id}">${item.name}<span>${item.action === "inspect" ? "看看 →" : "使用 →"}</span></button>`).join("")}${actors.map((id) => `<button data-npc="${id}"><img src="${PEOPLE[id].head}" alt="">${PEOPLE[id].name}<span>聊聊 →</span></button>`).join("")}</nav>`,
   );
 }
 function settings() {
@@ -558,12 +569,32 @@ function beginActivity(itemId, kind) {
   changed();
 }
 function selectObject(item) {
+  inspectObject(item);
+}
+function inspectObject(item) {
+  const definition = APPEARANCES[item.appearance],
+    value = appearanceValue(state, state.sceneId, item);
   show(
-    "object",
-    `${heading("A LITTLE MOMENT · 身邊的事", item.name)}<div class="buttons"><button class="primary" data-object="${item.id}">走近看看 →</button><button data-ui="close">再逛逛</button></div>`,
+    "scene-object",
+    `${heading("", item.name)}<p>${escape(item.response)}</p>${
+      definition
+        ? `<p class="object-state" role="status">${definition.labels[value]}</p><div class="object-options">${Object.entries(
+            definition.choices,
+          )
+            .map(
+              ([id, label]) =>
+                `<button data-object-state="${id}" data-scene-object="${item.id}" aria-pressed="${id === value}" ${id === value ? "disabled" : ""}>${label}</button>`,
+            )
+            .join("")}</div>`
+        : ""
+    }<div class="buttons">${item.action !== "inspect" ? `<button class="primary" data-object="${item.id}">使用${escape(item.name)}</button>` : ""}<button data-ui="close">繼續逛逛</button></div>`,
   );
 }
 function interact(item) {
+  if (item.action === "inspect") {
+    inspectObject(item);
+    return;
+  }
   if (lifeUI.interact(item)) return;
   switch (item.action) {
     case "career":
@@ -579,10 +610,7 @@ function interact(item) {
       lifeUI.creative();
       break;
     case "detail":
-      simple(
-        item.name,
-        cityDetailText(state.sceneId),
-      );
+      simple(item.name, cityDetailText(state.sceneId));
       break;
     case "wardrobe":
       wardrobe();
@@ -838,6 +866,38 @@ setInterval(() => lifeUI.tick(0.1), 100);
 document.addEventListener("click", async (event) => {
   const target = event.target.closest("button");
   if (!target || !world) return;
+  if (target.dataset.ui === "return-home") {
+    if (!canReturnHome(state, appearanceBusy || controller.transitioning))
+      return;
+    cityUI.cancelRoute();
+    lifeUI.takeover();
+    leaveOverlay();
+    await world.returnHome();
+    return;
+  }
+  if (target.dataset.objectState !== undefined) {
+    if (controller.transitioning || state.life.storyStage || state.dialogue)
+      return;
+    const item = ROOMS[state.sceneId].objects.find(
+      (o) => o.id === target.dataset.sceneObject,
+    );
+    if (
+      item &&
+      setObjectAppearance(state, ROOMS, item.id, target.dataset.objectState)
+    ) {
+      world.refreshFurniture();
+      checkpoint();
+      inspectObject(item);
+    }
+    return;
+  }
+  if (target.dataset.inspectObject) {
+    const item = ROOMS[state.sceneId].objects.find(
+      (o) => o.id === target.dataset.inspectObject,
+    );
+    if (item) inspectObject(item);
+    return;
+  }
   if (cityUI.handle(target)) return;
   if (appearanceBusy) return;
   if (target.dataset.onboarding || target.dataset.chooseAspiration) {

@@ -1,3 +1,4 @@
+import { registerSceneObjects } from "./scene-objects.js";
 import { cityItinerary, expandCast } from "./cast.js";
 import { registerCityRooms } from "./city-rooms.js";
 import { NPCS } from "../data/npcs.js";
@@ -712,5 +713,6 @@ ACTIVITY_SPOTS.shop = {
 };
 
 registerCityRooms(ROOMS, ACTIVITY_SPOTS);
+registerSceneObjects(ROOMS);
 
 expandCast(PEOPLE, CONVERSATIONS);

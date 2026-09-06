@@ -1,3 +1,5 @@
+import { pickObject } from "./scene-objects.js";
+import { createFurnitureLayers } from "./furniture-layers.js";
 import {
   expandedAssets,
   expandedMeta,
@@ -133,6 +135,11 @@ export function createWorld(controller) {
       for (const k of old) if (!this.textures.exists(k)) importSprites(this, k);
     }
     background(depth = -10) {
+      if (depth === -10 && this.furniture)
+        return this.add
+          .image(0, 0, this.furniture.backgroundKey)
+          .setOrigin(0)
+          .setDepth(depth);
       const key = roomAssetKey(this.room),
         texture = this.textures.get(key),
         id = controller.state().sceneId;
@@ -179,6 +186,8 @@ export function createWorld(controller) {
     loadRoom() {
       this.uiTick = null;
       this.children.removeAll(true);
+      this.furniture?.dispose();
+      this.furniture = null;
       this.actors.clear();
       this.heldNpc = null;
       this.pending = null;
@@ -186,6 +195,12 @@ export function createWorld(controller) {
       const state = controller.state();
       this.room = ROOMS[state.sceneId];
       this.grid = buildGrid(this.room);
+      this.furniture = createFurnitureLayers(
+        this,
+        this.room,
+        this.textures.get(roomAssetKey(this.room)).getSourceImage(),
+        () => controller.state(),
+      );
       const base = this.background();
       if (this.room.artOutline) {
         const mask = this.make.graphics({ x: 0, y: 0, add: false });
@@ -367,6 +382,10 @@ export function createWorld(controller) {
     interact(id) {
       const item = this.room.objects.find((o) => o.id === id);
       if (!item) return;
+      if (item.action === "inspect") {
+        controller.interact(item);
+        return;
+      }
       this.go(item.target, () => controller.interact(item));
       controller.toast(`走向${item.name}`);
     }
@@ -428,6 +447,29 @@ export function createWorld(controller) {
         this.trimAssets();
       } finally {
         controller.transitioning = false;
+      }
+    }
+    refreshFurniture() {
+      this.furniture?.refresh();
+    }
+    async returnHome() {
+      if (controller.transitioning) return;
+      controller.transitioning = true;
+      controller.changed();
+      this.cancelActivity();
+      this.stopRoute();
+      try {
+        await this.ensureAssets("home");
+        this.events.emit("room-clear");
+        controller.enterRoom("home");
+        this.loadRoom();
+        this.cameras.main.fadeIn(230, 250, 245, 235);
+        controller.checkpoint();
+      } catch {
+        controller.toast("住處素材載入失敗，留在原地。請再按一次回家。");
+      } finally {
+        controller.transitioning = false;
+        controller.changed();
       }
     }
     transition(id, after, onError) {
@@ -523,7 +565,8 @@ export function createWorld(controller) {
       this.input.on("pointermove", (pointer) => {
         if (!pointer.isDown && !this.paused) {
           const pt = this.cameras.main.getWorldPoint(pointer.x, pointer.y),
-            selected = this.hotspots.findLast((h) => inside(pt, h.item.hit));
+            selectedItem = pickObject(this.room.objects, pt, inside),
+            selected = this.hotspots.find((h) => h.item === selectedItem);
           for (const h of this.hotspots) {
             h.title
               .setVisible(h === selected)
@@ -568,9 +611,11 @@ export function createWorld(controller) {
           this.talk(npc.id);
           return;
         }
-        const object = this.hotspots.findLast((h) => inside(pt, h.item.hit));
+        const selectedItem = pickObject(this.room.objects, pt, inside);
+        const object = this.hotspots.find((h) => h.item === selectedItem);
         if (object) {
-          if (pointer.wasTouch) controller.selectObject(object.item);
+          if (pointer.wasTouch && object.item.action !== "inspect")
+            controller.selectObject(object.item);
           else this.interact(object.item.id);
           return;
         }
@@ -618,7 +663,9 @@ export function createWorld(controller) {
         }
         if (e.key === "Enter") {
           const all = [
-            ...this.room.objects.map((o) => ({ id: o.id, ...o.target })),
+            ...this.room.objects
+              .filter((o) => o.action !== "inspect")
+              .map((o) => ({ id: o.id, ...o.target })),
             ...[...this.actors.values()].filter((a) => a.id !== "player"),
           ];
           const near = all.sort(
@@ -706,7 +753,11 @@ export function createWorld(controller) {
       if (state.activity) {
         state.activity.elapsed += dt;
         controller.activityProgress?.(
-          Math.min(1, state.activity.elapsed / ACTIVITY_TYPES[state.activity.kind].duration),
+          Math.min(
+            1,
+            state.activity.elapsed /
+              ACTIVITY_TYPES[state.activity.kind].duration,
+          ),
         );
         activityFrame(
           this.player,
@@ -815,6 +866,7 @@ export function createWorld(controller) {
     snapshot() {
       return {
         story: this.storyActors.snapshot(),
+        furniture: this.furniture?.snapshot() || [],
         scene: controller.state().sceneId,
         retainedAssets: {
           rooms: this.assetHistory.rooms.length,

@@ -1,6 +1,6 @@
 {
-  "version": "0.10.1",
-  "bytes": 114663017,
+  "version": "0.11.0",
+  "bytes": 114707187,
   "entries": [
     {
       "url": "./index.html",
@@ -8,7 +8,7 @@
     },
     {
       "url": "./pixel.html",
-      "bytes": 4147
+      "bytes": 4255
     },
     {
       "url": "./pixel.css",
@@ -16,7 +16,7 @@
     },
     {
       "url": "./pixel-ui.css",
-      "bytes": 26506
+      "bytes": 27355
     },
     {
       "url": "./pixel-apps.css",
@@ -736,7 +736,7 @@
     },
     {
       "url": "./src/pixel/data.js",
-      "bytes": 14838
+      "bytes": 14926
     },
     {
       "url": "./src/pixel/expanded-sprites.js",
@@ -745,6 +745,10 @@
     {
       "url": "./src/pixel/feature-ui.js",
       "bytes": 21215
+    },
+    {
+      "url": "./src/pixel/furniture-layers.js",
+      "bytes": 6815
     },
     {
       "url": "./src/pixel/identity.js",
@@ -764,7 +768,7 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 41979
+      "bytes": 43986
     },
     {
       "url": "./src/pixel/menu-icons.js",
@@ -772,7 +776,7 @@
     },
     {
       "url": "./src/pixel/model.js",
-      "bytes": 6882
+      "bytes": 7033
     },
     {
       "url": "./src/pixel/navigation.js",
@@ -797,6 +801,14 @@
     {
       "url": "./src/pixel/save-transfer.js",
       "bytes": 4754
+    },
+    {
+      "url": "./src/pixel/scene-object-catalog.js",
+      "bytes": 24816
+    },
+    {
+      "url": "./src/pixel/scene-objects.js",
+      "bytes": 7633
     },
     {
       "url": "./src/pixel/settings-ui.js",
@@ -832,7 +844,7 @@
     },
     {
       "url": "./src/pixel/world.js",
-      "bytes": 29536
+      "bytes": 31239
     },
     {
       "url": "./src/render.js",
