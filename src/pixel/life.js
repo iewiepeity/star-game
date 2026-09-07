@@ -47,6 +47,24 @@ import { resolvePersonalTask } from "../logic/personal-tasks.js";
 import { evaluateWeeklyTask } from "../logic/weekly-task.js";
 import { resolveScheduleMoment, resolveLocationMoment } from "../logic/random-events.js";
 import { meetNpc } from "../logic/npc-engine.js";
+import {
+  completeNpcExternalSlot,
+  isNpcBusy,
+  releaseNpcExternalSlots,
+  reserveNpcExternalSlot,
+} from "../logic/npc-ecosystem.js";
+import {
+  buyHomeItem as buyHomeItemCore,
+  buySupply as buySupplyCore,
+  giftCraftedItem as giftCraftedItemCore,
+  homeActionAccess,
+  placeHomeItem as placeHomeItemCore,
+  resolveCrafting,
+  resolveHomeVisit,
+  setDisplayedKeepsake as setDisplayedKeepsakeCore,
+  setHomeKey as setHomeKeyCore,
+  useCraftedItem as useCraftedItemCore,
+} from "../logic/home-life.js";
 
 export const DAY_NAMES = [
   "星期一",
@@ -166,6 +184,22 @@ export const CHOICES = {
     item: "bed",
     pose: "rest",
     action: "rest",
+  },
+  home_host: {
+    label: "邀請到家裡相處",
+    group: "生活",
+    room: "home",
+    item: "sofa",
+    pose: "sit",
+    action: "home_host",
+  },
+  home_craft: {
+    label: "在家做一份心意",
+    group: "生活",
+    room: "home",
+    item: "desk-seat",
+    pose: "sit",
+    action: "home_craft",
   },
 };
 // A destination is part of the assignment. Planning is available from day one;
@@ -324,6 +358,7 @@ export function normalizeLife(raw, legacyOutfit = "newcomer") {
   return life;
 }
 export const actionKey = (life) => `week-${life.game.week}-day-${life.day}`;
+const homeVisitScheduleKey = (life, day) => `pixel-home:${life.game.week}:${day}`;
 export function costOf(life, assignment) {
   const def = definition(life, assignment);
   if (CAREER_CHOICES[assignment?.id]) return careerCost(life, assignment);
@@ -354,6 +389,22 @@ export function access(life, assignment, day = life.day) {
     if (!project || !["draft", "revising", "rejected"].includes(project.status))
       return "先建立一份未完成的作品";
   }
+  if (["home_host", "home_craft"].includes(assignment.id)) {
+    const reason = homeActionAccess(game, assignment);
+    if (reason) return reason;
+  }
+  if (
+    assignment.id === "home_host" &&
+    withCore(life, () =>
+      isNpcBusy(
+        assignment.npcId,
+        game.week,
+        day,
+        homeVisitScheduleKey(life, day),
+      ),
+    )
+  )
+    return "對方這天已有工作，請換一天";
   if (costOf(life, assignment) > game.money)
     return "現金不足，先安排休息或已開放的工作";
   if (game.fatigue > 100 && assignment.id !== "rest")
@@ -368,6 +419,20 @@ export function planDay(life, day, assignment) {
     if (error) return error;
   }
   releaseCareerDay(life, day);
+  const scheduleKey = homeVisitScheduleKey(life, day);
+  withCore(life, () => releaseNpcExternalSlots(scheduleKey));
+  if (
+    assignment.id === "home_host" &&
+    !withCore(life, () =>
+      reserveNpcExternalSlot(assignment.npcId, {
+        key: scheduleKey,
+        week: life.game.week,
+        day,
+        label: `到${life.game.name}家裡作客`,
+      }),
+    )
+  )
+    return "對方這天臨時有其他安排，請換一天";
   life.plan[day] = structuredClone(assignment);
   syncCoreSchedule(life, CHOICES);
   return "";
@@ -435,6 +500,20 @@ export function settleDay(life, choice = "focus") {
         notes.push(...meetings.map((m) => plain(m.text)));
       }
       if (!presentation?.audition) notes.push(plain(presentation?.text));
+    } else if (assignment.id === "home_host") {
+      presentation = resolveHomeVisit(assignment, game);
+      if (presentation.ok)
+        completeNpcExternalSlot(
+          assignment.npcId,
+          homeVisitScheduleKey(life, life.day),
+          game.week,
+          life.day,
+        );
+      else releaseNpcExternalSlots(homeVisitScheduleKey(life, life.day));
+      notes.push(plain(presentation.text));
+    } else if (assignment.id === "home_craft") {
+      const crafted = resolveCrafting(assignment, randomInt, game);
+      notes.push(plain(crafted.text));
     } else if (ACTIONS[def.action].type === "train") {
       const r = routineTraining(game, def.action, randomInt);
       notes.push(`學習效率 ${Math.round(r.multiplier * 100)}%`);
@@ -643,6 +722,13 @@ export function buyOutfit(life, id) {
   life.game.ownedOutfits[avatar].push(id);
   return "";
 }
+export const buyHomeItem = (life, id) => withCore(life, () => buyHomeItemCore(id));
+export const placeHomeItem = (life, id) => withCore(life, () => placeHomeItemCore(id));
+export const buyHomeSupply = (life, id) => withCore(life, () => buySupplyCore(id));
+export const useHomeCraft = (life, id) => withCore(life, () => useCraftedItemCore(id));
+export const giftHomeCraft = (life, itemId, npcId) => withCore(life, () => giftCraftedItemCore(itemId, npcId));
+export const displayHomeKeepsake = (life, id) => withCore(life, () => setDisplayedKeepsakeCore(id));
+export const changeHomeKey = (life, npcId, granted) => withCore(life, () => setHomeKeyCore(npcId, granted));
 export function recordMeeting(life, id, roomId) {
   const room = ROOMS[roomId];
   return withCore(life, () =>

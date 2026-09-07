@@ -1,6 +1,6 @@
 {
-  "version": "0.16.1",
-  "bytes": 114871639,
+  "version": "0.17.0",
+  "bytes": 114913338,
   "entries": [
     {
       "url": "./index.html",
@@ -20,7 +20,7 @@
     },
     {
       "url": "./pixel-apps.css",
-      "bytes": 22821
+      "bytes": 27560
     },
     {
       "url": "./pixel-theme.css",
@@ -184,7 +184,7 @@
     },
     {
       "url": "./src/core/save-schema.js",
-      "bytes": 9555
+      "bytes": 9571
     },
     {
       "url": "./src/core/state-transaction.js",
@@ -192,7 +192,7 @@
     },
     {
       "url": "./src/core/state.js",
-      "bytes": 17085
+      "bytes": 17263
     },
     {
       "url": "./src/core/stats.js",
@@ -265,6 +265,10 @@
     {
       "url": "./src/data/genders.js",
       "bytes": 328
+    },
+    {
+      "url": "./src/data/home-life.js",
+      "bytes": 7759
     },
     {
       "url": "./src/data/industry.js",
@@ -535,6 +539,10 @@
       "bytes": 18648
     },
     {
+      "url": "./src/logic/home-life.js",
+      "bytes": 13522
+    },
+    {
       "url": "./src/logic/industry-news.js",
       "bytes": 2245
     },
@@ -783,16 +791,20 @@
       "bytes": 6465
     },
     {
+      "url": "./src/pixel/home-ui.js",
+      "bytes": 11013
+    },
+    {
       "url": "./src/pixel/identity.js",
       "bytes": 3264
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 28432
+      "bytes": 29006
     },
     {
       "url": "./src/pixel/life.js",
-      "bytes": 22479
+      "bytes": 25466
     },
     {
       "url": "./src/pixel/location-day-copy.js",
@@ -800,11 +812,11 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 44498
+      "bytes": 44628
     },
     {
       "url": "./src/pixel/menu-icons.js",
-      "bytes": 943
+      "bytes": 1004
     },
     {
       "url": "./src/pixel/model.js",
@@ -840,7 +852,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 7015
+      "bytes": 7735
     },
     {
       "url": "./src/pixel/save-transfer.js",
