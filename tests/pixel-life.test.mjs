@@ -152,5 +152,5 @@ test("phase-one migration and pending actions stay isolated from classic saves",
   assert.ok(s.write(migrated));
   assert.equal(s.read().state.life.pending.assignment.id, "study");
   assert.equal(data.get("star-game-save"), "sentinel");
-  assert.equal(Object.keys(CHOICES).length, 52);
+  assert.equal(Object.keys(CHOICES).length, 54);
 });

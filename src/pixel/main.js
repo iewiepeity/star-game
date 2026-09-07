@@ -242,6 +242,7 @@ function menu() {
       ["creative", "創作筆記", "把靈感變成作品"],
       ["phone", "手機", "社群與聯絡人"],
       ["profile", "我的角色", "能力、衣櫃與名字"],
+      ["home-life", "居家生活", "布置、作客、手作與紀念"],
       ["nearby", "附近物件", "看看身邊有什麼"],
       ["settings", "系統設定", "主題、速度與視角"],
     ]
@@ -1129,6 +1130,9 @@ document.addEventListener("click", async (event) => {
       break;
     case "profile":
       profile();
+      break;
+    case "home-life":
+      lifeUI.home();
       break;
     case "name":
       state.life.game.realName =

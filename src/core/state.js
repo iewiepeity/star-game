@@ -9,6 +9,7 @@ import {
 } from "../data/wardrobe.js";
 import { normalizeBirthday } from "./birthday.js";
 import { syncLegacyPlayerName } from "./player-name.js";
+import { initialHomeLife, normalizeHomeLife } from "../logic/home-life.js";
 export function initialState() {
   return {
     shortContacts: [],
@@ -179,6 +180,7 @@ export function initialState() {
     npcLongformProgress: {},
     crossEventHistory: [],
     creativeProjects: [],
+    homeLife: initialHomeLife(),
     industryNews: [],
     discoveredCompanies: [],
     visitedIndustryLocations: [],
@@ -395,12 +397,14 @@ export function hydrateState(saved) {
     "scheduledActivities",
     "awardSeasons",
     "brandRelations",
+    "homeLife",
   ])
     next[key] = next[key] && typeof next[key] === "object" ? next[key] : {};
   next.relationships =
     next.relationships && typeof next.relationships === "object"
       ? next.relationships
       : {};
+  next.homeLife = normalizeHomeLife(saved.homeLife);
   for (const relation of Object.values(next.brandRelations)) {
     if (!relation || typeof relation !== "object") continue;
     const trust = Number.isFinite(relation.trust)

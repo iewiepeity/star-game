@@ -2,6 +2,15 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.17.0", date: "2026-09-07", title: "家裡開始記得誰來過",
+    notes: [
+      "新增居家生活：固定位置可以換家具、整理擺設與展示生涯紀念；預覽和布置不會吃掉一天。",
+      "已熟識的人可以受邀到家裡吃飯、對戲、聽試錄音或看電影。每個人有自己的作客語氣，也會注意房裡展示的回憶。",
+      "烘焙、料理與手作從購買材料到排程製作完整串起來；成品能留給自己或送禮，對方會記得偏好、第一次與重複贈送。",
+      "高度信任的知己或伴侶可以取得備用鑰匙；撤回、分手或交惡後會立即失效。鑰匙不是刷好感送的贈品。",
+    ],
+  },
+  {
     version: "0.16.1", date: "2026-09-07", title: "約定、感情與成長紀錄修整",
     notes: [
       "人物相處與職涯行程會等你選好回應；失效邀約不再被當成完成，也會釋放人物檔期。",
@@ -101,4 +110,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.39.1";
+export const CORE_VERSION = "1.40.0";

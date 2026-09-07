@@ -104,6 +104,7 @@ export function validateGameState(s) {
     "npcInteractionEventHistory",
     "careerDoctrine",
     "doctrineTickWeeks",
+    "homeLife",
   ])
     if (!isObj(s[key])) errors.push(`${key} 無效`);
   for (const key of [

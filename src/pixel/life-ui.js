@@ -24,9 +24,17 @@ import {
   costOf,
   newProject,
   buyOutfit,
+  buyHomeItem,
+  placeHomeItem,
+  buyHomeSupply,
+  useHomeCraft,
+  giftHomeCraft,
+  displayHomeKeepsake,
+  changeHomeKey,
   recordMeeting,
   cancelDay,
 } from "./life.js";
+import { createHomeUI } from "./home-ui.js";
 import { CREATIVE_TYPES } from "../logic/creative.js";
 import { ROOMS, PEOPLE, outfits } from "./data.js";
 import { OUTFITS, portraitAsset } from "../data/wardrobe.js";
@@ -101,6 +109,7 @@ export function createLifeUI(api) {
       .reduce((sum, a) => sum + costOf(l, a), 0);
     const cards = Object.entries(CHOICES)
       .filter(([id]) => !id.startsWith("career_"))
+      .filter(([id]) => !["home_host", "home_craft"].includes(id))
       .filter(([, d]) => filter === "全部" || d.group === filter)
       .map(([id, d]) => {
         const a =
@@ -483,6 +492,23 @@ export function createLifeUI(api) {
     if (l.pending && l.pending.phase !== "result") l.pending.phase = "travel";
     changed();
   }
+  const homeUI = createHomeUI({
+    state,
+    show,
+    heading,
+    escape,
+    checkpoint,
+    changed,
+    toast,
+    planDay,
+    buyHomeItem,
+    placeHomeItem,
+    buyHomeSupply,
+    useHomeCraft,
+    giftHomeCraft,
+    displayHomeKeepsake,
+    changeHomeKey,
+  });
   function tick(delta) {
     const l = life();
     if (!l.auto || api.paused() || document.hidden) return;
@@ -495,6 +521,7 @@ export function createLifeUI(api) {
     }
   }
   function handle(target) {
+    if (homeUI.handle(target)) return true;
     if (careerUI.handle(target)) return true;
     const d = target.dataset,
       l = life();
@@ -639,6 +666,7 @@ export function createLifeUI(api) {
     schedule,
     phone,
     creative,
+    home: homeUI.open,
     afterStory: () =>
       life().day === 7
         ? summary()
