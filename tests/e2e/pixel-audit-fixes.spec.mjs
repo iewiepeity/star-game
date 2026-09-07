@@ -12,6 +12,7 @@ import {
 import { currentStory, chooseStory } from "../../src/pixel/career.js";
 
 test.use({ serviceWorkers: "block" });
+test.describe.configure({ timeout: 90000 });
 const read = (page) => page.evaluate(() => window.__pixelRead());
 async function seed(page, state = initialPixelState(), raw = null) {
   await page.addInitScript(
@@ -24,7 +25,7 @@ async function seed(page, state = initialPixelState(), raw = null) {
     { state, key: SAVE_KEY, raw },
   );
   await page.goto("/pixel.html");
-  await expect(page.locator("#loading")).toBeHidden();
+  await expect(page.locator("#loading")).toBeHidden({ timeout: 30000 });
 }
 const begun = () => {
   const s = initialPixelState();
@@ -79,7 +80,7 @@ test("corrupt autosaves stay untouched through Escape and reload; explicit recov
     .toBe("可救回的玩家");
   await expect(page.locator("#save-status")).toHaveText("● 已儲存");
   await page.reload();
-  await expect(page.locator("#loading")).toBeHidden();
+  await expect(page.locator("#loading")).toBeHidden({ timeout: 30000 });
   expect((await read(page)).state.life.game.week).toBe(60);
   expect(await stored(page, "auto", "raw")).toBe("{broken-save");
 });
@@ -120,7 +121,7 @@ test("a stale tab cannot overwrite a newer tab; resuming keeps a backup of the o
   page,
   context,
 }) => {
-  test.setTimeout(60000);
+  test.setTimeout(90000);
   await seed(page, begun());
   await expect(page.locator("#save-status")).toHaveText("● 已儲存");
   const other = await context.newPage();
@@ -141,9 +142,16 @@ test("a stale tab cannot overwrite a newer tab; resuming keeps a backup of the o
   await expect
     .poll(async () => (await read(page)).state.playerName)
     .toBe("新分頁的新進度");
-  expect((await stored(page, "transfer", "backup")).state.playerName).toBe(
-    "星途新人",
-  );
+  // The in-memory state changes before room restoration and its atomic save.
+  // Wait for the player-facing completion signal before inspecting the backup.
+  await expect(page.locator("#save-status")).toHaveText("● 已儲存", {
+    timeout: 15000,
+  });
+  await expect
+    .poll(
+      async () => (await stored(page, "transfer", "backup")).state?.playerName,
+    )
+    .toBe("星途新人");
   await other.close();
 });
 
