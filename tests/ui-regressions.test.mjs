@@ -5,13 +5,13 @@ import{enqueueVisibleEvent,activateNextEvent,dismissActiveEvent}from"../src/logi
 import{scheduleActivity}from"../src/logic/scheduled-activities.js";
 import{socialApp}from"../src/views/social.js";
 import{creativeApp}from"../src/views/creative.js";
-import{plannerApp}from"../src/views/planner.js";
+
 import{agencyApp}from"../src/views/agency.js";
 import{npcApp}from"../src/views/npc.js";
 import{meetNpc,npcFirstMeeting}from"../src/logic/npc-engine.js";
 import{resolveExploration}from"../src/logic/exploration.js";
 import{applyJobNpcRelations}from"../src/logic/npc-ecosystem.js";
-import{resultView}from"../src/views/runner.js";
+
 import{JOB_BY_ID}from"../src/data/jobs.js";
 import{auditionChance}from"../src/logic/job-engine.js";
 import{applyEffects}from"../src/logic/event-engine.js";
@@ -54,10 +54,7 @@ test("強制休養週鎖定七天休息，也禁止從其他功能插入行程",
  const result=scheduleActivity("creative_work",{projectId:"x"},"偷塞工作");
  assert.equal(result.ok,false);
  assert.match(result.message,/強制休養週/);
- const html=plannerApp();
- assert.match(html,/本週為強制休養週/);
- assert.equal((html.match(/disabled/g)||[]).length,7);
- assert.match(html,/行程不可修改/);
+
 });
 
 test("創作工作室具有完整建立、流程與作品區塊",()=>{
@@ -149,8 +146,6 @@ test("第一次與通告共演 NPC 合作會回傳正式初遇劇情，不會靜
 test("本週策略會顯示精確作用，而且曝光與人脈都有真實數值效果",()=>{
  resetState();
  state.focus="fame";
- const planner=plannerApp();
- assert.match(planner,/成功率 \+5%・知名度 \+2/);
  const fameChance=auditionChance(JOB_BY_ID.J001,"steady");
  state.focus="growth";
  const normalChance=auditionChance(JOB_BY_ID.J001,"steady");
@@ -159,24 +154,4 @@ test("本週策略會顯示精確作用，而且曝光與人脈都有真實數�
  meetNpc("lujingran");
  assert.equal(state.relationships.lujingran.closeness,10);
  assert.equal(state.relationships.lujingran.trust,11);
-});
-
-test("產業自由活動會進入現場徵選看板，而不是只跑一般行程",async()=>{
- resetState();
- state.schedule[0]="free";
- state.freeLocations[0]="tv_company";
- state.runnerDay=0;
- globalThis.document={querySelector:()=>({})};
- const{decisionFor}=await import("../src/logic/runner.js");
- const decision=decisionFor("free");
- assert.ok(decision.choices.some(choice=>choice.id==="browse_jobs"));
- const result=resolveExploration("tv_company","browse_jobs");
- assert.equal(result.venue.company.name,"星曜電視台");
- assert.ok(result.venue.jobs.length>0);
- state.runnerResult={title:"星曜電視台・Casting Desk",text:result.text,success:true,venue:result.venue};
- const html=resultView();
- assert.match(html,/ON-SITE CASTING DESK/);
- assert.match(html,/現場公開徵選/);
- assert.match(html,/data-venue-apply/);
- assert.match(html,/現場看板會停留/);
 });

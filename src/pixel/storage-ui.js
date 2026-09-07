@@ -112,7 +112,7 @@ export function createStorageUI(api) {
       }
       api.show(
         "legacy-transfer",
-        `${api.heading("WELCOME BACK", "接續原版旅程", "只讀取這個瀏覽器的原版存檔，不會覆寫它們。其他裝置可先在原版匯出 JSON。")}${items.length ? items.map(({ key, item }) => `<button data-legacy-slot="${key}">${esc(item.state.playerName)} · 第 ${item.state.life.game.week} 週 · ${key === "star-game-save" ? "自動" : `手動 ${key.at(-1)}`}</button>`).join("") : "<p>這個網址來源沒有可搬移的原版存檔，請使用匯入檔案。</p>"}<button data-ui="saves">返回</button>`,
+        `${api.heading("WELCOME BACK", "接續原版旅程", "只讀取這個瀏覽器的原版存檔，不會覆寫它們。其他裝置可匯入先前備份的 JSON。")}${items.length ? items.map(({ key, item }) => `<button data-legacy-slot="${key}">${esc(item.state.playerName)} · 第 ${item.state.life.game.week} 週 · ${key === "star-game-save" ? "自動" : `手動 ${key.at(-1)}`}</button>`).join("") : "<p>這個網址來源沒有可搬移的原版存檔，請使用匯入檔案。</p>"}<button data-ui="saves">返回</button>`,
       );
     }
     if (d.storage === "confirm" && pending) {

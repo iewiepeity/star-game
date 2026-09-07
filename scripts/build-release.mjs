@@ -1,5 +1,6 @@
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { basename } from "node:path";
+import { pixelRuntimeFiles } from "./pixel-runtime.mjs";
 
 const root = new URL("../", import.meta.url);
 const dist = new URL("../dist/", import.meta.url);
@@ -8,7 +9,6 @@ const packageJson = JSON.parse(
 );
 const files = [
   "index.html",
-  "classic.html",
   "pixel.html",
   "pixel.css",
   "pixel-ui.css",
@@ -17,36 +17,20 @@ const files = [
   "phone.css",
   "pixel.webmanifest",
   "pixel-offline.json",
-  "manifest.webmanifest",
   "service-worker.js",
   ".nojekyll",
-  "cascade.css",
-  "legacy-foundation.css",
-  "legacy-onboarding-settings.css",
-  "legacy-career-agency.css",
-  "legacy-people-wardrobe.css",
-  "legacy-world-social.css",
-  "legacy-career-feedback.css",
-  "legacy-world-creative.css",
-  "legacy-progression.css",
-  "legacy-story-gallery.css",
-  "legacy-late-passes.css",
-  "ui-hardening.css",
-  "design-system.css",
-  "components-feedback.css",
-  "a11y.css",
-  "runner-flow.css",
-  "audio.css",
-  "browser-flow.css",
-  "city-life.css",
-  "scene-ui.css",
 ];
 
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
 for (const file of files)
   await cp(new URL(file, root), new URL(basename(file), dist));
-for (const directory of ["src", "assets"])
+for (const file of (await pixelRuntimeFiles()).filter(path => path.startsWith("src/"))) {
+  const target = new URL(file, dist);
+  await mkdir(new URL("./", target), { recursive: true });
+  await cp(new URL(file, root), target);
+}
+for (const directory of ["assets"])
   await cp(new URL(`${directory}/`, root), new URL(`${directory}/`, dist), {
     recursive: true,
   });

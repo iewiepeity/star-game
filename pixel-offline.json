@@ -1,6 +1,6 @@
 {
-  "version": "0.18.0",
-  "bytes": 115009322,
+  "version": "0.18.1",
+  "bytes": 114773995,
   "entries": [
     {
       "url": "./index.html",
@@ -35,96 +35,8 @@
       "bytes": 499
     },
     {
-      "url": "./src/bind/achievements.js",
-      "bytes": 279
-    },
-    {
-      "url": "./src/bind/agency.js",
-      "bytes": 1860
-    },
-    {
-      "url": "./src/bind/city-map.js",
-      "bytes": 10558
-    },
-    {
-      "url": "./src/bind/create.js",
-      "bytes": 4707
-    },
-    {
-      "url": "./src/bind/creative.js",
-      "bytes": 7171
-    },
-    {
-      "url": "./src/bind/ending.js",
-      "bytes": 1575
-    },
-    {
-      "url": "./src/bind/event.js",
-      "bytes": 1763
-    },
-    {
-      "url": "./src/bind/forum.js",
-      "bytes": 2366
-    },
-    {
-      "url": "./src/bind/gallery.js",
-      "bytes": 518
-    },
-    {
-      "url": "./src/bind/jobs.js",
-      "bytes": 3121
-    },
-    {
-      "url": "./src/bind/map.js",
-      "bytes": 92
-    },
-    {
-      "url": "./src/bind/npc.js",
-      "bytes": 4817
-    },
-    {
-      "url": "./src/bind/planner.js",
-      "bytes": 7351
-    },
-    {
-      "url": "./src/bind/prologue.js",
-      "bytes": 798
-    },
-    {
-      "url": "./src/bind/room.js",
-      "bytes": 12824
-    },
-    {
-      "url": "./src/bind/runner.js",
-      "bytes": 2950
-    },
-    {
-      "url": "./src/bind/save.js",
-      "bytes": 2754
-    },
-    {
-      "url": "./src/bind/settings.js",
-      "bytes": 2236
-    },
-    {
-      "url": "./src/bind/social.js",
-      "bytes": 2247
-    },
-    {
-      "url": "./src/bind/summary.js",
-      "bytes": 2133
-    },
-    {
-      "url": "./src/bind/timeline.js",
-      "bytes": 1000
-    },
-    {
-      "url": "./src/bind/wardrobe.js",
-      "bytes": 8354
-    },
-    {
-      "url": "./src/bind.js",
-      "bytes": 2223
+      "url": "./assets/vendor/phaser.esm.min.js",
+      "bytes": 1197130
     },
     {
       "url": "./src/core/app-navigation.js",
@@ -143,24 +55,8 @@
       "bytes": 4956
     },
     {
-      "url": "./src/core/deferred-search.js",
-      "bytes": 1095
-    },
-    {
-      "url": "./src/core/dialog-focus.js",
-      "bytes": 2056
-    },
-    {
-      "url": "./src/core/error-recovery.js",
-      "bytes": 2392
-    },
-    {
       "url": "./src/core/home-state.js",
       "bytes": 5505
-    },
-    {
-      "url": "./src/core/images.js",
-      "bytes": 1163
     },
     {
       "url": "./src/core/migrations.js",
@@ -179,16 +75,8 @@
       "bytes": 2420
     },
     {
-      "url": "./src/core/pwa-update.js",
-      "bytes": 431
-    },
-    {
       "url": "./src/core/rng.js",
       "bytes": 1020
-    },
-    {
-      "url": "./src/core/safe-html.js",
-      "bytes": 1328
     },
     {
       "url": "./src/core/save-schema.js",
@@ -201,14 +89,6 @@
     {
       "url": "./src/core/state.js",
       "bytes": 17466
-    },
-    {
-      "url": "./src/core/stats.js",
-      "bytes": 706
-    },
-    {
-      "url": "./src/core/undo.js",
-      "bytes": 570
     },
     {
       "url": "./src/core/utils.js",
@@ -275,10 +155,6 @@
       "bytes": 3345
     },
     {
-      "url": "./src/data/genders.js",
-      "bytes": 328
-    },
-    {
       "url": "./src/data/home-life.js",
       "bytes": 8923
     },
@@ -293,14 +169,6 @@
     {
       "url": "./src/data/job-authored-content.js",
       "bytes": 115074
-    },
-    {
-      "url": "./src/data/job-feature-beats.js",
-      "bytes": 585
-    },
-    {
-      "url": "./src/data/job-foundation-beats.js",
-      "bytes": 506
     },
     {
       "url": "./src/data/job-production-scenes.js",
@@ -383,8 +251,8 @@
       "bytes": 8265
     },
     {
-      "url": "./src/data/portraits.js",
-      "bytes": 371
+      "url": "./src/data/prologue.js",
+      "bytes": 2562
     },
     {
       "url": "./src/data/romance-scenes.js",
@@ -397,10 +265,6 @@
     {
       "url": "./src/data/schedule-events.js",
       "bytes": 29603
-    },
-    {
-      "url": "./src/data/season-art.js",
-      "bytes": 3827
     },
     {
       "url": "./src/data/sequel-story-content.js",
@@ -457,10 +321,6 @@
     {
       "url": "./src/logic/career.js",
       "bytes": 5961
-    },
-    {
-      "url": "./src/logic/city-hints.js",
-      "bytes": 2556
     },
     {
       "url": "./src/logic/city-life.js",
@@ -535,16 +395,8 @@
       "bytes": 3608
     },
     {
-      "url": "./src/logic/exploration.js",
-      "bytes": 3448
-    },
-    {
       "url": "./src/logic/fandom.js",
       "bytes": 1014
-    },
-    {
-      "url": "./src/logic/first-work.js",
-      "bytes": 2003
     },
     {
       "url": "./src/logic/forum-feed.js",
@@ -623,10 +475,6 @@
       "bytes": 11686
     },
     {
-      "url": "./src/logic/onboarding.js",
-      "bytes": 658
-    },
-    {
       "url": "./src/logic/overseas.js",
       "bytes": 3141
     },
@@ -637,10 +485,6 @@
     {
       "url": "./src/logic/personal-tasks.js",
       "bytes": 5656
-    },
-    {
-      "url": "./src/logic/planner-edit.js",
-      "bytes": 2823
     },
     {
       "url": "./src/logic/playable-depth-engine.js",
@@ -671,16 +515,8 @@
       "bytes": 3343
     },
     {
-      "url": "./src/logic/runner.js",
-      "bytes": 21171
-    },
-    {
       "url": "./src/logic/scandal-engine.js",
       "bytes": 3962
-    },
-    {
-      "url": "./src/logic/scene-reader.js",
-      "bytes": 647
     },
     {
       "url": "./src/logic/schedule-assistant.js",
@@ -709,10 +545,6 @@
     {
       "url": "./src/logic/social-drafts.js",
       "bytes": 4104
-    },
-    {
-      "url": "./src/logic/tutorial.js",
-      "bytes": 3268
     },
     {
       "url": "./src/logic/wardrobe.js",
@@ -745,10 +577,6 @@
     {
       "url": "./src/logic/world-tick.js",
       "bytes": 5982
-    },
-    {
-      "url": "./src/main.js",
-      "bytes": 2666
     },
     {
       "url": "./src/pixel/actor-motion.js",
@@ -872,7 +700,7 @@
     },
     {
       "url": "./src/pixel/onboarding.js",
-      "bytes": 4708
+      "bytes": 4707
     },
     {
       "url": "./src/pixel/pet-visual.js",
@@ -888,7 +716,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 9140
+      "bytes": 9432
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -912,7 +740,7 @@
     },
     {
       "url": "./src/pixel/storage-ui.js",
-      "bytes": 8391
+      "bytes": 8394
     },
     {
       "url": "./src/pixel/story-actors.js",
@@ -943,10 +771,6 @@
       "bytes": 43278
     },
     {
-      "url": "./src/render.js",
-      "bytes": 8504
-    },
-    {
       "url": "./src/views/achievements.js",
       "bytes": 2097
     },
@@ -963,32 +787,12 @@
       "bytes": 1034
     },
     {
-      "url": "./src/views/city-map.js",
-      "bytes": 5082
-    },
-    {
       "url": "./src/views/community-heart.js",
       "bytes": 604
     },
     {
-      "url": "./src/views/confirm-dialog.js",
-      "bytes": 3830
-    },
-    {
-      "url": "./src/views/create.js",
-      "bytes": 5595
-    },
-    {
       "url": "./src/views/creative.js",
       "bytes": 10681
-    },
-    {
-      "url": "./src/views/ending.js",
-      "bytes": 5046
-    },
-    {
-      "url": "./src/views/event.js",
-      "bytes": 5234
     },
     {
       "url": "./src/views/forum.js",
@@ -1007,10 +811,6 @@
       "bytes": 5315
     },
     {
-      "url": "./src/views/map.js",
-      "bytes": 144
-    },
-    {
       "url": "./src/views/npc-invitation.js",
       "bytes": 1499
     },
@@ -1023,40 +823,12 @@
       "bytes": 7089
     },
     {
-      "url": "./src/views/phone.js",
-      "bytes": 1425
-    },
-    {
       "url": "./src/views/place-art.js",
       "bytes": 437
     },
     {
-      "url": "./src/views/planner.js",
-      "bytes": 16057
-    },
-    {
       "url": "./src/views/player-look.js",
       "bytes": 1257
-    },
-    {
-      "url": "./src/views/prologue.js",
-      "bytes": 4748
-    },
-    {
-      "url": "./src/views/room.js",
-      "bytes": 16594
-    },
-    {
-      "url": "./src/views/runner.js",
-      "bytes": 7795
-    },
-    {
-      "url": "./src/views/save.js",
-      "bytes": 2580
-    },
-    {
-      "url": "./src/views/settings.js",
-      "bytes": 4587
     },
     {
       "url": "./src/views/social.js",
@@ -1067,16 +839,8 @@
       "bytes": 2335
     },
     {
-      "url": "./src/views/summary.js",
-      "bytes": 5696
-    },
-    {
       "url": "./src/views/timeline.js",
       "bytes": 3837
-    },
-    {
-      "url": "./src/views/wardrobe.js",
-      "bytes": 6971
     },
     {
       "url": "./src/views/work-discovery.js",
@@ -2589,10 +2353,6 @@
     {
       "url": "./assets/star-city-street.webp",
       "bytes": 115252
-    },
-    {
-      "url": "./assets/vendor/phaser.esm.min.js",
-      "bytes": 1197130
     },
     {
       "url": "./assets/work-art/J041-stadium-tour.webp",

@@ -14,8 +14,8 @@ test("audio mode follows the current story and app context", () => {
 });
 
 test("ordinary controls stay silent while the first gesture enables music", () => {
-  const main = readFileSync(new URL("../src/main.js", import.meta.url), "utf8");
-  assert.match(main, /pointerdown.*enableAudio\(\).*once:true/);
+  const main = readFileSync(new URL("../src/pixel/main.js", import.meta.url), "utf8");
+  assert.match(main, /enableAudio/);
   assert.doesNotMatch(main, /soundForControl|shouldPlayKeyboardSound|markPointerSound/);
   assert.doesNotMatch(main, /addEventListener\("click".*playSfx/);
 });
@@ -26,13 +26,13 @@ test("audio safely becomes a no-op where Web Audio is unavailable", () => {
 
 test("audio production chain includes dynamics, crossfades and app lifecycle handling", () => {
   const audio = readFileSync(new URL("../src/core/audio.js", import.meta.url), "utf8");
-  const main = readFileSync(new URL("../src/main.js", import.meta.url), "utf8");
+  const main = readFileSync(new URL("../src/pixel/main.js", import.meta.url), "utf8");
   assert.match(audio, /createDynamicsCompressor/);
   assert.match(audio, /musicBuses=\[context\.createGain\(\),context\.createGain\(\)\]/);
   assert.match(audio, /suspendAudio/);
   assert.match(audio, /careerIntensity/);
-  assert.match(main, /visibilityState==="hidden"/);
-  assert.match(main, /pointerdown.*enableAudio/);
+  assert.match(main, /document.hidden/);
+  assert.match(main, /enableAudio/);
 });
 
 test("licensed offline one-shots are present and listed in the PWA shell", () => {

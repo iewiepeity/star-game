@@ -37,8 +37,6 @@ test("homepage opens pixel life, preserves the save and does not trap Back navig
     await expect(page).toHaveURL(entryUrl("pixel.html", baseURL));
     await expect(page.locator("#loading")).toBeHidden();
   }
-  await page.goto(entryUrl("classic.html", baseURL));
-  await expect(page.locator("#app")).toBeVisible();
   expect(errors).toEqual([]);
 });
 

@@ -81,6 +81,6 @@
 
 ## 核對依據
 
-原版 `src/core/app-navigation.js` 的 18 個入口，以及 `src/views/`、`src/bind/`、`src/logic/` 的操作。新增資訊頁透過 `feature-ui.js` 使用原版純呈現函式，但不載入原版 render 或 bind，以免回到舊首頁或產生雙重事件處理。
+歷史盤點以原版 18 個入口及其操作為基準；目前只保留像素版與所需的共用呈現、規則模組。新增資訊頁透過 `feature-ui.js` 使用原版純呈現函式，但不載入原版 render 或 bind，以免回到舊首頁或產生雙重事件處理。
 
 行程、費用與獎勵僅由 `life.js`／`career.js` 結算；動畫不額外扣款或重發成果。`save-transfer.js` 執行格式／版本驗證與原版進度轉換，`storage-ui.js` 提供玩家操作。
