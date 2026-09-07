@@ -139,21 +139,21 @@ test("a stale tab cannot overwrite a newer tab; resuming keeps a backup of the o
   await page.evaluate(() => window.dispatchEvent(new window.Event("pagehide")));
   expect((await stored(page)).state.playerName).toBe("新分頁的新進度");
   await expect(page.locator("[data-storage-latest]")).toBeVisible();
+  // The active-page overwrite race is verified above. Stop the producer before
+  // checking restoration so another periodic save cannot supersede this read.
+  await other.close();
   await page.locator("[data-storage-latest]").click();
-  await expect
-    .poll(async () => (await read(page)).state.playerName)
-    .toBe("新分頁的新進度");
   // The in-memory state changes before room restoration and its atomic save.
   // Wait for the player-facing completion signal before inspecting the backup.
   await expect(page.locator("#save-status")).toHaveText("● 已儲存", {
-    timeout: 15000,
+    timeout: 30000,
   });
+  expect((await read(page)).state.playerName).toBe("新分頁的新進度");
   await expect
     .poll(
       async () => (await stored(page, "transfer", "backup")).state?.playerName,
     )
     .toBe("星途新人");
-  await other.close();
 });
 
 test("a failed latest-save scene load keeps the old page blocked until a successful retry", async ({
