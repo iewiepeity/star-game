@@ -627,7 +627,10 @@ export function createFeatureUI(api) {
     }
     return false;
   }
+  const composing = new WeakSet();
   function input(event) {
+    if (event.isComposing) { composing.add(event.target); return; }
+    if (composing.has(event.target)) return;
     const d = event.target.dataset;
     if (d.chatDraft !== undefined || d.forumDraft !== undefined) {
       life().game[d.chatDraft !== undefined ? "chatDraft" : "forumDraft"] =
@@ -665,5 +668,15 @@ export function createFeatureUI(api) {
         return;
       }
   }
-  return { open, person, wardrobe, handle, input };
+  function compositionEnd(event) {
+    const target = event.target;
+    // Some engines send the final input after compositionend. Keep that node
+    // alive for the entire event sequence, then render the committed query once.
+    composing.add(target);
+    setTimeout(() => {
+      composing.delete(target);
+      if (target.isConnected) input({ target });
+    }, 0);
+  }
+  return { open, person, wardrobe, handle, input, compositionEnd };
 }

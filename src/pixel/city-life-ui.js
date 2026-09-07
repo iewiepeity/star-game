@@ -39,7 +39,7 @@ export function createCityLifeUI(api) {
   function calendar() {
     const now = cityDay(game(), life().day),
       events = calendarOccasions(game(), now);
-    return `<p>重要的日子可以前後一週補過。邀約占一天、聚會 $300，實際赴約才結算。日曆沿用每年 52 週；年末生日收於最後一天，2 月 29 日在 2 月 28 日慶祝。</p><div class="city-life-cards">${
+    return `<p>重要的日子可以前後一週補過。邀約占一天、聚會 $300，實際赴約才結算。</p><details><summary>日曆與生日安排</summary><p>每年有 52 週；年末生日排在最後一天，2 月 29 日在 2 月 28 日慶祝。交往紀念日依這段旅程正式開始交往的日期安排；尚無日期紀錄時不會顯示。</p></details><div class="city-life-cards">${
       events
         .map((e) => {
           const existing = c().appointments.find(
@@ -61,7 +61,7 @@ export function createCityLifeUI(api) {
             `<article><b>${esc(a.title)} · ${esc(NPCS[a.npcId].name)}</b><p>${date(a.day)}</p><p>${esc(a.text || (a.status === "reserved" ? "雙方已留好時間。" : a.status === "cancelled" ? "這次先取消。" : "這次未能成行。"))}</p>${a.status === "reserved" ? button("改期", `data-city-reschedule="${esc(a.id)}"`) + button("取消邀約", `data-city-cancel="${esc(a.id)}"`) : ""}</article>`,
         )
         .join("") || "<p>還沒有新的約定。</p>"
-    }</div><p>交往紀念日取自這個存檔正式開始交往的紀錄；舊存檔若沒有日期，不會替你編造。</p>`;
+    }</div>`;
   }
   function outfits() {
     const memories = c().outfitMemories.filter((m) =>

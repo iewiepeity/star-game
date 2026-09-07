@@ -1,3 +1,4 @@
+import { createPixelStorage as createStorage } from "./storage.js";
 import {
   APPEARANCES,
   appearanceValue,
@@ -56,7 +57,7 @@ import {
   CONVERSATIONS,
   ACTIVITY_TYPES,
 } from "./data.js";
-import { initialPixelState, createStorage, objectives } from "./model.js";
+import { initialPixelState, objectives } from "./model.js";
 import { createWorld } from "./world.js";
 const $ = (id) => document.getElementById(id);
 const escape = (value) =>
@@ -78,17 +79,11 @@ applyPixelFont(preferences.get().fontSize);
 configureAudioPreferences(() => preferences.get());
 let audioUnlocked = false;
 let appearanceBusy = false;
-try {
-  storage = createStorage(window.localStorage);
-} catch {
-  storage = createStorage({
-    getItem: () => null,
-    setItem: () => {
-      throw new Error("Storage unavailable");
-    },
-  });
-}
+let legacyStorage = null;
+try { legacyStorage = window.localStorage; } catch {}
+storage = await createStorage(legacyStorage);
 const loaded = storage.read();
+let recoveryBlocked = !!loaded.error;
 let state = loaded.state || initialPixelState(),
   world = null,
   paused = false,
@@ -96,6 +91,8 @@ let state = loaded.state || initialPixelState(),
   toastTimer = null;
 const panel = $("panel");
 let previousFocus = null;
+let checkpointCount = 0;
+let resumeUpdateAfterConflict = false;
 const portrait = () => portraitAsset(state.avatarId, state.outfitId);
 function toast(message) {
   (panel.open ? panel : document.body).append($("toast"));
@@ -104,14 +101,17 @@ function toast(message) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => $("toast").classList.remove("visible"), 3300);
 }
-function checkpoint(slot = "auto") {
-  if (appearanceBusy) return false;
+async function checkpoint(slot = "auto") {
+  if (appearanceBusy || recoveryBlocked) return false;
   if (world) {
     state.position = { x: world.player.x, y: world.player.y };
   }
-  const ok = storage.write(state, slot);
-  $("save-status").textContent = ok ? "● 已儲存" : "暫時無法儲存";
-  if (!ok) toast("瀏覽器無法寫入存檔，請確認儲存空間或隱私設定");
+  checkpointCount++;
+  $("save-status").textContent = "正在儲存…";
+  const ok = await storage.write(state, slot);
+  checkpointCount--;
+  $("save-status").textContent = checkpointCount ? "正在儲存…" : ok ? "● 已儲存" : "暫時無法儲存";
+  if (!ok) toast(storage.error || "儲存失敗，請從存檔選單匯出目前旅程");
   return ok;
 }
 function changed() {
@@ -190,7 +190,14 @@ function close() {
   if (appearanceBusy) return;
   document.body.append($("toast"));
   cityUI.cancelRoute();
-  if (panelType === "welcome") lockIdentity(state);
+  if (recoveryBlocked) { recovery(); return; }
+  if (storage.conflicted) { storageConflict(); return; }
+  if (!state.flags.intro) {
+    checkpoint();
+    welcome();
+    toast("角色仍可繼續編輯，完成設定後請按「開始我的一天」");
+    return;
+  }
   panel.close();
   panelType = "";
   if (state.dialogue) renderDialogue();
@@ -385,7 +392,7 @@ function wardrobe() {
 function profile() {
   show(
     "profile",
-    `${heading("THIS IS ME · 玩家資訊", "我的角色")}<div class="player-profile"><img src="${portrait()}" alt="目前穿著的原版立繪"><div><label>本名<input id="real-name-input" maxlength="16" value="${escape(state.life.game.realName || state.playerName)}" autocomplete="name"></label><label>藝名（選填）<input id="name-input" maxlength="16" value="${escape(state.life.game.stageName || "")}" autocomplete="nickname"></label><p>${escape(outfits.find((o) => o.id === state.outfitId).name)}<br><span class="tiny-note">${AVATARS[state.avatarId].name} · ${AGENCIES[state.life.game.currentAgencyId]?.name || "自由藝人"}</span></p><button class="primary" data-ui="name">儲存名字</button><p class="tiny-note">${state.visited.length} 個足跡 · ${state.knownPeople.length} 位新朋友</p><button data-ui="closet">前往衣櫃</button></div></div><div class="identity-caption"><b>${state.identity.gender} · 同性別外型</b><button data-ui="clinic">診所性別變更服務 →</button></div>${avatarChoices()}<div class="buttons"><button data-pixel-app="stats">完整能力與健康</button><button data-pixel-app="achievements">成就收藏</button><button data-pixel-app="log">生涯紀錄</button></div><div class="ability-grid">${Object.entries(
+    `${heading("THIS IS ME · 玩家資訊", "我的角色")}<div class="player-profile"><img src="${portrait()}" alt="目前角色的立繪"><div><label>本名<input id="real-name-input" maxlength="16" value="${escape(state.life.game.realName || state.playerName)}" autocomplete="name"></label><label>藝名（選填）<input id="name-input" maxlength="16" value="${escape(state.life.game.stageName || "")}" autocomplete="nickname"></label><p>${escape(outfits.find((o) => o.id === state.outfitId).name)}<br><span class="tiny-note">${AVATARS[state.avatarId].name} · ${AGENCIES[state.life.game.currentAgencyId]?.name || "自由藝人"}</span></p><button class="primary" data-ui="name">儲存名字</button><p class="tiny-note">${state.visited.length} 個足跡 · ${state.knownPeople.length} 位新朋友</p><button data-ui="closet">前往衣櫃</button></div></div><div class="identity-caption"><b>${state.identity.gender} · 同性別外型</b><button data-ui="clinic">診所性別變更服務 →</button></div>${avatarChoices()}<div class="buttons"><button data-pixel-app="stats">完整能力與健康</button><button data-pixel-app="achievements">成就收藏</button><button data-pixel-app="log">生涯紀錄</button></div><div class="ability-grid">${Object.entries(
       state.life.game.stats,
     )
       .map(([name, v]) => `<div><small>${name}</small><b>${v}</b></div>`)
@@ -416,7 +423,7 @@ function help() {
 function saves() {
   show(
     "saves",
-    `${heading("SAVE A MOMENT · 存讀檔", "留住現在的生活", "這裡的進度與正式版分開儲存。")}<div class="save-list">${[
+    `${heading("SAVE A MOMENT · 存讀檔", "留住現在的生活", "自動保存生活，也可以用五個手動位置記住重要時刻。")}<div class="save-list">${[
       "auto",
       1,
       2,
@@ -428,14 +435,37 @@ function saves() {
         const saved = storage.read(slot);
         return `<div class="save-row"><div><b>${slot === "auto" ? "自動存檔" : `手動位置 ${slot}`}</b><small>${saved.state ? `${ROOMS[saved.state.sceneId].name} · ${new Date(saved.savedAt).toLocaleString("zh-TW", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}` : saved.error || "還沒有留下足跡"}</small></div>${slot !== "auto" ? `<button data-save="${slot}">儲存</button>` : ""}<button data-load="${slot}" ${!saved.state ? "disabled" : ""}>讀取</button></div>`;
       })
-      .join("")}</div>${storageUI.extras()}`,
+      .join("")}</div>${!storage.available || storage.conflicted || storage.error ? `<p class="storage-warning" role="alert">${escape(storage.error)}</p>` : ""}${storageUI.extras()}`,
   );
+}
+function storageConflict() {
+  if (!world) return;
+  if (panelType === "update-confirm") resumeUpdateAfterConflict = true;
+  show("storage-conflict", `${heading("SAVE A MOMENT", "另一個分頁已有新進度", "此分頁已暫停，還沒有覆蓋任何新進度。可以先匯出這份旅程，再接續最新存檔。")}
+    <div class="buttons"><button data-storage="export">匯出此分頁旅程</button><button class="primary" data-storage-latest>接續最新進度</button></div>`);
+  $("save-status").textContent = "此分頁已暫停儲存";
+}
+function recovery() {
+  const backup = storage.readBackup("auto");
+  show("recovery", `${heading("SAVE A MOMENT", "先找回你的旅程", "自動存檔無法讀取，已停止覆寫，原始資料與備份都保留著。")}
+    <div class="buttons">${backup.state ? '<button class="primary" data-storage-recover>從自動備份復原</button>' : ""}<button data-storage-raw>下載原始存檔</button><button data-ui="saves">選擇手動存檔或匯入</button><button data-storage="new">建立新的旅程</button></div>`);
+  $("save-status").textContent = "存檔待復原";
+}
+function downloadRaw() {
+  const raw = storage.raw();
+  if (!raw) return;
+  const url = URL.createObjectURL(new Blob([raw], { type: "application/json" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "星途未定-原始存檔.json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 async function replaceState(next, kind = "load") {
   if (appearanceBusy || controller.transitioning)
     throw new Error("請等場景載入完成再讀取");
-  if (!storage.backup(state))
-    throw new Error("無法建立還原備份，請先匯出目前進度再釋出空間");
+  if (storage.conflicted) throw new Error(storage.error);
+  await storage.idle();
   const previous = structuredClone(state);
   appearanceBusy = true;
   lifeUI.takeover();
@@ -443,28 +473,26 @@ async function replaceState(next, kind = "load") {
   state = next;
   try {
     await world.restoreRoom();
-  } catch {
+    if (!await storage.replace(state, recoveryBlocked ? null : previous, { recover: recoveryBlocked }))
+      throw new Error(storage.error || "無法保存載入後的旅程，原本資料已保留");
+  } catch (e) {
     state = previous;
-    try {
-      await world.restoreRoom();
-    } catch {
-      /* The loading overlay offers retry. */
-    }
+    try { await world.restoreRoom(); } catch { /* The loading overlay offers retry. */ }
     appearanceBusy = false;
-    throw new Error("場景載入失敗，原本的旅程已保留，請重試");
+    if (recoveryBlocked) recovery();
+    else if (storage.conflicted) storageConflict();
+    else saves();
+    throw new Error(e.message || "場景載入失敗，原本的旅程已保留，請重試");
   }
   appearanceBusy = false;
-  checkpoint();
+  recoveryBlocked = false;
+  $("save-status").textContent = "● 已儲存";
   changed();
   if (kind === "new" || !state.flags.intro) welcome();
   else if (state.life.game.pixelPrologueActive) narrate(prologueData(state));
   else if (state.dialogue) renderDialogue();
   else lifeUI.resumeNarrative();
-  toast(
-    kind === "new"
-      ? "新的旅程從這裡開始"
-      : "已接續旅程，讀取前進度保留在備份中",
-  );
+  toast(kind === "new" ? "新的旅程從這裡開始" : "已接續旅程，先前資料保留在備份中");
 }
 async function restore(slot) {
   const saved = storage.read(slot);
@@ -668,14 +696,14 @@ function interact(item) {
 const controller = {
   state: () => state,
   paused: () =>
-    paused ||
+    paused || appearanceBusy || recoveryBlocked || storage.conflicted || !storage.available ||
     !!world?.storyActors.active ||
     panel.open ||
     !!state.dialogue ||
     panelType === "career-dialogue" ||
     controller.transitioning,
   storyPaused: () =>
-    paused || panel.open || !!state.dialogue || controller.transitioning,
+    paused || appearanceBusy || recoveryBlocked || storage.conflicted || !storage.available || panel.open || !!state.dialogue || controller.transitioning,
   transitioning: false,
   toast,
   checkpoint,
@@ -719,13 +747,20 @@ const controller = {
     world = scene;
     $("loading").hidden = true;
     changed();
-    if (loaded.error) toast("舊的像素測試存檔無法讀取，已開啟新的體驗");
+    storage.onConflict(storageConflict);
+    if (recoveryBlocked) { recovery(); return; }
+    if (!storage.available) {
+      saves();
+      $("save-status").textContent = "無法儲存，請先匯出備份";
+      return;
+    }
     arriveAt(state.life, state.sceneId);
     if (state.dialogue) renderDialogue();
     else if (!state.flags.intro) welcome();
     else if (state.life.game.pixelPrologueActive) narrate(prologueData(state));
     else lifeUI.resumeNarrative();
     checkpoint();
+    if (storage.startupNotice) toast(storage.startupNotice);
   },
 };
 const cityUI = createCityUI({
@@ -753,7 +788,7 @@ const lifeUI = createLifeUI({
   toast,
   leaveOverlay,
   paused: () =>
-    paused ||
+    paused || appearanceBusy || recoveryBlocked || storage.conflicted || !storage.available ||
     !!state.life.storyStage ||
     panel.open ||
     !!state.dialogue ||
@@ -838,9 +873,14 @@ const featureUI = createFeatureUI({
   },
 });
 document.addEventListener("input", (event) => {
-  if (event.target.dataset.createField)
+  if (event.target.dataset.createField) {
     editCreation(state, event.target.dataset.createField, event.target.value);
+    checkpoint();
+  }
   if (event.target.matches(".pixel-app input, .pixel-app textarea")) featureUI.input(event);
+});
+document.addEventListener("compositionend", (event) => {
+  if (event.target.matches(".pixel-app input, .pixel-app textarea")) featureUI.compositionEnd(event);
 });
 document.addEventListener("change", (event) => {
   if (event.target.matches(".pixel-app select")) featureUI.input(event);
@@ -966,7 +1006,28 @@ document.addEventListener("click", async (event) => {
     return;
   }
   if (offlineUI.handle(target)) return;
-  if (storageUI.handle(target)) return;
+  if (target.hasAttribute("data-storage-latest")) {
+    target.disabled = true;
+    if (await storage.refresh()) {
+      const latest = storage.read();
+      if (latest.error) { recoveryBlocked = true; recovery(); }
+      else if (latest.state) {
+        try {
+          await replaceState(latest.state);
+          if (resumeUpdateAfterConflict) { resumeUpdateAfterConflict = false; offlineUI.offerUpdate(); }
+        } catch (e) { toast(e.message); }
+      } else { storageConflict(); toast("找不到最新存檔，請先匯出此分頁的旅程"); }
+    } else { target.disabled = false; toast("暫時無法讀取最新進度，請先匯出備份"); }
+    return;
+  }
+  if (target.hasAttribute("data-storage-recover")) {
+    target.disabled = true;
+    try { await replaceState(storage.readBackup("auto").state, "recover"); }
+    catch (e) { toast(e.message); }
+    return;
+  }
+  if (target.hasAttribute("data-storage-raw")) { downloadRaw(); return; }
+  if (await storageUI.handle(target)) return;
   if (featureUI.handle(target)) return;
   if (lifeUI.handle(target)) return;
   if (target.dataset.object) {
@@ -1097,16 +1158,18 @@ document.addEventListener("click", async (event) => {
         `${heading("SAVE A MOMENT", "取代這格手動存檔？", "會用現在的場景、衣服與對話進度取代這格紀錄。")}<div class="buttons"><button class="primary" data-confirm-save="${slot}">取代存檔</button><button data-ui="saves">保留原紀錄</button></div>`,
       );
     } else {
-      checkpoint(slot);
+      target.disabled = true;
+      const ok = await checkpoint(slot);
       saves();
-      toast(`已儲存到位置 ${slot}`);
+      toast(ok ? `已儲存到位置 ${slot}` : storage.error || "儲存失敗，請匯出目前旅程");
     }
     return;
   }
   if (target.dataset.confirmSave) {
-    checkpoint(target.dataset.confirmSave);
+    target.disabled = true;
+    const ok = await checkpoint(target.dataset.confirmSave);
     saves();
-    toast("已更新手動存檔");
+    toast(ok ? "已更新手動存檔" : storage.error || "儲存失敗，請匯出目前旅程");
     return;
   }
   if (target.dataset.load) {
@@ -1215,11 +1278,17 @@ panel.addEventListener("cancel", (event) => {
   event.preventDefault();
   close();
 });
-window.addEventListener("pagehide", () => checkpoint());
+function stageExit() {
+  if (appearanceBusy || recoveryBlocked || !world) return;
+  state.position = { x: world.player.x, y: world.player.y };
+  storage.stageExit(state);
+}
+window.addEventListener("pagehide", stageExit);
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     if (audioUnlocked) suspendAudio();
     world?.keys.clear();
+    stageExit();
     checkpoint();
   } else if (audioUnlocked) resumeAudio();
 });

@@ -1,6 +1,9 @@
-# Pixel life · v0.8.0
+# Pixel life · v0.18.2
 
-Entry: `/pixel.html`. Original `/index.html` progress and the pixel save namespace remain separate. The original 18 app entry points and the previously listed missing interactions are now accessible inside the pixel world. See the parity inventory for supported operations and limits.
+The pixel game is the only runtime. `/index.html` redirects to `/pixel.html`.
+The handbook has 17 destinations plus the handbook itself. See the current
+[feature guide](../../docs/audits/2026-09-07-feature-guide.md) for behavior and limits.
+Legacy saves can be imported explicitly; legacy UI/runtime files are not packaged.
 
 ## Modules
 
@@ -10,7 +13,7 @@ Entry: `/pixel.html`. Original `/index.html` progress and the pixel save namespa
 - `life.js`, `life-ui.js`: seven-day planning from the first week, training/work/rest/creative/social actions, daily costs/results and weekly review. Directly entering services does not require a separate registration day.
 - `career.js`, `career-ui.js`, `core-bridge.js`: original job auditions/contracts, agency applications/interviews, NPC appointments, production, weekly stories, awards, sequels, overseas and endings.
 - `cast.js`, `city-ui.js`: city navigation, connected interiors and daily NPC itineraries respecting reserved appointments.
-- `model.js`: independent pixel autosave, five manual slots and backups. Original saves are not automatically imported.
+- `model.js`, `storage.js`: validated pixel state and transactional IndexedDB autosave, five manual slots, backups, deletion recovery, corrupt-save quarantine and revision conflict detection. Pixel localStorage records migrate once, before removal of byte-identical legacy values; classic saves remain available for explicit import.
 - `identity.js`: gender lock at the start, compatible old-save inference, same-gender appearance changes and confirmed clinic changes using the original $60,000 fee.
 - `preferences.js`, `settings-ui.js`, `pixel-ui.css`: device-level palette preferences and a shared visual system for the existing pixel screens.
 - `main.js`: persistent canvas plus DOM menu/bottom dialogue, portrait synchronization, controller boundary and transactional appearance changes.
@@ -36,11 +39,11 @@ See `PIXEL-INTEGRITY.md` for the latest audit and `PIXEL-FEATURE-PARITY.md` for 
 
 ## Verification and packaging
 
-Run `npm run check` for original and pixel domain checks and the production build. Run `npx playwright test 'pixel-.*\.spec\.mjs' --workers=3` for the six browser/viewport projects. Download an offline pack and test reloading/entering an unvisited room with the network disabled. Asset-failure tests block service workers so cached responses cannot bypass intentional request failures.
+Run `npm run check` for shared and pixel domain checks and the production build. Run `npx playwright test 'pixel-.*\.spec\.mjs' --workers=3` for the six browser/viewport projects. Download an offline pack and test reloading/entering an unvisited room with the network disabled. Asset-failure tests block service workers so cached responses cannot bypass intentional request failures.
 
-Package the **entire `dist/`** folder, including original shell files, all pixel styles, manifests, modules and assets. This allows the shared service worker to install successfully. Version query strings must retain the pixel HTML fallback while offline.
+Package the **entire `dist/`** folder, including the pixel entry, styles, manifests, reachable modules and assets. This allows the shared service worker to install successfully. Version query strings must retain the pixel HTML fallback while offline.
 
-## Story staging (v0.8.0)
+## Story staging
 
 `story-scenes.js` maps all 30 core arcs, 50 longform chapters and eight hidden-route chapters to reviewed city sets, reuses those sets for the 100 branch follow-ups, and preserves every authored beat. Invitations first show the incoming message; only acceptance stages a visit. Declining/rescheduling stays a message. Existing recollections do not spawn actors. `story-blocking.js` finds a connected group of distinct floor marks. `story-actors.js` reserves the cast, walks cardinal paths, faces each speaker, animates reading/dance/listening, frames the cast above the dialogue, and releases them afterward.
 

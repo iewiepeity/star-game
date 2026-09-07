@@ -2,6 +2,16 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.18.2", date: "2026-09-07", title: "把每一段旅程好好留住",
+    notes: [
+      "存檔改用更適合長期旅程的儲存空間，舊進度與五個手動位置會自動搬入。",
+      "讀不到存檔時先保留原始資料並提供復原；儲存失敗會明確提示，不再誤報成功。",
+      "同時開啟多個分頁時，較舊的分頁會暫停，避免覆蓋新進度。可先匯出，再接續最新旅程。",
+      "修正中文搜尋組字；角色設定會保存草稿，按下開始才正式建立身分。",
+      "手機行程改為兩欄日卡，大字涵蓋狀態標籤，五種配色更易閱讀，能力頁補上狀態條。",
+    ],
+  },
+  {
     version: "0.18.1", date: "2026-09-07", title: "專心走好這段像素旅程",
     notes: [
       "現在只保留像素生活，首頁與離線內容都使用同一個版本。",
@@ -136,4 +146,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.41.1";
+export const CORE_VERSION = "1.41.2";

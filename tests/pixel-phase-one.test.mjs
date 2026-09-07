@@ -1,12 +1,12 @@
+import { createPixelStorage as createStorage } from "../src/pixel/storage.js";
+import { IDBFactory } from "fake-indexeddb";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { ROOMS, PEOPLE, itinerary } from "../src/pixel/data.js";
 import { buildGrid, findPath, footClear } from "../src/pixel/navigation.js";
 import {
-  createStorage,
   initialPixelState,
   validatePixelState,
-  SAVE_KEY,
 } from "../src/pixel/model.js";
 for (const [id, room] of Object.entries(ROOMS))
   test(`${id}: every object and NPC route is reachable without crossing furniture`, () => {
@@ -100,15 +100,15 @@ test("NPC itineraries have one location, and contain both travel and activity", 
     assert.ok(plans.every((p) => p.scene === null || ROOMS[p.scene]));
   }
 });
-test("pixel saves preserve position, outfit, encounter and NPC progress without touching the main game", () => {
+test("pixel saves preserve position, outfit, encounter and NPC progress without touching the main game", async () => {
   const data = new Map([
     ["star-game-save", "original-save"],
     ["star-game-preferences", "original-prefs"],
   ]);
-  const storage = createStorage({
+  const storage = await createStorage({
     getItem: (k) => data.get(k) || null,
     setItem: (k, v) => data.set(k, v),
-  });
+  }, { indexedDB: new IDBFactory(), broadcast: null });
   const state = initialPixelState();
   state.sceneId = "cafe";
   state.position = { x: 540, y: 450 };
@@ -116,25 +116,25 @@ test("pixel saves preserve position, outfit, encounter and NPC progress without 
   state.dialogue = { npcId: "jiqing", index: 2, reply: null };
   state.npcPositions.jiqing = { sceneId: "cafe", x: 570, y: 425 };
   state.elapsed = 72;
-  assert.ok(storage.write(state, 1));
+  assert.ok(await storage.write(state, 1));
   const restored = storage.read(1).state;
   assert.deepEqual(restored, validatePixelState(state));
   assert.deepEqual(restored.visited, ["home", "cafe"]);
   assert.equal(restored.life.game.outfitId, "practice");
-  storage.write({ ...state, outfitId: "audition" }, 1);
-  assert.ok(data.has(`${SAVE_KEY}-slot-1-backup`));
+  await storage.write({ ...state, outfitId: "audition" }, 1);
+  assert.equal(storage.readBackup(1).state.outfitId, "practice");
   assert.equal(data.get("star-game-save"), "original-save");
   assert.equal(data.get("star-game-preferences"), "original-prefs");
 });
-test("corrupt, incompatible and unavailable storage fail without crashing", () => {
-  const broken = createStorage({
+test("corrupt, incompatible and unavailable storage fail without crashing", async () => {
+  const broken = await createStorage({
     getItem: () => "{bad",
     setItem: () => {
       throw new Error("quota");
     },
-  });
+  }, { indexedDB: null, broadcast: null });
   assert.equal(broken.read().state, null);
-  assert.equal(broken.write(initialPixelState()), false);
+  assert.equal(await broken.write(initialPixelState()), false);
   assert.throws(() =>
     validatePixelState({ ...initialPixelState(), version: 99 }),
   );

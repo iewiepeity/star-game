@@ -54,6 +54,12 @@ export function setupPixelOffline(api) {
       }
     });
   }
+  function offerUpdate() {
+    api.show(
+            "update-confirm",
+            `${api.heading("A NEW CHAPTER", "發現新版本", "套用前會儲存目前進度，然後重新開啟遊戲。")}<p id="pixel-update-status" role="status" aria-live="polite">新版已準備好，存檔後就能出發。</p><div class="buttons"><button data-ui="settings">稍後</button><button class="primary" data-offline="apply-update">儲存並更新</button><button data-offline="reload-update" hidden>重新載入遊戲</button></div>`,
+          );
+  }
   async function handle(button) {
     const action = button.dataset.offline;
     if (!action) return;
@@ -111,10 +117,7 @@ export function setupPixelOffline(api) {
         await registration.update();
         await waitForPixelUpdate(registration);
         if (registration.waiting)
-          api.show(
-            "update-confirm",
-            `${api.heading("A NEW CHAPTER", "發現新版本", "套用前會儲存目前進度，然後重新開啟遊戲。")}<p id="pixel-update-status" role="status" aria-live="polite">新版已準備好，存檔後就能出發。</p><div class="buttons"><button data-ui="settings">稍後</button><button class="primary" data-offline="apply-update">儲存並更新</button><button data-offline="reload-update" hidden>重新載入遊戲</button></div>`,
-          );
+          offerUpdate();
         else {
           status("目前已是可取得的最新版本");
           api.toast("目前已是可取得的最新版本");
@@ -172,6 +175,7 @@ export function setupPixelOffline(api) {
     }
   }
   return {
+    offerUpdate,
     handle: (button) => {
       if (!button.dataset.offline) return false;
       handle(button).catch(() => {

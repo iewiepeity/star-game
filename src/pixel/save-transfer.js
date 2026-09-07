@@ -65,7 +65,7 @@ export function migrateOriginalSave(game) {
     id: `week-${g.week}-day-${r.dayIndex ?? i}`,
     week: g.week,
     day: r.dayIndex ?? i,
-    label: r.action || "原版行動",
+    label: r.action || "舊版行動",
     assignment: s.life.plan[r.dayIndex ?? i] || { id: "rest" },
     deltas: {},
     gains: [],
@@ -108,7 +108,7 @@ export function parsePixelTransfer(text) {
   }
   return {
     state: migrateOriginalSave(parseImportedSave(text)),
-    source: "原版",
+    source: "舊版",
   };
 }
 export function newRun(previous, { inherit = false } = {}) {

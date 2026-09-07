@@ -1,6 +1,6 @@
 {
-  "version": "0.18.1",
-  "bytes": 114773995,
+  "version": "0.18.2",
+  "bytes": 114794763,
   "entries": [
     {
       "url": "./index.html",
@@ -24,7 +24,7 @@
     },
     {
       "url": "./pixel-theme.css",
-      "bytes": 47119
+      "bytes": 49170
     },
     {
       "url": "./phone.css",
@@ -584,7 +584,7 @@
     },
     {
       "url": "./src/pixel/career-ui.js",
-      "bytes": 25702
+      "bytes": 25889
     },
     {
       "url": "./src/pixel/career.js",
@@ -604,7 +604,7 @@
     },
     {
       "url": "./src/pixel/city-life-ui.js",
-      "bytes": 17608
+      "bytes": 17649
     },
     {
       "url": "./src/pixel/city-rooms.js",
@@ -636,7 +636,7 @@
     },
     {
       "url": "./src/pixel/feature-ui.js",
-      "bytes": 24778
+      "bytes": 25316
     },
     {
       "url": "./src/pixel/furniture-layers.js",
@@ -672,7 +672,7 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 45306
+      "bytes": 49685
     },
     {
       "url": "./src/pixel/menu-icons.js",
@@ -680,7 +680,7 @@
     },
     {
       "url": "./src/pixel/model.js",
-      "bytes": 7185
+      "bytes": 4636
     },
     {
       "url": "./src/pixel/navigation.js",
@@ -696,7 +696,7 @@
     },
     {
       "url": "./src/pixel/offline.js",
-      "bytes": 6676
+      "bytes": 6743
     },
     {
       "url": "./src/pixel/onboarding.js",
@@ -716,7 +716,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 9432
+      "bytes": 10129
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -740,7 +740,11 @@
     },
     {
       "url": "./src/pixel/storage-ui.js",
-      "bytes": 8394
+      "bytes": 8999
+    },
+    {
+      "url": "./src/pixel/storage.js",
+      "bytes": 14764
     },
     {
       "url": "./src/pixel/story-actors.js",
@@ -792,7 +796,7 @@
     },
     {
       "url": "./src/views/creative.js",
-      "bytes": 10681
+      "bytes": 10669
     },
     {
       "url": "./src/views/forum.js",

@@ -1,8 +1,9 @@
+import { createPixelStorage as createStorage } from "../src/pixel/storage.js";
+import { IDBFactory } from "fake-indexeddb";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
   initialPixelState,
-  createStorage,
   validatePixelState,
 } from "../src/pixel/model.js";
 import {
@@ -185,25 +186,25 @@ test("original midweek import preserves resources, completed days and future tas
   assert.equal(r.life.ledger.length, 1);
   assert.equal(JSON.parse(text).state.money, r.life.game.money);
 });
-test("save deletion can be undone, backups survive autosave and failed writes", () => {
+test("save deletion can be undone, backups survive autosave and failed writes", async () => {
   const map = new Map(),
     store = {
       getItem: (k) => map.get(k) || null,
       setItem: (k, v) => map.set(k, v),
       removeItem: (k) => map.delete(k),
     },
-    s = createStorage(store),
+    s = await createStorage(store, { indexedDB: new IDBFactory(), broadcast: null }),
     state = initialPixelState();
-  s.write(state, 1);
-  s.backup(state);
+  await s.write(state, 1);
+  await s.backup(state);
   state.life.game.money = 1;
-  s.write(state);
+  await s.write(state);
   assert.equal(s.readBackup().state.life.game.money, 18000);
-  assert.ok(s.remove(1));
+  assert.ok(await s.remove(1));
   assert.equal(s.read(1).state, null);
-  assert.ok(s.restoreDeleted(1));
+  assert.ok(await s.restoreDeleted(1));
   assert.equal(s.read(1).state.life.game.money, 18000);
-  assert.equal(s.restoreDeleted(1), false);
+  assert.equal(await s.restoreDeleted(1), false);
 });
 test("a new run retains achievements and endings but resets life and identity", () => {
   const s = initialPixelState();

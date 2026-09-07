@@ -455,8 +455,8 @@ export function createCareerUI(api) {
     show(
       "career-ending",
       e.title,
-      `<div class="career-feature career-feature-text"><div><span>${esc(e.rank)}</span><h3>${esc(e.route)}</h3><p>${e.portfolio.works} 部作品 · ${e.awardWins} 座獎 · ${e.score} 分</p></div></div><p>${esc(e.summary)}</p><div class="panel-actions">${btn("保存這段人生", 'data-ui="saves"')}${btn("查看作品", 'data-pixel-app="log"')}${btn("開啟下一段人生", 'data-storage="new"')}</div>`,
-      "這段旅程的作品、選擇與關係已保存。",
+      `<div class="career-feature career-feature-text"><div><span>${esc(e.rank)}</span><h3>${esc(e.route)}</h3><p>${e.portfolio.works} 部作品 · ${e.awardWins} 座獎 · ${e.score} 分</p></div></div><div class="panel-actions">${btn("保存這段人生", 'data-ui="saves"')}${btn("查看作品", 'data-pixel-app="log"')}${btn("開啟下一段人生", 'data-storage="new"')}</div><section class="ending-recap" aria-label="人生回顧">${e.summary.split(/(?<=。)\s*/).filter(Boolean).map(paragraph => `<p>${esc(paragraph)}</p>`).join("")}</section>`,
+      "回顧這段旅程的作品、選擇與關係，也可以先匯出再展開下一段人生。",
     );
   }
   function handle(target) {
