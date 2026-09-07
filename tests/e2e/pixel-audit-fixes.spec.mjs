@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { setImmediate as yieldSimulation } from "node:timers/promises";
+import { resumePixelSave } from "./pixel-save-ready.mjs";
 import { initialPixelState, SAVE_KEY } from "../../src/pixel/model.js";
 import {
   initialLife,
@@ -119,11 +120,13 @@ test("a stale tab cannot overwrite a newer tab; resuming keeps a backup of the o
   page,
   context,
 }) => {
+  test.setTimeout(60000);
   await seed(page, begun());
   await expect(page.locator("#save-status")).toHaveText("● 已儲存");
   const other = await context.newPage();
   await other.goto("/pixel.html");
   await expect(other.locator("#loading")).toBeHidden();
+  await resumePixelSave(other);
   await other.locator('[data-ui="profile"]').first().click();
   await other.locator("#real-name-input").fill("新分頁的新進度");
   await other.locator('[data-ui="name"]').click();

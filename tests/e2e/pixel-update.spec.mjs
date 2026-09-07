@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 import { resolve, extname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { initialPixelState, SAVE_KEY } from "../../src/pixel/model.js";
+import { resumePixelSave } from "./pixel-save-ready.mjs";
 
 // A real two-release server exercises installation, activation and caches.
 // Each test owns its origin, so workers cannot leak between parallel browsers.
@@ -149,15 +150,7 @@ test("save and update still reloads when another tab already activated the waiti
   const other = await context.newPage();
   await other.goto(releaseSite.url);
   await expect(other.locator("#loading")).toBeHidden({ timeout: 30000 });
-  // Scene readiness precedes the asynchronous startup save. The original tab's
-  // timer can also win that write race; explicitly resume before activating.
-  await expect.poll(async () => {
-    if (await other.locator("[data-storage-latest]").isVisible()) return "conflict";
-    return await other.locator("#save-status").textContent() === "● 已儲存" ? "saved" : "pending";
-  }).not.toBe("pending");
-  if (await other.locator("[data-storage-latest]").isVisible())
-    await other.locator("[data-storage-latest]").click();
-  await expect(other.locator("#save-status")).toHaveText("● 已儲存");
+  await resumePixelSave(other);
   await expect(page.locator("[data-storage-latest]")).toBeVisible();
   await other.evaluate(async () =>
     (await navigator.serviceWorker.getRegistration()).waiting.postMessage({
