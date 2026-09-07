@@ -5,6 +5,7 @@ import {
   canReturnHome,
 } from "./scene-objects.js";
 import { setupPixelOffline } from "./offline.js";
+import { homeFurnitureInfo } from "./home-furniture.js";
 import { tutorialMarkup, dismissTutorial } from "./tutorial-ui.js";
 import {
   configureAudioPreferences,
@@ -243,6 +244,7 @@ function menu() {
       ["phone", "手機", "社群與聯絡人"],
       ["profile", "我的角色", "能力、衣櫃與名字"],
       ["home-life", "居家生活", "布置、作客、手作與紀念"],
+      ["city-life", "城市生活", "穿搭、日曆、熟客與小夥伴"],
       ["nearby", "附近物件", "看看身邊有什麼"],
       ["settings", "系統設定", "主題、速度與視角"],
     ]
@@ -578,11 +580,12 @@ function selectObject(item) {
   inspectObject(item);
 }
 function inspectObject(item) {
-  const definition = APPEARANCES[item.appearance],
+  const furnishing = state.sceneId === "home" && homeFurnitureInfo(state.life?.game.homeLife, item.id);
+  const definition = furnishing && item.appearance === "blinds" && furnishing.itemId !== "starter_blinds" ? null : APPEARANCES[item.appearance],
     value = appearanceValue(state, state.sceneId, item);
   show(
     "scene-object",
-    `${heading("", item.name)}<p>${escape(item.response)}</p>${
+    `${heading("", furnishing?.name || item.name)}<p>${escape(furnishing ? furnishing.keepsakeName ? `牆上展示著「${furnishing.keepsakeName}」。` : `這是你選擇的${furnishing.name}。可以在居家生活更換布置。` : item.response)}</p>${
       definition
         ? `<p class="object-state" role="status">${definition.labels[value]}</p><div class="object-options">${Object.entries(
             definition.choices,
@@ -710,6 +713,7 @@ const controller = {
     if (!state.visited.includes(id)) state.visited.push(id);
     const first = arriveAt(state.life, id);
     if (first) toast(`${ROOMS[id].name}：服務已開放`);
+    if (id === "home" && state.life.game.cityLife?.pet) toast(state.life.game.cityLife.notice);
   },
   ready: (scene) => {
     world = scene;
@@ -1133,6 +1137,9 @@ document.addEventListener("click", async (event) => {
       break;
     case "home-life":
       lifeUI.home();
+      break;
+    case "city-life":
+      lifeUI.city();
       break;
     case "name":
       state.life.game.realName =

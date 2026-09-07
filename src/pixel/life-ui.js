@@ -35,6 +35,7 @@ import {
   cancelDay,
 } from "./life.js";
 import { createHomeUI } from "./home-ui.js";
+import { createCityLifeUI } from "./city-life-ui.js";
 import { CREATIVE_TYPES } from "../logic/creative.js";
 import { ROOMS, PEOPLE, outfits } from "./data.js";
 import { OUTFITS, portraitAsset } from "../data/wardrobe.js";
@@ -109,7 +110,7 @@ export function createLifeUI(api) {
       .reduce((sum, a) => sum + costOf(l, a), 0);
     const cards = Object.entries(CHOICES)
       .filter(([id]) => !id.startsWith("career_"))
-      .filter(([id]) => !["home_host", "home_craft"].includes(id))
+      .filter(([id]) => !["home_host", "home_craft", "city_date", "city_collab"].includes(id))
       .filter(([, d]) => filter === "全部" || d.group === filter)
       .map(([id, d]) => {
         const a =
@@ -154,7 +155,7 @@ export function createLifeUI(api) {
       reason = access(l, assignment);
     show(
       "action",
-      `${heading("TODAY", label(assignment), reason || "確認後，這件事會佔用今天的主要行程。")}<div class="action-detail">${roomIllustration(ROOMS[d.room])}<div><b>${ROOMS[d.room].name}</b><p>${costOf(l, assignment) ? `花費 ${money(costOf(l, assignment))}` : "不需費用"} · 1 天</p><small>${assignment.id === "rest" ? "體力 +24 · 疲勞 −18" : d.group === "訓練" ? "課程效果依當日身體狀態調整" : d.group === "工作" && ACTIONS[d.action].income ? `收入 $${ACTIONS[d.action].income[0].toLocaleString()}～$${ACTIONS[d.action].income[1].toLocaleString()} · 疲勞 +${ACTIONS[d.action].fatigue}` : assignment.id === "creative" ? "疲勞 +6 · 同一週可安排多天創作" : "完成後在日誌留下今日成果"}</small></div></div><div class="panel-actions"><button data-ui="close">再想一下</button><button class="primary" data-start="${assignment.id}" ${assignment.projectId ? `data-project="${escape(assignment.projectId)}"` : ""} ${reason ? "disabled" : ""}>確認今天的安排</button></div>`,
+      `${heading("TODAY", label(assignment), reason || "確認後，這件事會佔用今天的主要行程。")}<div class="action-detail">${roomIllustration(ROOMS[d.room])}<div><b>${ROOMS[d.room].name}</b><p>${costOf(l, assignment) ? `花費 ${money(costOf(l, assignment))}` : "不需費用"} · 1 天</p><small>${assignment.id === "rest" ? "體力 +24 · 疲勞 −18" : d.group === "訓練" ? "課程效果依當日身體狀態調整" : d.group === "工作" && ACTIONS[d.action].income ? `收入 $${ACTIONS[d.action].income[0].toLocaleString()}～$${ACTIONS[d.action].income[1].toLocaleString()} · 疲勞 +${ACTIONS[d.action].fatigue}` : assignment.id === "creative" ? "疲勞 +6 · 同一週可安排多天創作" : "完成後在日誌留下今日成果"}</small></div></div><div class="panel-actions"><button data-ui="close">再想一下</button><button class="primary" data-start="${assignment.id}" data-assignment="${escape(JSON.stringify(assignment))}" ${assignment.projectId ? `data-project="${escape(assignment.projectId)}"` : ""} ${reason ? "disabled" : ""}>確認今天的安排</button></div>`,
     );
   }
   function run(assignment, auto = false) {
@@ -209,7 +210,11 @@ export function createLifeUI(api) {
       d.item === item.id
     ) {
       if (!p.decisionMade) {
-        const decision = p.decision || careerDecision(life(), p.assignment);
+        if (p.assignment.id === "city_challenge") return cityLifeUI.miniGame();
+        const decision = p.decision || (p.assignment.id === "city_date" ? {
+          title: "今天想怎麼留下回憶？", text: "好好相處本身就值得記得。拍照與分享都需要彼此同意。",
+          choices: [{ id: "private", label: "把今天留在心裡", note: "不拍照、不公開" }, { id: "photo", label: "詢問能否合照並分享", note: "對方可以拒絕；同意後仍由你決定是否公開" }],
+        } : careerDecision(life(), p.assignment));
         if (decision) {
           p.decision = decision;
           p.phase = "decision";
@@ -266,6 +271,7 @@ export function createLifeUI(api) {
     return false;
   }
   function showDecision() {
+    if (life().pending?.assignment.id === "city_challenge" && !life().pending.decisionMade) return cityLifeUI.miniGame();
     const d = life().pending?.decision;
     if (!d) return;
     api.narrate({
@@ -501,6 +507,8 @@ export function createLifeUI(api) {
     changed,
     toast,
     planDay,
+    access,
+    refresh: () => world()?.refreshFurniture(),
     buyHomeItem,
     placeHomeItem,
     buyHomeSupply,
@@ -509,6 +517,7 @@ export function createLifeUI(api) {
     displayHomeKeepsake,
     changeHomeKey,
   });
+  const cityLifeUI = createCityLifeUI({ ...api, changed, definitions: CHOICES, planDay, access, startPose, refresh: () => world()?.syncPet?.() });
   function tick(delta) {
     const l = life();
     if (!l.auto || api.paused() || document.hidden) return;
@@ -521,6 +530,7 @@ export function createLifeUI(api) {
     }
   }
   function handle(target) {
+    if (cityLifeUI.handle(target)) return true;
     if (homeUI.handle(target)) return true;
     if (careerUI.handle(target)) return true;
     const d = target.dataset,
@@ -583,9 +593,12 @@ export function createLifeUI(api) {
       return true;
     }
     if (d.start) {
+      let assignment;
+      try { assignment = JSON.parse(d.assignment); } catch { assignment = null; }
       run(
         d.start.startsWith("career_")
           ? l.plan[l.day]
+          : assignment?.id === d.start ? assignment
           : { id: d.start, ...(d.project ? { projectId: d.project } : {}) },
       );
       return true;
@@ -666,7 +679,6 @@ export function createLifeUI(api) {
     schedule,
     phone,
     creative,
-    home: homeUI.open,
     afterStory: () =>
       life().day === 7
         ? summary()
@@ -693,6 +705,8 @@ export function createLifeUI(api) {
     return false;
   }
   return {
+    home: homeUI.open,
+    city: cityLifeUI.open,
     resumeNarrative,
     career: careerUI,
     changed,

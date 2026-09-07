@@ -8,7 +8,7 @@ const undo = new WeakMap();
 const protectedDay = (life, i) =>
   i < life.day ||
   (i === life.day && life.pending) ||
-  life.plan[i].id.startsWith("career_");
+  life.plan[i].id.startsWith("career_") || life.plan[i].id === "home_host" || !!life.plan[i].appointmentId;
 export function assignmentForAction(action, venue) {
   if (action === "free")
     return {
@@ -40,6 +40,8 @@ const fingerprint = (life) =>
     life.game.eventHistory,
     life.game.relationships,
     life.game.socialPosts,
+    life.game.homeLife,
+    life.game.cityLife,
     life.game.activeJobs,
     life.game.agencyApplications,
     life.game.agencyOffer,
@@ -103,7 +105,7 @@ export function applyPlannerTool(life, id) {
                 SCHEDULE_PRESETS[id].plan[day],
                 SCHEDULE_PRESETS[id].locations?.[day],
               );
-      if (a.id.startsWith("career_") || a.id === "relief_gig")
+      if (a.id.startsWith("career_") || ["relief_gig", "home_host", "city_date", "city_collab"].includes(a.id) || a.regularId)
         a = { id: "rest" };
       if (!access(life, a, day) && !planDay(life, day, a)) count++;
     }
@@ -142,7 +144,7 @@ export function setWeeklyFocus(life, id) {
 }
 export function weeklyFocusMarkup(life) {
   const focus = FOCUSES[life.game.focus] || FOCUSES.growth;
-  return `${withCore(life, () => weeklyTaskMarkup(life.plan.map(a => a.id === "social" ? "social_post" : a.id === "creative" ? "creative_work" : null)))}<section class="weekly-focus" aria-label="本週策略"><div class="section-heading"><b>本週策略</b><small>從接下來的行動生效</small></div><div class="focus-options">${Object.entries(
+  return `${withCore(life, () => weeklyTaskMarkup(life.plan.map(a => a.id === "social" ? "social_post" : a.id === "creative" ? "creative_work" : ["home_host", "home_craft"].includes(a.id) ? a.id : null)))}<section class="weekly-focus" aria-label="本週策略"><div class="section-heading"><b>本週策略</b><small>從接下來的行動生效</small></div><div class="focus-options">${Object.entries(
     FOCUSES,
   )
     .map(

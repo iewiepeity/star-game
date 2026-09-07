@@ -1,6 +1,6 @@
 {
-  "version": "0.17.0",
-  "bytes": 114913338,
+  "version": "0.18.0",
+  "bytes": 115009322,
   "entries": [
     {
       "url": "./index.html",
@@ -12,15 +12,15 @@
     },
     {
       "url": "./pixel.css",
-      "bytes": 50672
+      "bytes": 50688
     },
     {
       "url": "./pixel-ui.css",
-      "bytes": 27259
+      "bytes": 28004
     },
     {
       "url": "./pixel-apps.css",
-      "bytes": 27560
+      "bytes": 27522
     },
     {
       "url": "./pixel-theme.css",
@@ -139,6 +139,10 @@
       "bytes": 466
     },
     {
+      "url": "./src/core/city-life-state.js",
+      "bytes": 4956
+    },
+    {
       "url": "./src/core/deferred-search.js",
       "bytes": 1095
     },
@@ -149,6 +153,10 @@
     {
       "url": "./src/core/error-recovery.js",
       "bytes": 2392
+    },
+    {
+      "url": "./src/core/home-state.js",
+      "bytes": 5505
     },
     {
       "url": "./src/core/images.js",
@@ -184,7 +192,7 @@
     },
     {
       "url": "./src/core/save-schema.js",
-      "bytes": 9571
+      "bytes": 10106
     },
     {
       "url": "./src/core/state-transaction.js",
@@ -192,7 +200,7 @@
     },
     {
       "url": "./src/core/state.js",
-      "bytes": 17263
+      "bytes": 17466
     },
     {
       "url": "./src/core/stats.js",
@@ -235,6 +243,10 @@
       "bytes": 13887
     },
     {
+      "url": "./src/data/city-life.js",
+      "bytes": 6868
+    },
+    {
       "url": "./src/data/city-map.js",
       "bytes": 2328
     },
@@ -268,7 +280,7 @@
     },
     {
       "url": "./src/data/home-life.js",
-      "bytes": 7759
+      "bytes": 8923
     },
     {
       "url": "./src/data/industry.js",
@@ -451,6 +463,10 @@
       "bytes": 2556
     },
     {
+      "url": "./src/logic/city-life.js",
+      "bytes": 22186
+    },
+    {
       "url": "./src/logic/city-progression.js",
       "bytes": 3042
     },
@@ -540,7 +556,7 @@
     },
     {
       "url": "./src/logic/home-life.js",
-      "bytes": 13522
+      "bytes": 14977
     },
     {
       "url": "./src/logic/industry-news.js",
@@ -572,7 +588,7 @@
     },
     {
       "url": "./src/logic/media-engine.js",
-      "bytes": 4871
+      "bytes": 5647
     },
     {
       "url": "./src/logic/npc-autonomy.js",
@@ -588,7 +604,7 @@
     },
     {
       "url": "./src/logic/npc-engine.js",
-      "bytes": 8417
+      "bytes": 8503
     },
     {
       "url": "./src/logic/npc-interaction-engine.js",
@@ -644,7 +660,7 @@
     },
     {
       "url": "./src/logic/romance-engine.js",
-      "bytes": 15315
+      "bytes": 15404
     },
     {
       "url": "./src/logic/routine-rules.js",
@@ -652,7 +668,7 @@
     },
     {
       "url": "./src/logic/rumor-engine.js",
-      "bytes": 2721
+      "bytes": 3343
     },
     {
       "url": "./src/logic/runner.js",
@@ -684,11 +700,11 @@
     },
     {
       "url": "./src/logic/short-contact.js",
-      "bytes": 4308
+      "bytes": 4414
     },
     {
       "url": "./src/logic/social-context.js",
-      "bytes": 4671
+      "bytes": 5183
     },
     {
       "url": "./src/logic/social-drafts.js",
@@ -704,7 +720,7 @@
     },
     {
       "url": "./src/logic/weekly-task.js",
-      "bytes": 4629
+      "bytes": 4738
     },
     {
       "url": "./src/logic/work-lifecycle.js",
@@ -744,11 +760,11 @@
     },
     {
       "url": "./src/pixel/career.js",
-      "bytes": 23810
+      "bytes": 24147
     },
     {
       "url": "./src/pixel/cast.js",
-      "bytes": 6886
+      "bytes": 8136
     },
     {
       "url": "./src/pixel/city-catalog.js",
@@ -759,8 +775,16 @@
       "bytes": 5249
     },
     {
+      "url": "./src/pixel/city-life-ui.js",
+      "bytes": 17608
+    },
+    {
       "url": "./src/pixel/city-rooms.js",
-      "bytes": 23687
+      "bytes": 23869
+    },
+    {
+      "url": "./src/pixel/city-schedule.js",
+      "bytes": 7615
     },
     {
       "url": "./src/pixel/city-ui.js",
@@ -784,15 +808,23 @@
     },
     {
       "url": "./src/pixel/feature-ui.js",
-      "bytes": 24614
+      "bytes": 24778
     },
     {
       "url": "./src/pixel/furniture-layers.js",
-      "bytes": 6465
+      "bytes": 7934
+    },
+    {
+      "url": "./src/pixel/home-furniture.js",
+      "bytes": 7006
+    },
+    {
+      "url": "./src/pixel/home-schedule.js",
+      "bytes": 3119
     },
     {
       "url": "./src/pixel/home-ui.js",
-      "bytes": 11013
+      "bytes": 13280
     },
     {
       "url": "./src/pixel/identity.js",
@@ -800,11 +832,11 @@
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 29006
+      "bytes": 30195
     },
     {
       "url": "./src/pixel/life.js",
-      "bytes": 25466
+      "bytes": 28502
     },
     {
       "url": "./src/pixel/location-day-copy.js",
@@ -812,11 +844,11 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 44628
+      "bytes": 45306
     },
     {
       "url": "./src/pixel/menu-icons.js",
-      "bytes": 1004
+      "bytes": 1087
     },
     {
       "url": "./src/pixel/model.js",
@@ -824,7 +856,7 @@
     },
     {
       "url": "./src/pixel/navigation.js",
-      "bytes": 4648
+      "bytes": 5074
     },
     {
       "url": "./src/pixel/npc-behavior.js",
@@ -843,8 +875,12 @@
       "bytes": 4708
     },
     {
+      "url": "./src/pixel/pet-visual.js",
+      "bytes": 1046
+    },
+    {
       "url": "./src/pixel/planner-tools.js",
-      "bytes": 5966
+      "bytes": 6197
     },
     {
       "url": "./src/pixel/preferences.js",
@@ -852,7 +888,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 7735
+      "bytes": 9140
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -904,7 +940,7 @@
     },
     {
       "url": "./src/pixel/world.js",
-      "bytes": 42300
+      "bytes": 43278
     },
     {
       "url": "./src/render.js",

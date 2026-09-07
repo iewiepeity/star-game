@@ -171,7 +171,7 @@ test("unified menu, camera drag and bottom dialogue checkpoint remain usable", a
   await expect(page.locator("#week-control")).toBeVisible();
   await expect(page.getByRole("button", { name: "查看我的角色" })).toBeVisible();
   await menu(page);
-  await expect(page.locator(".command-menu button")).toHaveCount(8);
+  await expect(page.locator(".command-menu button")).toHaveCount(10);
   await page.locator('[data-ui="settings"]').click();
   await page.getByRole("button", { name: "放大場景" }).click();
   await close(page);
@@ -375,7 +375,7 @@ test("the actual furniture replaces floating buttons; touch selects before walki
   expect(await page.locator("[data-object]").count()).toBe(0);
   if (hasTouch) {
     await page.touchscreen.tap(x, y);
-    await expect(page.locator("#panel-title")).toHaveText("休息一下");
+    await expect(page.locator("#panel-title")).toHaveText("搬家時的單人床");
     expect((await read(page)).player.moving).toBe(false);
     await page.getByRole("button", { name: "使用休息一下", exact: true }).click();
   } else await page.mouse.click(x, y);

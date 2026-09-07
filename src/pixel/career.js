@@ -306,6 +306,10 @@ export function bookCareer(life, definitions, kind, payload, day) {
     return { ok: false, message: "先完成或取消今天的行動，再安排約定" };
   if (life.plan[day].id.startsWith("career_"))
     return { ok: false, message: "這天已有正式約定，請先在行程表改成休息" };
+  if (life.plan[day].id === "home_host")
+    return { ok: false, message: "這天已有作客約定，請先在行程表改成休息" };
+  if (life.plan[day].appointmentId)
+    return { ok: false, message: "這天已有城市邀約，請先取消或改期" };
   const snapshot = structuredClone(life);
   syncCoreSchedule(life, definitions, true);
   // The selected date is explicitly replaced. Other dates cannot be used as a
@@ -665,6 +669,7 @@ export function bookingDays(life, definitions, kind, payload) {
     if (
       day < life.day ||
       life.plan[day].id.startsWith("career_") ||
+      life.plan[day].id === "home_host" || !!life.plan[day].appointmentId ||
       (day === life.day && life.pending)
     )
       return false;

@@ -2,6 +2,7 @@ import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
 import { adjustRelationship } from "./npc-engine.js";
 import { CONTACT_TOPICS, contactReply } from "./conversations.js";
+import { recallCityMemory } from "./city-life.js";
 const REPLIES = [
   [
     "剛好看到你的訊息。今天有一小段空檔，你呢？",
@@ -54,6 +55,7 @@ export function shortContact(id, type = "message", topic = null, draft = null) {
         ? "work"
         : topic;
   const text =
+    (replyTopic !== "work" && recallCityMemory(id)) ||
     (replyTopic && contactReply(id, replyTopic)) ||
     REPLIES[
       (state.week + count + Object.keys(NPCS).indexOf(id)) % REPLIES.length

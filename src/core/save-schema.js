@@ -1,3 +1,12 @@
+import { normalizeCityLife } from "./city-life-state.js";
+const canonical = (value) =>
+  JSON.stringify(value, (_, item) =>
+    item && !Array.isArray(item) && typeof item === "object"
+      ? Object.fromEntries(
+          Object.entries(item).sort(([a], [b]) => a.localeCompare(b)),
+        )
+      : item,
+  );
 const isObj = (v) => v && typeof v === "object" && !Array.isArray(v);
 const romanceStages = new Set([
   "none",
@@ -78,6 +87,12 @@ const numericFields = {
 export function validateGameState(s) {
   const errors = [];
   if (!isObj(s)) return { ok: false, errors: ["state 必須是物件"] };
+  if (
+    s.cityLife !== undefined &&
+    (!isObj(s.cityLife) ||
+      canonical(s.cityLife) !== canonical(normalizeCityLife(s.cityLife)))
+  )
+    errors.push("cityLife 無效；請先遷移並驗證城市生活資料");
   for (const [key, [min, max]] of Object.entries(numericFields))
     if (!finite(s[key], min, max)) errors.push(`${key} 無效`);
   if (!Number.isInteger(s.week)) errors.push("week 必須是整數");

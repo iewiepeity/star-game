@@ -18,6 +18,8 @@ const hash = (s) =>
 export function npcSocialPost(id, game = state) {
   const npc = NPCS[id];
   if (!npc) return null;
+  const sharedPhoto = game.cityLife?.photos?.findLast(p => p.npcId === id && p.published && Math.floor(p.day / 7) + 2 >= game.week && game.cityLife.appointments.some(a => a.id === p.appointmentId && a.status === "completed" && a.photoConsent));
+  if (sharedPhoto && game.knownPeople.includes(id)) return { id: `npc-${id}-${game.week}`, npcId: id, week: game.week, topic: "daily", text: "看到那張一起拍、也一起同意分享的咖啡館合照。那天確實留了一段時間，好好坐下來聊。" };
   const latest = [...(game.npcCareerHistory || [])]
     .reverse()
     .find((x) => x.npcId === id && x.week >= game.week - 2);

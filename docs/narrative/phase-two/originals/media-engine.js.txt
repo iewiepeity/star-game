@@ -1,6 +1,5 @@
 import { state } from "../core/state.js";
-import { chance } from "../core/rng.js";
-import { activePartner } from "../core/city-life-state.js";
+import { chance, randomInt } from "../core/rng.js";
 import { enqueueVisibleEvent } from "./event-engine.js";
 import { recordRumor, rumorLevelLabel } from "./rumor-engine.js";
 export function strongestRomance() {
@@ -15,7 +14,9 @@ export function strongestRomance() {
               (x.response === "confirm" ||
                 state.eventFlags?.includes(`rumor-response:${x.id}:confirm`)),
           ) &&
-          activePartner(r),
+          r.romance &&
+          r.romance !== "none" &&
+          !["rejected", "broken"].includes(r.romance),
       )
       .sort(
         (a, b) =>
@@ -24,33 +25,9 @@ export function strongestRomance() {
       )[0]?.[0] || null
   );
 }
-export function publicRomanceClue(game, npcId) {
-  if (!npcId || !game.knownPeople?.includes(npcId)) return null;
-  const photo = game.cityLife?.photos?.findLast(
-    (p) =>
-      p.npcId === npcId &&
-      p.published &&
-      p.day <= (game.week - 1) * 7 + 6 &&
-      p.day >= (game.week - 4) * 7 &&
-      game.cityLife.appointments.some(
-        (a) =>
-          a.id === p.appointmentId &&
-          a.status === "completed" &&
-          a.photoConsent,
-      ),
-  );
-  return photo
-    ? {
-        id: photo.id,
-        source: "玩家主動公開、雙方同意的咖啡館合照",
-        label: "你公開的咖啡館合照",
-      }
-    : null;
-}
 export function maybeQueueMediaEvent() {
   if (state.fame < 120 || chance(78)) return null;
   const romance = strongestRomance(),
-    clue = publicRomanceClue(state, romance),
     id = `media:${state.week}`;
   if (
     state.eventHistory?.some((e) => e.id === id) ||
@@ -59,10 +36,6 @@ export function maybeQueueMediaEvent() {
     return null;
   const rumorEvent =
     romance &&
-    clue &&
-    !state.rumors?.some((r) =>
-      r.sources?.some((s) => s.evidenceId === clue.id),
-    ) &&
     chance(45) &&
     ![
       ...(state.eventQueue || []),
@@ -73,9 +46,8 @@ export function maybeQueueMediaEvent() {
     const rumor = recordRumor({
       npcId: romance,
       type: "romance",
-      evidence: 2,
-      source: clue.source,
-      evidenceId: clue.id,
+      evidence: randomInt(1, Math.min(4, state.fame >= 500 ? 3 : 2)),
+      source: "訪談前的網路同框討論",
     });
     enqueueVisibleEvent(
       {
@@ -83,7 +55,7 @@ export function maybeQueueMediaEvent() {
         kind: "輿論事件",
         mediaRomanceNpc: romance,
         title: `訪談現場｜緋聞已到「${rumorLevelLabel(rumor.evidence)}」`,
-        text: `主持人提起「${clue.label}」，兩人的臉都能辨認，於是問了彼此的關係。同框只證明那天一起出現，不代表任何人已經承認交往。你可以決定怎麼回答。`,
+        text: "主持人笑著把話題轉向近期網路上的同框討論，現場所有鏡頭都等著你的回答。證據愈完整，亂否認的風險也愈高。",
         choices: [
           {
             id: "deny",
