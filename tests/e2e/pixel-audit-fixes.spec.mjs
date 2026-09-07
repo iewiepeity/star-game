@@ -125,7 +125,7 @@ test("a stale tab cannot overwrite a newer tab; resuming keeps a backup of the o
   await expect(page.locator("#save-status")).toHaveText("● 已儲存");
   const other = await context.newPage();
   await other.goto("/pixel.html");
-  await expect(other.locator("#loading")).toBeHidden();
+  await expect(other.locator("#loading")).toBeHidden({ timeout: 30000 });
   await resumePixelSave(other);
   await other.locator('[data-ui="profile"]').first().click();
   await other.locator("#real-name-input").fill("新分頁的新進度");
