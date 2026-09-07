@@ -9,7 +9,7 @@ import {
 } from "../data/wardrobe.js";
 import { normalizeBirthday } from "./birthday.js";
 import { syncLegacyPlayerName } from "./player-name.js";
-import { initialHomeLife, normalizeHomeLife } from "../logic/home-life.js";
+import { initialHomeLife, normalizeHomeLife, invalidateHomeKeys } from "./home-state.js";
 export function initialState() {
   return {
     shortContacts: [],
@@ -405,6 +405,7 @@ export function hydrateState(saved) {
       ? next.relationships
       : {};
   next.homeLife = normalizeHomeLife(saved.homeLife);
+  invalidateHomeKeys(next);
   for (const relation of Object.values(next.brandRelations)) {
     if (!relation || typeof relation !== "object") continue;
     const trust = Number.isFinite(relation.trust)

@@ -43,7 +43,7 @@ export function weeklyTaskCounts(planned = false, plannedKinds = []) {
     if (
       ["rest", "free", "social"].includes(type) ||
       ["rest", "free"].includes(id) ||
-      ["npc_interact", "social_post"].includes(taskKind)
+      ["npc_interact", "social_post", "home_host", "home_craft"].includes(taskKind)
     )
       counts.life++;
   }
@@ -81,7 +81,7 @@ export function weeklyTaskMarkup(plannedKinds = []) {
   const done = weeklyTaskCounts(),
     plan = weeklyTaskCounts(true, plannedKinds),
     task = weeklyTaskInfo();
-  return `<section class="weekly-task" aria-label="每週目標"><details><summary>${task.label} · 職涯 ${done.work}／${plan.work}（完成／安排）</summary><p>${task.desc}</p><p>已完成：訓練 ${done.train}・職涯 ${done.work}・生活 ${done.life}・探訪 ${done.visit}</p><p>依目前安排：訓練 ${plan.train}・職涯 ${plan.work}・生活 ${plan.life}・探訪 ${plan.visit}。${weeklyTaskReady(plan) ? "活動條件可達成，仍需留意週末疲勞。" : "可自由調整，尚未滿足活動條件。"}</p><small>職涯活動包含打工、正式通告、完成試鏡（落選也計）、經紀人規劃與創作製作。生活包含休息、探訪、正式好友邀約與社群更新。</small></details></section>`;
+  return `<section class="weekly-task" aria-label="每週目標"><details><summary>${task.label} · 職涯 ${done.work}／${plan.work}（完成／安排）</summary><p>${task.desc}</p><p>已完成：訓練 ${done.train}・職涯 ${done.work}・生活 ${done.life}・探訪 ${done.visit}</p><p>依目前安排：訓練 ${plan.train}・職涯 ${plan.work}・生活 ${plan.life}・探訪 ${plan.visit}。${weeklyTaskReady(plan) ? "活動條件可達成，仍需留意週末疲勞。" : "可自由調整，尚未滿足活動條件。"}</p><small>職涯活動包含打工、正式通告、完成試鏡（落選也計）、經紀人規劃與創作製作。生活包含休息、探訪、正式好友邀約、居家作客、手作與社群更新。</small></details></section>`;
 }
 export function evaluateWeeklyTask() {
   const prior = state.weeklyTaskHistory?.find((x) => x.week === state.week);

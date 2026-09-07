@@ -2,6 +2,14 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.17.1", date: "2026-09-07", title: "約好來家裡，就真的見得到",
+    notes: [
+      "修正手動開始製作與作客時遺失資料，家具與展示紀念現在也會更新住處場景。",
+      "材料會保留給已安排的手作日；同週不重複邀約同一人，取消行程會釋放檔期。",
+      "居家行動納入生活目標；讀檔保留成果，品質使用現有能力，分手或失去信任後鑰匙不會自行恢復。",
+    ],
+  },
+  {
     version: "0.17.0", date: "2026-09-07", title: "家裡開始記得誰來過",
     notes: [
       "新增居家生活：固定位置可以換家具、整理擺設與展示生涯紀念；預覽和布置不會吃掉一天。",
@@ -110,4 +118,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.40.0";
+export const CORE_VERSION = "1.40.1";

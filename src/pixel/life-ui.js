@@ -154,7 +154,7 @@ export function createLifeUI(api) {
       reason = access(l, assignment);
     show(
       "action",
-      `${heading("TODAY", label(assignment), reason || "確認後，這件事會佔用今天的主要行程。")}<div class="action-detail">${roomIllustration(ROOMS[d.room])}<div><b>${ROOMS[d.room].name}</b><p>${costOf(l, assignment) ? `花費 ${money(costOf(l, assignment))}` : "不需費用"} · 1 天</p><small>${assignment.id === "rest" ? "體力 +24 · 疲勞 −18" : d.group === "訓練" ? "課程效果依當日身體狀態調整" : d.group === "工作" && ACTIONS[d.action].income ? `收入 $${ACTIONS[d.action].income[0].toLocaleString()}～$${ACTIONS[d.action].income[1].toLocaleString()} · 疲勞 +${ACTIONS[d.action].fatigue}` : assignment.id === "creative" ? "疲勞 +6 · 同一週可安排多天創作" : "完成後在日誌留下今日成果"}</small></div></div><div class="panel-actions"><button data-ui="close">再想一下</button><button class="primary" data-start="${assignment.id}" ${assignment.projectId ? `data-project="${escape(assignment.projectId)}"` : ""} ${reason ? "disabled" : ""}>確認今天的安排</button></div>`,
+      `${heading("TODAY", label(assignment), reason || "確認後，這件事會佔用今天的主要行程。")}<div class="action-detail">${roomIllustration(ROOMS[d.room])}<div><b>${ROOMS[d.room].name}</b><p>${costOf(l, assignment) ? `花費 ${money(costOf(l, assignment))}` : "不需費用"} · 1 天</p><small>${assignment.id === "rest" ? "體力 +24 · 疲勞 −18" : d.group === "訓練" ? "課程效果依當日身體狀態調整" : d.group === "工作" && ACTIONS[d.action].income ? `收入 $${ACTIONS[d.action].income[0].toLocaleString()}～$${ACTIONS[d.action].income[1].toLocaleString()} · 疲勞 +${ACTIONS[d.action].fatigue}` : assignment.id === "creative" ? "疲勞 +6 · 同一週可安排多天創作" : "完成後在日誌留下今日成果"}</small></div></div><div class="panel-actions"><button data-ui="close">再想一下</button><button class="primary" data-start="${assignment.id}" data-assignment="${escape(JSON.stringify(assignment))}" ${assignment.projectId ? `data-project="${escape(assignment.projectId)}"` : ""} ${reason ? "disabled" : ""}>確認今天的安排</button></div>`,
     );
   }
   function run(assignment, auto = false) {
@@ -501,6 +501,8 @@ export function createLifeUI(api) {
     changed,
     toast,
     planDay,
+    access,
+    refresh: () => world()?.refreshFurniture(),
     buyHomeItem,
     placeHomeItem,
     buyHomeSupply,
@@ -583,9 +585,12 @@ export function createLifeUI(api) {
       return true;
     }
     if (d.start) {
+      let assignment;
+      try { assignment = JSON.parse(d.assignment); } catch { assignment = null; }
       run(
         d.start.startsWith("career_")
           ? l.plan[l.day]
+          : assignment?.id === d.start ? assignment
           : { id: d.start, ...(d.project ? { projectId: d.project } : {}) },
       );
       return true;

@@ -15,6 +15,8 @@ import {
 } from "./career.js";
 import { lockEnding } from "../logic/career.js";
 import { initialState } from "../core/state.js";
+import { homeVisitScheduleKey, normalizeHomeLife, invalidateHomeKeys } from "../core/home-state.js";
+import { homePlanReason, reserveHomeDay, releaseHomeDay, repairHomeSchedules } from "./home-schedule.js";
 import { withCore } from "./core-bridge.js";
 export { withCore } from "./core-bridge.js";
 import { randomInt, setSeed } from "../core/rng.js";
@@ -49,9 +51,6 @@ import { resolveScheduleMoment, resolveLocationMoment } from "../logic/random-ev
 import { meetNpc } from "../logic/npc-engine.js";
 import {
   completeNpcExternalSlot,
-  isNpcBusy,
-  releaseNpcExternalSlots,
-  reserveNpcExternalSlot,
 } from "../logic/npc-ecosystem.js";
 import {
   buyHomeItem as buyHomeItemCore,
@@ -191,7 +190,7 @@ export const CHOICES = {
     room: "home",
     item: "sofa",
     pose: "sit",
-    action: "home_host",
+    action: "personal_task",
   },
   home_craft: {
     label: "在家做一份心意",
@@ -199,7 +198,7 @@ export const CHOICES = {
     room: "home",
     item: "desk-seat",
     pose: "sit",
-    action: "home_craft",
+    action: "personal_task",
   },
 };
 // A destination is part of the assignment. Planning is available from day one;
@@ -348,6 +347,10 @@ export function normalizeLife(raw, legacyOutfit = "newcomer") {
   life.ledger ||= [];
   life.summaries ||= [];
   life.metChoices ||= {};
+  life.game.homeLife = normalizeHomeLife(life.game.homeLife);
+  invalidateHomeKeys(life.game);
+  repairHomeSchedules(life);
+  syncCoreSchedule(life, CHOICES);
   if (
     life.pending &&
     (life.pending.id !== actionKey(life) ||
@@ -358,7 +361,6 @@ export function normalizeLife(raw, legacyOutfit = "newcomer") {
   return life;
 }
 export const actionKey = (life) => `week-${life.game.week}-day-${life.day}`;
-const homeVisitScheduleKey = (life, day) => `pixel-home:${life.game.week}:${day}`;
 export function costOf(life, assignment) {
   const def = definition(life, assignment);
   if (CAREER_CHOICES[assignment?.id]) return careerCost(life, assignment);
@@ -367,13 +369,13 @@ export function costOf(life, assignment) {
         (def.action === "free" ? MAP_LOCATIONS[def.venue]?.extraCost || 0 : 0)
     : 0;
 }
-export function access(life, assignment, day = life.day) {
+export function access(life, assignment, day = life.day, planning = false) {
   const def = definition(life, assignment);
   if (!def) return "找不到這個安排";
   if (life.game.endingResult) return "這段旅程已完成，可在職涯紀錄查看結局";
   if (life.game.forcedRestWeek === life.game.week && assignment.id !== "rest")
     return "本週需要完整休養";
-  if (day < life.day || day > 6) return "這一天已經結束";
+  if (!Number.isInteger(day) || day < life.day || day > 6) return "這一天已經結束";
   const careerReason =
     CAREER_CHOICES[assignment.id] && careerAccess(life, assignment, day);
   if (careerReason) return careerReason;
@@ -392,19 +394,9 @@ export function access(life, assignment, day = life.day) {
   if (["home_host", "home_craft"].includes(assignment.id)) {
     const reason = homeActionAccess(game, assignment);
     if (reason) return reason;
+    const planReason = homePlanReason(life, assignment, day, planning);
+    if (planReason) return planReason;
   }
-  if (
-    assignment.id === "home_host" &&
-    withCore(life, () =>
-      isNpcBusy(
-        assignment.npcId,
-        game.week,
-        day,
-        homeVisitScheduleKey(life, day),
-      ),
-    )
-  )
-    return "對方這天已有工作，請換一天";
   if (costOf(life, assignment) > game.money)
     return "現金不足，先安排休息或已開放的工作";
   if (game.fatigue > 100 && assignment.id !== "rest")
@@ -419,27 +411,15 @@ export function planDay(life, day, assignment) {
     if (error) return error;
   }
   releaseCareerDay(life, day);
-  const scheduleKey = homeVisitScheduleKey(life, day);
-  withCore(life, () => releaseNpcExternalSlots(scheduleKey));
-  if (
-    assignment.id === "home_host" &&
-    !withCore(life, () =>
-      reserveNpcExternalSlot(assignment.npcId, {
-        key: scheduleKey,
-        week: life.game.week,
-        day,
-        label: `到${life.game.name}家裡作客`,
-      }),
-    )
-  )
-    return "對方這天臨時有其他安排，請換一天";
+  reserveHomeDay(life, assignment, day);
   life.plan[day] = structuredClone(assignment);
   syncCoreSchedule(life, CHOICES);
   return "";
 }
 export function beginDay(life, assignment = life.plan[life.day]) {
   if (life.pending) return life.pending;
-  const reason = access(life, assignment);
+  const replacing = JSON.stringify(assignment) !== JSON.stringify(life.plan[life.day]);
+  const reason = replacing ? planDay(life, life.day, assignment) : access(life, assignment);
   if (reason) return { error: reason };
   life.plan[life.day] = structuredClone(assignment);
   life.pending = {
@@ -505,15 +485,14 @@ export function settleDay(life, choice = "focus") {
       if (presentation.ok)
         completeNpcExternalSlot(
           assignment.npcId,
-          homeVisitScheduleKey(life, life.day),
+          homeVisitScheduleKey(game.week, life.day),
           game.week,
           life.day,
         );
-      else releaseNpcExternalSlots(homeVisitScheduleKey(life, life.day));
       notes.push(plain(presentation.text));
     } else if (assignment.id === "home_craft") {
-      const crafted = resolveCrafting(assignment, randomInt, game);
-      notes.push(plain(crafted.text));
+      presentation = resolveCrafting(assignment, randomInt, game);
+      notes.push(plain(presentation.text));
     } else if (ACTIONS[def.action].type === "train") {
       const r = routineTraining(game, def.action, randomInt);
       notes.push(`學習效率 ${Math.round(r.multiplier * 100)}%`);
@@ -627,6 +606,7 @@ export function settleDay(life, choice = "focus") {
       actionId: def.action,
       taskKind: assignment.id === "social" ? "social_post"
         : assignment.id === "creative" ? "creative_work"
+        : ["home_host", "home_craft"].includes(assignment.id) ? assignment.id
         : assignment.id === "career_task" ? game.scheduledActivities[assignment.taskId]?.kind : null,
       success: presentation?.ok !== false,
       text: [...notes, ...moments.map(m => `${m.title}：${m.outcome}`)].join(" "),
@@ -664,6 +644,7 @@ export function settleDay(life, choice = "focus") {
   if (life.hospitalized)
     for (let day = life.day + 1; day < 7; day++) {
       releaseCareerDay(life, day);
+      releaseHomeDay(life, day);
       life.plan[day] = { id: "rest" };
     }
   life.ledger.push(result);
@@ -696,6 +677,7 @@ export function advanceDay(life) {
 export function nextWeek(life) {
   if (life.day !== 7 || !life.weekSummary) return false;
   life.previousPlan = structuredClone(life.plan);
+  for (let day = 0; day < 7; day++) releaseHomeDay(life, day);
   advanceCareerWeek(life);
   life.day = 0;
   life.weekSummary = null;

@@ -1,5 +1,6 @@
 import { NPCS } from "../data/npcs.js";
 import { hiddenRoomOpen } from "./city-catalog.js";
+import { homeVisitScheduleKey } from "../core/home-state.js";
 const ROUTES = {
   sufei: ["rehearsal", "library", "cafe", "cinema"],
   jiqing: ["cafe", "radio", "restaurant", "tv"],
@@ -32,8 +33,34 @@ export function cityItinerary(id, elapsed, state) {
   const life = state?.life,
     week = life?.game.week || 1,
     day = Math.min(6, life?.day || 0);
+  const invitation = life?.plan[day];
+  const guest = invitation?.id === "home_host" && invitation.npcId === id;
+  const rel = life?.game.relationships?.[id];
+  if (
+    guest &&
+    life.game.knownPeople.includes(id) &&
+    (rel?.hostility || 0) < 45 &&
+    ((rel?.closeness || 0) >= 20 ||
+      ["dating", "committed", "engaged", "married"].includes(rel?.romance)) &&
+    life.game.npcSchedules?.[id]?.some(
+      (slot) =>
+        slot.jobId === homeVisitScheduleKey(week, day) &&
+        ["reserved", "completed"].includes(slot.status),
+    )
+  )
+    return {
+      scene: "home",
+      node: 0,
+      status: "在家作客",
+      busy: true,
+      leaving: false,
+    };
   const slot = life?.game.npcSchedules?.[id]?.find(
-    (x) => x.week === week && x.day === day && x.status === "reserved",
+    (x) =>
+      x.week === week &&
+      x.day === day &&
+      x.status === "reserved" &&
+      !x.jobId?.startsWith("pixel-home:"),
   );
   // A reservation wins over daily leisure; no random draw occurs on room reload.
   const t = Math.max(0, elapsed) % 240,

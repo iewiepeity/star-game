@@ -1,5 +1,6 @@
 import { appearanceValue, sourcePoint } from "./scene-objects.js";
 import { recolorCushions } from "./fabric-colors.js";
+import { paintHomeFurniture, homeFurnitureInfo } from "./home-furniture.js";
 // Runtime scene composition: remove each furniture patch from the static backdrop
 // and render it as a separate sprite. Source art stays lossless and unchanged on disk.
 // Only the current room's generated textures are retained.
@@ -12,6 +13,11 @@ export function createFurnitureLayers(scene, room, sourceImage, state) {
   };
   const background = make("furniture-background", 960, 640),
     ctx = background.context;
+  const homeSource =
+    state().sceneId === "home"
+      ? make("furniture-home-source", 1536, 1024)
+      : null;
+  const image = homeSource ? homeSource.canvas : sourceImage;
   const crop = room.crop || [0, 0, 1536, 1024],
     r = room.rect;
   ctx.drawImage(sourceImage, ...crop, r.x, r.y, r.width, r.height);
@@ -56,6 +62,28 @@ export function createFurnitureLayers(scene, room, sourceImage, state) {
   }
   background.refresh();
   function refresh() {
+    if (homeSource) {
+      homeSource.context.clearRect(0, 0, 1536, 1024);
+      homeSource.context.drawImage(sourceImage, 0, 0);
+      paintHomeFurniture(homeSource.context, state().life?.game.homeLife);
+      homeSource.refresh();
+      ctx.clearRect(0, 0, 960, 640);
+      ctx.drawImage(image, ...crop, r.x, r.y, r.width, r.height);
+      for (const { texture, x, y, path } of sprites) {
+        ctx.save();
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.translate(x + texture.width / 2, y + texture.height / 2);
+        ctx.scale(
+          Math.max(0.9, (texture.width - 2) / texture.width),
+          Math.max(0.9, (texture.height - 2) / texture.height),
+        );
+        ctx.translate(-x - texture.width / 2, -y - texture.height / 2);
+        path(ctx);
+        ctx.fill();
+        ctx.restore();
+      }
+      background.refresh();
+    }
     for (const entry of sprites) {
       const { item, texture, x, y, path } = entry,
         c = texture.context,
@@ -65,7 +93,7 @@ export function createFurnitureLayers(scene, room, sourceImage, state) {
       c.save();
       path(c, x, y);
       c.clip();
-      c.drawImage(sourceImage, ...crop, r.x - x, r.y - y, r.width, r.height);
+      c.drawImage(image, ...crop, r.x - x, r.y - y, r.width, r.height);
       const value = appearanceValue(state(), state().sceneId, item);
       const poly = (points, color) => {
         c.fillStyle = color;
@@ -127,7 +155,13 @@ export function createFurnitureLayers(scene, room, sourceImage, state) {
           ],
           "#8f6846",
         );
-      } else if (item.appearance === "blinds" && value === "closed") {
+      } else if (
+        item.appearance === "blinds" &&
+        value === "closed" &&
+        (!homeSource ||
+          state().life?.game.homeLife?.placedFurniture.window ===
+            "starter_blinds")
+      ) {
         poly(
           [
             [755, 112],
@@ -196,6 +230,7 @@ export function createFurnitureLayers(scene, room, sourceImage, state) {
   refresh();
   return {
     backgroundKey: "furniture-background",
+    sourceKey: homeSource ? "furniture-home-source" : null,
     refresh,
     dispose() {
       for (const key of keys)
@@ -205,6 +240,10 @@ export function createFurnitureLayers(scene, room, sourceImage, state) {
       sprites.map(({ item }) => ({
         id: item.id,
         value: appearanceValue(state(), state().sceneId, item),
+        home:
+          state().sceneId === "home"
+            ? homeFurnitureInfo(state().life?.game.homeLife, item.id)
+            : null,
       })),
   };
 }

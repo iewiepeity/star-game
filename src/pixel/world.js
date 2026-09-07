@@ -159,7 +159,7 @@ export function createWorld(controller) {
           .image(0, 0, this.furniture.backgroundKey)
           .setOrigin(0)
           .setDepth(depth);
-      const key = roomAssetKey(this.room),
+      const key = this.furniture?.sourceKey || roomAssetKey(this.room),
         texture = this.textures.get(key),
         id = controller.state().sceneId;
       if (this.room.crop && !texture.has(id))

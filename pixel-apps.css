@@ -8,30 +8,30 @@
 /* Home life: a compact dollhouse view backed by saved furniture slots. */
 .home-life-tabs { display:flex; gap:6px; margin:0 0 16px; overflow-x:auto; }
 .home-life-tabs button { flex:1 0 auto; min-height:40px; padding:8px 12px; border:1px solid var(--ui-edge); background:var(--ui-paper); color:var(--ui-ink); font:inherit; }
-.home-life-tabs button[aria-pressed="true"] { background:var(--ui-accent-soft); box-shadow:inset 0 -3px 0 var(--ui-accent); }
-.home-life-note { padding:12px 14px; border-left:3px solid var(--ui-accent); background:var(--ui-paper-soft); color:var(--ui-muted); line-height:1.7; }
-.home-room-preview { margin-bottom:18px; padding:14px; border:2px solid var(--ui-edge); background:var(--ui-paper-soft); }
+.home-life-tabs button[aria-pressed="true"] { background:var(--ui-tint); box-shadow:inset 0 -3px 0 var(--ui-accent); }
+.home-life-note { padding:12px 14px; border-left:3px solid var(--ui-accent); background:var(--ui-soft); color:var(--ui-muted); line-height:1.7; }
+.home-room-preview { margin-bottom:18px; padding:14px; border:2px solid var(--ui-edge); background:var(--ui-soft); }
 .home-room-preview > p { margin:12px 0 0; color:var(--ui-muted); font-size:13px; }
 .home-room-mini { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
 .home-room-mini > div { min-height:110px; display:grid; align-content:center; justify-items:center; gap:4px; padding:9px; border:1px solid var(--ui-edge); background:var(--ui-paper); text-align:center; }
-.home-room-mini small,.home-room-mini b { font-size:11px; }
+.home-room-mini small,.home-room-mini b { font-size:12px; }
 .home-room-mini i { font-size:28px; color:var(--ui-accent); font-style:normal; }
 .home-catalog { display:grid; gap:18px; }
 .home-catalog section > h3,.home-finished h3 { margin:0 0 8px; font-size:15px; }
 .home-catalog article,.home-recipe-grid article,.home-finished article,.keepsake-grid article,.home-key-list article { display:grid; grid-template-columns:42px minmax(0,1fr) auto; gap:10px; align-items:center; padding:11px; border:1px solid var(--ui-edge); background:var(--ui-paper); }
 .home-catalog article + article,.home-finished article + article,.home-key-list article + article { margin-top:7px; }
-.home-catalog article > i,.home-recipe-grid article > i,.keepsake-grid article > i { display:grid; place-items:center; width:38px; height:38px; background:var(--ui-accent-soft); color:var(--ui-accent); font-size:21px; font-style:normal; }
+.home-catalog article > i,.home-recipe-grid article > i,.keepsake-grid article > i { display:grid; place-items:center; width:38px; height:38px; background:var(--ui-tint); color:var(--ui-accent); font-size:21px; font-style:normal; }
 .home-catalog article b,.home-catalog article small,.home-recipe-grid article b,.home-recipe-grid article small,.keepsake-grid article b,.keepsake-grid article small,.home-key-list article b,.home-key-list article small { display:block; }
 .home-catalog article small,.home-recipe-grid article small,.keepsake-grid article small,.home-key-list article small { color:var(--ui-muted); line-height:1.5; }
 .home-contact-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
 .home-contact-grid article { display:grid; grid-template-columns:54px minmax(0,1fr); gap:10px; padding:12px; border:1px solid var(--ui-edge); background:var(--ui-paper); }
-.home-contact-grid img,.home-key-list img,.home-gift-person img { width:52px; height:62px; object-fit:cover; object-position:center top; background:var(--ui-paper-soft); }
+.home-contact-grid img,.home-key-list img,.home-gift-person img { width:52px; height:62px; object-fit:cover; object-position:center top; background:var(--ui-soft); }
 .home-visit-actions { grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr; gap:6px; }
 .home-visit-actions button { min-height:38px; }
 .home-day-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
 .home-day-grid button { min-height:70px; }
 .home-day-grid b,.home-day-grid small { display:block; }
-.home-materials { padding:14px; border:1px solid var(--ui-edge); background:var(--ui-paper-soft); }
+.home-materials { padding:14px; border:1px solid var(--ui-edge); background:var(--ui-soft); }
 .home-materials header { display:flex; justify-content:space-between; gap:12px; }
 .home-materials > div { display:flex; flex-wrap:wrap; gap:7px; }
 .home-recipe-grid,.keepsake-grid { display:grid; gap:8px; margin:14px 0; }

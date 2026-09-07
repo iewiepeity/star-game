@@ -1,4 +1,5 @@
 import { state } from "../core/state.js";
+import { invalidateHomeKeys } from "../core/home-state.js";
 import { NPCS } from "../data/npcs.js";
 import {
   ROMANCE_ROUTES,
@@ -270,6 +271,7 @@ export function transitionRomance(id, next, source = "關係事件") {
     };
   const before = current;
   rel.romance = next;
+  invalidateHomeKeys(state);
   rel.romanceSinceWeek = state.week;
   if (next === "dating") {
     state.partnerId = id;

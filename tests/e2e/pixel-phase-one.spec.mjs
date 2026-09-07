@@ -171,7 +171,7 @@ test("unified menu, camera drag and bottom dialogue checkpoint remain usable", a
   await expect(page.locator("#week-control")).toBeVisible();
   await expect(page.getByRole("button", { name: "查看我的角色" })).toBeVisible();
   await menu(page);
-  await expect(page.locator(".command-menu button")).toHaveCount(8);
+  await expect(page.locator(".command-menu button")).toHaveCount(9);
   await page.locator('[data-ui="settings"]').click();
   await page.getByRole("button", { name: "放大場景" }).click();
   await close(page);

@@ -5,6 +5,7 @@ import {
   canReturnHome,
 } from "./scene-objects.js";
 import { setupPixelOffline } from "./offline.js";
+import { homeFurnitureInfo } from "./home-furniture.js";
 import { tutorialMarkup, dismissTutorial } from "./tutorial-ui.js";
 import {
   configureAudioPreferences,
@@ -578,11 +579,12 @@ function selectObject(item) {
   inspectObject(item);
 }
 function inspectObject(item) {
-  const definition = APPEARANCES[item.appearance],
+  const furnishing = state.sceneId === "home" && homeFurnitureInfo(state.life?.game.homeLife, item.id);
+  const definition = furnishing && item.appearance === "blinds" && furnishing.itemId !== "starter_blinds" ? null : APPEARANCES[item.appearance],
     value = appearanceValue(state, state.sceneId, item);
   show(
     "scene-object",
-    `${heading("", item.name)}<p>${escape(item.response)}</p>${
+    `${heading("", furnishing?.name || item.name)}<p>${escape(furnishing ? furnishing.keepsakeName ? `牆上展示著「${furnishing.keepsakeName}」。` : `這是你選擇的${furnishing.name}。可以在居家生活更換布置。` : item.response)}</p>${
       definition
         ? `<p class="object-state" role="status">${definition.labels[value]}</p><div class="object-options">${Object.entries(
             definition.choices,
