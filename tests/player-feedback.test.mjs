@@ -220,19 +220,21 @@ test("論壇過期文章退到歷史區、真實新事件置頂，刷新不偽�
   state.week = 60;
   state.weekResults = [];
   state.industryNews = [];
-  assert.equal(allThreads().length, 0);
+  const communityIds = allThreads().map(thread => thread.id);
+  assert.equal(communityIds.length, 5);
+  assert.ok(communityIds.every(id => id.startsWith("community-")));
   state.industryNews = [
     { id: "old", week: 1, title: "舊作品", body: "old" },
     { id: "new", week: 60, title: "新作品", body: "new" },
   ];
   assert.deepEqual(
     allThreads().map((t) => t.id),
-    ["news-new"],
+    ["news-new", ...communityIds],
   );
   state.forumRefresh += 3;
   assert.deepEqual(
     allThreads().map((t) => t.id),
-    ["news-new"],
+    ["news-new", ...communityIds],
   );
   state.forumArchive = true;
   assert.ok(allThreads().some((t) => t.id === "news-old"));

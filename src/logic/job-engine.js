@@ -42,6 +42,7 @@ import {
 import { managerAuditionModifier } from "./manager.js";
 import { jobStoryline } from "../data/job-storylines.js";
 import { jobProductionFrames } from "../data/job-production-scenes.js";
+import { continuingJobScene } from "../data/job-session-scenes.js";
 import { attachJobCrew, recordCrewOutcome } from "./playable-depth-engine.js";
 import {
   availableChoices,
@@ -620,11 +621,15 @@ export function completeJobSession(id, choice = null) {
     completed = record.remainingSessions === 0,
     story = jobStoryline(id),
     frames = jobProductionFrames(job, record, { completed }),
-    scene = frames.at(-1) || {
-      label: "持續製作",
-      title: `${titleTag(job.title)}・第 ${record.completedSessions} 次工作`,
-      text: `今天依上次確認的版本繼續製作，逐項修正銜接與細節。${job.category === "歌曲" ? "你核對聲音的進出位置，再聽一次接點。" : job.category === "綜藝" ? "你核對流程提示，確認每段接續的人都收到最新安排。" : job.category === "廣告" ? "你重新確認產品與人物的位置，讓不同素材能接成同一套畫面。" : "你比對前後場次的狀態，沒有把不同拍攝日演成彼此無關的片段。"}`,
-    };
+    scene = frames.at(-1) || continuingJobScene(job, record,
+      Object.values(state.activeJobs).flatMap((item) => item.continuationHistory || [])
+        .sort((a, b) => a.week - b.week || a.day - b.day),
+    );
+  if (!frames.length) {
+    record.continuationHistory ??= [];
+    record.continuationHistory.push({ sceneId: scene.id, week: state.week, day: state.runnerDay || 0, session: record.completedSessions });
+    record.continuationHistory = record.continuationHistory.slice(-24);
+  }
   const sceneMarkup = (frames.length ? frames : [scene])
     .map(
       (beat) =>

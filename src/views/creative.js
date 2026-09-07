@@ -72,7 +72,7 @@ function actionArea(p, companies) {
     return `<div class="creative-actions"><button data-creative-release="${projectId}">安排正式發行 →</button></div>`;
   return "";
 }
-function projectCard(p) {
+function projectCard(p, collapsedProjectIds) {
   const def = CREATIVE_TYPES[p.type],
     meta = CREATIVE_META[p.type],
     directions = CREATIVE_DIRECTIONS[p.type],
@@ -85,8 +85,10 @@ function projectCard(p) {
     ),
     company = INDUSTRY_LIST.find((c) => c.id === p.acceptedCompanyId),
     step = phase(p);
-  const story = CREATIVE_DIRECTION_STORIES[p.type]?.[p.direction], projectId = esc(p.id);
-  return `<article class="creative-card"><header><i>${meta.icon}</i><div><span>${def.label}</span><h3>${esc(p.title)}</h3></div><em>${STATUS[p.status] || p.status}</em></header><div class="creative-direction"><span>創作方向</span><div>${Object.entries(
+  const story = CREATIVE_DIRECTION_STORIES[p.type]?.[p.direction], projectId = esc(p.id),
+    completed = ["released", "sold"].includes(p.status),
+    collapsed = completed && collapsedProjectIds?.has(p.id);
+  return `<article class="creative-card" data-creative-project="${projectId}"><header><i>${meta.icon}</i><div><span>${def.label}</span><h3>${esc(p.title)}</h3></div><em>${STATUS[p.status] || p.status}</em>${completed && collapsedProjectIds ? `<button class="creative-collapse" data-creative-toggle="${projectId}" aria-expanded="${!collapsed}" aria-controls="creative-details-${projectId}">${collapsed ? "展開作品" : "縮起作品"}</button>` : ""}</header><div class="creative-card-details" id="creative-details-${projectId}" ${collapsed ? "hidden" : ""}><div class="creative-direction"><span>創作方向</span><div>${Object.entries(
     directions,
   )
     .map(
@@ -95,12 +97,13 @@ function projectCard(p) {
     )
     .join(
       "",
-    )}</div><p>目前核心：<b>${esc(direction.label)}</b>・${esc(direction.note)}</p></div>${story ? `<section class="creative-story-map"><div><small>草稿會怎麼不同</small><p>${esc(story.development)}</p></div><div><small>製作現場</small><p>${esc(story.production)}</p></div><div><small>發行後</small><p>${esc(story.release)}</p></div><footer><b>優勢：${esc(story.strength)}</b><em>風險：${esc(story.risk)}</em></footer></section>` : ""}<div class="creative-phase" data-scroll-key="creative-phase">${["草稿", "投稿", "簽約", "製作", "發行", "完成"].map((x, i) => `<span class="${i < step ? "done" : ""}"><i></i>${x}</span>`).join("")}</div><div class="creative-meters"><div><span>創作完成度 <b>${p.progress}%</b></span><i><b style="width:${p.progress}%"></b></i></div><div><span>作品品質 <b>${p.quality}</b></span><i><b style="width:${Math.min(100, p.quality / 10)}%"></b></i></div><div><span>修改次數</span><strong>${p.revisions} 次</strong></div></div>${["contracted", "production", "ready_release", "released"].includes(p.status) ? `<div class="creative-production-status"><span>合作方 <b>${esc(p.distributionMode === "independent" ? "自主製作" : company?.name || "-")}</b></span><span>製作進度 <b>${p.productionProgress || 0}%</b></span><span>工作次數 <b>${p.productionSessions || 0}/${p.requiredProductionSessions || def.baseSessions}</b></span></div>` : ""}${teamPanel(p)}${p.status === "released" ? `<div class="creative-release-result"><b>${"★".repeat(p.finalGrade?.stars || 1)} ${p.finalGrade?.grade || "-"}級・市場評分 ${p.marketScore}</b><span>${esc(direction.label)}・${p.distributionMode === "independent" ? "自主發行／完整持有" : "公司共同製作"}・收入 ${money(p.revenue || 0)}</span><p>${esc(story?.release || "作品正式與觀眾見面。")}</p></div>` : ""}${p.status === "sold" ? `<div class="creative-release-result sold"><b>${p.finalGrade?.grade || "-"}級企劃・售價 ${money(p.saleValue || 0)}</b><span>權利售予 ${esc(company?.name || "公司")}；後續成品不再由你主導</span></div>` : ""}${actionArea(p, companies)}${p.submissions?.length ? `<p class="creative-history">${p.submissions.map((s) => `${INDUSTRY_LIST.find((c) => c.id === s.companyId)?.name}：${s.result === "accepted" ? "採用" : "退件"}`).join("・")}</p>` : ""}</article>`;
+    )}</div><p>目前核心：<b>${esc(direction.label)}</b>・${esc(direction.note)}</p></div>${story ? `<section class="creative-story-map"><div><small>草稿會怎麼不同</small><p>${esc(story.development)}</p></div><div><small>製作現場</small><p>${esc(story.production)}</p></div><div><small>發行後</small><p>${esc(story.release)}</p></div><footer><b>優勢：${esc(story.strength)}</b><em>風險：${esc(story.risk)}</em></footer></section>` : ""}<div class="creative-phase" data-scroll-key="creative-phase">${["草稿", "投稿", "簽約", "製作", "發行", "完成"].map((x, i) => `<span class="${i < step ? "done" : ""}"><i></i>${x}</span>`).join("")}</div><div class="creative-meters"><div><span>創作完成度 <b>${p.progress}%</b></span><i><b style="width:${p.progress}%"></b></i></div><div><span>作品品質 <b>${p.quality}</b></span><i><b style="width:${Math.min(100, p.quality / 10)}%"></b></i></div><div><span>修改次數</span><strong>${p.revisions} 次</strong></div></div>${["contracted", "production", "ready_release", "released"].includes(p.status) ? `<div class="creative-production-status"><span>合作方 <b>${esc(p.distributionMode === "independent" ? "自主製作" : company?.name || "-")}</b></span><span>製作進度 <b>${p.productionProgress || 0}%</b></span><span>工作次數 <b>${p.productionSessions || 0}/${p.requiredProductionSessions || def.baseSessions}</b></span></div>` : ""}${teamPanel(p)}${p.status === "released" ? `<div class="creative-release-result"><b>${"★".repeat(p.finalGrade?.stars || 1)} ${p.finalGrade?.grade || "-"}級・市場評分 ${p.marketScore}</b><span>${esc(direction.label)}・${p.distributionMode === "independent" ? "自主發行／完整持有" : "公司共同製作"}・收入 ${money(p.revenue || 0)}</span><p>${esc(story?.release || "作品正式與觀眾見面。")}</p></div>` : ""}${p.status === "sold" ? `<div class="creative-release-result sold"><b>${p.finalGrade?.grade || "-"}級企劃・售價 ${money(p.saleValue || 0)}</b><span>權利售予 ${esc(company?.name || "公司")}；後續成品不再由你主導</span></div>` : ""}${actionArea(p, companies)}${p.submissions?.length ? `<p class="creative-history">${p.submissions.map((s) => `${INDUSTRY_LIST.find((c) => c.id === s.companyId)?.name}：${s.result === "accepted" ? "採用" : "退件"}`).join("・")}</p>` : ""}</div></article>`;
 }
-export function creativeApp() {
+export function creativeApp({ collapsedProjectIds = null } = {}) {
   const projects = state.creativeProjects || [],
-    released = projects.filter((p) => p.status === "released").length;
-  return `<div class="creative-page"><header class="creative-hero"><div><span>CREATIVE STUDIO</span><h2>把靈感做成真正的作品</h2><p>每次創作、投稿與製作都會占用一天。從草稿到正式發行，每一步都會留下履歷。</p></div><dl><div><dt>進行企劃</dt><dd>${projects.length}</dd></div><div><dt>已發行</dt><dd>${released}</dd></div><div><dt>投稿窗口</dt><dd>${state.discoveredCompanies.length}</dd></div></dl></header><nav class="creative-workflow">${["01 靈感草稿", "02 完成創作", "03 產業投稿", "04 簽約製作", "05 正式發行", "06 市場回響"].map((x) => `<span>${x}</span>`).join("")}</nav><section class="creative-launcher"><header><span>NEW PROJECT</span><h3>建立新的原創企劃</h3><p>先替作品命名，再選擇要開始的創作類型。</p></header><label class="creative-title-field" for="creative-title"><span>作品名稱</span><input id="creative-title" type="text" maxlength="30" autocomplete="off" value="${esc(state.creativeDraftTitle||"")}" placeholder="輸入作品名稱……"></label><div class="creative-type-grid">${Object.entries(
+    released = projects.filter((p) => p.status === "released").length,
+    active = projects.filter((p) => !["released", "sold"].includes(p.status)).length;
+  return `<div class="creative-page"><header class="creative-hero"><div><span>CREATIVE STUDIO</span><h2>把靈感做成真正的作品</h2><p>每次創作、投稿與製作都會占用一天。從草稿到正式發行，每一步都會留下履歷。</p></div><dl><div><dt>進行企劃</dt><dd>${active}</dd></div><div><dt>已發行</dt><dd>${released}</dd></div><div><dt>投稿窗口</dt><dd>${state.discoveredCompanies.length}</dd></div></dl></header><nav class="creative-workflow">${["01 靈感草稿", "02 完成創作", "03 產業投稿", "04 簽約製作", "05 正式發行", "06 市場回響"].map((x) => `<span>${x}</span>`).join("")}</nav><section class="creative-launcher"><header><span>NEW PROJECT</span><h3>建立新的原創企劃</h3><p>先替作品命名，再選擇要開始的創作類型。</p></header><label class="creative-title-field" for="creative-title"><span>作品名稱</span><input id="creative-title" type="text" maxlength="30" autocomplete="off" value="${esc(state.creativeDraftTitle||"")}" placeholder="輸入作品名稱……"></label><div class="creative-type-grid">${Object.entries(
     CREATIVE_TYPES,
   )
     .map(([id, d]) => {
@@ -109,5 +112,5 @@ export function creativeApp() {
     })
     .join(
       "",
-    )}</div></section><section class="creative-projects"><header><span>MY PROJECTS</span><h3>作品企劃室</h3></header>${projects.length ? projects.map(projectCard).join("") : `<div class="creative-empty"><i>✎</i><b>桌上還沒有任何企劃</b><p>從一首 Demo、一份劇本或節目企劃開始。先不用完美，先讓它存在。</p></div>`}</section></div>`;
+    )}</div></section><section class="creative-projects"><header><span>MY PROJECTS</span><h3>作品企劃室</h3></header>${projects.length ? projects.map((p) => projectCard(p, collapsedProjectIds)).join("") : `<div class="creative-empty"><i>✎</i><b>桌上還沒有任何企劃</b><p>從一首 Demo、一份劇本或節目企劃開始。先不用完美，先讓它存在。</p></div>`}</section></div>`;
 }

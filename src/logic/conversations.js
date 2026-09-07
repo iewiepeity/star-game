@@ -1,5 +1,6 @@
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
+import { NPC_CONTACT_STORIES } from "../data/npc-contact-stories.js";
 
 export const CONTACT_TOPICS = {
   day: { label: "聊近況", text: "今天過得怎麼樣？忙完的話，想聽聽你的近況。" },
@@ -15,8 +16,8 @@ export const CONTACT_TOPICS = {
 export function contactReply(id, topic) {
   const npc = NPCS[id],
     rel = state.relationships[id] || {};
+  if (!npc) return undefined;
   const close = (rel.closeness || 0) >= 40;
-  const variation = (state.week + Object.keys(NPCS).indexOf(id)) % 3;
   const replies = {
     day: close
       ? [
@@ -46,7 +47,14 @@ export function contactReply(id, topic) {
           "收到，今天會早點休息。你也照顧好自己。",
         ],
   };
-  return replies[topic]?.[variation];
+  const pool = [...(NPC_CONTACT_STORIES[id]?.[topic] || []), ...(replies[topic] || [])];
+  if (!pool.length) return undefined;
+  const history = (state.npcMessages || []).filter(message => message.npcId === id).map(message => message.text || message.message || message.label).filter(text => typeof text === "string");
+  // Read-only selection: a preview is stable; only a sent reply advances the
+  // least-recently-used order through the existing saved message history.
+  const lastSeen = text => history.findLastIndex(message => message === text || message.startsWith(`${text} `));
+  return pool.find(text => lastSeen(text) === -1) ||
+    [...pool].sort((a, b) => lastSeen(a) - lastSeen(b))[0];
 }
 export function conversationMessages(id) {
   if (!NPCS[id] || !state.knownPeople.includes(id)) return [];

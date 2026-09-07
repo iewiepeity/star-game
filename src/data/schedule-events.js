@@ -1,8 +1,11 @@
-// 每種可排行程至少五則額外日常事件。基礎課程／工作成果仍由 runner.js 結算，
+import { TRAINING_MOMENTS } from "./training-moments.js";
+
+// 每種可排行程至少五則額外日常事件，九種訓練各有二十則。
+// 基礎課程／工作成果仍由 runner.js 結算，
 // 這裡只提供當天的變化與小幅修正，讓重複排行程不會永遠看到同一句話。
 const e=(title,text,outcome,effect={})=>Object.freeze({title,text,outcome,effect});
 
-export const SCHEDULE_EVENTS=Object.freeze({
+const BASE_SCHEDULE_EVENTS=Object.freeze({
  tv_assistant:[
   e("道具標籤","交班簿寫著「紅色杯子」，架上卻有兩只：一隻可盛水，一隻是空心道具。棚內已在催。","你請道具組補註用途，再把兩張標籤朝外。少搬一趟，比跑得快更有用。", {hidden:"自律"}),
   e("來賓走錯棚","來賓拿著昨天寄出的通知單，問你第三棚怎麼今天在錄購物節目。","你對照新版通告，先報出窗口姓名再帶路。對方終於肯放下快撥出的抱怨電話。", {stat:"口才",value:1}),
@@ -172,5 +175,15 @@ export const SCHEDULE_EVENTS=Object.freeze({
   e("離場禮貌","離場時，協助報到的人還在一邊接電話、一邊替下一位候選找會議室。","你收好資料，等他抬頭再道謝。面談結束了，對人的態度不用跟著收場。",{rep:"業界評價"})
  ]
 });
+
+// Preserve the original course's effect distribution: three added cycles of
+// authored moments bring variety without changing its stat/recovery balance.
+export const SCHEDULE_EVENTS = Object.freeze(Object.fromEntries(
+  Object.entries(BASE_SCHEDULE_EVENTS).map(([kind, events]) => [kind, Object.freeze([
+    ...events,
+    ...(TRAINING_MOMENTS[kind] || []).map(([title, text, outcome], index) =>
+      e(title, text, outcome, events[index % events.length].effect)),
+  ])]),
+));
 
 export function scheduleEventCount(){return Object.values(SCHEDULE_EVENTS).reduce((sum,list)=>sum+list.length,0)}
