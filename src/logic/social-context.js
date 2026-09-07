@@ -1,3 +1,4 @@
+import { normalizeWorkEchoes } from "./work-echoes.js";
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
 import { NPC_SOCIAL_COPY } from "../data/social.js";
@@ -19,6 +20,8 @@ export function npcSocialPost(id, game = state) {
       "那張彼此同意分享的照片留住了一小段相處。不是每句話都需要寫出來，有些就好好放在那天。",
     ], id, game.week),
   };
+  const workEcho = [...normalizeWorkEchoes(game.workEchoes).records].reverse().find(r => r.npcId === id && r.npcText && r.publishedWeek >= game.week - 1);
+  if (workEcho) return { ...post, id: `npc-${id}-${workEcho.id}`, workId: workEcho.workId, topic: "release", text: workEcho.npcText };
   const shared = [...(game.completedWorks || [])]
     .reverse()
     .find(x => x.npcCast?.includes(id) && x.completedWeek === game.week);

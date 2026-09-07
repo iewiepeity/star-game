@@ -1,3 +1,4 @@
+import { normalizeWorkEchoes } from "./work-echoes.js";
 import { titleTag } from "../core/utils.js";
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
@@ -16,6 +17,11 @@ function push(item) {
 }
 export function generateIndustryNews({ awards = [], npcUpdates = [] } = {}) {
   const made = [];
+  for (const echo of normalizeWorkEchoes(state.workEchoes).records) {
+    if (echo.publishedWeek !== state.week) continue;
+    const item = { key: echo.id, workId: echo.workId, category: "作品", subject: "player", title: echo.publicTitle || echo.title, body: echo.publicText || echo.text, heat: 85, replies: echo.replies };
+    if (push(item)) made.push(item);
+  }
   // A dated editorial gives quiet weeks something to read. Zero heat preserves gameplay balance:
   // this is a column about the industry, not an invented success or a popularity boost for the player.
   const column = INDUSTRY_COLUMNS[(Math.max(1, state.week) - 1) % INDUSTRY_COLUMNS.length];

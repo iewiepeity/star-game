@@ -7,6 +7,8 @@ import {
   ROMANCE_STAGE_BY_ID,
 } from "../data/romance.js";
 import { NPC_ROMANCE_STATUS } from "../data/romance-scenes.js";
+import { narrativePreferences } from "./narrative-preferences.js";
+import { canInitiateMemoryContact } from "./character-memory.js";
 
 function relationshipMessage(id, kind, text) {
   if (!text) return;
@@ -357,7 +359,9 @@ export function breakUp(id, source = "主動分手") {
 }
 
 export function tickRomanceRelationships() {
-  const updates = [];
+  const updates = [], preferences = narrativePreferences();
+  const noticeInterval = { low: 12, normal: 8, high: 6 }[preferences.romanceFrequency] || 8;
+  const conflictInterval = { gentle: 4, normal: 2, dramatic: 1 }[preferences.conflictIntensity] || 2;
   for (const id of state.knownPeople || []) {
     const rel = ensureRomanceFields(id),
       idle = Math.max(0, state.week - (rel.lastInteractionWeek || state.week));
@@ -365,8 +369,10 @@ export function tickRomanceRelationships() {
       adjustAffection(id, -1, "長時間沒有聯絡");
     if (
       PARTNER_STAGES.has(rel.romance) &&
+      preferences.romanceFrequency !== "off" &&
+      canInitiateMemoryContact(id) &&
       idle >= 8 &&
-      state.week - (rel.lastNeglectNoticeWeek || 0) >= 8
+      state.week - (rel.lastNeglectNoticeWeek || 0) >= noticeInterval
     ) {
       rel.lastNeglectNoticeWeek = state.week;
       state.npcMessages.push({
@@ -385,7 +391,10 @@ export function tickRomanceRelationships() {
       PARTNER_STAGES.has(rel.romance)
     ) {
       rel.trust = Math.max(0, rel.trust - 1);
-      updates.push(`${NPCS[id].name}也受到公開戀情與輿論壓力影響`);
+      if (preferences.romanceFrequency !== "off" && state.week - (rel.lastPublicPressureNoticeWeek || 0) >= conflictInterval) {
+        rel.lastPublicPressureNoticeWeek = state.week;
+        updates.push(`${NPCS[id].name}也受到公開戀情與輿論壓力影響`);
+      }
     }
   }
   return updates;

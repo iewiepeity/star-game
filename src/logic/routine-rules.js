@@ -1,4 +1,5 @@
 // Shared by the classic runner and the pixel world's daily transactions.
+import { trainingSkill, recordTrainingPractice } from "./training-narrative.js";
 import { ACTIONS } from "../data/actions.js";
 import {
   applyActivityLoad,
@@ -29,9 +30,11 @@ export function routineRest(game) {
 export function routineTraining(game, id, roll) {
   const action = ACTIONS[id],
     multiplier = performanceMultiplier("training", game);
+  const beforeSkill = trainingSkill(id, game);
   const cost = effectiveActionCost(action, game.week);
   applyActivityLoad({ ...action, cost }, game);
   const gains = routineGains(game, action.gains, roll, multiplier);
   game.trainingSessionsCompleted = (game.trainingSessionsCompleted || 0) + 1;
+  recordTrainingPractice(game, id, beforeSkill, gains, multiplier);
   return { cost, gains, multiplier };
 }

@@ -3,6 +3,7 @@ import { NPCS } from "../data/npcs.js";
 import { adjustRelationship } from "./npc-engine.js";
 import { CONTACT_TOPICS, contactReply } from "./conversations.js";
 import { recallCityMemory } from "./city-life.js";
+import { memoryContactText, noteCharacterInteraction, canInitiateMemoryContact } from "./character-memory.js";
 export function shortContact(id, type = "message", topic = null, draft = null) {
   if (
     !NPCS[id] ||
@@ -37,8 +38,10 @@ export function shortContact(id, type = "message", topic = null, draft = null) {
         : topic;
   const memory = replyTopic !== "work" && recallCityMemory(id);
   const recentReplies = (state.npcMessages || []).filter(message => message.npcId === id).slice(-12);
-  const text = (memory && !recentReplies.some(message => message.text === memory) && memory) ||
+  const keptPromise = noteCharacterInteraction(id, replyTopic || "day");
+  const base = (memory && !recentReplies.some(message => message.text === memory) && memory) ||
     contactReply(id, replyTopic || "day");
+  const text = `${memoryContactText(id, replyTopic || "day", base)}${keptPromise ? ` ${keptPromise}` : ""}`;
   adjustRelationship(id, {
     closeness: 1,
     trust: 1,
@@ -82,6 +85,7 @@ export function queueShortCheckIn() {
   const people = (state.knownPeople || []).filter(
     (id) =>
       NPCS[id] &&
+      canInitiateMemoryContact(id) &&
       (state.relationships[id]?.closeness || 0) >= 20 &&
       (state.relationships[id]?.hostility || 0) < 20,
   );
@@ -94,7 +98,7 @@ export function queueShortCheckIn() {
     week: state.week,
     title: "有空再回就好",
     text:
-      contactReply(npcId, "day") +
+      memoryContactText(npcId, "day", contactReply(npcId, "day")) +
       " 有空傳個訊息就好，不用特地空下一天。",
     source: "short-contact",
     read: false,

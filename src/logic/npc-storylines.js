@@ -6,6 +6,8 @@ import { romanceOpportunity } from "./romance-engine.js";
 import { enqueueVisibleEvent } from "./event-engine.js";
 import { NPC_ARCS } from "../data/npc-arc-events.js";
 import { NPC_ROMANCE_SCENES } from "../data/romance-scenes.js";
+import { narrativePreferences } from "./narrative-preferences.js";
+import { canInitiateMemoryContact } from "./character-memory.js";
 const STAGE_COPY = {
   acquaintance: {
     title: "關係開始有了名字",
@@ -193,6 +195,7 @@ function romanceOfferKey(id, rel) {
 }
 export function queueNpcStoryEvents() {
   state.npcStoryHistory ??= [];
+  const preferences = narrativePreferences(), romanceInterval = { low: 6, normal: 3, high: 1 }[preferences.romanceFrequency] || 3;
   const queued = [],
     ranks = ["acquaintance", "familiar", "friend", "confidant", "bonded"];
   for (const id of state.knownPeople || []) {
@@ -202,7 +205,9 @@ export function queueNpcStoryEvents() {
     const npc = { ...sourceNpc, id };
     const stage = relationshipStage(rel).id,
       copy = STAGE_COPY[stage],
-      opportunity = romanceOpportunity(id),
+      latestRomanceWeek = Math.max(0, ...(state.eventHistory || []).filter(item => item.id?.startsWith(`npc-romance-${id}:`) || item.id?.startsWith(`romance-daily:${id}:`)).map(item => Number(item.week) || 0)),
+      canOfferRomance = preferences.romanceFrequency !== "off" && canInitiateMemoryContact(id) && (!latestRomanceWeek || state.week - latestRomanceWeek >= romanceInterval),
+      opportunity = canOfferRomance ? romanceOpportunity(id) : null,
       romance = opportunity && NPC_ROMANCE_SCENES[id]?.[opportunity.from];
     if (copy) {
       const key = `${id}:stage:${stage}`;

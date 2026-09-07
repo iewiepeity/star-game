@@ -1,4 +1,17 @@
+import {
+  normalizePersonalStories,
+  normalizeRomanceDaily,
+} from "./personal-stories-state.js";
 import { normalizeCityLife } from "./city-life-state.js";
+import { normalizeCharacterMemories } from "./character-memory-state.js";
+import {
+  normalizeNarrativeSettings,
+  normalizeRoutineNarrativeHistory,
+} from "./narrative-settings-state.js";
+import { normalizeTrainingProgress } from "./training-narrative-state.js";
+import { normalizeAgencyAgreements } from "./agency-agreement-state.js";
+import { normalizeWorkEchoes } from "./work-echo-state.js";
+
 const canonical = (value) =>
   JSON.stringify(value, (_, item) =>
     item && !Array.isArray(item) && typeof item === "object"
@@ -93,6 +106,23 @@ export function validateGameState(s) {
       canonical(s.cityLife) !== canonical(normalizeCityLife(s.cityLife)))
   )
     errors.push("cityLife 無效；請先遷移並驗證城市生活資料");
+  // New narrative fields are optional in older saves and canonical after hydration.
+  for (const [key, normalize] of Object.entries({
+    personalStories: normalizePersonalStories,
+    romanceDaily: normalizeRomanceDaily,
+    characterMemories: normalizeCharacterMemories,
+    narrativeSettings: normalizeNarrativeSettings,
+    routineNarrativeHistory: normalizeRoutineNarrativeHistory,
+    trainingNarrativeProgress: normalizeTrainingProgress,
+    agencyAgreements: normalizeAgencyAgreements,
+    workEchoes: normalizeWorkEchoes,
+  })) {
+    if (
+      s[key] !== undefined &&
+      canonical(s[key]) !== canonical(normalize(s[key]))
+    )
+      errors.push(`${key} 無效；請先整理敘事存檔資料`);
+  }
   for (const [key, [min, max]] of Object.entries(numericFields))
     if (!finite(s[key], min, max)) errors.push(`${key} 無效`);
   if (!Number.isInteger(s.week)) errors.push("week 必須是整數");

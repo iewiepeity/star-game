@@ -4,6 +4,9 @@ import{state}from"../core/state.js";
 import{random}from"../core/utils.js";
 import{applyEffects,classifyEvent,eligibleEvents}from"./event-engine.js";
 
+import { trainingLessonMoment } from "./training-narrative.js";
+import { routineWasRead } from "./narrative-preferences.js";
+
 function choose(kind,key,pool){
  if(!pool?.length)return null;
  const historyKey=`${kind}:${key}`,last=state.randomEventHistory?.[historyKey];
@@ -29,9 +32,11 @@ function choose(kind,key,pool){
 }
 
 function applyMoment(event){
+ const readBefore=routineWasRead(event,state);
  const effects=applyEffects(event.effect,event.title);
- state.eventHistory.push({week:state.week,kind:classifyEvent(event),title:event.title,outcome:event.outcome,effects});
- return {kind:classifyEvent(event),title:event.title,text:event.text,outcome:event.outcome,effects};
+ const moment={id:event.id,kind:classifyEvent(event),title:event.title,text:event.text,outcome:event.outcome,effects,routine:true,readBefore,important:!!event.important||!!event.effect?.npc,hasChoices:!!event.choices?.length,followUp:!!event.followUp,training:event.training};
+ state.eventHistory.push({week:state.week,...moment});
+ return moment;
 }
 
 function renderEvent(event){
@@ -50,7 +55,7 @@ export function resolveScheduleMoment(actionId){
  let event=pending?.kind==="schedule"&&pending.key===actionId?SCHEDULE_EVENTS[actionId]?.[pending.index]:null;
  if(!event)event=choose("schedule",actionId,SCHEDULE_EVENTS[actionId]);
  state.pendingRandomEvent=null;
- return event?applyMoment(event):null;
+ return event?applyMoment(trainingLessonMoment(actionId,event)):null;
 }
 
 export function resolveLocationMoment(locationId,choice){

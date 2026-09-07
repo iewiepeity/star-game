@@ -1,3 +1,4 @@
+import { normalizeNarrativeSettings, narrativeText } from "../logic/narrative-preferences.js";
 import { createPixelStorage as createStorage } from "./storage.js";
 import {
   APPEARANCES,
@@ -277,7 +278,7 @@ function releaseNotes() {
 function settings() {
   show(
     "settings",
-    `${heading("YOUR LITTLE WORLD", "照自己的步調")}${settingsMarkup({ theme: preferences.get().theme, speed: state.life.speed, paused, preferences: preferences.get() })}`,
+    `${heading("YOUR LITTLE WORLD", "照自己的步調")}${settingsMarkup({ theme: preferences.get().theme, speed: state.life.speed, paused, preferences: preferences.get(), narrativeSettings: state.life.game.narrativeSettings })}`,
   );
 }
 function clinic() {
@@ -543,32 +544,35 @@ function narrate({
   context,
   contextNote,
   readerKey,
+  onRead,
 }) {
   leaveOverlay();
   panelType = "career-dialogue";
   $("toast").classList.remove("visible");
   clearTimeout(toastTimer);
-  const blocks = String(text)
-    .replace(/<[^>]*>/g, " ")
-    .split(/(?<=[。！？])\s*/)
-    .filter(Boolean);
-  const pages = [];
-  for (const part of blocks) {
-    if (!pages.length || pages.at(-1).length + part.length > 155)
-      pages.push(part);
-    else pages[pages.length - 1] += part;
+  const fullText = String(text).replace(/<[^>]*>/g, " ");
+  const conciseText = narrativeText(fullText, state.life.game);
+  let expanded = false;
+  let pages = [], index = 0, key;
+  function preparePages() {
+    const blocks = (expanded ? fullText : conciseText).split(/(?<=[。！？])\s*/).filter(Boolean);
+    pages = [];
+    for (const part of blocks) {
+      if (!pages.length || pages.at(-1).length + part.length > 155) pages.push(part);
+      else pages[pages.length - 1] += part;
+    }
+    if (!pages.length) pages.push("……");
+    key = `${readerKey || `${state.life.game.week}-${state.life.day}-${title}`}:${expanded ? "full" : state.life.game.narrativeSettings?.textMode || "full"}`;
+    index = state.life.reader?.key === key ? Math.min(pages.length - 1, state.life.reader.index) : 0;
   }
-  if (!pages.length) pages.push("……");
-  const key = readerKey || `${state.life.game.week}-${state.life.day}-${title}`;
-  let index =
-    state.life.reader?.key === key
-      ? Math.min(pages.length - 1, state.life.reader.index)
-      : 0;
+  preparePages();
   function page() {
     state.life.reader = { key, index };
+    if (index === pages.length - 1) onRead?.();
     checkpoint();
     $("dialogue").innerHTML =
-      `<div class="conversation career-conversation ${face ? "" : "no-portrait"}">${face ? `<figure class="dialogue-portrait ${portraitKind === "player" ? "player-crop" : "npc-crop"}"><img src="${face}" alt="${portraitKind === "player" ? escape(state.playerName) + "的" : ""}肩上肖像"></figure>` : ""}<div class="speech">${context ? `<p class="story-context">${escape(context)}${contextNote ? `<small>${escape(contextNote)}</small>` : ""}</p>` : ""}${art ? `<img class="story-art" src="${art}" alt="故事插畫">` : ""}<div class="dialogue-heading"><h2 id="dialogue-name">${escape(title)}</h2>${pages.length > 1 ? `<small>${index + 1} / ${pages.length}</small>` : ""}</div><p>${escape(pages[index])}</p><div class="choices" data-choice-count="${index < pages.length - 1 ? 1 : choices.length}">${index < pages.length - 1 ? '<button class="primary" id="career-page-next">繼續 →</button>' : choices.map((c) => `<button ${c.attrs}><span class="choice-label">${escape(c.label)}</span>${c.note ? `<small>${escape(c.note)}</small>` : ""}</button>`).join("")}</div></div><div class="dialogue-tools"><button data-ui="saves" aria-label="保存故事進度">存檔</button></div></div>`;
+      `<div class="conversation career-conversation ${face ? "" : "no-portrait"}">${face ? `<figure class="dialogue-portrait ${portraitKind === "player" ? "player-crop" : "npc-crop"}"><img src="${face}" alt="${portraitKind === "player" ? escape(state.playerName) + "的" : ""}肩上肖像"></figure>` : ""}<div class="speech">${context ? `<p class="story-context">${escape(context)}${contextNote ? `<small>${escape(contextNote)}</small>` : ""}</p>` : ""}${art ? `<img class="story-art" src="${art}" alt="故事插畫">` : ""}<div class="dialogue-heading"><h2 id="dialogue-name">${escape(title)}</h2>${pages.length > 1 ? `<small>${index + 1} / ${pages.length}</small>` : ""}</div><p>${escape(pages[index])}</p>${conciseText !== fullText.trim() ? `<button id="career-text-expand" aria-expanded="${expanded}">${expanded ? "回到精簡" : "閱讀完整文本"}</button>` : ""}<div class="choices" data-choice-count="${index < pages.length - 1 ? 1 : choices.length}">${index < pages.length - 1 ? '<button class="primary" id="career-page-next">繼續 →</button>' : choices.map((c) => `<button ${c.attrs}><span class="choice-label">${escape(c.label)}</span>${c.note ? `<small>${escape(c.note)}</small>` : ""}</button>`).join("")}</div></div><div class="dialogue-tools"><button data-ui="saves" aria-label="保存故事進度">存檔</button></div></div>`;
+    $("career-text-expand")?.addEventListener("click", () => { expanded = !expanded; preparePages(); page(); });
     $("career-page-next")?.addEventListener("click", () => {
       index++;
       page();
@@ -984,6 +988,13 @@ document.addEventListener("click", async (event) => {
     preferences.set("tutorials", true);
     checkpoint();
     help();
+    return;
+  }
+  if (target.dataset.narrativePref) {
+    const d = target.dataset, value = ["skipReadRoutine", "storyReminders"].includes(d.narrativePref) ? d.value === "true" : d.value;
+    state.life.game.narrativeSettings = normalizeNarrativeSettings({ ...state.life.game.narrativeSettings, [d.narrativePref]: value });
+    checkpoint();
+    settings();
     return;
   }
   if (target.dataset.pixelPref) {

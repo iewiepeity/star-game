@@ -1,7 +1,10 @@
+import { normalizeNarrativeSettings } from "../core/narrative-settings-state.js";
 import { PIXEL_VERSION, RELEASE_NOTES } from "./release-notes.js";
 import { THEMES } from "./preferences.js";
 import { menuIcon } from "./menu-icons.js";
-export function settingsMarkup({ theme, speed, paused, preferences = {} }) {
+export function settingsMarkup({ theme, speed, paused, preferences = {}, narrativeSettings = {} }) {
+  const narrative = normalizeNarrativeSettings(narrativeSettings);
+  const options = (key, entries) => `<div class="speed-options" role="group">${entries.map(([value, label]) => `<button data-narrative-pref="${key}" data-value="${value}" aria-pressed="${narrative[key] === value}">${label}</button>`).join("")}</div>`;
   return `<div class="preference-studio">
     <section class="version-summary" aria-label="目前版本"><div><span>你正在玩的版本</span><strong>像素版 v${PIXEL_VERSION}</strong><small>星望市施工日誌，歡迎翻閱。</small></div><button data-ui="release-notes">版本更新紀錄 <span aria-hidden="true">▸</span></button></section>
     <section class="preference-section"><header><h3>今天，想用什麼顏色？</h3><span>即時套用 · 這台裝置會記住</span></header>
@@ -9,6 +12,14 @@ export function settingsMarkup({ theme, speed, paused, preferences = {} }) {
     <section class="preference-section"><header><h3>遊玩節奏</h3><span>重要的選擇，仍會停下來等你</span></header>
       <div class="playback-setting"><div><b>演出速度</b><small>只調整播放速度，成果相同</small></div><div class="speed-options" role="group" aria-label="演出速度">${[1, 2, 4, 8, 16].map((n) => `<button data-set-speed="${n}" aria-pressed="${speed === n}">${n}×</button>`).join("")}</div></div>
       <div class="setting-pair"><button class="setting-action" data-ui="pause" id="pause" aria-label="${paused ? "繼續世界" : "暫停世界"}"><i>${paused ? "▷" : "Ⅱ"}</i><span><b>${paused ? "繼續世界" : "暫停世界"}</b><small>${paused ? "準備好，繼續生活" : "讓所有人歇一下"}</small></span></button><div class="camera-setting"><span>場景鏡頭</span><div><button data-ui="zoom-out" aria-label="縮小場景">−</button><button data-ui="center" aria-label="鏡頭回到主角">${menuIcon("profile")}</button><button data-ui="zoom-in" aria-label="放大場景">＋</button></div></div></div>
+    </section>
+    <section class="preference-section" aria-label="故事與日常"><header><h3>故事與日常</h3><span>跟著這份旅程保存</span></header>
+      <div class="playback-setting"><div><b>敘事長度</b><small>精簡時仍可展開全文，選項與成果完整保留</small></div>${options("textMode", [["full", "完整"], ["concise", "精簡"]])}</div>
+      <div class="playback-setting"><div><b>已讀日常快速略過</b><small>只略過讀過的相同日常；新選擇、故事後續與重要成果仍會停下</small></div>${options("skipReadRoutine", [[false, "關閉"], [true, "開啟"]])}</div>
+      <div class="playback-setting"><div><b>戀愛日常頻率</b><small>調整日常相處與主動邀約，已建立的關係仍保留</small></div>${options("romanceFrequency", [["off", "暫停"], ["low", "偶爾"], ["normal", "平常"], ["high", "常常"]])}</div>
+      <div class="playback-setting"><div><b>戲劇強度</b><small>調整主動日常的衝突程度，重要故事與自己的選擇仍會繼續</small></div>${options("conflictIntensity", [["gentle", "溫和"], ["normal", "平常"], ["dramatic", "濃厚"]])}</div>
+      <div class="playback-setting"><div><b>重要人物故事提醒</b><small>關閉只收起額外提醒，不會移除故事與選擇</small></div>${options("storyReminders", [[true, "開啟"], [false, "關閉"]])}</div>
+      <div class="buttons"><button data-life="narrative-history">翻閱完整日常記錄</button></div>
     </section>
     <section class="preference-section"><header><h3>閱讀與聲音</h3><span>這台裝置的偏好</span></header>
     <div class="font-options" role="group" aria-label="文字大小">${[

@@ -1,0 +1,125 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { initialState, hydrateState, state } from "../src/core/state.js";
+import { validateGameState } from "../src/core/save-schema.js";
+import { personalStoryEvent, pausePersonalStory, resumePersonalStory } from "../src/logic/personal-stories.js";
+import { resolveEvent, enqueueVisibleEvent, prunePersonalStoryEvents } from "../src/logic/event-engine.js";
+import { advanceWorldWeek } from "../src/logic/world-tick.js";
+import { characterMemory } from "../src/logic/character-memory.js";
+import { setSeed } from "../src/core/rng.js";
+import { timelineApp } from "../src/views/timeline.js";
+const fresh = () => {
+  const game = initialState();
+  game.week = 10; game.screen = "game";
+  game.knownPeople = ["sufei"];
+  game.relationships.sufei = { closeness: 40, trust: 40, affection: 10, hostility: 0, romance: "none" };
+  hydrateState(game); setSeed("living-stories");
+};
+test("四章人物故事經正式事件結算保存分支、記憶及完整文字，舊快照不再給獎勵", () => {
+  fresh();
+  let previous;
+  for (let chapter = 0; chapter < 4; chapter++) {
+    const event = personalStoryEvent("sufei");
+    assert.ok(event);
+    const result = resolveEvent(event, chapter === 2 ? "invitation" : "accompany");
+    assert.ok(result);
+    assert.equal(state.personalStories.sufei.chapter, chapter + 1);
+    assert.equal(state.eventHistory.at(-1).text, event.text);
+    assert.equal(characterMemory("sufei").shared.length, chapter + 1);
+    const after = structuredClone(state.relationships);
+    assert.equal(resolveEvent(event, "advise"), null);
+    assert.deepEqual(state.relationships, after);
+    assert.equal(personalStoryEvent("sufei"), null);
+    previous = event;
+    hydrateState(structuredClone(state));
+    assert.equal(validateGameState(state).ok, true, validateGameState(state).errors.join("\n"));
+    state.week++;
+  }
+  assert.equal(state.personalStories.sufei.status, "completed");
+  assert.ok(state.personalStories.sufei.ending);
+  assert.equal(resolveEvent(previous, "accompany"), null);
+  assert.match(timelineApp(), /閱讀完整事件/);
+});
+test("暫放會撤下舊佇列、恢復保留原章，逾時仍沒有扣分或催趕", () => {
+  fresh();
+  const event = personalStoryEvent("sufei"), before = structuredClone(state.relationships);
+  enqueueVisibleEvent(event, "人物連續故事");
+  assert.equal(pausePersonalStory("sufei").ok, true);
+  prunePersonalStoryEvents();
+  assert.equal(state.eventQueue.length, 0);
+  assert.equal(resolveEvent(event, "accompany"), null);
+  state.week += 52;
+  assert.equal(personalStoryEvent("sufei"), null);
+  assert.deepEqual(state.relationships, before);
+  hydrateState(structuredClone(state));
+  resumePersonalStory("sufei");
+  const resumed = personalStoryEvent("sufei");
+  assert.equal(resumed.personalStory.chapter, 0);
+  assert.notEqual(resumed.id, event.id);
+  assert.ok(resolveEvent(resumed, "advise"));
+});
+test("週推進會排人物故事；關閉額外提醒仍保留故事候選", () => {
+  fresh();
+  state.narrativeSettings.storyReminders = false;
+  const result = advanceWorldWeek();
+  assert.ok(result.personalStories.some(id => id.startsWith("personal-story:sufei")));
+  assert.equal(state.npcMessages.some(item => item.source === "personal-story-reminder"), false);
+  fresh();
+  advanceWorldWeek();
+  assert.equal(state.npcMessages.filter(item => item.source === "personal-story-reminder").length, 1);
+});
+test("敘事新欄位舊檔補值、壞資料拒絕，正常讀檔保留已讀與偏好", () => {
+  fresh();
+  const old = structuredClone(state);
+  const fields = ["personalStories", "romanceDaily", "characterMemories", "narrativeSettings", "routineNarrativeHistory", "trainingNarrativeProgress", "agencyAgreements", "workEchoes"];
+  for (const key of fields) delete old[key];
+  hydrateState(old);
+  assert.equal(validateGameState(state).ok, true);
+  assert.equal(state.narrativeSettings.textMode, "full");
+  for (const key of fields) {
+    const damaged = structuredClone(state);
+    damaged[key] = 19;
+    assert.equal(validateGameState(damaged).ok, false, key);
+  }
+  state.narrativeSettings.textMode = "concise";
+  state.routineNarrativeHistory = ["routine:read-before"];
+  hydrateState(structuredClone(state));
+  assert.equal(state.narrativeSettings.textMode, "concise");
+  assert.deepEqual(state.routineNarrativeHistory, ["routine:read-before"]);
+});
+test("已排入的未答邀約在送達與點選前重新尊重私人空間", async () => {
+  const { tellCharacterMemory } = await import("../src/logic/character-memory.js");
+  const { tickNpcInvitation } = await import("../src/logic/lived-story-engine.js");
+  const { processQueuedEvents, activateNextEvent } = await import("../src/logic/event-engine.js");
+  fresh(); state.week = 26;
+  tellCharacterMemory("sufei", "notice", "advance");
+  const id = tickNpcInvitation();
+  const event = state.queuedEvents.find(item => item.event.id === id).event;
+  tellCharacterMemory("sufei", "space", "ask");
+  state.week++;
+  const before = structuredClone(state.relationships);
+  processQueuedEvents();
+  assert.equal(activateNextEvent(), null);
+  assert.equal(state.queuedEvents.find(item => item.event.id === id).dueWeek, 30);
+  assert.equal(resolveEvent(event, "accept"), null);
+  assert.deepEqual(state.relationships, before);
+  assert.equal(state.eventHistory.some(item => item.id === id), false);
+  state.week = 30;
+  processQueuedEvents();
+  assert.equal(activateNextEvent().event.id, id);
+});
+test("自動戀愛日常也會提前詢問，後來提出的私人空間仍可延後", async () => {
+  const { tellCharacterMemory, memoryInvitationDeferral } = await import("../src/logic/character-memory.js");
+  fresh();
+  state.partnerId = "sufei";
+  state.relationships.sufei.romance = "dating";
+  tellCharacterMemory("sufei", "notice", "advance");
+  advanceWorldWeek();
+  const item = state.queuedEvents.find(item => item.event.personalStory?.kind === "romanceDaily");
+  assert.ok(item);
+  assert.equal(item.dueWeek, state.week + 1);
+  assert.equal(item.event.memoryInitiated, true);
+  tellCharacterMemory("sufei", "space", "ask");
+  assert.ok(memoryInvitationDeferral(item.event) >= state.week + 4);
+  assert.equal(memoryInvitationDeferral({ ...item.event, memoryInitiated: false }), null);
+});

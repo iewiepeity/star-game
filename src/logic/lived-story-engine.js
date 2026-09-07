@@ -4,7 +4,10 @@ import { NPCS } from "../data/npcs.js";
 import { NPC_INVITATION_POOLS } from "../data/invitation-content.js";
 import { NPC_RELATION_EDGES } from "../data/npc-network.js";
 import { ENSEMBLE_STORIES } from "../data/ensemble-story-content.js";
-import { enqueueVisibleEvent } from "./event-engine.js";
+import { queueEvent, enqueueVisibleEvent } from "./event-engine.js";
+
+import { characterMemory, canInitiateMemoryContact } from "./character-memory.js";
+import { narrativePreferences } from "./narrative-preferences.js";
 
 const INVITATIONS=Object.freeze({
  jiqing:{place:"深夜節目收播後的便利商店",ask:"她想找一個不用主持、也不用替任何人圓場的晚上。",detail:"她把耳機收進包裡，問的不是你最近紅不紅，而是你有多久沒有好好吃完一頓飯。"},
@@ -46,22 +49,28 @@ function referenceText(){
 
 export function tickNpcInvitation(){
  if(state.week<18||state.week%8!==2)return null;
- const known=(state.knownPeople||[]).filter(id=>NPC_INVITATION_POOLS[id]);
+ const known=(state.knownPeople||[]).filter(id=>NPC_INVITATION_POOLS[id]&&canInitiateMemoryContact(id)&&characterMemory(id).disclosure!=="guarded");
  if(!known.length)return null;
  const npcId=known[Math.floor(state.week/8)%known.length],npc=NPCS[npcId],type=invitationType(npcId),def=NPC_INVITATION_POOLS[npcId][type]||INVITATIONS[npcId];
  const id=`invitation:${npcId}:${state.week}`;
  if((state.npcInvitationHistory||[]).some(x=>x.id===id))return null;
  const romance=state.relationships?.[npcId]?.romance;
  const intimate=["dating","committed","engaged","married"].includes(romance);
- enqueueVisibleEvent({id,kind:intimate?"戀愛邀約":"人物邀約",priority:82,maxDelayWeeks:4,title:`${npc.name}・不是工作行程`,text:def.ask,cast:[npcId],beats:[
-  {label:"一則不是公事的訊息",text:`地點是${def.place}。${def.ask}`},
+ const prefs=narrativePreferences(), memory=characterMemory(npcId);
+ if((type==="conflict"&&prefs.conflictIntensity==="gentle")||(intimate&&(prefs.romanceFrequency==="off"||(prefs.romanceFrequency==="low"&&state.week%16!==2))))return null;
+ const advance=memory.boundaries.notice==="advance";
+ const invitation={id,kind:intimate?"戀愛邀約":"人物邀約",priority:82,maxDelayWeeks:4,title:`${npc.name}・不是工作行程`,text:advance?`上週已提前問過你的空檔，${npc.name}今天再確認你是否願意見面。${def.ask}`:def.ask,cast:[npcId],beats:[
+  {label:"一則不是公事的訊息",text:`${advance?"這是上週先詢問過的邀約。":""}地點是${def.place}。${def.ask}` },
   {label:"你抵達之後",text:def.detail},
   {label:"被帶進今天的過去",text:referenceText()},
  ],choices:[
   {id:"accept",label:"把今晚完整留給對方",note:"接受邀約；關係與共同記憶會前進。",outcome:`你沒有把這次見面塞進下一個行程中間。離開${def.place}時，對方知道自己被真正選擇過一次。`,effect:{npc:npcId,relation:5,trust:5,affection:intimate?5:2,invitation:{id,npcId,response:"accept",label:"接受邀約"}}},
   {id:"reschedule",label:"坦白今天做不到，但親自約定另一個時間",note:"不會立刻加深關係；數週後會出現改期後續。",outcome:"你沒有用『再看看』敷衍。新的日期被確實寫進兩個人的行事曆。",effect:{npc:npcId,trust:2,invitation:{id,npcId,response:"reschedule",label:"主動改期"}},followUp:{delayWeeks:2,event:{id:`${id}:rescheduled`,kind:"人物後續",title:`${npc.name}・被履行的改期`,text:`兩週後，你真的出現在${def.place}。對方沒有說謝謝，只把原本替你留的位置往外拉了一點。`,beats:[{label:"不是客套的下次",text:"被改期的邀請沒有消失，因為你讓承諾成為一個能抵達的日期。"}],outcome:"準時出現本身，成為比補償更可靠的回答。",effect:{npc:npcId,relation:4,trust:7,affection:intimate?4:1}}}},
   {id:"decline",label:"直接說現在不想赴約",note:"誠實拒絕；不消耗時間，但對方會記得這次距離。",outcome:"你沒有編造藉口。對方收回邀請，也重新理解你們現在能靠近到哪裡。",effect:{npc:npcId,relation:-2,trust:1,affection:-2,invitation:{id,npcId,response:"decline",label:"坦白拒絕"}}},
- ]},"NPC 主動邀約");
+ ]};
+ const queued=advance?queueEvent(invitation,{source:"NPC 主動邀約",dueWeek:state.week+1}):enqueueVisibleEvent(invitation,"NPC 主動邀約");
+ if(!queued||queued==="expired")return null;
+ if(advance){state.npcMessages??=[];state.npcMessages.push({id:`${id}:advance`,npcId,week:state.week,source:"invitation-notice",text:`我記得你希望提前問。下一週想邀你到${def.place}；到時候再確認，不方便也可以先放著。`,read:false})}
  state.npcInvitationHistory.push({id,npcId,week:state.week,response:"pending",title:def.place,type});
  return id;
 }

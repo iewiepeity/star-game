@@ -1,3 +1,4 @@
+import { normalizeWorkEchoes } from "./work-echoes.js";
 import { FORUM_THREADS, FORUM_HANDLES } from "../data/forum.js";
 import { state } from "../core/state.js";
 import { weeklyForumThreads, communityHash, weeklyCopy } from "./community-rotation.js";
@@ -56,7 +57,7 @@ function playerThread(latest) {
   };
 }
 function newsThreads() {
-  return (state.industryNews || []).slice(0, 12).map((n) => ({
+  return (state.industryNews || []).filter(n => !n.key?.startsWith("work-echo:")).slice(0, 12).map((n) => ({
     id: `news-${n.id}`,
     week: n.week || 1,
     category: n.category === "歌曲" ? "音樂" : n.category === "綜藝" ? "綜藝" : n.category === "獎項" || n.category === "圈內" ? "熱門" : "作品",
@@ -100,6 +101,7 @@ export function allThreads() {
       ]
     : [];
   const threads = [
+    ...normalizeWorkEchoes(state.workEchoes).records.map(r => ({ id: r.id, workId: r.workId, week: r.publishedWeek, category: "作品", title: r.publicTitle || r.title, author: "作品後續觀察", body: r.publicText || r.text, heat: 88, replies: r.replies })),
     ...echoThreads(),
     ...newsThreads(),
     ...player,

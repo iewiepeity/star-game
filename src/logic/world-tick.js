@@ -1,3 +1,8 @@
+import { characterMemory } from "./character-memory.js";
+import { tickPersonalStories } from "./personal-stories.js";
+import { narrativePreferences } from "./narrative-preferences.js";
+import { tickAgencyAgreements } from "./agency-agreements.js";
+import { tickWorkEchoes } from "./work-echoes.js";
 import { titleTag } from "../core/utils.js";
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
@@ -5,7 +10,7 @@ import { checkAgencyContractExpiry } from "./agency.js";
 import { refreshAgencyJobOffers } from "./agency-offers.js";
 import { checkJobDeadlines } from "./job-engine.js";
 import { recordCareerRoute } from "./career.js";
-import { processQueuedEvents, enqueueVisibleEvent } from "./event-engine.js";
+import { processQueuedEvents, enqueueVisibleEvent, queueEvent } from "./event-engine.js";
 import { resolveDueAwardSeasons } from "./portfolio.js";
 import { enqueueCalendarEvents } from "./calendar-events.js";
 import { tickNpcCareers } from "./npc-ecosystem.js";
@@ -75,12 +80,14 @@ export function advanceWorldWeek() {
   cleanupActivities();
   cleanupNpcAutonomousSchedules();
   checkAgencyContractExpiry();
+  tickAgencyAgreements();
   const breached = checkJobDeadlines();
   const awards = resolveDueAwardSeasons();
   queueAwardCeremony(awards);
   const market = tickWorldMarket();
   const rivalUpdates = tickCompetitors();
   const workUpdates = tickWorkLifecycles();
+  tickWorkEchoes();
   const npcGrowth = tickNpcCareers();
   const npcWork = syncNpcAutonomousWork();
   const npcRelationUpdates = tickNpcRelationshipDynamics();
@@ -99,6 +106,20 @@ export function advanceWorldWeek() {
   const fandom = syncFandom();
   const calendar = enqueueCalendarEvents();
   const npcStories = queueNpcStoryEvents();
+  const personalStories = [];
+  for (const event of tickPersonalStories()) {
+    const daily = event.personalStory?.kind === "romanceDaily", npcId = event.personalStory?.npcId;
+    if (daily) event.memoryInitiated = true;
+    const advanceNotice = daily && characterMemory(npcId).boundaries.notice === "advance";
+    const queued = advanceNotice ? queueEvent(event, { source: "戀愛日常", dueWeek: state.week + 1 }) : enqueueVisibleEvent(event, daily ? "戀愛日常" : "人物連續故事");
+    if (!queued || queued === "expired") continue;
+    personalStories.push(event.id);
+    if (advanceNotice) state.npcMessages.push({ id: `${event.id}:advance`, npcId, week: state.week, source: "invitation-notice", title: "先問下一週的空檔", text: "我記得你希望提前問。下一週想留一段普通的相處時間，等你確認有空再慢慢安排。", read: false });
+    if (event.personalStory?.kind === "personal" && narrativePreferences().storyReminders) {
+      const npcId = event.personalStory.npcId;
+      state.npcMessages.push({ id: `${event.id}:reminder`, npcId, week: state.week, source: "personal-story-reminder", title: "有空再接著聊", text: `${NPCS[npcId].name}有段近況想慢慢聊。${event.title}已放進後續；想先保留，也可以到人物檔案暫放。`, read: false });
+    }
+  }
   const proactive = tickNpcProactiveEvents();
   const media = maybeQueueMediaEvent();
   const sequel = tickSequelOpportunities();
@@ -111,5 +132,5 @@ export function advanceWorldWeek() {
   const playableDepth = tickPlayableDepth();
   // 新產生的跨週回聲／章節事件同一週就能進入可見佇列，而不是再多等一週。
   const due = processQueuedEvents();
-  return { breached, awards, market, npcUpdates: visibleNpcUpdates, worldNpcUpdates: npcUpdates, rumorUpdates, news, opinion, scandal, persona, fandom, due, calendar, npcStories, proactive, media, sequel, worldEvent, hiddenRoute, careerPhase, crossEvent, deepening, playableDepth };
+  return { breached, awards, market, npcUpdates: visibleNpcUpdates, worldNpcUpdates: npcUpdates, rumorUpdates, news, opinion, scandal, persona, fandom, due, calendar, npcStories, personalStories, proactive, media, sequel, worldEvent, hiddenRoute, careerPhase, crossEvent, deepening, playableDepth };
 }

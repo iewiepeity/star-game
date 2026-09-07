@@ -1,3 +1,4 @@
+import { narrativePreferences } from "./narrative-preferences.js";
 import { titleTag } from "../core/utils.js";
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
@@ -224,7 +225,10 @@ function tickNpcLongform() {
   return id;
 }
 
-function tickRomanceFlavor() {
+export function tickRomanceFlavor() {
+  const prefs = narrativePreferences();
+  if (prefs.romanceFrequency === "off") return null;
+  const interval = { low: 8, normal: 4, high: 2 }[prefs.romanceFrequency];
   const npcId = state.partnerId;
   if (!npcId || !(state.knownPeople || []).includes(npcId)) return null;
   const stage = state.relationships?.[npcId]?.romance;
@@ -233,7 +237,7 @@ function tickRomanceFlavor() {
   if (!pool?.length) return null;
   const previous = state.romanceFlavorState[npcId] || {};
   const changed = previous.stage !== stage;
-  if (!changed && state.week - (previous.week || 0) < 4) return null;
+  if (previous.week === state.week || (!changed && state.week - (previous.week || 0) < interval)) return null;
   const candidates = pool.map((text, index) => ({ id: `romance:${npcId}:${stage}:${index}`, text, index }));
   const selected = leastExposed(candidates);
   const index = selected.index;

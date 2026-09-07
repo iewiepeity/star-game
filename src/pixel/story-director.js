@@ -1,3 +1,4 @@
+import { narrativePreferences } from "../logic/narrative-preferences.js";
 import { storyScene } from "./story-scenes.js";
 import { NPCS } from "../data/npcs.js";
 import { ROOMS, activityAllowed } from "./data.js";
@@ -87,7 +88,7 @@ export function createStoryDirector(api) {
         st.phase === "reply"
           ? "手機 · 新的邀約"
           : `${ROOMS[st.plan.room].name} · ${st.plan.names}`,
-      contextNote: note,
+      contextNote: [note, narrativePreferences(life().game).storyReminders && ["ready", "reply"].includes(st.phase) ? "人物故事有了新的進展，這次回應會留在旅程裡。" : ""].filter(Boolean).join(" · "),
       readerKey: `${st.id}:${st.phase}:${st.beat}`,
     });
   }

@@ -1,3 +1,4 @@
+import { workEchoAuditionBonus, consumeWorkEchoOpportunity, activeWorkEchoOpportunity } from "./work-echoes.js";
 import { auditionResultCard } from "../views/audition-result.js";
 import { canAccessJob } from "./industry.js";
 import { jobExperienceTier } from "./work-progression.js";
@@ -345,6 +346,7 @@ export function applyForJob(id) {
   record.sourceType = access.source.type;
   record.referrerId = access.source.referrerId || null;
   record.sourceAgencyId = access.source.agencyId || null;
+  record.sourceWorkId = access.source.sourceWorkId || activeWorkEchoOpportunity(job.id)?.workId || null;
   record.stage = "applied";
   record.appliedWeek = state.week;
   record.notice = `已登記「${role.label}」試鏡。`;
@@ -424,6 +426,7 @@ function baseAuditionChance(job, choice = "steady") {
           competitionPressure(job.category) +
           brandAuditionModifier(job.client) +
           managerAuditionModifier(job) +
+          workEchoAuditionBonus(job.id) +
           scandalMarketPenalty() +
           role.auditionModifier +
           (choice === "steady" ? 8 : -3),
@@ -464,6 +467,7 @@ export function resolveAudition(id, choice) {
     story = jobStoryline(id);
   record.stage = passed ? "passed" : "failed";
   record.lastAuditionWeek = state.week;
+  consumeWorkEchoOpportunity(job.id);
   record.auditionActivityId = null;
   record.auditionChoice = choice;
   record.notice = passed
@@ -685,6 +689,7 @@ export function completeJobSession(id, choice = null) {
     npcCast: record.npcCast,
     role,
   });
+  if (record.sourceWorkId) work.originWorkId = record.sourceWorkId;
   work.storyChoice =
     ["signature", "breakthrough", "protect"].find((choice) =>
       state.eventFlags.includes(`flagship:${job.id}:${choice}`),
@@ -721,7 +726,7 @@ export function completeJobSession(id, choice = null) {
     scenes: frames,
     encounter: encounters[0] || null,
     encounters,
-    text: `${sceneMarkup}<section class="job-production-story finale"><strong>${echo || "這份作品記住了你一路做出的選擇。"}</strong></section><aside class="job-session-progress">${perSession.join("、")}・${role.label}・品質 ${quality}<br>實領 ${income.net}・知名度＋${fameGain}・粉絲＋${fanGain}</aside>`,
+    text: `${sceneMarkup}<section class="job-production-story finale"><strong>${echo || "這份作品記住了你一路做出的選擇。"}</strong></section><aside class="job-session-progress">${perSession.join("、")}・${role.label}・品質 ${quality}<br>實領 ${income.net}・知名度＋${fameGain}・粉絲＋${fanGain + (work.agencyPromotion?.fansBonus || 0)}${work.agencyPromotion ? `（含公司宣傳 ${work.agencyPromotion.fansBonus}）` : ""}</aside>`,
   };
 }
 export function checkJobDeadlines() {

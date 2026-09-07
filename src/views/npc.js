@@ -1,4 +1,6 @@
+import { personalStoryPanel, personalStoryReminder } from "./personal-stories.js";
 import { npcInvitationPanel } from "./npc-invitation.js";
+import { characterMemoryPanel } from "./character-memory.js";
 import { NPCS } from "../data/npcs.js";
 import { NPC_INTERACTIONS } from "../data/npc-network.js";
 import { state } from "../core/state.js";
@@ -204,11 +206,13 @@ export function npcApp() {
   const careerCard = `<article class="npc-career-card"><small>職涯近況・${esc(npc.special ? npc.job : career.field)}</small><h3>${trendLabel(career.trend)}</h3><p>近期作品 ${career.works}・獎項 ${career.awards}</p><small>擅長領域：${career.specialties.map(esc).join("、") || "跨領域"}</small></article>`;
   const content = {
     overview:
-      relationship +
+      relationship + personalStoryReminder(current) +
       `<div class="npc-overview-cards">${careerCard}<article class="npc-memory-card"><small>初次相遇・第 ${meeting.week} 週</small><p>${esc(meeting.title)}</p><button data-npc-profile-tab="memories">翻翻共同回憶 →</button></article></div>`,
     relationship: `<section class="npc-relationship-actions"><h3>把關係放進生活裡</h3><p>${esc(routeHint(current, rel))}</p>${npcInvitationPanel(current)}<div class="npc-actions">${interactionButtons(current, story, rel)}</div>${romanceActions(current, rel)}</section>`,
     memories:
       meetingCard +
+      personalStoryPanel(current) +
+      characterMemoryPanel(current) +
       sharedMemoryPanel(current) +
       (story.events.length
         ? `<p>你們留下了 ${story.events.length} 次關係變化的紀錄。</p>`

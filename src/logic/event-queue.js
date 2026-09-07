@@ -1,3 +1,5 @@
+import { memoryInvitationDeferral } from "./character-memory.js";
+import { isPersonalStoryEventCurrent } from "./personal-stories.js";
 import { state } from "../core/state.js";
 
 function eventExists(event) {
@@ -79,9 +81,27 @@ export function enqueueVisibleEvent(event, source = "系統", meta = {}) {
   return true;
 }
 
+export function deferMemoryInvitations() {
+  for (const item of state.queuedEvents) {
+    const dueWeek = memoryInvitationDeferral(item.event);
+    if (dueWeek) item.dueWeek = Math.max(item.dueWeek || 0, dueWeek);
+  }
+  const defer = item => {
+    const dueWeek = memoryInvitationDeferral(item?.event);
+    if (!dueWeek) return false;
+    const existing = state.queuedEvents.find(queued => queued.event?.id === item.event.id);
+    if (existing) existing.dueWeek = Math.max(existing.dueWeek || 0, dueWeek);
+    else state.queuedEvents.push({ ...item, dueWeek, expiresWeek: item.expiresWeek ?? null });
+    return true;
+  };
+  if (state.activeEvent && defer(state.activeEvent)) state.activeEvent = null;
+  state.eventQueue = state.eventQueue.filter(item => !defer(item));
+}
+
 export function activateNextEvent() {
+  deferMemoryInvitations();
   state.eventQueue = state.eventQueue.filter(
-    (x) => !obsoleteMediaEvent(x.event),
+    (x) => !obsoleteMediaEvent(x.event) && isPersonalStoryEventCurrent(x.event),
   );
 
   if (

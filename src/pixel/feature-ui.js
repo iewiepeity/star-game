@@ -1,7 +1,11 @@
+import { pausePersonalStory, resumePersonalStory } from "../logic/personal-stories.js";
+import { prunePersonalStoryEvents, requestPersonalStory } from "../logic/event-engine.js";
+import { applyAgencyAgreementEffect } from "../logic/agency-agreements.js";
 import { openConversation } from "../logic/conversations.js";
 import { outfitDescription } from "../logic/city-life.js";
 import { toggleCommunityLike } from "../logic/community-likes.js";
 import { shortContact } from "../logic/short-contact.js";
+import { tellCharacterMemory, promiseCharacterCheckIn } from "../logic/character-memory.js";
 import { requestRomanceConversation } from "../logic/npc-storylines.js";
 import { creativeApp } from "../views/creative.js";
 import {
@@ -474,6 +478,21 @@ export function createFeatureUI(api) {
       api.book("npc", d.npcId, d.npcInteract);
       return true;
     }
+    if (d.personalStoryPause || d.personalStoryResume || d.personalStoryOpen) {
+      mutate((game) => {
+        if (d.personalStoryOpen) return requestPersonalStory(d.personalStoryOpen);
+        const result = d.personalStoryPause ? pausePersonalStory(d.personalStoryPause, game) : resumePersonalStory(d.personalStoryResume, game);
+        prunePersonalStoryEvents(game);
+        return { ...result, message: result.text };
+      });
+      return true;
+    }
+    if (d.characterMemory || d.characterPromise) {
+      mutate((game) => d.characterMemory
+        ? tellCharacterMemory(d.characterMemory, d.memoryKey, d.memoryValue, game)
+        : promiseCharacterCheckIn(d.characterPromise, d.promiseAction, game));
+      return true;
+    }
     if (d.shortContact || d.romanceTalk) {
       mutate(() => {
         const r = d.shortContact
@@ -624,6 +643,10 @@ export function createFeatureUI(api) {
       save();
       open(current);
       if (r?.message) api.toast(r.message);
+      return true;
+    }
+    if (d.agencyAgreement) {
+      mutate((game) => applyAgencyAgreementEffect({ kind: d.agencyAgreement, category: d.category, mode: d.mode }, game));
       return true;
     }
     if (d.contractNegotiate) {

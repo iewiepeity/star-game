@@ -1,3 +1,4 @@
+import { agencyAgreementPrep } from "./agency-agreements.js";
 import { state } from "../core/state.js";
 import { managerForAgency } from "../data/managers.js";
 import { MANAGER_SCENES } from "../data/manager-scenes.js";
@@ -121,10 +122,10 @@ export function managerAuditionModifier(job) {
       o.agencyId === state.currentAgencyId &&
       o.expiresWeek >= state.week,
   );
-  if (!recommended) return 0;
+  if (!recommended) return agencyAgreementPrep(job);
   const base = m.def.support?.auditionPrepBonus || 0,
     relationship = 0.7 + m.state.trust / 200 + m.state.rapport / 500;
-  return Math.max(0, Math.min(8, Math.round(base * relationship)));
+  return Math.max(0, Math.min(8, Math.round(base * relationship))) + agencyAgreementPrep(job);
 }
 export function managerWeeklyBrief() {
   const m = ensureManager();

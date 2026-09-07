@@ -1,3 +1,4 @@
+import { normalizePersonalStories, normalizeRomanceDaily } from "./personal-stories-state.js";
 import { normalizeSavedLooks } from "../logic/wardrobe.js";
 import {
   AVATAR_LIST,
@@ -11,8 +12,22 @@ import { normalizeBirthday } from "./birthday.js";
 import { syncLegacyPlayerName } from "./player-name.js";
 import { initialHomeLife, normalizeHomeLife, invalidateHomeKeys } from "./home-state.js";
 import { initialCityLife, normalizeCityLife } from "./city-life-state.js";
+import { normalizeCharacterMemories } from "./character-memory-state.js";
+import { normalizeNarrativeSettings, normalizeRoutineNarrativeHistory } from "./narrative-settings-state.js";
+import { normalizeTrainingProgress } from "./training-narrative-state.js";
+import { normalizeAgencyAgreements } from "./agency-agreement-state.js";
+import { normalizeWorkEchoes } from "./work-echo-state.js";
+
 export function initialState() {
   return {
+    characterMemories: {},
+    narrativeSettings: normalizeNarrativeSettings(),
+    routineNarrativeHistory: [],
+    trainingNarrativeProgress: {},
+    personalStories: {},
+    romanceDaily: {},
+    agencyAgreements: { records: [] },
+    workEchoes: { records: [], opportunities: [] },
     shortContacts: [],
     forumReadIds: [],
     forumArchive: false,
@@ -270,6 +285,14 @@ function migrateLegacySchedules(next) {
 }
 export function hydrateState(saved) {
   const next = Object.assign(initialState(), saved);
+  next.personalStories = normalizePersonalStories(saved.personalStories);
+  next.romanceDaily = normalizeRomanceDaily(saved.romanceDaily);
+  next.characterMemories = normalizeCharacterMemories(saved.characterMemories);
+  next.narrativeSettings = normalizeNarrativeSettings(saved.narrativeSettings);
+  next.routineNarrativeHistory = normalizeRoutineNarrativeHistory(saved.routineNarrativeHistory);
+  next.trainingNarrativeProgress = normalizeTrainingProgress(saved.trainingNarrativeProgress);
+  next.agencyAgreements = normalizeAgencyAgreements(saved.agencyAgreements);
+  next.workEchoes = normalizeWorkEchoes(saved.workEchoes);
   for (const [id, rel] of Object.entries(next.relationships || {})) {
     if (
       rel &&
