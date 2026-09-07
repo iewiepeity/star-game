@@ -1230,7 +1230,9 @@ export function registerCityRooms(rooms, spots) {
   }
 }
 export function roomIllustration(room, alt = "") {
-  if (!room.crop) return `<img src="${room.asset}" alt="${alt || room.name}">`;
+  // Original room PNGs are all 1536 × 1024. Reserve their ratio before decode
+  // so the confirmation button cannot move between pointerdown and click.
+  if (!room.crop) return `<img src="${room.asset}" alt="${alt || room.name}" width="1536" height="1024">`;
   const clipId = `room-art-${room.crop.join("-")}`;
   return `<svg class="room-illustration" role="img" aria-label="${alt || room.name}" viewBox="${room.crop.join(" ")}"><defs><clipPath id="${clipId}">${room.artOutline ? `<polygon points="${MARKET_OUTLINE.map((p) => p.join(",")).join(" ")}"/>` : `<rect x="${room.crop[0]}" y="${room.crop[1]}" width="${room.crop[2]}" height="${room.crop[3]}"/>`}</clipPath></defs><image href="${room.asset}" width="1536" height="1024" clip-path="url(#${clipId})"/></svg>`;
 }

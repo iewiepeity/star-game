@@ -167,6 +167,53 @@ test("三段對戲可玩、途中讀檔可續接，略過與快速複習有入�
   expect(errors).toEqual([]);
 });
 
+test("場地圖片晚到也不會推走行動確認按鈕", async ({ page }) => {
+  test.setTimeout(70000);
+  let releaseImage;
+  const imageGate = new Promise((resolve) => {
+    releaseImage = resolve;
+  });
+  await page.route("**/assets/pixel/rehearsal.png", async (route) => {
+    await imageGate;
+    await route.continue();
+  });
+  try {
+    await start(page);
+    await openCity(page, "practice");
+    await page.locator('[data-city-plan="city_challenge"]').click();
+    await page.locator('[data-city-plan-day="0"]').click();
+    await page.locator('#panel-content [data-ui="close"]').click();
+    await page.locator("#run-label").click();
+    const confirm = page.locator('[data-start="city_challenge"]');
+    await expect(confirm).toBeVisible();
+    await expect(page.locator(".action-detail img")).toHaveJSProperty(
+      "naturalWidth",
+      0,
+    );
+    const before = await confirm.boundingBox();
+    releaseImage();
+    await expect
+      .poll(() =>
+        page
+          .locator(".action-detail img")
+          .evaluate((img) => img.complete && img.naturalWidth > 0),
+      )
+      .toBe(true);
+    const after = await confirm.boundingBox();
+    expect(Math.abs(after.y - before.y)).toBeLessThan(1);
+    expect(Math.abs(after.x - before.x)).toBeLessThan(1);
+    await confirm.click();
+    await expect(page.locator('[data-city-answer="0"]')).toBeVisible({
+      timeout: 30000,
+    });
+    await page.locator("[data-city-practice-skip]").click();
+    await result(page);
+    expect((await read(page)).state.life.ledger[0].success).toBe(true);
+  } finally {
+    releaseImage();
+  }
+});
+
 for (const mode of ["quick", "skip"])
   test(`對戲${mode === "quick" ? "熟練後快速複習" : "略過挑戰"}仍完整結算`, async ({
     page,

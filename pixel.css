@@ -1492,6 +1492,7 @@ button.primary:hover {
 }
 .action-detail img {
   width: 40%;
+  height: auto;
   max-height: 180px;
   object-fit: cover;
   image-rendering: pixelated;

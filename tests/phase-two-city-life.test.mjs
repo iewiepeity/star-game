@@ -68,6 +68,7 @@ import {
 } from "../src/logic/rumor-engine.js";
 import { setSeed } from "../src/core/rng.js";
 import { createCityLifeUI } from "../src/pixel/city-life-ui.js";
+import { roomIllustration } from "../src/pixel/city-rooms.js";
 
 function fixture(week = 11) {
   const life = initialLife("city-life-tests");
@@ -105,6 +106,10 @@ function birthday(life) {
   );
 }
 
+test("行動確認的場地圖片預留比例，不在載入後推走按鈕", () => {
+  for (const room of Object.values(ROOMS).filter((room) => !room.crop))
+    assert.match(roomIllustration(room), /width="1536" height="1024"/);
+});
 test("城市生活舊檔遷移、未知欄位與非法資料驗證", () => {
   const old = initialState();
   delete old.cityLife;
