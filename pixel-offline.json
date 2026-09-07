@@ -1,6 +1,6 @@
 {
   "version": "0.18.0",
-  "bytes": 115006252,
+  "bytes": 115007658,
   "entries": [
     {
       "url": "./index.html",
@@ -588,7 +588,7 @@
     },
     {
       "url": "./src/logic/media-engine.js",
-      "bytes": 4871
+      "bytes": 5647
     },
     {
       "url": "./src/logic/npc-autonomy.js",
@@ -668,7 +668,7 @@
     },
     {
       "url": "./src/logic/rumor-engine.js",
-      "bytes": 2721
+      "bytes": 3343
     },
     {
       "url": "./src/logic/runner.js",
@@ -776,7 +776,7 @@
     },
     {
       "url": "./src/pixel/city-life-ui.js",
-      "bytes": 17502
+      "bytes": 17510
     },
     {
       "url": "./src/pixel/city-rooms.js",

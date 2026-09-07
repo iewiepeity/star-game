@@ -46,7 +46,7 @@ async function openCity(page, tab) {
   if (tab) await page.locator(`[data-city-tab="${tab}"]`).click();
 }
 async function runToday(page, id) {
-  await page.locator('#panel [data-ui="close"]').click();
+  await page.locator('#panel-content [data-ui="close"]').click();
   await page.locator("#run-label").click();
   await page.locator(`[data-start="${id}"]`).click();
 }
@@ -90,6 +90,12 @@ test("日曆邀約、改期、實際赴約合照與公開確認，讀檔保留",
   await expect(page.locator("#loading")).toBeHidden({ timeout: 30000 });
   expect((await read(page)).state.life.game.money).toBe(49700);
   // A narrative result is modal; acknowledge it before opening another feature.
+  for (
+    let i = 0;
+    i < 6 && (await page.locator("#career-page-next").isVisible());
+    i++
+  )
+    await page.locator("#career-page-next").click();
   await page.locator('[data-life="advance"]').click();
   await openCity(page, "echoes");
   await page.locator("[data-city-share]").click();
@@ -116,7 +122,7 @@ test("寵物領養确认、低負擔陪伴、場景可見與託顧存檔", async
   await page.locator("#city-pet-carer").selectOption("service");
   await page.locator("[data-city-care]").click();
   await page.screenshot({ path: info.outputPath("city-pet-panel.png") });
-  await page.locator('#panel [data-ui="close"]').click();
+  await page.locator('#panel-content [data-ui="close"]').click();
   await expect.poll(async () => (await read(page)).pet?.name).toBe("棉花");
   await page.screenshot({ path: info.outputPath("city-pet-home.png") });
   await page.reload();
@@ -158,7 +164,7 @@ test("三段對戲可玩、途中讀檔可續接，略過與快速複習有入�
 });
 
 test("小遊戲略過仍可結算，熟練者可直接快速複習", async ({ page }) => {
-  test.setTimeout(60000);
+  test.setTimeout(90000);
   await start(page, (s) => {
     s.life.game.cityLife.practice.mastered = 3;
   });
@@ -171,5 +177,15 @@ test("小遊戲略過仍可結算，熟練者可直接快速複習", async ({ pa
   await result(page);
   expect((await read(page)).state.life.ledger[0].notes.join("")).toContain(
     "快速複習",
+  );
+  await page.locator('[data-life="advance"]').click();
+  await openCity(page, "practice");
+  await page.locator('[data-city-plan="city_challenge"]').click();
+  await page.locator('[data-city-plan-day="1"]').click();
+  await runToday(page, "city_challenge");
+  await page.locator("[data-city-practice-skip]").click();
+  await result(page);
+  expect((await read(page)).state.life.ledger[1].notes.join("")).toContain(
+    "基礎對戲練習",
   );
 });

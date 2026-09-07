@@ -57,6 +57,16 @@ import { cityItinerary } from "../src/pixel/cast.js";
 import { petVisible, drawPet } from "../src/pixel/pet-visual.js";
 import { createHomeUI } from "../src/pixel/home-ui.js";
 import { createLifeUI } from "../src/pixel/life-ui.js";
+import {
+  publicRomanceClue,
+  maybeQueueMediaEvent,
+} from "../src/logic/media-engine.js";
+import {
+  recordRumor,
+  respondToRumor,
+  tickRumors,
+} from "../src/logic/rumor-engine.js";
+import { setSeed } from "../src/core/rng.js";
 import { createCityLifeUI } from "../src/pixel/city-life-ui.js";
 
 function fixture(week = 11) {
@@ -466,6 +476,7 @@ test("居家與城市介面可完整渲染，玩家文字不輸出隱藏條件�
   assert.equal(typeof entry.city, "function");
   entry.home();
   entry.city();
+  withCore(life, () => adoptPet("cat", "小星"));
   const ui = createCityLifeUI(api);
   for (const tab of [
     "calendar",
@@ -477,10 +488,41 @@ test("居家與城市介面可完整渲染，玩家文字不輸出隱藏條件�
   ]) {
     ui.open(tab);
     assert.match(shown.at(-1).html, /城市生活/);
+    if (tab === "pets")
+      assert.match(shown.at(-1).html, /<option value="service"/);
   }
   assert.ok(
     !shown.some(({ html }) =>
       /romanceHistory|sourceIds|hostility|<script/.test(html),
     ),
   );
+});
+
+test("舊媒體提問也必須有近期公開合照，熱度與模糊回應不能製造證據", () => {
+  const life = fixture();
+  hydrateState(life.game);
+  state.fame = 500;
+  assert.equal(publicRomanceClue(state, "jiqing"), null);
+  for (let seed = 1; seed < 60; seed++) {
+    state.eventQueue = [];
+    state.queuedEvents = [];
+    setSeed(seed);
+    maybeQueueMediaEvent();
+    assert.ok(!state.eventQueue.some((e) => e.event.mediaRomanceNpc));
+  }
+  const rumor = recordRumor({
+    npcId: "jiqing",
+    evidence: 2,
+    source: "雙方同意公開的合照",
+    evidenceId: "photo-evidence",
+  });
+  respondToRumor(rumor.id, "vague");
+  for (let i = 0; i < 50; i++) {
+    rumor.heat = 100;
+    tickRumors();
+    assert.equal(rumor.evidence, 2);
+  }
+  assert.equal(rumor.sources[0].evidenceId, "photo-evidence");
+  respondToRumor(rumor.id, "confirm");
+  assert.equal(rumor.evidence, 5);
 });

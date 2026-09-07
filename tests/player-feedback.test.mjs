@@ -163,6 +163,19 @@ test("媒體承認正式關係會公開並去除同類舊問題，曖昧承認�
   });
   state.partnerId = "guchengxi";
   state.fame = 500;
+  state.cityLife.appointments.push({
+    id: "actual-date",
+    npcId: "guchengxi",
+    status: "completed",
+    photoConsent: true,
+  });
+  state.cityLife.photos.push({
+    id: "actual-photo",
+    appointmentId: "actual-date",
+    npcId: "guchengxi",
+    day: (state.week - 1) * 7,
+    published: true,
+  });
   let event;
   for (let seed = 1; seed < 100 && !event; seed++) {
     state.eventQueue = [];

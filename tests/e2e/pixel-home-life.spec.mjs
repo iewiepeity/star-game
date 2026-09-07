@@ -98,7 +98,7 @@ for (const activity of ["craft", "visit"]) {
         .click();
     }
     await page.locator('[data-home-plan-day="0"]').click();
-    await page.locator('#panel [data-ui="close"]').click();
+    await page.locator('#panel-content [data-ui="close"]').click();
     await page.locator("#run-label").click();
     await page
       .locator(`[data-start="home_${activity === "craft" ? "craft" : "host"}"]`)

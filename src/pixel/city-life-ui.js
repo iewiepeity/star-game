@@ -94,7 +94,7 @@ export function createCityLifeUI(api) {
     const p = c().pet;
     if (!p)
       return `<p>只迎接一位小夥伴。基本照顧自動維持，不會因為漏登入生病，也不會要求你每天打卡。出遠門時需先託顧。</p><label>小夥伴的名字<input id="city-pet-name" maxlength="16" value="小星"></label><div class="panel-actions">${button("迎接貓咪", 'data-city-adopt="cat"')}${button("迎接狗狗", 'data-city-adopt="dog"')}</div><p>確認前可以再想一想；不收費、不消耗日期。</p>`;
-    return `<h3>${esc(p.name)} · ${p.kind === "cat" ? "貓咪" : "狗狗"}</h3><p>${esc(c().notice || "家裡多了一個安穩的小呼吸。")}</p><p>散步 ${p.walks.length} 次。基本照顧穩定，不需每日操作。</p><div class="panel-actions">${button("陪牠坐一下", "data-city-comfort")}${button("安排河邊散步 · 1 天", 'data-city-plan="pet_walk"')}</div><h3>本週出遠門託顧</h3><p>前往機場的一日行程會使用託顧。熟人會先確認當天有空；照顧服務每次 $300，實際出發才扣款，取消未出發行程不扣費。</p><label>託顧對象<select id="city-pet-carer"><option value="none">尚不安排</option value="service" ${p.care?.npcId === "service" ? "selected" : ""}>照顧服務 · $300／出發日</option>${petCarers(
+    return `<h3>${esc(p.name)} · ${p.kind === "cat" ? "貓咪" : "狗狗"}</h3><p>${esc(c().notice || "家裡多了一個安穩的小呼吸。")}</p><p>散步 ${p.walks.length} 次。基本照顧穩定，不需每日操作。</p><div class="panel-actions">${button("陪牠坐一下", "data-city-comfort")}${button("安排河邊散步 · 1 天", 'data-city-plan="pet_walk"')}</div><h3>本週出遠門託顧</h3><p>前往機場的一日行程會使用託顧。熟人會先確認當天有空；照顧服務每次 $300，實際出發才扣款，取消未出發行程不扣費。</p><label>託顧對象<select id="city-pet-carer"><option value="none">尚不安排</option><option value="service" ${p.care?.npcId === "service" ? "selected" : ""}>照顧服務 · $300／出發日</option>${petCarers(
       game(),
     )
       .map(
