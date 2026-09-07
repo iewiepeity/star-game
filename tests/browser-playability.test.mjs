@@ -8,11 +8,9 @@ import {
 import { replacePlannerDay } from "../src/logic/planner-edit.js";
 import { restoreStateFields } from "../src/core/state-transaction.js";
 import { firstWorkJourney } from "../src/logic/first-work.js";
-import { scenePosition, moveScene } from "../src/logic/scene-reader.js";
-import { eventView } from "../src/views/event.js";
+
 import { NPC_AUTONOMOUS_BEATS } from "../src/data/living-world-content.js";
 import { NPCS } from "../src/data/npcs.js";
-import { persistableState } from "../src/core/persistence.js";
 
 test("沿用上週與休息整理都保留本週的重要預約", () => {
   resetState();
@@ -114,29 +112,7 @@ test("未簽公司仍依真實工作階段給新人下一步", () => {
   state.completedWorks = [{ id: "W1", title: "初演" }];
   assert.equal(firstWorkJourney(state).stage, "completed");
 });
-test("逐幕閱讀不提前顯示後文或選項，讀檔保留位置", () => {
-  resetState();
-  state.activeEvent = {
-    event: {
-      id: "reader",
-      title: "雨夜",
-      beats: [{ text: "第一幕" }, { text: "第二幕" }, { text: "第三幕" }],
-      choices: [{ id: "stay", label: "留下" }],
-    },
-  };
-  let html = eventView();
-  assert.match(html, /第一幕/);
-  assert.doesNotMatch(html, /第二幕|data-event-choice=/);
-  moveScene(state.activeEvent, 1);
-  const saved = persistableState(state);
-  assert.equal(scenePosition(saved.activeEvent).index, 1);
-  moveScene(state.activeEvent, 1);
-  html = eventView();
-  assert.match(html, /data-event-choice="stay"/);
-  assert.equal(moveScene(state.activeEvent, 1), false);
-  moveScene(state.activeEvent, -1);
-  assert.doesNotMatch(eventView(), /data-event-choice=/);
-});
+
 test("世界近況與人物名冊使用相同姓名", () => {
   for (const id of ["xiayutong", "hanzhiyuan"])
     assert.ok(NPC_AUTONOMOUS_BEATS[id][0].includes(NPCS[id].name));

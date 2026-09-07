@@ -12,12 +12,6 @@ export default defineConfig({
     {
       name: "tablet",
       testMatch: [
-        "**/browser-playability.spec.mjs",
-        "**/wardrobe-system.spec.mjs",
-        "**/city-life.spec.mjs",
-        "**/work-progression.spec.mjs",
-        "**/scene-city.spec.mjs",
-        "**/playback-speed.spec.mjs",
         "**/pixel-phase-one.spec.mjs",
         "**/pixel-life.spec.mjs",
         "**/pixel-city.spec.mjs",
@@ -45,12 +39,6 @@ export default defineConfig({
     {
       name: "mobile-webkit",
       testMatch: [
-        "**/browser-playability.spec.mjs",
-        "**/wardrobe-system.spec.mjs",
-        "**/city-life.spec.mjs",
-        "**/work-progression.spec.mjs",
-        "**/scene-city.spec.mjs",
-        "**/playback-speed.spec.mjs",
         "**/pixel-phase-one.spec.mjs",
         "**/pixel-life.spec.mjs",
         "**/pixel-city.spec.mjs",
@@ -79,12 +67,6 @@ export default defineConfig({
     {
       name: "tablet-webkit",
       testMatch: [
-        "**/browser-playability.spec.mjs",
-        "**/wardrobe-system.spec.mjs",
-        "**/city-life.spec.mjs",
-        "**/work-progression.spec.mjs",
-        "**/scene-city.spec.mjs",
-        "**/playback-speed.spec.mjs",
         "**/pixel-phase-one.spec.mjs",
         "**/pixel-life.spec.mjs",
         "**/pixel-city.spec.mjs",
@@ -112,12 +94,6 @@ export default defineConfig({
     {
       name: "firefox",
       testMatch: [
-        "**/browser-playability.spec.mjs",
-        "**/wardrobe-system.spec.mjs",
-        "**/city-life.spec.mjs",
-        "**/work-progression.spec.mjs",
-        "**/scene-city.spec.mjs",
-        "**/playback-speed.spec.mjs",
         "**/pixel-phase-one.spec.mjs",
         "**/pixel-life.spec.mjs",
         "**/pixel-city.spec.mjs",

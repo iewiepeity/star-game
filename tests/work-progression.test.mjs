@@ -14,7 +14,6 @@ import { applySchedulePreset, copyRoutineWeek } from "../src/logic/schedule-assi
 import { applyForJob, availableJobs, ensureJobState } from "../src/logic/job-engine.js";
 import { canAccessJob, jobSource } from "../src/logic/industry.js";
 import { persistableState } from "../src/core/persistence.js";
-import { activityPicker } from "../src/views/planner.js";
 
 test("四間公司的打工必須實際到訪，登記與經驗跨週讀檔保留", () => {
   assert.equal(Object.keys(COMPANY_PART_TIME).length, INDUSTRY_LIST.length);
@@ -22,12 +21,10 @@ test("四間公司的打工必須實際到訪，登記與經驗跨週讀檔保�
     resetState();
     assert.equal(workAccess(state, id).unlocked, false);
     assert.equal(replacePlannerDay(0, id).ok, false);
-    assert.ok(!activityPicker().includes(`data-pick="${id}"`));
     replacePlannerDay(0, "free", {locationId:job.venue});
     assert.equal(workAccess(state,id).unlocked,false);
     assert.match(resolveExploration(job.venue,"focus").text, /臨時人員登記/);
     assert.equal(replacePlannerDay(1,id).ok,true);
-    assert.ok(activityPicker().includes(`data-pick="${id}"`));
     assert.equal(state.partTimeShifts[id], undefined);
     recordPartTimeShift(state,id);
     hydrateState({...persistableState(state),week:4});

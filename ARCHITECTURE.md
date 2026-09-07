@@ -11,15 +11,14 @@ src/core/*     state、存讀檔、RNG、共用工具
       ↓
 src/logic/*    規則與狀態變更；不碰 DOM
       ↓
-src/views/*    讀 state 產生 HTML；不直接改遊戲規則
+src/views/*    像素版共用的手機 App HTML 呈現
       ↓
-src/bind/*     使用者操作 → 呼叫 logic → render
-      ↓
-src/render.js  唯一整體重繪入口
-src/main.js    開機、讀檔、首次 render
+src/pixel/*    場景、互動與像素介面
+src/pixel/main.js  開機、讀檔、建立場景
+src/entry.js   首頁導向 pixel.html（保留查詢參數與 hash）
 ```
 
-整個遊戲只有一個可變狀態來源：`src/core/state.js` 匯出的 `state`。除了 `resetState()` 開新輪之外，其他模組不可自行建立第二份遊戲狀態。
+像素版由 `src/pixel/model.js` 建立並儲存玩家狀態，`life.game` 保存共用核心狀態。`src/pixel/core-bridge.js::withCore()` 在同步操作前 hydrate 核心 `state`，成功後寫回 `life.game`；不可另外建立背景時鐘或自動存檔流程。舊版入口、render 與 bind 已移除。
 
 ## 2. 核心 runtime 不變量
 
@@ -107,28 +106,9 @@ src/main.js    開機、讀檔、首次 render
 
 ## 5. UI 資訊原則
 
-### 首頁
+### 住處、行程與城市
 
-`views/room.js` 的首頁只優先回答三件事：
-
-1. **現在最急**：健康、疲勞、迫近工作期限或待處理事件。
-2. **有人在找你**：未讀人物訊息或經紀人判斷。
-3. **本章目標**：目前年度主題、目標與壓力。
-
-市場、作品與完整世界狀態往「娛樂圈週報」收，不把首頁做成儀表板牆。
-
-### 行程
-
-`views/planner.js` 顯示：
-
-- 正式通告剩餘場次、期限、指定工作日與本週已排次數。
-- 期限 × 可用工作日的衝突預警。
-- 疲勞只顯示趨勢／風險，不揭露試鏡或工作精確骰值。
-- 範本不得覆蓋通告、試鏡、人物約會、創作與面談等重要預約。
-
-### 地圖
-
-維持 26 個地點，不以擴點製造內容量。`views/map.js` 依週末、地點用途、疲勞與已認識 NPC 的工作狀態給「今日線索」。陌生 NPC 不可被地圖直接劇透。
+`src/pixel/main.js` 與 `world.js` 提供可移動的像素場景；`life-ui.js` 與 `planner-tools.js` 呈現行程，`city-ui.js` 管理地圖、交通與地點互動。像素介面透過共用核心規則驗證工作期限、疲勞及重要預約。
 
 ### 週報與社群
 
@@ -147,7 +127,7 @@ src/main.js    開機、讀檔、首次 render
 - v14 補齊長期章節、人物邀約、永久方針與嚴格存檔欄位，舊版會依序遷移後再 hydrate。
 - v15 加入五槽手動存檔、人物相處記憶、App 快捷列與最新世界狀態；自動存檔採 300ms 合併寫入，週次／逐日階段等關鍵節點仍立即落盤，頁面隱藏或離開前會強制 flush。
 - v16 拆分本名與選填藝名；舊存檔姓名遷移為本名，公開名稱在藝名留空時沿用本名。
-- `core/error-recovery.js` 捕捉 render、全域錯誤與未處理 Promise；錯誤畫面直接由救援層輸出，並保留最後一次可讀自動存檔，避免壞掉的 view 重複遞迴。
+- `pixel/model.js` 與 `pixel/storage-ui.js` 負責像素存讀檔、備份及匯入預覽；`pixel/save-transfer.js` 保留舊版存檔相容性。
 
 ## 7. 測試與內容驗證
 
@@ -165,7 +145,7 @@ npm run audit:world-reactions
 - 擴充內容驗證。
 - `scripts/validate-deepening.mjs`：固定檢查 75 通告、15 A、10 B、50 C、五年章節、10 NPC 自主 beat、4 經紀人立場、戀愛階段與世界反應。
 
-`tests/deepening-1-16.test.mjs` 另測試跨週 echo、陌生 NPC 不進通訊錄、戀愛訊息、經紀人建議，以及首頁／地圖／行程是否真的接上深化層。
+`tests/deepening-1-16.test.mjs` 另測試跨週 echo、陌生 NPC 不進通訊錄、戀愛訊息、經紀人建議，以及世界推進是否接上深化層。
 
 ## 8. 內容擴充規則
 

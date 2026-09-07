@@ -2,6 +2,13 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.18.1", date: "2026-09-07", title: "專心走好這段像素旅程",
+    notes: [
+      "現在只保留像素生活，首頁與離線內容都使用同一個版本。",
+      "既有像素存檔可以繼續使用，也能從存檔選單搬入舊版旅程。",
+    ],
+  },
+  {
     version: "0.18.0", date: "2026-09-07", title: "在這座城，慢慢成為熟悉的人",
     notes: [
       "城市生活新增日曆：生日、跨年與有紀錄的交往紀念日可以邀約、改期或取消，實際赴約才花費一天與聚會費。",
@@ -129,4 +136,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.41.0";
+export const CORE_VERSION = "1.41.1";

@@ -1,8 +1,3 @@
-import { ASPIRATIONS } from "../logic/city-progression.js";
-import { state } from "../core/state.js";
-import { esc } from "../core/utils.js";
-import { playerRealName } from "../core/player-name.js";
-
 export const SCENES = [
   {
     label: "星望市・搬進新房間的第一天",
@@ -41,16 +36,3 @@ export const SCENES = [
     action: "帶著便條，開始生活 →",
   },
 ];
-
-function childhoodCard(large = false) {
-  return `<div class="childhood-card ${large ? "large" : ""}" aria-label="童年手寫卡片"><span>☆　✦　☆</span><b>長大以後，<br>要當明星！</b><small>給未來的我 ♡</small></div>`;
-}
-
-export function prologueView() {
-  const step = Math.max(
-      0,
-      Math.min(SCENES.length - 1, Number(state.prologueStep) || 0),
-    ),
-    scene = SCENES[step];
-  return `<main class="prologue-screen step-${step}"><img class="prologue-bg" src="./assets/rookie-room.webp" width="1536" height="1024" decoding="async" fetchpriority="high" alt="剛搬進星望市的新房間"><div class="prologue-shade"></div><header class="prologue-brand">✦ 星途未定 <span>PROLOGUE</span></header><nav class="prologue-skip"><button data-skip-prologue>跳過序章</button><button data-skip-onboarding>跳過序章與教學</button></nav>${step === 0 ? `<button class="card-on-desk" data-prologue-next aria-label="查看桌上的童年卡片">${childhoodCard()}</button>` : ""}${step === 1 ? `<section class="card-closeup">${childhoodCard(true)}</section>` : ""}<section class="prologue-dialogue"><div class="prologue-progress" role="progressbar" aria-label="序章進度" aria-valuemin="1" aria-valuemax="${SCENES.length}" aria-valuenow="${step + 1}" aria-valuetext="第 ${step + 1} 幕，共 ${SCENES.length} 幕">${SCENES.map((_, i) => `<i class="${i <= step ? "active" : ""}" aria-hidden="true"></i>`).join("")}</div><small>${esc(scene.label)}</small><h1>${esc(scene.title)}</h1><p>${esc(scene.text)}</p>${step === 5 ? `<div class="aspiration-options" role="group" aria-label="第一個想嘗試的方向">${Object.entries(ASPIRATIONS).map(([id,item])=>`<button data-aspiration="${id}" aria-pressed="${state.aspiration===id}">${item.label}</button>`).join("")}</div>` : ""}<div><span>${step >= 2 ? esc(playerRealName(state)) : ""}</span><button class="main-btn" data-prologue-next>${esc(scene.action)}</button></div></section></main>`;
-}

@@ -12,8 +12,7 @@ import {
 import { INDUSTRY_LIST } from "../src/data/industry.js";
 import { managerInteractionDecision } from "../src/logic/manager.js";
 import { careerPhase, CAREER_PHASES } from "../src/logic/career-phases.js";
-import { mapApp } from "../src/views/map.js";
-import { plannerApp } from "../src/views/planner.js";
+
 import { worldApp } from "../src/views/world.js";
 import { socialDrafts } from "../src/logic/social-drafts.js";
 const fresh = () => {
@@ -91,14 +90,12 @@ test("經紀人互動有三個真正取捨而非單鍵加數值", () => {
   assert.equal(new Set(d.choices.map((c) => c.id)).size, 3);
   assert.ok(d.text.length > 30);
 });
-test("五年職涯、世界週報、城市建築地圖與行程控制台均可見", () => {
+test("五年職涯與共用世界週報均可見", () => {
   const s = fresh();
   assert.equal(CAREER_PHASES.length, 5);
   s.week = 209;
   assert.equal(careerPhase().year, 5);
   assert.match(worldApp(), /娛樂週報/);
-  assert.match(mapApp(), /data-city-place="tv_company"/);
-  assert.match(plannerApp(), /WEEK CONTROL/);
 });
 test("社群草稿會引用已完成作品，而非永遠只有三句固定貼文", () => {
   const s = fresh();

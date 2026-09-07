@@ -14,8 +14,7 @@ import {
 } from "../src/core/state.js";
 import { migrateV15ToV16 } from "../src/core/migrations.js";
 import { validateGameState } from "../src/core/save-schema.js";
-import { identityStep } from "../src/views/create.js";
-import { prologueView } from "../src/views/prologue.js";
+
 import { socialApp } from "../src/views/social.js";
 
 test("藝名留空時沿用本名，填寫後成為公開名稱", () => {
@@ -28,25 +27,15 @@ test("藝名留空時沿用本名，填寫後成為公開名稱", () => {
   assert.equal(player.name, "星予");
 });
 
-test("建立角色同時提供必填本名與選填藝名", () => {
-  resetState();
-  const html = identityStep();
-  assert.match(html, /id="player-real-name"/);
-  assert.match(html, /本名 <small>必填<\/small>/);
-  assert.match(html, /id="player-stage-name"/);
-  assert.match(html, /藝名 <small>選填<\/small>/);
-  assert.match(html, /留空則沿用本名/);
-});
-
-test("私人序章使用本名，公開社群使用藝名", () => {
+test("私人名稱使用本名，公開社群使用藝名", () => {
   resetState();
   state.realName = "林星予";
   state.stageName = "星予";
   syncLegacyPlayerName(state);
   state.prologueStep = 2;
   state.socialPosts = [{ id: "post", text: "第一篇貼文" }];
-  assert.match(prologueView(), /林星予/);
-  assert.doesNotMatch(prologueView(), />星予<\/span>/);
+  assert.equal(playerRealName(state), "林星予");
+
   assert.match(socialApp(), /星予/);
 });
 

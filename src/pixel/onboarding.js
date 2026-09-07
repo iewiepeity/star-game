@@ -2,7 +2,7 @@ import { ABILITIES } from "../data/abilities.js";
 import { randomInt } from "../core/rng.js";
 import { withCore } from "./core-bridge.js";
 import { normalizeBirthday } from "../core/birthday.js";
-import { SCENES } from "../views/prologue.js";
+import { SCENES } from "../data/prologue.js";
 import { ASPIRATIONS } from "../logic/city-progression.js";
 import { portraitAsset } from "../data/wardrobe.js";
 export function refreshCreationStats(state, root) {
