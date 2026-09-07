@@ -1,6 +1,6 @@
 {
   "version": "0.18.0",
-  "bytes": 115009243,
+  "bytes": 115009322,
   "entries": [
     {
       "url": "./index.html",
@@ -464,7 +464,7 @@
     },
     {
       "url": "./src/logic/city-life.js",
-      "bytes": 22107
+      "bytes": 22186
     },
     {
       "url": "./src/logic/city-progression.js",

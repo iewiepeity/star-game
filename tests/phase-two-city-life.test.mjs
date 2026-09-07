@@ -110,6 +110,26 @@ test("行動確認的場地圖片預留比例，不在載入後推走按鈕", ()
   for (const room of Object.values(ROOMS).filter((room) => !room.crop))
     assert.match(roomIllustration(room), /width="1536" height="1024"/);
 });
+test("重要日提前、當天與補過，回應符合實際日期", () => {
+  for (const [offset, expected] of [
+    [-2, /提早相聚/],
+    [0, /約好的日子/],
+    [2, /補過了日子/],
+  ]) {
+    const life = fixture(),
+      event = birthday(life),
+      day = event.due + offset;
+    life.game.week = Math.floor(day / 7) + 1;
+    life.day = day % 7;
+    assert.equal(
+      bookCityAppointment(life, CHOICES, event.id, "jiqing", day).ok,
+      true,
+    );
+    beginDay(life);
+    const result = settleDay(life);
+    assert.match(result.notes.join(""), expected);
+  }
+});
 test("城市生活舊檔遷移、未知欄位與非法資料驗證", () => {
   const old = initialState();
   delete old.cityLife;

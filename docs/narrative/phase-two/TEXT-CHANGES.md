@@ -16,6 +16,7 @@
 | `src/logic/short-contact.js` / 短聯絡 | 原 `contactReply` 與 `REPLIES` 全文留在檔內，作為無回憶時的回退 | 有效的同人共同經歷優先回憶；工作話題仍用原回應 | 不讓陌生人引用私人記憶，不憑空寫事件 |
 | `src/logic/social-context.js` / NPC 社群 | 原 `NPC_SOCIAL_COPY` 與各種近況分支保留 | 只有同意並已公開的合照可產生公開回應 | 私密生活不憑空曝光 |
 | `src/pixel/life.js` / 作客與工作成果 | 原成果正文保留 | 附加當事人的穿搭印象、在場寵物反應及有來源熟客消息 | 將既有生活連到後續體驗 |
+| `src/logic/city-life.js` / 本階段赴約結果 | 初稿以日期不同一律顯示「雖然補過了日子，赴約的心意仍然是真的。」 | 提前赴約改為「你們提早相聚，把祝福留給即將到來的日子。」；當天與事後補過維持各自正文 | 檢視瀏覽器畫面時發現提前過生日被誤寫成補過；依實際日期分流 |
 | `tests/e2e/pixel-phase-one.spec.mjs` / 床組斷言 | 測試期望「休息一下」 | 測試期望「搬家時的單人床」 | 只修測試；玩家使用按鈕原文「使用休息一下」不變 |
 
 新增的全部文本集中於 `src/data/city-life.js`（人物聲音、熟客消息、對戲題目）、`src/logic/city-life.js`（成立条件後的結果／回收）、`src/pixel/city-schedule.js`（約定訊息）、`src/pixel/city-life-ui.js`（介面與確認）及新版更新紀錄，可由本 PR diff 逐段查驗。新增內容不覆蓋原文，故沒有虛構「舊版對應台詞」。

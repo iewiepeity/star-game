@@ -297,7 +297,7 @@ export function settleCityAction(assignment, choice, day) {
     a.text =
       a.kind === "collab"
         ? `${NPCS[a.npcId].name}和你把那天聊過的一場戲實際試了一遍，互相留了修改筆記。`
-        : `${NPCS[a.npcId].name}：「${CITY_VOICES[a.npcId].date}」${a.day !== a.due ? "雖然補過了日子，赴約的心意仍然是真的。" : "約好的日子，兩個人都到了。"}`;
+        : `${NPCS[a.npcId].name}：「${CITY_VOICES[a.npcId].date}」${a.day < a.due ? "你們提早相聚，把祝福留給即將到來的日子。" : a.day > a.due ? "雖然補過了日子，赴約的心意仍然是真的。" : "約好的日子，兩個人都到了。"}`;
     if (a.kind === "collab")
       state.stats["演技"] = Math.min(1000, (state.stats["演技"] || 0) + 5);
     notes.push(
