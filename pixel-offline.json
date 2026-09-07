@@ -1,6 +1,6 @@
 {
-  "version": "0.18.2",
-  "bytes": 114794827,
+  "version": "0.19.0",
+  "bytes": 115042615,
   "entries": [
     {
       "url": "./index.html",
@@ -20,7 +20,7 @@
     },
     {
       "url": "./pixel-apps.css",
-      "bytes": 27522
+      "bytes": 27847
     },
     {
       "url": "./pixel-theme.css",
@@ -131,6 +131,14 @@
       "bytes": 2328
     },
     {
+      "url": "./src/data/community-responses.js",
+      "bytes": 20632
+    },
+    {
+      "url": "./src/data/community-stories.js",
+      "bytes": 25828
+    },
+    {
       "url": "./src/data/creative-story-content.js",
       "bytes": 15599
     },
@@ -159,6 +167,10 @@
       "bytes": 8923
     },
     {
+      "url": "./src/data/industry-stories.js",
+      "bytes": 10613
+    },
+    {
       "url": "./src/data/industry.js",
       "bytes": 1209
     },
@@ -173,6 +185,10 @@
     {
       "url": "./src/data/job-production-scenes.js",
       "bytes": 1230
+    },
+    {
+      "url": "./src/data/job-session-scenes.js",
+      "bytes": 13487
     },
     {
       "url": "./src/data/job-storylines.js",
@@ -211,6 +227,10 @@
       "bytes": 112713
     },
     {
+      "url": "./src/data/manager-scenes.js",
+      "bytes": 53352
+    },
+    {
       "url": "./src/data/managers.js",
       "bytes": 3903
     },
@@ -223,6 +243,14 @@
       "bytes": 29398
     },
     {
+      "url": "./src/data/npc-contact-stories.js",
+      "bytes": 15463
+    },
+    {
+      "url": "./src/data/npc-everyday-scenes.js",
+      "bytes": 42802
+    },
+    {
       "url": "./src/data/npc-first-meetings.js",
       "bytes": 7080
     },
@@ -233,6 +261,10 @@
     {
       "url": "./src/data/npc-network.js",
       "bytes": 3437
+    },
+    {
+      "url": "./src/data/npc-social-stories.js",
+      "bytes": 19548
     },
     {
       "url": "./src/data/npc-story-content.js",
@@ -264,7 +296,7 @@
     },
     {
       "url": "./src/data/schedule-events.js",
-      "bytes": 29603
+      "bytes": 30175
     },
     {
       "url": "./src/data/sequel-story-content.js",
@@ -277,6 +309,10 @@
     {
       "url": "./src/data/story-art.js",
       "bytes": 17005
+    },
+    {
+      "url": "./src/data/training-moments.js",
+      "bytes": 35115
     },
     {
       "url": "./src/data/wardrobe.js",
@@ -332,11 +368,15 @@
     },
     {
       "url": "./src/logic/community-interactions.js",
-      "bytes": 4518
+      "bytes": 4253
     },
     {
       "url": "./src/logic/community-likes.js",
       "bytes": 899
+    },
+    {
+      "url": "./src/logic/community-rotation.js",
+      "bytes": 1666
     },
     {
       "url": "./src/logic/competitors.js",
@@ -352,7 +392,7 @@
     },
     {
       "url": "./src/logic/conversations.js",
-      "bytes": 3585
+      "bytes": 4274
     },
     {
       "url": "./src/logic/creative-schedule.js",
@@ -400,7 +440,7 @@
     },
     {
       "url": "./src/logic/forum-feed.js",
-      "bytes": 3830
+      "bytes": 5882
     },
     {
       "url": "./src/logic/hidden-route.js",
@@ -412,7 +452,7 @@
     },
     {
       "url": "./src/logic/industry-news.js",
-      "bytes": 2245
+      "bytes": 3545
     },
     {
       "url": "./src/logic/industry.js",
@@ -420,7 +460,7 @@
     },
     {
       "url": "./src/logic/job-engine.js",
-      "bytes": 26862
+      "bytes": 26782
     },
     {
       "url": "./src/logic/job-list-model.js",
@@ -436,7 +476,7 @@
     },
     {
       "url": "./src/logic/manager.js",
-      "bytes": 10599
+      "bytes": 8975
     },
     {
       "url": "./src/logic/media-engine.js",
@@ -460,7 +500,7 @@
     },
     {
       "url": "./src/logic/npc-interaction-engine.js",
-      "bytes": 4074
+      "bytes": 4767
     },
     {
       "url": "./src/logic/npc-invitations.js",
@@ -484,7 +524,7 @@
     },
     {
       "url": "./src/logic/personal-tasks.js",
-      "bytes": 5656
+      "bytes": 5722
     },
     {
       "url": "./src/logic/playable-depth-engine.js",
@@ -496,7 +536,7 @@
     },
     {
       "url": "./src/logic/random-events.js",
-      "bytes": 2575
+      "bytes": 3463
     },
     {
       "url": "./src/logic/reputation-engine.js",
@@ -536,15 +576,15 @@
     },
     {
       "url": "./src/logic/short-contact.js",
-      "bytes": 4414
+      "bytes": 3715
     },
     {
       "url": "./src/logic/social-context.js",
-      "bytes": 5183
+      "bytes": 3440
     },
     {
       "url": "./src/logic/social-drafts.js",
-      "bytes": 4104
+      "bytes": 10312
     },
     {
       "url": "./src/logic/wardrobe.js",
@@ -636,7 +676,7 @@
     },
     {
       "url": "./src/pixel/feature-ui.js",
-      "bytes": 25316
+      "bytes": 26081
     },
     {
       "url": "./src/pixel/furniture-layers.js",
@@ -644,7 +684,7 @@
     },
     {
       "url": "./src/pixel/home-furniture.js",
-      "bytes": 7006
+      "bytes": 7865
     },
     {
       "url": "./src/pixel/home-schedule.js",
@@ -660,7 +700,7 @@
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 30195
+      "bytes": 28114
     },
     {
       "url": "./src/pixel/life.js",
@@ -672,7 +712,7 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 49716
+      "bytes": 49755
     },
     {
       "url": "./src/pixel/menu-icons.js",
@@ -716,7 +756,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 10129
+      "bytes": 10856
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -796,7 +836,7 @@
     },
     {
       "url": "./src/views/creative.js",
-      "bytes": 10669
+      "bytes": 11339
     },
     {
       "url": "./src/views/forum.js",
@@ -836,7 +876,7 @@
     },
     {
       "url": "./src/views/social.js",
-      "bytes": 8007
+      "bytes": 7928
     },
     {
       "url": "./src/views/stats-app.js",

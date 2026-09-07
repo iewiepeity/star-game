@@ -1,7 +1,8 @@
 import { communityHeart } from "./community-heart.js";
 import { npcSocialPost } from "../logic/social-context.js";
 import { playerLookImage } from "./player-look.js";
-import { OFFICIAL_SOCIAL_POSTS } from "../data/social.js";
+import { officialSocialPosts } from "../logic/community-rotation.js";
+import { communityComments } from "../logic/forum-feed.js";
 import { NPCS } from "../data/npcs.js";
 import { DAYS } from "../data/calendar.js";
 import { state } from "../core/state.js";
@@ -85,7 +86,7 @@ function feed() {
     week: n.week,
     text: `${n.title}｜${n.body}`,
     likes: Math.max(30, Math.round((n.heat || 50) / 2)),
-    comments: ["這週娛樂圈好多事。", "先卡，等後續。"],
+    comments: communityComments(n.category, n.key || n.id, 2),
   }));
   const echoes = [...(state.livingWorldFeed || [])]
     .reverse()
@@ -110,10 +111,7 @@ function feed() {
         week: item.week,
         text: `${item.title}｜${item.text}`,
         likes: 45 + i * 19 + Math.min(300, state.fame),
-        comments:
-          item.type === "作品長尾"
-            ? ["原來這作品後續還在發酵。", "當時那段真的有記憶點。"]
-            : ["圈內最近真的一直在動。", "這件事之後應該還有後續。"],
+        comments: communityComments(item.type === "作品長尾" ? "作品" : "圈內", item.id, 2),
       };
     });
   const npc = state.knownPeople
@@ -153,7 +151,7 @@ function feed() {
     ...echoes,
     ...news,
     ...npc,
-    ...OFFICIAL_SOCIAL_POSTS,
+    ...officialSocialPosts(),
   ];
 }
 export function socialApp() {

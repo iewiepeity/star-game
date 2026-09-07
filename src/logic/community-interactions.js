@@ -3,6 +3,8 @@ import { contextualReplyOptions } from "./social-context.js";
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
 import { adjustRelationship } from "./npc-engine.js";
+import { FORUM_PLAYER_RESPONSES } from "../data/community-responses.js";
+import { weeklyCopy } from "./community-rotation.js";
 
 const SOCIAL_REPLIES = {
   encourage: {
@@ -56,13 +58,8 @@ export function replyToNpcPost(npcId, type) {
 }
 
 export function forumReplyText(thread, type) {
-  if (type === "reason")
-    return thread.category === "作品"
-      ? "想把作品本身和場外消息分開看。等看過完整內容，再來聊哪些地方做得好。"
-      : "先把已公開的消息和猜測分開吧。後續有當事人的說法，再補進這串。";
-  return thread.category === "作品"
-    ? "自己開始接觸這一行後，才知道完成一個作品有多少小環節。這串提到的部分，我也想再留意。"
-    : "開始跑行程之後，才發現外面看到的往往只是生活的一小段。想多聽幾種角度，再慢慢理解。";
+  const pool = FORUM_PLAYER_RESPONSES[thread.category] || FORUM_PLAYER_RESPONSES.熱門;
+  return weeklyCopy(pool[type === "reason" ? "reason" : "join"], `${thread.id}:${type}`, thread.week || 1);
 }
 
 export function forumReaction(threadId, type, draft = "") {

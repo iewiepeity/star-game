@@ -773,6 +773,7 @@ const cityUI = createCityUI({
   takeover: () => lifeUI.takeover(),
 });
 const lifeUI = createLifeUI({
+  openApp: (id) => featureUI.open(id),
   cancelTravel: () => cityUI.cancelRoute(),
   travelTo: (...args) => cityUI.route(...args),
   storyTravelTo: (id, after, onError) =>

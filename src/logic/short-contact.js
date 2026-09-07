@@ -3,24 +3,6 @@ import { NPCS } from "../data/npcs.js";
 import { adjustRelationship } from "./npc-engine.js";
 import { CONTACT_TOPICS, contactReply } from "./conversations.js";
 import { recallCityMemory } from "./city-life.js";
-const REPLIES = [
-  [
-    "剛好看到你的訊息。今天有一小段空檔，你呢？",
-    "今天總算忙完了。聽到你的聲音，才想起我還沒喝水。",
-  ],
-  [
-    "你說的那件小事我記得，後來有比較順利嗎？",
-    "有件小事本來想等見面再說，現在先講給你聽。",
-  ],
-  [
-    "剛才路上看到一個很像你會喜歡的地方，下次再一起去。",
-    "今天沒什麼大事，能這樣隨便聊幾句也很好。",
-  ],
-  [
-    "謝謝你想到我。等手邊的事告一段落，我也想聽聽你的近況。",
-    "先不談工作好了。你今天有吃到什麼好吃的嗎？",
-  ],
-];
 export function shortContact(id, type = "message", topic = null, draft = null) {
   if (
     !NPCS[id] ||
@@ -47,19 +29,16 @@ export function shortContact(id, type = "message", topic = null, draft = null) {
       ok: false,
       message: "這週已經留了不少時間聯絡朋友，先把自己的生活照顧好吧。",
     };
-  const count = state.shortContacts.filter((x) => x.npcId === id).length;
   const replyTopic =
     outgoing && /吃飯|休息|喝水|照顧|辛苦|熬夜/.test(outgoing)
       ? "care"
       : outgoing && /工作|作品|排練|試鏡|演出|拍攝|經驗/.test(outgoing)
         ? "work"
         : topic;
-  const text =
-    (replyTopic !== "work" && recallCityMemory(id)) ||
-    (replyTopic && contactReply(id, replyTopic)) ||
-    REPLIES[
-      (state.week + count + Object.keys(NPCS).indexOf(id)) % REPLIES.length
-    ][type === "call" ? 1 : 0];
+  const memory = replyTopic !== "work" && recallCityMemory(id);
+  const recentReplies = (state.npcMessages || []).filter(message => message.npcId === id).slice(-12);
+  const text = (memory && !recentReplies.some(message => message.text === memory) && memory) ||
+    contactReply(id, replyTopic || "day");
   adjustRelationship(id, {
     closeness: 1,
     trust: 1,
@@ -115,7 +94,7 @@ export function queueShortCheckIn() {
     week: state.week,
     title: "有空再回就好",
     text:
-      REPLIES[Math.floor(state.week / 2) % REPLIES.length][0] +
+      contactReply(npcId, "day") +
       " 有空傳個訊息就好，不用特地空下一天。",
     source: "short-contact",
     read: false,

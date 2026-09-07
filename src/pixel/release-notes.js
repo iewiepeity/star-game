@@ -2,6 +2,16 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.19.0", date: "2026-09-07", title: "每天都有新的話想說",
+    notes: [
+      "論壇、星語與娛樂圈增加新的日常議題與回應，隨週次出現，讓城市持續有新話題。",
+      "人物相處、短訊息與戀愛約會加入各自專屬的新場景，會優先挑選沒看過或最久沒出現的內容。",
+      "九種訓練各有二十段課堂小故事，同一輪看完才會重抽；經紀人會談與長期通告也有更多不同細節。",
+      "創作筆記直接開啟完整創作工作室，已發行或售出的作品可用按鈕縮起，再展開查看。",
+      "修正床毯與沙發換色的邊緣，床單、木框與抱枕保留原本顏色。",
+    ],
+  },
+  {
     version: "0.18.2", date: "2026-09-07", title: "把每一段旅程好好留住",
     notes: [
       "存檔改用更適合長期旅程的儲存空間，舊進度與五個手動位置會自動搬入。",
@@ -146,4 +156,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.41.2";
+export const CORE_VERSION = "1.42.0";

@@ -1,6 +1,7 @@
 import { titleTag } from "../core/utils.js";
 import { state } from "../core/state.js";
-import { SOCIAL_POST_TEMPLATES } from "../data/social.js";
+import { socialDrafts } from "./social-drafts.js";
+import { PLAYER_POST_COMMENTS } from "../data/community-responses.js";
 import {
   workOnCreativeProject,
   reviseCreativeProject,
@@ -15,16 +16,10 @@ import { completeSequelSession } from "./sequel-engine.js";
 import { resolveNpcInteraction } from "./npc-interaction-engine.js";
 import { managerInteract } from "./manager.js";
 import { resolveScheduledJobAudition } from "./job-engine.js";
-const COMMENTS = [
-  "第一天追蹤！",
-  "慢慢來，我們會看著你成長。",
-  "今天也辛苦了。",
-  "期待看到作品！",
-  "這種真誠的更新很加分。",
-];
 function doSocial(type,payload={}) {
-  const t = payload.text?{text:payload.text,label:payload.label||"近況"}:SOCIAL_POST_TEMPLATES[type];
+  const t = payload.text?{text:payload.text,label:payload.label||"近況"}:socialDrafts()[type];
   if (!t) return { ok: false, text: "貼文草稿已失效。" };
+  const comments = PLAYER_POST_COMMENTS[type] || PLAYER_POST_COMMENTS[({ city: "daily", team: "work", original: "afterwork" })[type]] || PLAYER_POST_COMMENTS.daily;
   const base = Math.max(4, state.fans + state.fame * 3),
     id = `own-${state.week}-${Date.now()}`;
   state.socialPosts.unshift({
@@ -36,7 +31,7 @@ function doSocial(type,payload={}) {
       { length: Math.min(3, 1 + Math.floor(state.fame / 80)) },
       (_, i) => ({
         name: ["小星星", "路過觀眾", "新人守望者"][i],
-        text: COMMENTS[(state.week + i + type.length) % COMMENTS.length],
+        text: comments[(state.week + i + type.length) % comments.length],
       }),
     ),
   });
@@ -130,7 +125,7 @@ export function resolvePersonalTask(task, choice = null) {
   }
   if (task.kind === "npc_interact") return resolveNpcInteraction(task, choice);
   if (task.kind === "manager_interact") {
-    const r = managerInteract(task.payload.type, choice);
+    const r = managerInteract(task.payload.type, choice, task.payload.managerSceneId);
     return { ok: r.ok, title: r.title, text: r.message };
   }
   if (task.kind === "social_post") return doSocial(task.payload.type,task.payload);

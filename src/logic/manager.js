@@ -1,65 +1,8 @@
 import { state } from "../core/state.js";
 import { managerForAgency } from "../data/managers.js";
+import { MANAGER_SCENES } from "../data/manager-scenes.js";
 import { enqueueVisibleEvent } from "./event-engine.js";
 const clamp = (n) => Math.max(0, Math.min(100, n));
-const MANAGER_SCENES = {
-  starlight: {
-    chat: [
-      "凌晨還亮著的行程表",
-      "許芮安把已經刪掉三份的行程表推過來，問你真正捨不得放掉的是工作，還是證明自己的感覺。",
-    ],
-    career: [
-      "五年不能只用忙來計算",
-      "她把作品、健康與市場位置放在同一張圖上，要你選擇下一季究竟先守代表作還是曝光。",
-    ],
-    apologize: [
-      "危機不是一句道歉就結束",
-      "她沒有罵人，只要求把受影響的合作方、粉絲與工作人員逐一列出。",
-    ],
-  },
-  mirror: {
-    chat: [
-      "劇本之外的沉默",
-      "沈靜禾帶來兩份條件相近的劇本，真正想問的卻是你最近是否還記得自己為什麼想演戲。",
-    ],
-    career: [
-      "不是每個好角色都該接",
-      "她用紅筆圈出三份作品的代價，逼你在安全履歷與可能改變定位的角色之間選擇。",
-    ],
-    apologize: [
-      "專業信任要用下一次證明",
-      "她不接受漂亮聲明，只問你打算如何讓下一個劇組相信同樣的事不會再發生。",
-    ],
-  },
-  clearvoice: {
-    chat: [
-      "三個群組同時安靜下來",
-      "韓知勳難得把手機扣在桌上，說市場正在追著你跑，但你的身體與作品不一定跟得上。",
-    ],
-    career: [
-      "下一首歌要留下什麼",
-      "他列出舞臺、串流與創作三條路，要求你選一條願意為它放棄部分曝光的方向。",
-    ],
-    apologize: [
-      "熱搜可以買，信任不行",
-      "他把即將上線的宣傳全部暫停，讓你決定先搶回聲量，還是先修復可信度。",
-    ],
-  },
-  tide: {
-    chat: [
-      "玩梗玩到哪裡要踩煞車",
-      "羅沐晴把本週留言牆投到大螢幕，熱門的不一定適合延續，安靜的反應也可能藏著真正機會。",
-    ],
-    career: [
-      "把一次亮眼變成長期位置",
-      "她拿出三個延伸企劃，問你想成為被記住的人，還是每週都有新梗的人。",
-    ],
-    apologize: [
-      "不要讓危機變成下一支企劃",
-      "她已經想好十種回應，但先把簡報關掉，要求你說出最不方便承認的那一部分。",
-    ],
-  },
-};
 export function ensureManager() {
   if (!state.currentAgencyId) return null;
   const def = managerForAgency(state.currentAgencyId);
@@ -95,7 +38,7 @@ export function adjustManager({
   s.rapport = clamp(s.rapport + rapport);
   s.chemistry = s.rapport;
   s.history.push({ week: state.week, trust, stress, rapport, source });
-  if (s.history.length > 30) s.history = s.history.slice(-30);
+  if (s.history.length > 90) s.history = s.history.slice(-90);
   return s;
 }
 export function managerRelationshipLabel() {
@@ -108,41 +51,44 @@ export function managerRelationshipLabel() {
   if (s.trust >= 25) return "關係緊繃";
   return "信任危機";
 }
+function interactionScene(manager, type, sceneId) {
+  const scenes = MANAGER_SCENES[manager.def.agencyId]?.[type];
+  if (!scenes?.length) return null;
+  const selected = scenes.find((scene) => scene.id === sceneId);
+  if (selected) return selected;
+  const recent = manager.state.history.filter((entry) => entry.sceneId && entry.type === type);
+  const last = recent.at(-1)?.sceneId;
+  // Choose the least recently used scene. Viewing a decision does not consume it.
+  return [...scenes].sort((a, b) => {
+    const seen = (scene) => recent.findLastIndex((entry) => entry.sceneId === scene.id);
+    return seen(a) - seen(b) || Number(a.id === last) - Number(b.id === last);
+  })[0];
+}
 export function managerInteractionDecision(task) {
-  const m = ensureManager(),
-    type = task?.payload?.type || "chat",
-    scene = m && MANAGER_SCENES[m.def.agencyId]?.[type];
+  const m = ensureManager(), type = task?.payload?.type || "chat",
+    scene = m && interactionScene(m, type, task?.payload?.managerSceneId);
   if (!m || !scene) return null;
+  if (task?.payload) task.payload.managerSceneId = scene.id;
+  const notes = {
+    listen: "提高信任與默契，降低經紀人壓力",
+    assert: "提高默契與話題企圖，但經紀人壓力略增",
+    compromise: "降低雙方壓力，得到下週工作準備",
+  };
   return {
     kind: "manager_interaction",
-    title: `${m.def.name}｜${scene[0]}`,
-    text: scene[1],
-    choices: [
-      {
-        id: "listen",
-        label: "先聽完對方真正擔心的事",
-        note: "提高信任與默契，降低經紀人壓力",
-      },
-      {
-        id: "assert",
-        label: "把自己的方向說清楚",
-        note: "提高默契與話題企圖，但經紀人壓力略增",
-      },
-      {
-        id: "compromise",
-        label: "一起訂出本週可執行的折衷",
-        note: "降低雙方壓力，得到下週工作準備",
-      },
-    ],
+    title: `${m.def.name}｜${scene.title}`,
+    text: scene.text,
+    choices: scene.choices.map(({ id, label }) => ({ id, label, note: notes[id] })),
   };
 }
-export function managerInteract(type, choice = "listen") {
+export function managerInteract(type, choice = "listen", sceneId = null) {
   const m = ensureManager();
   if (!m) return { ok: false, message: "目前沒有固定經紀人。" };
   if (m.state.lastInteractionWeek === state.week)
     return { ok: false, message: "這週已經和經紀人談過一次了。" };
-  const scene =
-    MANAGER_SCENES[m.def.agencyId]?.[type] || MANAGER_SCENES.starlight.chat;
+  type = MANAGER_SCENES[m.def.agencyId]?.[type] ? type : "chat";
+  const scene = interactionScene(m, type, sceneId);
+  choice = scene.choices.some((entry) => entry.id === choice) ? choice : "listen";
   m.state.lastInteractionWeek = state.week;
   let result;
   if (choice === "assert") {
@@ -159,12 +105,11 @@ export function managerInteract(type, choice = "listen") {
           ? { trust: 4, rapport: 5, stress: -4, source: "職涯會談" }
           : { trust: 3, rapport: 4, stress: -3, source: "日常聯絡" };
   adjustManager(result);
-  m.state.history.at(-1).choice = choice;
-  m.state.history.at(-1).title = scene[0];
+  Object.assign(m.state.history.at(-1), { choice, type, title: scene.title, sceneId: scene.id });
   return {
     ok: true,
-    title: `${m.def.name}｜${scene[0]}`,
-    message: `${scene[1]} 你選擇了${choice === "assert" ? "把方向說清楚" : choice === "compromise" ? "一起訂出折衷方案" : "先聽完對方真正擔心的事"}；這次談話會留在你們之後的合作裡。`,
+    title: `${m.def.name}｜${scene.title}`,
+    message: `${scene.text} ${scene.choices.find((entry) => entry.id === choice).outcome}`,
   };
 }
 export function managerAuditionModifier(job) {

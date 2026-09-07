@@ -15,6 +15,25 @@ const PALETTES = {
   rose_sofa: [179, 112, 132],
   blue_sofa: [109, 151, 177],
 };
+// The illustration's olive throw is distinct from the cream sheets and brown
+// bed frame. Select its pigment before applying any palette, so every colour
+// follows the same pixel edge (including the irregular hanging hem).
+function furniturePigment(id, r, g, b) {
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b),
+    delta = max - min;
+  if (!delta || max < 35) return false;
+  const saturation = delta / max;
+  if (id.endsWith("bed")) {
+    const channel = max === r ? (g - b) / delta
+      : max === g ? (b - r) / delta + 2 : (r - g) / delta + 4;
+    const hue = (channel * 60 + 360) % 360;
+    return hue >= 42 && hue <= 86 && saturation >= 0.1;
+  }
+  // Sofa legs/floor are more saturated wood than the cream upholstery. Keep
+  // them, the cushions and the original dark outlines out of every sofa tint.
+  return max >= 75 && saturation < 0.46;
+}
 const inside = (x, y, polygon) => {
   let hit = false;
   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
@@ -64,7 +83,8 @@ export function paintHomeFurniture(c, rawHome) {
         if (!inside(x + col, y + row, mask)) continue;
         const offset = (row * w + col) * 4;
         const [r, g, b] = pixels.data.subarray(offset, offset + 3);
-        if (Math.max(r, g, b) < 75) continue; // retain ink outlines and deep seams
+        if (!pixels.data[offset + 3] || !furniturePigment(id, r, g, b))
+          continue;
         if (id.endsWith("sofa") && cushionPigment(x + col, y + row, r, g, b))
           continue;
         const light = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 175;
@@ -75,14 +95,12 @@ export function paintHomeFurniture(c, rawHome) {
   };
   tint(
     placed.bed,
-    [210, 360, 282, 185],
+    [210, 360, 284, 188],
     [
-      [216, 427],
-      [382, 363],
-      [487, 400],
-      [322, 491],
-      [314, 541],
-      [214, 501],
+      [210, 360],
+      [494, 360],
+      [494, 548],
+      [210, 548],
     ],
   );
   tint(
@@ -94,8 +112,9 @@ export function paintHomeFurniture(c, rawHome) {
       [1115, 418],
       [1115, 436],
       [1136, 444],
-      [1135, 374],
-      [1143, 361],
+      [1133, 375],
+      [1143, 363],
+      [1151, 359],
       [1346, 438],
       [1353, 457],
       [1353, 471],

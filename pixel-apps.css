@@ -952,6 +952,23 @@
   background: var(--ui-soft);
   margin: 12px 0;
 }
+.pixel-app .creative-card > header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.pixel-app .creative-card > header > div {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.pixel-app .creative-collapse {
+  flex-shrink: 0;
+}
+.pixel-app .creative-card-details[hidden] {
+  display: none;
+}
 .pixel-app .creative-title-field {
   display: grid;
   gap: 8px;

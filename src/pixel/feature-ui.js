@@ -88,6 +88,7 @@ const views = {
 };
 
 export function createFeatureUI(api) {
+  const collapsedProjectIds = new Set();
   let current = "phone",
     fitting = null,
     wardrobeFilter = "all",
@@ -158,7 +159,7 @@ export function createFeatureUI(api) {
         game.appOpen = id;
         game.npcInvitation = null;
         if (id === "gallery") markGallerySeen();
-        return views[id]();
+        return id === "creative" ? creativeApp({ collapsedProjectIds }) : views[id]();
       });
     } else {
       api.toast("找不到這個功能");
@@ -388,6 +389,19 @@ export function createFeatureUI(api) {
     }
     if (d.partTimePlan) {
       api.planWork(d.partTimePlan);
+      return true;
+    }
+    if (d.creativeToggle) {
+      const project = life().game.creativeProjects.find((p) => p.id === d.creativeToggle);
+      if (!project || !["released", "sold"].includes(project.status)) return true;
+      const details = document.getElementById(button.getAttribute("aria-controls"));
+      if (!details) return true;
+      const collapsed = !details.hidden;
+      details.hidden = collapsed;
+      button.setAttribute("aria-expanded", String(!collapsed));
+      button.textContent = collapsed ? "展開作品" : "縮起作品";
+      if (collapsed) collapsedProjectIds.add(project.id);
+      else collapsedProjectIds.delete(project.id);
       return true;
     }
     if (d.creativeNew) {

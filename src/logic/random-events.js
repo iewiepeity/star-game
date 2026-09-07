@@ -7,9 +7,24 @@ import{applyEffects,classifyEvent,eligibleEvents}from"./event-engine.js";
 function choose(kind,key,pool){
  if(!pool?.length)return null;
  const historyKey=`${kind}:${key}`,last=state.randomEventHistory?.[historyKey];
- const candidates=pool.map((event,index)=>({event,index})).filter(item=>pool.length===1||item.index!==last);
+ // Keep the old numeric last index for pending events and existing saves. The
+ // companion cycle tracks titles so changing location eligibility cannot make
+ // a different event inherit an already-seen index.
+ const cycleKey=`${historyKey}:seen`,previous=state.randomEventHistory?.[cycleKey];
+ let seen=Array.isArray(previous)?previous.filter(title=>pool.some(event=>event.title===title)):[];
+ const entries=pool.map((event,index)=>({event,index}));
+ let candidates=entries.filter(item=>!seen.includes(item.event.title));
+ if(!candidates.length){
+  const lastTitle=seen.at(-1);
+  seen=[];
+  candidates=entries.filter(item=>pool.length===1||item.event.title!==lastTitle);
+ }
+ // A pre-expansion save knows only its last index. Avoid that event while the
+ // new cycle is being established, without excluding it forever.
+ if(!previous&&candidates.length>1)candidates=candidates.filter(item=>item.index!==last);
  const picked=candidates[random(0,candidates.length-1)];
  state.randomEventHistory??={};state.randomEventHistory[historyKey]=picked.index;
+ state.randomEventHistory[cycleKey]=[...seen,picked.event.title].slice(-pool.length);
  return picked.event;
 }
 

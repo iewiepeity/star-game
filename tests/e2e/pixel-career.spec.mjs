@@ -133,10 +133,9 @@ test("career menu supports production choices and the organic city retains every
   await expect(page.locator(".career-tile")).toHaveCount(6);
   await page.screenshot({ path: info.outputPath("career-menu.png") });
   await page.locator('[data-career="projects"]').click();
-  await page.locator("#project-title").fill("下一站的歌");
-  await page.locator("#project-form button").click();
-  await page.locator("[data-project-detail]").click();
-  await expect(page.locator('[data-book="creative_work"]')).toBeVisible();
+  await page.locator("#creative-title").fill("下一站的歌");
+  await page.locator('[data-creative-new="song"]').click();
+  await expect(page.locator("[data-creative-work]")).toBeVisible();
   await page.getByRole("button", { name: "關閉視窗" }).click();
   await menu(page, "travel");
   await expect(page.locator("[data-map-place]")).toHaveCount(27);
