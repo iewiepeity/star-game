@@ -310,7 +310,13 @@ export function createCityLifeUI(api) {
     }
     if (d.cityAdoptConfirm) {
       saveResult(
-        withCore(life(), () => adoptPet(d.cityAdoptConfirm, d.cityPetName)),
+        withCore(life(), () =>
+          adoptPet(
+            d.cityAdoptConfirm,
+            d.cityPetName,
+            cityDay(game(), life().day),
+          ),
+        ),
         "pets",
       );
       api.refresh?.();

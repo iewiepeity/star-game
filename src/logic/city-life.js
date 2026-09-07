@@ -54,6 +54,7 @@ export function noticeOutfit(
   game = state,
   day = cityDay(game),
 ) {
+  if (!Number.isInteger(day) || day < 0 || day >= 1820) return "";
   if (
     !friendly(game, npcId) ||
     !OUTFITS[game.outfitId] ||
@@ -64,7 +65,7 @@ export function noticeOutfit(
     history = c.outfitMemories,
     outfitId = game.outfitId;
   if (history.some((m) => m.npcId === npcId && m.day === day)) return "";
-  const prior = history.find(
+  const prior = history.findLast(
     (m) => m.npcId === npcId && m.outfitId === outfitId,
   );
   const [style, category] = OUTFIT_STYLES[outfitId] || ["自在", "daily"];
@@ -78,6 +79,7 @@ export function noticeOutfit(
       : "今天換了個場合，仍然可以穿自己喜歡的樣子。";
   const text = `${NPCS[npcId].name}：${line}${context}`;
   history.push({ npcId, outfitId, occasion, day, text });
+  if (history.length > 2000) history.splice(0, history.length - 2000);
   // Reactions are memories, never infinitely repeatable numerical rewards.
   return text;
 }
@@ -374,7 +376,9 @@ export function settleCityAction(assignment, choice, day) {
   return null;
 }
 
-export function adoptPet(kind, name) {
+export function adoptPet(kind, name, day = cityDay(state)) {
+  if (!Number.isInteger(day) || day < 0 || day >= 1820)
+    return fail("這段旅程已結束，先照顧好目前的小夥伴。");
   if (!["cat", "dog"].includes(kind) || cityLife().pet)
     return fail("目前無法再迎接另一位小夥伴。");
   const clean = String(name || "小星").trim();
@@ -383,7 +387,7 @@ export function adoptPet(kind, name) {
   cityLife().pet = {
     kind,
     name: clean,
-    adopted: cityDay(state),
+    adopted: day,
     greeted: [],
     comfortWeeks: [],
     walks: [],

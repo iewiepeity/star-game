@@ -226,6 +226,7 @@ test("接受、撞期、改期原子性、取消均保留合理結果且未出�
   assert.equal(life.plan[2].id, "city_date");
   assert.equal(cancelCityAppointment(life, a.id).ok, true);
   assert.equal(life.plan[2].id, "rest");
+  assert.equal(life.game.schedule[2], "rest");
   assert.equal(life.game.money, before);
   assert.ok(
     life.game.npcSchedules.jiqing
@@ -525,4 +526,19 @@ test("舊媒體提問也必須有近期公開合照，熱度與模糊回應不�
   assert.equal(rumor.sources[0].evidenceId, "photo-evidence");
   respondToRumor(rumor.id, "confirm");
   assert.equal(rumor.evidence, 5);
+});
+
+test("換日後領養使用目前日期，熟客消息不能占用兩天", () => {
+  const life = fixture();
+  run(life, { id: "rest" });
+  advanceDay(life);
+  const day = cityDay(life.game, life.day);
+  withCore(life, () => adoptPet("cat", "明天", day));
+  assert.equal(life.game.cityLife.pet.adopted, day);
+  life.game.cityLife.regulars.cafe = { days: [0, 1, 2, 3, 4], redeemed: false };
+  const a = { id: "tv_assistant", regularId: "cafe" };
+  assert.equal(planDay(life, 2, a), "");
+  assert.match(planDay(life, 3, a), /已排在另一天/);
+  assert.equal(planDay(life, 2, { id: "rest" }), "");
+  assert.equal(planDay(life, 3, a), "");
 });

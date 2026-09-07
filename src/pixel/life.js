@@ -399,6 +399,8 @@ export function access(life, assignment, day = life.day, planning = false) {
   }
   if (assignment.regularId && regularOpportunity(game, assignment.regularId)?.action !== assignment.id)
     return "這份熟客消息已經用過，或不適用於這個行程。";
+  if (assignment.regularId && life.plan.some((a, i) => i !== day && i >= life.day && a.regularId === assignment.regularId && !(i === life.day && life.pending?.phase === "result")))
+    return "這份消息已排在另一天，請先取消原安排。";
   if (assignment.id === "relief_gig" && !reliefGigAvailable(game))
     return "資金低於 $1,500 時可接一次救急短工";
   // Services are public destinations. A schedule can include the first trip;

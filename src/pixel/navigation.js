@@ -20,8 +20,13 @@ export function walkable(room, point) {
 }
 // The path planner and moving actors must agree on the space around their feet.
 export function footClear(room, point) {
-  return [[0, 0], [4, 0], [-4, 0], [0, 4], [0, -4]].every(([dx, dy]) =>
-    walkable(room, { x: point.x + dx, y: point.y + dy }));
+  return [
+    [0, 0],
+    [4, 0],
+    [-4, 0],
+    [0, 4],
+    [0, -4],
+  ].every(([dx, dy]) => walkable(room, { x: point.x + dx, y: point.y + dy }));
 }
 export function buildGrid(room) {
   const size = WORLD.grid,
@@ -56,38 +61,40 @@ export function nearest(grid, point) {
   );
 }
 const distance = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-function segmentClear(room, a, b) {
+function segmentClear(room, a, b, canStep = null) {
   const steps = Math.max(1, Math.ceil(distance(a, b)));
-  for (let i = 0; i <= steps; i++)
-    if (
-      !footClear(room, {
-        x: a.x + ((b.x - a.x) * i) / steps,
-        y: a.y + ((b.y - a.y) * i) / steps,
-      })
-    )
-      return false;
+  for (let i = 0; i <= steps; i++) {
+    const point = {
+      x: a.x + ((b.x - a.x) * i) / steps,
+      y: a.y + ((b.y - a.y) * i) / steps,
+    };
+    if (!footClear(room, point) || (canStep && !canStep(point))) return false;
+  }
   return true;
 }
-function bridge(room, from, to) {
+function bridge(room, from, to, canStep) {
   for (const corner of [
     { x: to.x, y: from.y },
     { x: from.x, y: to.y },
   ]) {
-    if (segmentClear(room, from, corner) && segmentClear(room, corner, to))
+    if (
+      segmentClear(room, from, corner, canStep) &&
+      segmentClear(room, corner, to, canStep)
+    )
       return [corner, to].filter(
         (p, i, arr) => distance(i ? arr[i - 1] : from, p) > 0.01,
       );
   }
   return null;
 }
-export function findPath(grid, from, to) {
+export function findPath(grid, from, to, canStep = null) {
   const candidates = [...grid.nodes].sort(
     (a, b) => distance(a, from) - distance(b, from),
   );
   let start = null,
     lead = null;
   for (const node of candidates) {
-    lead = bridge(grid.room, from, node);
+    lead = bridge(grid.room, from, node, canStep);
     if (lead) {
       start = node;
       break;
@@ -139,9 +146,14 @@ export function findPath(grid, from, to) {
         continue;
       // Valid endpoints alone can still cut across a slanted furniture corner.
       const edge = [current, id].sort((a, b) => a - b).join(":");
-      const clear = grid.edges?.get(edge) ?? segmentClear(grid.room, node, next);
+      const clear =
+        grid.edges?.get(edge) ?? segmentClear(grid.room, node, next);
       grid.edges?.set(edge, clear);
-      if (!clear) continue;
+      // Moving bodies are not part of the static edge cache. Check the whole
+      // segment, including the off-grid lead-in, so yielding cannot loop through
+      // the same occupied point forever.
+      if (!clear || (canStep && !segmentClear(grid.room, node, next, canStep)))
+        continue;
       const turn =
         previous && (node.x - previous.x !== 0) !== (dx !== 0) ? 2 : 0;
       const value = cost.get(current) + grid.size + turn;

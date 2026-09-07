@@ -1,6 +1,6 @@
 {
   "version": "0.18.0",
-  "bytes": 115007658,
+  "bytes": 115009045,
   "entries": [
     {
       "url": "./index.html",
@@ -464,7 +464,7 @@
     },
     {
       "url": "./src/logic/city-life.js",
-      "bytes": 21820
+      "bytes": 22107
     },
     {
       "url": "./src/logic/city-progression.js",
@@ -776,7 +776,7 @@
     },
     {
       "url": "./src/pixel/city-life-ui.js",
-      "bytes": 17510
+      "bytes": 17608
     },
     {
       "url": "./src/pixel/city-rooms.js",
@@ -784,7 +784,7 @@
     },
     {
       "url": "./src/pixel/city-schedule.js",
-      "bytes": 7415
+      "bytes": 7615
     },
     {
       "url": "./src/pixel/city-ui.js",
@@ -836,7 +836,7 @@
     },
     {
       "url": "./src/pixel/life.js",
-      "bytes": 28249
+      "bytes": 28502
     },
     {
       "url": "./src/pixel/location-day-copy.js",
@@ -856,7 +856,7 @@
     },
     {
       "url": "./src/pixel/navigation.js",
-      "bytes": 4648
+      "bytes": 5074
     },
     {
       "url": "./src/pixel/npc-behavior.js",
@@ -940,7 +940,7 @@
     },
     {
       "url": "./src/pixel/world.js",
-      "bytes": 43155
+      "bytes": 43278
     },
     {
       "url": "./src/render.js",

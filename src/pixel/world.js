@@ -550,7 +550,9 @@ export function createWorld(controller) {
         nodes,
         byId: new Map(nodes.map((n) => [n.id, n])),
       };
-      const path = findPath(grid, actor, goal),
+      const path = findPath(grid, actor, goal, (point) =>
+        Math.hypot(point.x - actor.x, point.y - actor.y) < 0.01 ||
+        bodyClear(actor, point, others, 19)),
         end = path.at(-1) || actor;
       return Math.hypot(end.x - goal.x, end.y - goal.y) < 14 ? path : [];
     }

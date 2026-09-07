@@ -1,9 +1,13 @@
 import { test, expect } from "@playwright/test";
 import { initialPixelState } from "../../src/pixel/model.js";
+import { initialLife } from "../../src/pixel/life.js";
 
 const read = (page) => page.evaluate(() => window.__pixelRead());
 async function start(page, configure = () => {}) {
   const state = initialPixelState();
+  // A stable simulation seed keeps unrelated random chapters out of these
+  // focused life-flow scenarios; story interruptions have their own E2E suite.
+  state.life = initialLife("city-life-browser-20260907");
   state.flags.intro = true;
   state.life.speed = 16;
   state.life.game.week = 11;
@@ -163,29 +167,22 @@ test("三段對戲可玩、途中讀檔可續接，略過與快速複習有入�
   expect(errors).toEqual([]);
 });
 
-test("小遊戲略過仍可結算，熟練者可直接快速複習", async ({ page }) => {
-  test.setTimeout(90000);
-  await start(page, (s) => {
-    s.life.game.cityLife.practice.mastered = 3;
+for (const mode of ["quick", "skip"])
+  test(`對戲${mode === "quick" ? "熟練後快速複習" : "略過挑戰"}仍完整結算`, async ({
+    page,
+  }) => {
+    test.setTimeout(90000);
+    await start(page, (s) => {
+      s.life.game.cityLife.practice.mastered = 3;
+    });
+    await openCity(page, "practice");
+    await page.locator('[data-city-plan="city_challenge"]').click();
+    await page.locator('[data-city-plan-day="0"]').click();
+    await runToday(page, "city_challenge");
+    await expect(page.locator("[data-city-practice-skip]")).toBeVisible();
+    await page.locator(`[data-city-practice-${mode}]`).click();
+    await result(page);
+    expect((await read(page)).state.life.ledger[0].notes.join("")).toContain(
+      mode === "quick" ? "快速複習" : "基礎對戲練習",
+    );
   });
-  await openCity(page, "practice");
-  await page.locator('[data-city-plan="city_challenge"]').click();
-  await page.locator('[data-city-plan-day="0"]').click();
-  await runToday(page, "city_challenge");
-  await expect(page.locator("[data-city-practice-skip]")).toBeVisible();
-  await page.locator("[data-city-practice-quick]").click();
-  await result(page);
-  expect((await read(page)).state.life.ledger[0].notes.join("")).toContain(
-    "快速複習",
-  );
-  await page.locator('[data-life="advance"]').click();
-  await openCity(page, "practice");
-  await page.locator('[data-city-plan="city_challenge"]').click();
-  await page.locator('[data-city-plan-day="1"]').click();
-  await runToday(page, "city_challenge");
-  await page.locator("[data-city-practice-skip]").click();
-  await result(page);
-  expect((await read(page)).state.life.ledger[1].notes.join("")).toContain(
-    "基礎對戲練習",
-  );
-});

@@ -10,7 +10,12 @@ import {
   usableBehavior,
 } from "../src/pixel/npc-behavior.js";
 import { ROOMS, PEOPLE } from "../src/pixel/data.js";
-import { buildGrid, walkable } from "../src/pixel/navigation.js";
+import {
+  buildGrid,
+  findPath,
+  footClear,
+  walkable,
+} from "../src/pixel/navigation.js";
 import { initialPixelState, validatePixelState } from "../src/pixel/model.js";
 
 test("distance-paced motion accelerates, turns cardinally and settles exactly at the goal", () => {
@@ -58,6 +63,63 @@ test("blocked feet stop the walk animation and cannot tunnel through another act
     bodyClear({ x: 39, y: 0 }, { x: 38, y: 0 }, [b]),
     "old overlap may separate",
   );
+});
+test("a visiting NPC cannot trap an off-grid player in the route lead-in", () => {
+  const room = ROOMS.home,
+    grid = buildGrid(room);
+  // Two blocked player positions observed while walking to the sofa.
+  const cases = [
+    [
+      { x: 737.5, y: 506.25 },
+      { x: 740.3444, y: 522 },
+      { x: 714, y: 414 },
+    ],
+    [
+      { x: 738, y: 508.89 },
+      { x: 747.1889, y: 522 },
+      { x: 714, y: 414 },
+    ],
+  ];
+  for (const [from, other, goal] of cases) {
+    const actor = { ...from, path: [] };
+    const clear = (point) =>
+      Math.hypot(point.x - from.x, point.y - from.y) < 0.01 ||
+      bodyClear(from, point, [other], 19);
+    const nodes = grid.nodes.filter(
+      (point) =>
+        Math.hypot(point.x - other.x, point.y - other.y) >= 19 ||
+        Math.hypot(point.x - from.x, point.y - from.y) < 5,
+    );
+    actor.path = findPath(
+      {
+        ...grid,
+        nodes,
+        byId: new Map(nodes.map((point) => [point.id, point])),
+      },
+      from,
+      goal,
+      clear,
+    );
+    assert.ok(
+      actor.path.length,
+      "there is a clear route around the other actor",
+    );
+    for (let i = 0; i < 1200 && actor.path.length; i++)
+      advanceMotion(
+        actor,
+        1 / 60,
+        165,
+        (point) => footClear(room, point) && bodyClear(actor, point, [other]),
+      );
+    assert.equal(
+      actor.path.length,
+      0,
+      "the route must actually be walkable, not just its nodes",
+    );
+    assert.ok(Math.hypot(actor.x - goal.x, actor.y - goal.y) < 1);
+  }
+  // A dynamic check must not poison the shared static furniture edge cache.
+  assert.ok(findPath(grid, room.entry, cases[0][2]).length);
 });
 test("all city spaces offer reachable grounded interaction approaches", () => {
   for (const [id, room] of Object.entries(ROOMS)) {

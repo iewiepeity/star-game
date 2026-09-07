@@ -177,8 +177,13 @@ export function cancelCityAppointment(life, id) {
   if (
     Math.floor(a.day / 7) === life.game.week - 1 &&
     life.plan[a.day % 7].appointmentId === id
-  )
+  ) {
     life.plan[a.day % 7] = { id: "rest" };
+    life.game.schedule[a.day % 7] = "rest";
+    life.game.freeLocations[a.day % 7] = null;
+    life.game.scheduledActivityIds[a.day % 7] = null;
+    life.game.scheduledJobIds[a.day % 7] = null;
+  }
   life.game.npcMessages.push({
     id: `cancel:${id}`,
     npcId: a.npcId,
