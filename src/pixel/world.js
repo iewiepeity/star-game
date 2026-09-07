@@ -14,6 +14,7 @@ import {
   hash,
 } from "./npc-behavior.js";
 import { drawNpcGesture } from "./npc-gestures.js";
+import { drawPet, petVisible } from "./pet-visual.js";
 import { pickObject } from "./scene-objects.js";
 import { createFurnitureLayers } from "./furniture-layers.js";
 import {
@@ -205,6 +206,7 @@ export function createWorld(controller) {
     loadRoom() {
       this.uiTick = null;
       this.children.removeAll(true);
+      this.petActor = null;
       this.furniture?.dispose();
       this.furniture = null;
       this.actors.clear();
@@ -355,6 +357,18 @@ export function createWorld(controller) {
       actor.label?.destroy();
       actor.gesture?.destroy();
       this.actors.delete(actor.id);
+    }
+    syncPet() {
+      const state = controller.state(), pet = state.life.game.cityLife?.pet;
+      if (!petVisible(state)) {
+        this.petActor?.destroy(); this.petActor = null; return;
+      }
+      if (!this.petActor) this.petActor = this.add.graphics();
+      drawPet(this.petActor, pet.kind);
+      // Stay by the entrance at home, or beside the player on a scheduled walk.
+      const anchor = state.sceneId === "home" ? this.room.entry : this.player;
+      this.petActor.setPosition(anchor.x + 18, anchor.y + 3).setDepth(anchor.y + 4);
+      this.petActor.setData("petName", pet.name);
     }
     syncNpcs(first = false) {
       const state = controller.state();
@@ -1022,6 +1036,7 @@ export function createWorld(controller) {
         state = controller.state();
       state.elapsed += dt;
       this.syncNpcs();
+      this.syncPet();
       let moved = false;
       let dx =
         Number(this.keys.has("d") || this.keys.has("arrowright")) -
@@ -1189,6 +1204,7 @@ export function createWorld(controller) {
     }
     snapshot() {
       return {
+        pet: this.petActor ? { name: this.petActor.getData("petName"), x: this.petActor.x, y: this.petActor.y } : null,
         story: this.storyActors.snapshot(),
         furniture: this.furniture?.snapshot() || [],
         scene: controller.state().sceneId,

@@ -1,4 +1,5 @@
 import { openConversation } from "../logic/conversations.js";
+import { outfitDescription } from "../logic/city-life.js";
 import { toggleCommunityLike } from "../logic/community-likes.js";
 import { shortContact } from "../logic/short-contact.js";
 import { requestRomanceConversation } from "../logic/npc-storylines.js";
@@ -217,7 +218,7 @@ export function createFeatureUI(api) {
     );
     api.show(
       "wardrobe",
-      `<div class="pixel-app" data-app="wardrobe"><nav class="app-toolbar"><button data-pixel-app="phone">▦ 手帳</button><span>我的衣櫃</span><button data-ui="profile">人物外型</button></nav><div class="fitting-room"><figure><img src="${portraitAsset(s.avatarId, outfit.id)}" alt="${esc(outfit.name)}試穿預覽"><figcaption>${esc(outfit.name)}${fitting ? " · 試穿中" : " · 目前穿著"}</figcaption></figure><div><h2>今天，穿什麼出門？</h2><p>試穿不會扣款，也不會改變場景裡的穿著。</p><div class="bonus-comparison">${bonusComparison(
+      `<div class="pixel-app" data-app="wardrobe"><nav class="app-toolbar"><button data-pixel-app="phone">▦ 手帳</button><span>我的衣櫃</span><button data-ui="profile">人物外型</button></nav><div class="fitting-room"><figure><img src="${portraitAsset(s.avatarId, outfit.id)}" alt="${esc(outfit.name)}試穿預覽"><figcaption>${esc(outfit.name)}${fitting ? " · 試穿中" : " · 目前穿著"}</figcaption></figure><div><h2>今天，穿什麼出門？</h2><p>試穿不會扣款，也不會改變場景裡的穿著。</p><p>${esc(outfitDescription(outfit.id))}</p><button data-city-tab="outfits">朋友記得的穿搭</button><div class="bonus-comparison">${bonusComparison(
         g,
         outfit.id,
       )

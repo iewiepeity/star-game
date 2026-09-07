@@ -72,7 +72,7 @@ export function createHomeUI(api) {
     day < life().day || (day === life().day && life().pending)
       ? "這一天不能更改"
       : life().plan[day]?.id.startsWith("career_") ||
-          life().plan[day]?.id === "home_host"
+          life().plan[day]?.id === "home_host" || life().plan[day]?.appointmentId
         ? "已有約定，請先在行程表取消"
         : access(life(), assignment, day, true);
 

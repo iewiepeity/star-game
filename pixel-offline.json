@@ -1,6 +1,6 @@
 {
-  "version": "0.17.1",
-  "bytes": 114937800,
+  "version": "0.18.0",
+  "bytes": 115006252,
   "entries": [
     {
       "url": "./index.html",
@@ -16,7 +16,7 @@
     },
     {
       "url": "./pixel-ui.css",
-      "bytes": 27259
+      "bytes": 28004
     },
     {
       "url": "./pixel-apps.css",
@@ -139,6 +139,10 @@
       "bytes": 466
     },
     {
+      "url": "./src/core/city-life-state.js",
+      "bytes": 4956
+    },
+    {
       "url": "./src/core/deferred-search.js",
       "bytes": 1095
     },
@@ -188,7 +192,7 @@
     },
     {
       "url": "./src/core/save-schema.js",
-      "bytes": 9571
+      "bytes": 10106
     },
     {
       "url": "./src/core/state-transaction.js",
@@ -196,7 +200,7 @@
     },
     {
       "url": "./src/core/state.js",
-      "bytes": 17305
+      "bytes": 17466
     },
     {
       "url": "./src/core/stats.js",
@@ -237,6 +241,10 @@
     {
       "url": "./src/data/career-story-content.js",
       "bytes": 13887
+    },
+    {
+      "url": "./src/data/city-life.js",
+      "bytes": 6868
     },
     {
       "url": "./src/data/city-map.js",
@@ -453,6 +461,10 @@
     {
       "url": "./src/logic/city-hints.js",
       "bytes": 2556
+    },
+    {
+      "url": "./src/logic/city-life.js",
+      "bytes": 21820
     },
     {
       "url": "./src/logic/city-progression.js",
@@ -688,11 +700,11 @@
     },
     {
       "url": "./src/logic/short-contact.js",
-      "bytes": 4308
+      "bytes": 4414
     },
     {
       "url": "./src/logic/social-context.js",
-      "bytes": 4671
+      "bytes": 5183
     },
     {
       "url": "./src/logic/social-drafts.js",
@@ -708,7 +720,7 @@
     },
     {
       "url": "./src/logic/weekly-task.js",
-      "bytes": 4680
+      "bytes": 4738
     },
     {
       "url": "./src/logic/work-lifecycle.js",
@@ -748,11 +760,11 @@
     },
     {
       "url": "./src/pixel/career.js",
-      "bytes": 23947
+      "bytes": 24147
     },
     {
       "url": "./src/pixel/cast.js",
-      "bytes": 7688
+      "bytes": 8136
     },
     {
       "url": "./src/pixel/city-catalog.js",
@@ -763,8 +775,16 @@
       "bytes": 5249
     },
     {
+      "url": "./src/pixel/city-life-ui.js",
+      "bytes": 17502
+    },
+    {
       "url": "./src/pixel/city-rooms.js",
       "bytes": 23687
+    },
+    {
+      "url": "./src/pixel/city-schedule.js",
+      "bytes": 7415
     },
     {
       "url": "./src/pixel/city-ui.js",
@@ -788,7 +808,7 @@
     },
     {
       "url": "./src/pixel/feature-ui.js",
-      "bytes": 24614
+      "bytes": 24778
     },
     {
       "url": "./src/pixel/furniture-layers.js",
@@ -804,7 +824,7 @@
     },
     {
       "url": "./src/pixel/home-ui.js",
-      "bytes": 13245
+      "bytes": 13280
     },
     {
       "url": "./src/pixel/identity.js",
@@ -812,11 +832,11 @@
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 29278
+      "bytes": 30195
     },
     {
       "url": "./src/pixel/life.js",
-      "bytes": 25436
+      "bytes": 28249
     },
     {
       "url": "./src/pixel/location-day-copy.js",
@@ -824,11 +844,11 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 45077
+      "bytes": 45306
     },
     {
       "url": "./src/pixel/menu-icons.js",
-      "bytes": 1004
+      "bytes": 1087
     },
     {
       "url": "./src/pixel/model.js",
@@ -855,8 +875,12 @@
       "bytes": 4708
     },
     {
+      "url": "./src/pixel/pet-visual.js",
+      "bytes": 1046
+    },
+    {
       "url": "./src/pixel/planner-tools.js",
-      "bytes": 6098
+      "bytes": 6197
     },
     {
       "url": "./src/pixel/preferences.js",
@@ -864,7 +888,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 8226
+      "bytes": 9140
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -916,7 +940,7 @@
     },
     {
       "url": "./src/pixel/world.js",
-      "bytes": 42329
+      "bytes": 43155
     },
     {
       "url": "./src/render.js",

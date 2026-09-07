@@ -43,7 +43,7 @@ export function weeklyTaskCounts(planned = false, plannedKinds = []) {
     if (
       ["rest", "free", "social"].includes(type) ||
       ["rest", "free"].includes(id) ||
-      ["npc_interact", "social_post", "home_host", "home_craft"].includes(taskKind)
+      ["npc_interact", "social_post", "home_host", "home_craft", "city_date", "city_collab", "pet_walk", "city_challenge"].includes(taskKind)
     )
       counts.life++;
   }

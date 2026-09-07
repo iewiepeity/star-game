@@ -8,7 +8,7 @@ const undo = new WeakMap();
 const protectedDay = (life, i) =>
   i < life.day ||
   (i === life.day && life.pending) ||
-  life.plan[i].id.startsWith("career_") || life.plan[i].id === "home_host";
+  life.plan[i].id.startsWith("career_") || life.plan[i].id === "home_host" || !!life.plan[i].appointmentId;
 export function assignmentForAction(action, venue) {
   if (action === "free")
     return {
@@ -41,6 +41,7 @@ const fingerprint = (life) =>
     life.game.relationships,
     life.game.socialPosts,
     life.game.homeLife,
+    life.game.cityLife,
     life.game.activeJobs,
     life.game.agencyApplications,
     life.game.agencyOffer,
@@ -104,7 +105,7 @@ export function applyPlannerTool(life, id) {
                 SCHEDULE_PRESETS[id].plan[day],
                 SCHEDULE_PRESETS[id].locations?.[day],
               );
-      if (a.id.startsWith("career_") || ["relief_gig", "home_host"].includes(a.id))
+      if (a.id.startsWith("career_") || ["relief_gig", "home_host", "city_date", "city_collab"].includes(a.id) || a.regularId)
         a = { id: "rest" };
       if (!access(life, a, day) && !planDay(life, day, a)) count++;
     }

@@ -36,6 +36,9 @@ export function cityItinerary(id, elapsed, state) {
   const invitation = life?.plan[day];
   const guest = invitation?.id === "home_host" && invitation.npcId === id;
   const rel = life?.game.relationships?.[id];
+  const cityDate = life?.game.cityLife?.appointments?.find(a => a.id === invitation?.appointmentId && a.npcId === id && ["reserved", "completed"].includes(a.status) && a.day === (week - 1) * 7 + day);
+  if (cityDate && life.game.knownPeople.includes(id) && rel?.romance !== "broken" && (rel?.hostility || 0) < 45)
+    return { scene: cityDate.kind === "collab" ? "rehearsal" : "cafe", node: 0, status: cityDate.title, busy: true, leaving: false };
   if (
     guest &&
     life.game.knownPeople.includes(id) &&

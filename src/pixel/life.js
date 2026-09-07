@@ -1,4 +1,8 @@
 import { ROOMS } from "./data.js";
+import { cityDay } from "../core/city-life-state.js";
+import { CITY_CHOICES, CITY_VOICES } from "../data/city-life.js";
+import { repairCitySchedule, cancelCityAppointment } from "./city-schedule.js";
+import { cityLife, cityActionProblem, settleCityAction, recordRegularVisit, regularOpportunity, redeemRegularOpportunity, noticeOutfit, collectCitySources, petGreeting, tripCareProblem, settleTripCare } from "../logic/city-life.js";
 import { captureWeekStart } from "../logic/career-memory.js";
 import {
   CAREER_CHOICES,
@@ -239,6 +243,7 @@ for (const [id, place] of Object.entries(MAP_LOCATIONS)) {
   };
 }
 Object.assign(CHOICES, CAREER_CHOICES);
+Object.assign(CHOICES, CITY_CHOICES);
 export const definition = (life, assignment) =>
   careerDefinition(life.game, assignment) || CHOICES[assignment?.id];
 export const suggestedPlan = () => [
@@ -251,6 +256,7 @@ export const suggestedPlan = () => [
   { id: "rest" },
 ];
 export function arriveAt(life, roomId) {
+  if (roomId === "home") petGreeting(life.game, cityDay(life.game, life.day));
   const id =
     roomId === "tv"
       ? "tv_company"
@@ -350,6 +356,7 @@ export function normalizeLife(raw, legacyOutfit = "newcomer") {
   life.game.homeLife = normalizeHomeLife(life.game.homeLife);
   invalidateHomeKeys(life.game);
   repairHomeSchedules(life);
+  repairCitySchedule(life);
   syncCoreSchedule(life, CHOICES);
   if (
     life.pending &&
@@ -363,10 +370,12 @@ export function normalizeLife(raw, legacyOutfit = "newcomer") {
 export const actionKey = (life) => `week-${life.game.week}-day-${life.day}`;
 export function costOf(life, assignment) {
   const def = definition(life, assignment);
-  if (CAREER_CHOICES[assignment?.id]) return careerCost(life, assignment);
+  if (CAREER_CHOICES[assignment?.id]) return careerCost(life, assignment) + (def?.room === "airport" && cityLife(life.game).pet?.care?.npcId === "service" ? 300 : 0);
+  if (CITY_CHOICES[assignment?.id]) return assignment.id === "city_date" ? 300 : 0;
   return def
     ? effectiveActionCost(ACTIONS[def.action], life.game.week) +
-        (def.action === "free" ? MAP_LOCATIONS[def.venue]?.extraCost || 0 : 0)
+        (def.action === "free" ? MAP_LOCATIONS[def.venue]?.extraCost || 0 : 0) +
+        (def.room === "airport" && cityLife(life.game).pet?.care?.npcId === "service" ? 300 : 0)
     : 0;
 }
 export function access(life, assignment, day = life.day, planning = false) {
@@ -380,6 +389,16 @@ export function access(life, assignment, day = life.day, planning = false) {
     CAREER_CHOICES[assignment.id] && careerAccess(life, assignment, day);
   if (careerReason) return careerReason;
   const game = life.game;
+  if (CITY_CHOICES[assignment.id]) {
+    const reason = cityActionProblem(game, assignment, cityDay(game, day));
+    if (reason) return reason;
+  }
+  if (def.room === "airport") {
+    const reason = tripCareProblem(game, cityDay(game, day));
+    if (reason) return reason;
+  }
+  if (assignment.regularId && regularOpportunity(game, assignment.regularId)?.action !== assignment.id)
+    return "這份熟客消息已經用過，或不適用於這個行程。";
   if (assignment.id === "relief_gig" && !reliefGigAvailable(game))
     return "資金低於 $1,500 時可接一次救急短工";
   // Services are public destinations. A schedule can include the first trip;
@@ -411,6 +430,9 @@ export function planDay(life, day, assignment) {
     if (error) return error;
   }
   releaseCareerDay(life, day);
+  const previousAppointment = life.plan[day]?.appointmentId;
+  if (previousAppointment && previousAppointment !== assignment.appointmentId)
+    cancelCityAppointment(life, previousAppointment);
   reserveHomeDay(life, assignment, day);
   life.plan[day] = structuredClone(assignment);
   syncCoreSchedule(life, CHOICES);
@@ -467,7 +489,10 @@ export function settleDay(life, choice = "focus") {
     game.runnerDay = life.day;
     game.schedule[life.day] = def.action;
     game.freeLocations[life.day] = def.venue || null;
-    if (CAREER_CHOICES[assignment.id]) {
+    if (CITY_CHOICES[assignment.id]) {
+      presentation = settleCityAction(assignment, choice, cityDay(game, life.day));
+      notes.push(plain(presentation?.text));
+    } else if (CAREER_CHOICES[assignment.id]) {
       presentation = resolveCareerDay(life, assignment, choice);
       const meetings = presentation?.encounters?.filter((m) => m.met) || [];
       if (meetings.length) {
@@ -480,6 +505,7 @@ export function settleDay(life, choice = "focus") {
         notes.push(...meetings.map((m) => plain(m.text)));
       }
       if (!presentation?.audition) notes.push(plain(presentation?.text));
+      for (const meeting of meetings) if (meeting.npcId) notes.push(noticeOutfit(meeting.npcId, "work", game, cityDay(game, life.day)));
     } else if (assignment.id === "home_host") {
       presentation = resolveHomeVisit(assignment, game);
       if (presentation.ok)
@@ -490,6 +516,10 @@ export function settleDay(life, choice = "focus") {
           life.day,
         );
       notes.push(plain(presentation.text));
+      if (presentation.ok) {
+        notes.push(noticeOutfit(assignment.npcId, "home", game, cityDay(game, life.day)));
+        if (cityLife(game).pet) notes.push(`${cityLife(game).pet.name}也在家。${CITY_VOICES[assignment.npcId].pet}`);
+      }
     } else if (assignment.id === "home_craft") {
       presentation = resolveCrafting(assignment, randomInt, game);
       notes.push(plain(presentation.text));
@@ -578,6 +608,10 @@ export function settleDay(life, choice = "focus") {
       if (game.socialPosts[0]) game.socialPosts[0].id = `pixel-${pending.id}`;
       notes.push(plain(r.text));
     }
+    if (def.room === "airport") notes.push(settleTripCare(cityDay(game, life.day)));
+    notes.push(recordRegularVisit(def.room, cityDay(game, life.day), game));
+    if (assignment.regularId) notes.push(redeemRegularOpportunity(assignment.regularId));
+    collectCitySources(game, cityDay(game, life.day));
     // Resolve inside the daily ledger transaction: reload/replay cannot draw or
     // award a second event, and ordinary room visits remain presentation-only.
     const moment = def.action === "free"
@@ -606,7 +640,7 @@ export function settleDay(life, choice = "focus") {
       actionId: def.action,
       taskKind: assignment.id === "social" ? "social_post"
         : assignment.id === "creative" ? "creative_work"
-        : ["home_host", "home_craft"].includes(assignment.id) ? assignment.id
+        : ["home_host", "home_craft", ...Object.keys(CITY_CHOICES)].includes(assignment.id) ? assignment.id
         : assignment.id === "career_task" ? game.scheduledActivities[assignment.taskId]?.kind : null,
       success: presentation?.ok !== false,
       text: [...notes, ...moments.map(m => `${m.title}：${m.outcome}`)].join(" "),
@@ -645,6 +679,7 @@ export function settleDay(life, choice = "focus") {
     for (let day = life.day + 1; day < 7; day++) {
       releaseCareerDay(life, day);
       releaseHomeDay(life, day);
+      if (life.plan[day]?.appointmentId) cancelCityAppointment(life, life.plan[day].appointmentId);
       life.plan[day] = { id: "rest" };
     }
   life.ledger.push(result);
@@ -660,6 +695,7 @@ export function advanceDay(life) {
     return false;
   life.pending = null;
   life.day++;
+  if (life.day < 7) collectCitySources(life.game, cityDay(life.game, life.day));
   if (life.day === 7) {
     const reward = withCore(life, () => evaluateWeeklyTask());
     const memory = closeCareerWeek(life, reward);
@@ -688,6 +724,8 @@ export function nextWeek(life) {
   life.game.scheduledJobIds = Array(7).fill(null);
   life.game.scheduledActivityIds = Array(7).fill(null);
   life.plan = Array.from({ length: 7 }, () => ({ id: "rest" }));
+  repairCitySchedule(life);
+  syncCoreSchedule(life, CHOICES);
   life.auto = false;
   return true;
 }
@@ -713,8 +751,8 @@ export const displayHomeKeepsake = (life, id) => withCore(life, () => setDisplay
 export const changeHomeKey = (life, npcId, granted) => withCore(life, () => setHomeKeyCore(npcId, granted));
 export function recordMeeting(life, id, roomId) {
   const room = ROOMS[roomId];
-  return withCore(life, () =>
-    meetNpc(
+  return withCore(life, (game) => {
+    const met = meetNpc(
       id,
       room
         ? `第 ${life.game.week} 週${DAY_NAMES[life.day]}，在${room.name}交談後正式交換聯絡方式。`
@@ -722,8 +760,10 @@ export function recordMeeting(life, id, roomId) {
       room
         ? { context: "city", roomName: room.name, roomId, day: life.day }
         : {},
-    ),
-  );
+    );
+    noticeOutfit(id, roomId === "home" ? "home" : roomId === "rehearsal" ? "practice" : "daily", game, cityDay(game, life.day));
+    return met;
+  });
 }
 
 // Keep one durable weekly journal, plus the current ledger for crash-safe replay.

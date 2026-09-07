@@ -33,6 +33,8 @@ export default defineConfig({
         "**/pixel-scene-objects.spec.mjs",
         "**/pixel-npc-behavior.spec.mjs",
         "**/pixel-player-feedback.spec.mjs",
+        "**/pixel-home-life.spec.mjs",
+        "**/pixel-city-life.spec.mjs",
       ],
       use: {
         browserName: "chromium",
@@ -64,6 +66,8 @@ export default defineConfig({
         "**/pixel-scene-objects.spec.mjs",
         "**/pixel-npc-behavior.spec.mjs",
         "**/pixel-player-feedback.spec.mjs",
+        "**/pixel-home-life.spec.mjs",
+        "**/pixel-city-life.spec.mjs",
       ],
       use: {
         browserName: "webkit",
@@ -96,6 +100,8 @@ export default defineConfig({
         "**/pixel-scene-objects.spec.mjs",
         "**/pixel-npc-behavior.spec.mjs",
         "**/pixel-player-feedback.spec.mjs",
+        "**/pixel-home-life.spec.mjs",
+        "**/pixel-city-life.spec.mjs",
       ],
       use: {
         browserName: "webkit",
@@ -127,6 +133,8 @@ export default defineConfig({
         "**/pixel-scene-objects.spec.mjs",
         "**/pixel-npc-behavior.spec.mjs",
         "**/pixel-player-feedback.spec.mjs",
+        "**/pixel-home-life.spec.mjs",
+        "**/pixel-city-life.spec.mjs",
       ],
       use: { browserName: "firefox", viewport: { width: 1366, height: 900 } },
     },

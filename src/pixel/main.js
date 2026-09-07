@@ -244,6 +244,7 @@ function menu() {
       ["phone", "手機", "社群與聯絡人"],
       ["profile", "我的角色", "能力、衣櫃與名字"],
       ["home-life", "居家生活", "布置、作客、手作與紀念"],
+      ["city-life", "城市生活", "穿搭、日曆、熟客與小夥伴"],
       ["nearby", "附近物件", "看看身邊有什麼"],
       ["settings", "系統設定", "主題、速度與視角"],
     ]
@@ -712,6 +713,7 @@ const controller = {
     if (!state.visited.includes(id)) state.visited.push(id);
     const first = arriveAt(state.life, id);
     if (first) toast(`${ROOMS[id].name}：服務已開放`);
+    if (id === "home" && state.life.game.cityLife?.pet) toast(state.life.game.cityLife.notice);
   },
   ready: (scene) => {
     world = scene;
@@ -1135,6 +1137,9 @@ document.addEventListener("click", async (event) => {
       break;
     case "home-life":
       lifeUI.home();
+      break;
+    case "city-life":
+      lifeUI.city();
       break;
     case "name":
       state.life.game.realName =

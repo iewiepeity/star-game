@@ -1,0 +1,17 @@
+# 第二階段文字備查
+
+基準 commit：`b1d8db53b3ecc69f34e4b2340f2200ce8230a452`。本階段採新增情境分支，沒有刪除或覆寫原有角色主線、戀愛台詞、作客正文與手作正文。
+
+| 位置 | 原文／原行為 | 新增或替換內容 | 原因 |
+| --- | --- | --- | --- |
+| `pixel.html` / `#pixel-version-label` | `STARLIGHT DAYS · v0.17.1` | `STARLIGHT DAYS · v0.18.0` | 標示本次像素版本 |
+| `src/pixel/release-notes.js` / `CORE_VERSION` | `1.40.1` | `1.41.0` | 同步核心／快取版本；原 0.17.1 更新台詞整段保留 |
+| `README.md` / 現行版本欄位 | `v0.17.1`、`1.40.1` | `v0.18.0`、`1.41.0` | 更新現行版本；舊居家章節標題不變 |
+| `src/pixel/main.js` / 選單 | 原居家、手機等選單均保留 | 新增「城市生活」「穿搭、日曆、熟客與小夥伴」 | 提供可發現的入口 |
+| `src/pixel/feature-ui.js` / 衣櫃 | 「試穿不會扣款，也不會改變場景裡的穿著。」及原數值對照保留 | 另附場合／風格說明與「朋友記得的穿搭」入口 | 不改變試穿規則，不承諾拆裝紙娃娃 |
+| `src/logic/short-contact.js` / 短聯絡 | 原 `contactReply` 與 `REPLIES` 全文留在檔內，作為無回憶時的回退 | 有效的同人共同經歷優先回憶；工作話題仍用原回應 | 不讓陌生人引用私人記憶，不憑空寫事件 |
+| `src/logic/social-context.js` / NPC 社群 | 原 `NPC_SOCIAL_COPY` 與各種近況分支保留 | 只有同意並已公開的合照可產生公開回應 | 私密生活不憑空曝光 |
+| `src/pixel/life.js` / 作客與工作成果 | 原成果正文保留 | 附加當事人的穿搭印象、在場寵物反應及有來源熟客消息 | 將既有生活連到後續體驗 |
+| `tests/e2e/pixel-phase-one.spec.mjs` / 床組斷言 | 測試期望「休息一下」 | 測試期望「搬家時的單人床」 | 只修測試；玩家使用按鈕原文「使用休息一下」不變 |
+
+新增的全部文本集中於 `src/data/city-life.js`（人物聲音、熟客消息、對戲題目）、`src/logic/city-life.js`（成立条件後的結果／回收）、`src/pixel/city-schedule.js`（約定訊息）、`src/pixel/city-life-ui.js`（介面與確認）及新版更新紀錄，可由本 PR diff 逐段查驗。新增內容不覆蓋原文，故沒有虛構「舊版對應台詞」。
