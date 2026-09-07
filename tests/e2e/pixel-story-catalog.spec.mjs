@@ -58,25 +58,26 @@ for (const npcId of [...Object.keys(NPC_ARCS), "silver_pc"]) {
       if (!index) {
         await page.addInitScript(
           ({ s, key }) => {
-            const next = sessionStorage.getItem("pixel-story-test-next");
-            if (next) {
-              localStorage.setItem(key, next);
-              sessionStorage.removeItem("pixel-story-test-next");
-            } else if (!localStorage.getItem(key))
+            if (!localStorage.getItem(key))
               localStorage.setItem(key, JSON.stringify({ state: s }));
           },
           { s, key: SAVE_KEY },
         );
         await page.goto("/pixel.html");
       } else {
-        await page.evaluate(
-          ({ s }) =>
-            sessionStorage.setItem(
-              "pixel-story-test-next",
-              JSON.stringify({ state: s }),
-            ),
-          { s, key: SAVE_KEY },
-        );
+        await page.evaluate(async ({ s }) => {
+          const { createPixelStorage } = await import("/src/pixel/storage.js");
+          const storage = await createPixelStorage(localStorage);
+          try {
+            // The live page may still be committing the preceding chapter.
+            // Only retry an explicit revision conflict in this fixture writer.
+            for (let attempt = 0; attempt < 5; attempt++) {
+              if (await storage.write(s)) return;
+              if (!storage.conflicted || !await storage.refresh()) break;
+            }
+            throw new Error(storage.error || "Could not install chapter fixture");
+          } finally { storage.close(); }
+        }, { s });
         await page.reload();
       }
       await expect(page.locator("#loading")).toBeHidden();

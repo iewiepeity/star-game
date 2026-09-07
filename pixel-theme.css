@@ -1625,3 +1625,31 @@ progress::-moz-progress-bar {
   #panel .city-place-row strong { font-size: 13px; }
   #panel .city-place-row small { font-size: 9px; }
 }
+
+/* Readable supporting text follows the same font preference as story text. */
+#save-status { color: var(--ui-positive); font-size: calc(12px * var(--reading-scale, 1)); line-height: 1.35; }
+.bottom-bar :is(#outfit-label, #today-label, .player-card-caption) {
+  font-size: calc(12px * var(--reading-scale, 1)); line-height: 1.4;
+}
+#panel :is(.tiny-note, .theme-choice small, .preference-section > header > span,
+  .section-heading small, .section-heading > span, .command-menu small) {
+  font-size: calc(12px * var(--reading-scale, 1));
+}
+#panel .week-strip button { padding: 10px 6px; }
+#panel .week-strip strong { font-size: calc(13px * var(--reading-scale, 1)); }
+#panel .week-strip span { font-size: calc(12px * var(--reading-scale, 1)); color: var(--ui-ink); }
+#panel .week-strip b { font-size: calc(15px * var(--reading-scale, 1)); }
+#panel .storage-warning { padding: 14px; border: 2px solid var(--ui-accent); background: var(--ui-soft); }
+#panel[data-view="welcome"] > .close-panel { display: none; }
+.pixel-app .body-state-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
+.pixel-app .body-state-strip > span { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 12px; border: 1px solid var(--ui-border); background: var(--ui-soft); }
+.pixel-app .body-state-strip i { display: block; grid-column: 1 / -1; height: 8px; background: var(--ui-border); }
+.pixel-app .body-state-strip em { display: block; height: 100%; background: var(--ui-accent); }
+.pixel-app .creative-hero dd { margin: 0; font-size: calc(22px * var(--reading-scale, 1)); font-weight: 700; }
+.pixel-app .creative-hero dt { font-size: calc(13px * var(--reading-scale, 1)); color: var(--ui-muted); }
+@media (max-width: 700px) {
+  #panel .week-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  #panel .week-strip button { min-height: 100px; padding: 10px; }
+  .pixel-app .body-state-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bottom-bar .player-card { min-width: 0; }
+}

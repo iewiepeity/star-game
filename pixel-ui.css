@@ -5,9 +5,9 @@
   --ui-tint: #ece0cb;
   --ui-border: #d9cbb8;
   --ui-edge: #b7a38b;
-  --ui-accent: #885866;
+  --ui-accent: #7b4c5a;
   --ui-ink: #4d433d;
-  --ui-muted: #7b6b60;
+  --ui-muted: #625449;
   --ui-on-accent: #fffaf8;
   --ui-shadow: #52412d22;
   --ui-highlight: #ffffffc7;
@@ -32,7 +32,7 @@
   --ui-edge: #bd91a1;
   --ui-accent: #914d67;
   --ui-ink: #513940;
-  --ui-muted: #886370;
+  --ui-muted: #704958;
   --ui-shadow: #633b4825;
 }
 :root[data-pixel-theme="sage"] {
@@ -43,7 +43,7 @@
   --ui-edge: #95a58a;
   --ui-accent: #48634c;
   --ui-ink: #364839;
-  --ui-muted: #687961;
+  --ui-muted: #4e6048;
   --ui-shadow: #344c3325;
 }
 :root[data-pixel-theme="lilac"] {
@@ -54,7 +54,7 @@
   --ui-edge: #ab96bf;
   --ui-accent: #725286;
   --ui-ink: #473a53;
-  --ui-muted: #7c688c;
+  --ui-muted: #635074;
   --ui-shadow: #48355325;
 }
 :root[data-pixel-theme="night"] {

@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 import { resolve, extname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { initialPixelState, SAVE_KEY } from "../../src/pixel/model.js";
+import { resumePixelSave } from "./pixel-save-ready.mjs";
 
 // A real two-release server exercises installation, activation and caches.
 // Each test owns its origin, so workers cannot leak between parallel browsers.
@@ -149,6 +150,8 @@ test("save and update still reloads when another tab already activated the waiti
   const other = await context.newPage();
   await other.goto(releaseSite.url);
   await expect(other.locator("#loading")).toBeHidden({ timeout: 30000 });
+  await resumePixelSave(other);
+  await expect(page.locator("[data-storage-latest]")).toBeVisible();
   await other.evaluate(async () =>
     (await navigator.serviceWorker.getRegistration()).waiting.postMessage({
       type: "SKIP_WAITING",
@@ -164,6 +167,10 @@ test("save and update still reloads when another tab already activated the waiti
     )
     .toBe(true);
   await other.close();
+  await expect(page.locator("[data-storage-latest]")).toBeVisible();
+  await page.locator("[data-storage-latest]").click();
+  await expect(page.locator("#save-status")).toHaveText("● 已儲存");
+
   await applyAndCheck(page);
 });
 
@@ -174,11 +181,11 @@ test("a failed save explains the problem and leaves the update pending until a s
   test.setTimeout(90000);
   await prepare(page, releaseSite);
   await page.evaluate(() => {
-    const original = window.Storage.prototype.setItem;
+    const original = window.IDBObjectStore.prototype.put;
     window.__restoreUpdateStorage = () => {
-      window.Storage.prototype.setItem = original;
+      window.IDBObjectStore.prototype.put = original;
     };
-    window.Storage.prototype.setItem = () => {
+    window.IDBObjectStore.prototype.put = () => {
       throw new Error("storage full");
     };
   });

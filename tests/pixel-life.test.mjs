@@ -1,3 +1,5 @@
+import { createPixelStorage as createStorage } from "../src/pixel/storage.js";
+import { IDBFactory } from "fake-indexeddb";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -17,7 +19,6 @@ import {
   CHOICES,
 } from "../src/pixel/life.js";
 import {
-  createStorage,
   initialPixelState,
   SAVE_KEY,
 } from "../src/pixel/model.js";
@@ -136,20 +137,20 @@ test("cannot execute locked/poorly funded days or overwrite completed days", () 
   assert.equal(l.game.money, 0);
   assert.equal(l.day, 1);
 });
-test("phase-one migration and pending actions stay isolated from classic saves", () => {
+test("phase-one migration and pending actions stay isolated from classic saves", async () => {
   const data = new Map([["star-game-save", "sentinel"]]);
-  const s = createStorage({
-    getItem: (k) => data.get(k),
-    setItem: (k, v) => data.set(k, v),
-  });
   const legacy = initialPixelState();
   delete legacy.life;
   legacy.outfitId = "practice";
   data.set(SAVE_KEY, JSON.stringify({ state: legacy }));
+  const s = await createStorage({
+    getItem: (k) => data.get(k),
+    setItem: (k, v) => data.set(k, v),
+  }, { indexedDB: new IDBFactory(), broadcast: null });
   const migrated = s.read().state;
   assert.ok(migrated.life.game.ownedOutfits.raven.includes("practice"));
   beginDay(migrated.life, { id: "study" });
-  assert.ok(s.write(migrated));
+  assert.ok(await s.write(migrated));
   assert.equal(s.read().state.life.pending.assignment.id, "study");
   assert.equal(data.get("star-game-save"), "sentinel");
   assert.equal(Object.keys(CHOICES).length, 58);

@@ -12,6 +12,7 @@ export default defineConfig({
     {
       name: "tablet",
       testMatch: [
+        "**/pixel-audit-fixes.spec.mjs",
         "**/pixel-phase-one.spec.mjs",
         "**/pixel-life.spec.mjs",
         "**/pixel-city.spec.mjs",
@@ -39,6 +40,7 @@ export default defineConfig({
     {
       name: "mobile-webkit",
       testMatch: [
+        "**/pixel-audit-fixes.spec.mjs",
         "**/pixel-phase-one.spec.mjs",
         "**/pixel-life.spec.mjs",
         "**/pixel-city.spec.mjs",
@@ -67,6 +69,7 @@ export default defineConfig({
     {
       name: "tablet-webkit",
       testMatch: [
+        "**/pixel-audit-fixes.spec.mjs",
         "**/pixel-phase-one.spec.mjs",
         "**/pixel-life.spec.mjs",
         "**/pixel-city.spec.mjs",
@@ -94,6 +97,7 @@ export default defineConfig({
     {
       name: "firefox",
       testMatch: [
+        "**/pixel-audit-fixes.spec.mjs",
         "**/pixel-phase-one.spec.mjs",
         "**/pixel-life.spec.mjs",
         "**/pixel-city.spec.mjs",

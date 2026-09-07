@@ -274,14 +274,7 @@ test("the complete offline pack reloads and enters an unvisited room without a n
     .toBe("livehouse");
   await expect(page.locator("#loading")).toBeHidden();
   // Resume a pending story in an unvisited room with the network still off.
-  await page.addInitScript(() => {
-    const seed = sessionStorage.getItem("pixel-offline-story");
-    if (seed) {
-      localStorage.setItem("star-game-pixel-phase-one-v1", seed);
-      sessionStorage.removeItem("pixel-offline-story");
-    }
-  });
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
     const s = window.__pixelRead().state;
     s.life.game.activeEvent = {
       source: "人物主線",
@@ -302,7 +295,16 @@ test("the complete offline pack reloads and enters an unvisited room without a n
     };
     s.life.game.eventOutcome = null;
     s.life.storyStage = null;
-    sessionStorage.setItem("pixel-offline-story", JSON.stringify({ state: s }));
+    const { createPixelStorage } = await import("/src/pixel/storage.js");
+    const storage = await createPixelStorage(localStorage);
+    try {
+      // Finish fixture setup even if the live scene just committed a checkpoint.
+      for (let attempt = 0; attempt < 5; attempt++) {
+        if (await storage.write(s)) return;
+        if (!storage.conflicted || !await storage.refresh()) break;
+      }
+      throw new Error(storage.error || "Could not install offline story fixture");
+    } finally { storage.close(); }
   });
   await page.reload();
   await page.locator("[data-stage-start]").click();
