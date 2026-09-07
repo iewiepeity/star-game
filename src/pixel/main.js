@@ -1015,8 +1015,8 @@ document.addEventListener("click", async (event) => {
         try {
           await replaceState(latest.state);
           if (resumeUpdateAfterConflict) { resumeUpdateAfterConflict = false; offlineUI.offerUpdate(); }
-        } catch (e) { toast(e.message); }
-      } else { storageConflict(); toast("找不到最新存檔，請先匯出此分頁的旅程"); }
+        } catch (e) { storage.suspendWrites(); toast(e.message); }
+      } else { storage.suspendWrites(); toast("找不到最新存檔，請先匯出此分頁的旅程"); }
     } else { target.disabled = false; toast("暫時無法讀取最新進度，請先匯出備份"); }
     return;
   }

@@ -1,6 +1,6 @@
 {
   "version": "0.18.2",
-  "bytes": 114794763,
+  "bytes": 114794827,
   "entries": [
     {
       "url": "./index.html",
@@ -672,7 +672,7 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 49685
+      "bytes": 49716
     },
     {
       "url": "./src/pixel/menu-icons.js",
@@ -744,7 +744,7 @@
     },
     {
       "url": "./src/pixel/storage.js",
-      "bytes": 14764
+      "bytes": 14797
     },
     {
       "url": "./src/pixel/story-actors.js",

@@ -403,6 +403,7 @@ export async function createPixelStorage(
       notifyConflict = callback;
       if (conflict) callback();
     },
+    suspendWrites: markConflict,
     idle: () => queue,
     refresh,
     write(state, slot = "auto") {

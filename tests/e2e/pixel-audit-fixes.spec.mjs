@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { setImmediate as yieldSimulation } from "node:timers/promises";
 import { resumePixelSave } from "./pixel-save-ready.mjs";
+import { ROOMS } from "../../src/pixel/data.js";
 import { initialPixelState, SAVE_KEY } from "../../src/pixel/model.js";
 import {
   initialLife,
@@ -153,6 +154,48 @@ test("a stale tab cannot overwrite a newer tab; resuming keeps a backup of the o
     )
     .toBe("星途新人");
   await other.close();
+});
+
+test("a failed latest-save scene load keeps the old page blocked until a successful retry", async ({
+  page,
+}) => {
+  await seed(page, begun());
+  await expect(page.locator("#save-status")).toHaveText("● 已儲存");
+  await page.evaluate(async () => {
+    const next = window.__pixelRead().state;
+    next.playerName = next.life.game.realName = "最新旅程";
+    next.sceneId = "rehearsal";
+    const { createPixelStorage } = await import("/src/pixel/storage.js");
+    const writer = await createPixelStorage(localStorage);
+    try {
+      for (let attempt = 0; attempt < 5; attempt++) {
+        if (await writer.write(next)) return;
+        if (!writer.conflicted || !(await writer.refresh())) break;
+      }
+      throw new Error(writer.error);
+    } finally {
+      writer.close();
+    }
+  });
+  await expect(page.locator("[data-storage-latest]")).toBeVisible();
+  const asset = "**/" + ROOMS.rehearsal.asset.replace(/^\.\//, "");
+  expect((await stored(page)).state.playerName).toBe("最新旅程");
+  await page.route(asset, (route) => route.abort());
+  await page.locator("[data-storage-latest]").click();
+  await expect(page.locator("#toast")).toContainText("素材載入失敗", {
+    timeout: 20000,
+  });
+  expect((await read(page)).state.playerName).toBe("星途新人");
+  await page.evaluate(() => window.dispatchEvent(new window.Event("pagehide")));
+  expect((await stored(page)).state.playerName).toBe("最新旅程");
+  await expect(page.locator("[data-storage-latest]")).toBeVisible();
+  await page.unroute(asset);
+  await page.locator("[data-storage-latest]").click();
+  await expect(page.locator("#save-status")).toHaveText("● 已儲存", {
+    timeout: 20000,
+  });
+  expect((await read(page)).scene).toBe("rehearsal");
+  expect((await stored(page)).state.playerName).toBe("最新旅程");
 });
 
 test("Escape keeps an editable creation draft and only the Start button locks identity", async ({
