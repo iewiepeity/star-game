@@ -1,4 +1,5 @@
 import { weeklyTaskMarkup } from "../logic/weekly-task.js";
+import { recoveryRequired } from "./recovery-period.js";
 import { withCore } from "./life.js";
 import { FOCUSES } from "../data/focuses.js";
 import { CHOICES, planDay, access } from "./life.js";
@@ -9,7 +10,7 @@ const routineUndo = new WeakMap();
 function canUndoPlanner(life) {
   const entry = undo.get(life);
   return !!entry && !life.pending && !life.game.endingResult &&
-    life.game.forcedRestWeek !== life.game.week && entry.fingerprint === fingerprint(life);
+    !recoveryRequired(life) && entry.fingerprint === fingerprint(life);
 }
 export function canUndoRoutine(life) {
   const entry = routineUndo.get(life);
@@ -86,7 +87,7 @@ const fingerprint = (life) =>
     life.game.eventQueue,
   ]);
 export function applyPlannerTool(life, id) {
-  if (life.game.endingResult || life.game.forcedRestWeek === life.game.week)
+  if (life.game.endingResult || recoveryRequired(life))
     return { ok: false, message: "目前無法調整行程" };
   if (id === "undo") {
     const previous = undo.get(life);

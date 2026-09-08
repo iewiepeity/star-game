@@ -1,4 +1,5 @@
 import { cityDay, normalizeCityLife } from "../core/city-life-state.js";
+import { recoveryRequired } from "./recovery-period.js";
 import {
   appointmentProblem,
   calendarOccasions,
@@ -46,7 +47,7 @@ export function cityBookingProblem(
 ) {
   const game = life.game,
     now = cityDay(game, life.day);
-  if (game.endingResult || game.forcedRestWeek === Math.floor(day / 7) + 1)
+  if (game.endingResult || recoveryRequired(life, Math.floor(day / 7) + 1))
     return "這段時間需要休養，暫時不接新的約定。";
   const old =
     rescheduleId &&

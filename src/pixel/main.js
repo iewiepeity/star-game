@@ -491,19 +491,23 @@ async function replaceState(next, kind = "load") {
   if (appearanceBusy || controller.transitioning)
     throw new Error("請等場景載入完成再讀取");
   if (storage.conflicted) throw new Error(storage.error);
-  await storage.idle();
-  const previous = structuredClone(state);
   appearanceBusy = true;
-  lifeUI.takeover();
-  leaveOverlay();
-  state = next;
+  let previous;
   try {
+    await storage.idle();
+    if (storage.conflicted) throw new Error(storage.error);
+    previous = structuredClone(state);
+    lifeUI.takeover();
+    leaveOverlay();
+    state = next;
     await world.restoreRoom();
     if (!await storage.replace(state, recoveryBlocked ? null : previous, { recover: recoveryBlocked }))
       throw new Error(storage.error || "無法保存載入後的旅程，原本資料已保留");
   } catch (e) {
-    state = previous;
-    try { await world.restoreRoom(); } catch { /* The loading overlay offers retry. */ }
+    if (previous) {
+      state = previous;
+      try { await world.restoreRoom(); } catch { /* The loading overlay offers retry. */ }
+    }
     appearanceBusy = false;
     if (recoveryBlocked) recovery();
     else if (storage.conflicted) storageConflict();

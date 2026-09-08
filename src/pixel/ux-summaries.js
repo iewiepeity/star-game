@@ -2,10 +2,21 @@ import { trainingSubsidyNotice } from "../logic/economy.js";
 import { esc } from "../core/utils.js";
 import { costOf, definition, DAY_NAMES } from "./life.js";
 import { canUndoRoutine } from "./planner-tools.js";
+import { careerCost } from "./career.js";
 
 export function remainingPlanCost(life) {
   const start = life.day + (life.pending?.phase === "result" ? 1 : 0);
-  return life.plan.slice(start).reduce((sum, assignment) => sum + costOf(life, assignment), 0);
+  const productionBudgets = new Set();
+  return life.plan.slice(start).reduce((sum, assignment) => {
+    let cost = costOf(life, assignment);
+    const task = assignment.id === "career_task" && life.game.scheduledActivities[assignment.taskId];
+    if (task?.kind === "creative_production") {
+      const id = task.payload.projectId;
+      if (productionBudgets.has(id)) cost -= careerCost(life, assignment);
+      productionBudgets.add(id);
+    }
+    return sum + cost;
+  }, 0);
 }
 
 export function plannerContext(life, selectedDay) {

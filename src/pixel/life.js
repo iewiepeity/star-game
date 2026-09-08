@@ -1,4 +1,5 @@
 import { ROOMS } from "./data.js";
+import { recoveryRequired } from "./recovery-period.js";
 import { cityDay } from "../core/city-life-state.js";
 import { CITY_CHOICES, CITY_VOICES } from "../data/city-life.js";
 import { repairCitySchedule, cancelCityAppointment } from "./city-schedule.js";
@@ -382,7 +383,7 @@ export function access(life, assignment, day = life.day, planning = false) {
   const def = definition(life, assignment);
   if (!def) return "找不到這個安排";
   if (life.game.endingResult) return "這段旅程已完成，可在職涯紀錄查看結局";
-  if (life.game.forcedRestWeek === life.game.week && assignment.id !== "rest")
+  if (recoveryRequired(life) && assignment.id !== "rest")
     return "本週需要完整休養";
   if (!Number.isInteger(day) || day < life.day || day > 6) return "這一天已經結束";
   const careerReason =

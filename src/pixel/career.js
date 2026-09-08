@@ -1,4 +1,5 @@
 import { eventContext } from "../logic/event-context.js";
+import { recoveryRequired } from "./recovery-period.js";
 import { adaptSavedInvitation } from "./story-scenes.js";
 import { hiddenRoutePresentation } from "../logic/hidden-route.js";
 import { state } from "../core/state.js";
@@ -300,7 +301,7 @@ export function bookCareer(life, definitions, kind, payload, day) {
     life.game.endingResult
   )
     return { ok: false, message: "請選尚未完成的日期" };
-  if (life.game.forcedRestWeek === life.game.week)
+  if (recoveryRequired(life))
     return { ok: false, message: "本週需要完整休養" };
   if (day === life.day && life.pending)
     return { ok: false, message: "先完成或取消今天的行動，再安排約定" };
@@ -315,10 +316,12 @@ export function bookCareer(life, definitions, kind, payload, day) {
   // The selected date is explicitly replaced. Other dates cannot be used as a
   // silent fallback by the legacy scheduler.
   const originalSchedule = [...life.game.schedule];
-  life.game.schedule = Array(7).fill("study");
-  life.game.schedule[day] = "rest";
-  life.game.freeLocations[day] = null;
   const r = withCore(life, (game) => {
+    // Hydrate the real schedule first. Hydrating the temporary blocked days
+    // would erase all other activity/job IDs during normalization.
+    game.schedule = Array(7).fill("study");
+    game.schedule[day] = "rest";
+    game.freeLocations[day] = null;
     game.selectedDay = day;
     if (kind === "audition") return scheduleJobAudition(payload.jobId, day);
     if (kind === "job") return scheduleJobSession(payload.jobId, day);

@@ -1,6 +1,6 @@
 {
-  "version": "0.23.1",
-  "bytes": 115308739,
+  "version": "0.23.2",
+  "bytes": 115310394,
   "entries": [
     {
       "url": "./privacy.html",
@@ -724,7 +724,7 @@
     },
     {
       "url": "./src/pixel/career.js",
-      "bytes": 24420
+      "bytes": 24592
     },
     {
       "url": "./src/pixel/cast.js",
@@ -748,7 +748,7 @@
     },
     {
       "url": "./src/pixel/city-schedule.js",
-      "bytes": 7615
+      "bytes": 7672
     },
     {
       "url": "./src/pixel/city-ui.js",
@@ -800,7 +800,7 @@
     },
     {
       "url": "./src/pixel/life.js",
-      "bytes": 28502
+      "bytes": 28538
     },
     {
       "url": "./src/pixel/location-day-copy.js",
@@ -808,7 +808,7 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 52662
+      "bytes": 52772
     },
     {
       "url": "./src/pixel/map-purpose.js",
@@ -848,15 +848,19 @@
     },
     {
       "url": "./src/pixel/planner-tools.js",
-      "bytes": 7796
+      "bytes": 7812
     },
     {
       "url": "./src/pixel/preferences.js",
       "bytes": 2669
     },
     {
+      "url": "./src/pixel/recovery-period.js",
+      "bytes": 342
+    },
+    {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 15990
+      "bytes": 16487
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -912,7 +916,7 @@
     },
     {
       "url": "./src/pixel/ux-summaries.js",
-      "bytes": 3163
+      "bytes": 3588
     },
     {
       "url": "./src/pixel/viewport.js",

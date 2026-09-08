@@ -2,6 +2,14 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.23.2", date: "2026-09-08", title: "約好的日子，都好好留下",
+    notes: [
+      "新增預約不再移除其他日期的通告、見面或創作安排；連排製作時，同一作品的製作預算只計一次。",
+      "讀檔期間不再接受另一筆載入，避免連點造成進度與備份錯亂；失敗後仍可重試。",
+      "住院後，本週剩餘日期與下一週都依休養安排，不能從課程、工作或邀約入口繞過。",
+    ],
+  },
+  {
     version: "0.23.1", date: "2026-09-08", title: "讓進度與安排確實對得上",
     notes: [
       "存讀檔不再把過去到訪的地點算成本週探訪，也不會在外出時觸發寵物的返家迎接。",
@@ -217,4 +225,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.46.1";
+export const CORE_VERSION = "1.46.2";
