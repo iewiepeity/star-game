@@ -1,3 +1,4 @@
+import { revealControl } from "./reveal-control.mjs";
 import { test, expect } from "@playwright/test";
 import { initialPixelState } from "../../src/pixel/model.js";
 
@@ -37,6 +38,7 @@ test("imported hostile name is escaped and settings links to scoped data erasure
   await page.locator('[data-ui="close"]').first().click();
   await page.getByRole("button", { name: "開啟選單", exact: true }).click();
   await page.locator('#panel [data-ui="settings"]').click();
+  await revealControl(page.getByRole("link", { name: "查看隱私說明／清除本遊戲資料" }));
   await expect(page.getByRole("link", { name: "查看隱私說明／清除本遊戲資料" })).toBeVisible();
 });
 

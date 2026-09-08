@@ -1,3 +1,4 @@
+import { revealControl } from "./reveal-control.mjs";
 import { test, expect } from "@playwright/test";
 import { setImmediate as yieldSimulation } from "node:timers/promises";
 import { resumePixelSave } from "./pixel-save-ready.mjs";
@@ -429,6 +430,7 @@ test("five palettes and information panels pass the audited accessibility checks
   for (const theme of ["cream", "rose", "sage", "lilac", "night"]) {
     await page.locator('[data-ui="menu"]').first().click();
     await page.locator('#panel [data-ui="settings"]').click();
+    await revealControl(page.locator(`button[data-pixel-theme="${theme}"]`));
     await page.locator(`button[data-pixel-theme="${theme}"]`).click();
     await audit(theme + " settings");
     await page.getByRole("button", { name: "關閉視窗", exact: true }).click();

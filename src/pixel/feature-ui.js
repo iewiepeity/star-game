@@ -1,3 +1,5 @@
+import { requestRomanceDaily } from "../logic/romance-daily.js";
+import { enqueueVisibleEvent } from "../logic/event-engine.js";
 import { beginRomanceRepair, reviewRomanceRepair, chooseRomanceCeremony, REPAIR_COPY } from "../logic/romance-life.js";
 import { pausePersonalStory, resumePersonalStory } from "../logic/personal-stories.js";
 import { prunePersonalStoryEvents, requestPersonalStory } from "../logic/event-engine.js";
@@ -94,6 +96,8 @@ const views = {
 
 export function createFeatureUI(api) {
   const collapsedProjectIds = new Set();
+  let pendingRelationshipDecision = null;
+  const relationshipSnapshot = id => JSON.stringify([life().game.partnerId, life().game.relationships?.[id]?.romance, life().game.relationships?.[id]?.visibility, life().game.relationships?.[id]?.ceremony]);
   let current = "phone",
     fitting = null,
     wardrobeFilter = "all",
@@ -108,6 +112,7 @@ export function createFeatureUI(api) {
   const card = ([id, title, note]) =>
     `<button data-pixel-app="${id}"><i>${appIcon(id)}</i><span><b>${title}</b><small>${note}</small></span></button>`;
   function open(id = "phone") {
+    pendingRelationshipDecision = null;
     if (id === "npc") id = "people";
     recordRecentApp(life().game, id);
     current = id;
@@ -524,9 +529,39 @@ export function createFeatureUI(api) {
       }
       return true;
     }
-    if (d.romanceRepair || d.romanceCeremony) {
+    if (d.romanceDaily) {
       mutate(() => {
-        const result = d.romanceCeremony ? chooseRomanceCeremony(d.npcId, d.romanceCeremony) : d.romanceRepair === "begin" ? beginRomanceRepair(d.npcId) : reviewRomanceRepair(d.npcId);
+        const result = requestRomanceDaily(d.romanceDaily);
+        if (!result.ok) return { message: result.text };
+        const queued = enqueueVisibleEvent(result.event, "玩家選擇戀愛日常");
+        return { message: queued && queued !== "expired" ? "已排進後續故事；不會直接執行今天的行程。" : "這段相處已在等待的故事裡，不會重複安排。" };
+      });
+      return true;
+    }
+    if (d.confirmRelationship) {
+      const decision = pendingRelationshipDecision;
+      pendingRelationshipDecision = null;
+      if (!decision || decision.snapshot !== relationshipSnapshot(decision.id)) { api.toast("關係狀態已改變，請重新確認。"); return true; }
+      current = "people";
+      mutate(() => {
+        const result = decision.kind === "ceremony" ? chooseRomanceCeremony(decision.id, decision.value) : setRomanceVisibility(decision.id, decision.value);
+        return { ...result, message: result.text || result.reason || "已更新彼此共同決定的公開狀態。" };
+      });
+      return true;
+    }
+    if (d.romanceCeremony || d.romanceAction === "public" || d.romanceAction === "underground") {
+      const kind = d.romanceCeremony ? "ceremony" : "visibility";
+      const value = d.romanceCeremony || d.romanceAction;
+      const copy = kind === "ceremony"
+        ? value === "small" ? ["一起辦親友小婚禮？", "確認後會留下已完成婚禮的紀錄，不能重複舉辦。婚訊不會因此自動公開，也不扣遊戲天數或金錢。"] : ["暫時不辦儀式？", "婚姻與公開狀態不變；日後仍可以一起補辦親友小婚禮。"]
+        : value === "public" ? ["一起公開這段關係？", "外界會知道你們的關係，可能帶來關注與輿論壓力。以後可以少談私生活，但已公開的消息不會消失。這不會改變婚禮安排。"] : ["保留更多私人空間？", "往後不再主動公開私生活；已公開的消息不會消失，伴侶與婚禮狀態不變。"];
+      pendingRelationshipDecision = { id: d.npcId, kind, value, snapshot: relationshipSnapshot(d.npcId) };
+      api.show("relationship-confirm", `${api.heading("OUR DECISION", copy[0], copy[1])}<div class="pixel-app panel-actions"><button data-pixel-app="people">先不改變</button><button class="primary" data-confirm-relationship="yes">確認這個決定</button></div>`);
+      return true;
+    }
+    if (d.romanceRepair) {
+      mutate(() => {
+        const result = d.romanceRepair === "begin" ? beginRomanceRepair(d.npcId) : reviewRomanceRepair(d.npcId);
         return { ...result, message: result.text || result.reason };
       });
       return true;

@@ -4,10 +4,21 @@ export function createViewportControls(button, panel) {
   const viewport = window.visualViewport;
   const meta = document.querySelector('meta[name="viewport"]');
   const original = meta?.getAttribute("content");
-  let resetting = null;
+  let resetting = null, previousHeight = 0;
 
   function sync() {
     const scale = viewport?.scale || 1;
+    if (viewport && Math.abs(scale - 1) < 0.02) {
+      panel.style?.setProperty("--usable-panel-height", `${Math.max(120, viewport.height - 24)}px`);
+      panel.style?.setProperty("--visible-panel-top", `${viewport.offsetTop + 12}px`);
+      const editing = document.activeElement?.matches?.("input, textarea, select");
+      if (panel.dataset) panel.dataset.keyboard = String(!!editing && viewport.height < window.innerHeight * 0.8);
+      if (editing && previousHeight !== viewport.height) window.requestAnimationFrame(() => document.activeElement?.scrollIntoView?.({ block: "nearest" }));
+      previousHeight = viewport.height;
+    } else {
+      panel.style?.removeProperty("--usable-panel-height");
+      if (panel.dataset) panel.dataset.keyboard = "false";
+    }
     button.hidden = Math.abs(scale - 1) < 0.02;
     const parent = panel.open ? panel : document.body;
     if (button.parentElement !== parent) parent.append(button);

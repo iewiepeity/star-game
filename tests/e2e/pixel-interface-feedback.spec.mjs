@@ -1,3 +1,4 @@
+import { revealControl } from "./reveal-control.mjs";
 import { test, expect } from "@playwright/test";
 import { initialPixelState } from "../../src/pixel/model.js";
 test.use({ serviceWorkers: "block" });
@@ -29,6 +30,7 @@ test("larger player card and weekly shortcut fit alongside the daily controls in
   await start(page, s => { s.objectStates = { home: { "prop-cushions": "blue" } }; });
   for (const theme of ["cream", "rose", "sage", "lilac", "night"]) {
     await menu(page, "settings");
+    await revealControl(page.locator(`button[data-pixel-theme="${theme}"]`));
     await page.locator(`button[data-pixel-theme="${theme}"]`).click();
     await close(page);
     await expect(page.locator("#player-name")).toHaveText("夏知星");

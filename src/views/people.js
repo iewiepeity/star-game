@@ -54,7 +54,7 @@ function conversation(id) {
     )
     .join(
       "",
-    )}</nav><label class="chat-draft-label"><span>寫給${esc(npc.name)}的訊息</span><textarea class="chat-draft" data-chat-draft rows="3" maxlength="200" aria-label="編寫訊息" ${allowance.disabled ? "disabled" : ""}>${esc(state.chatDraft ?? CONTACT_TOPICS[topic].text)}</textarea></label><div class="chat-send-row"><small>本週：對方還能聊 ${allowance.person} 次・合計剩 ${allowance.total} 次</small><button data-short-contact="${id}" data-contact-type="call" data-contact-topic="${topic}" ${allowance.disabled ? "disabled" : ""}>☎ 打電話</button><button class="main-btn" data-short-contact="${id}" data-contact-type="message" data-contact-topic="${topic}" ${allowance.disabled ? "disabled" : ""}>送出訊息 ↑</button></div><p class="chat-allowance" role="status">${allowance.reason}</p></div></section>`;
+    )}</nav><label class="chat-draft-label"><span>寫給${esc(npc.name)}的訊息</span><textarea class="chat-draft" data-chat-draft rows="3" maxlength="200" aria-label="編寫訊息" ${allowance.disabled ? "disabled" : ""}>${esc(state.chatDraft ?? CONTACT_TOPICS[topic].text)}</textarea></label><div class="chat-send-row"><small>本週：對方還能聊 ${allowance.person} 次・合計剩 ${allowance.total} 次</small><button data-short-contact="${id}" data-contact-type="call" data-contact-topic="${topic}" ${allowance.disabled ? "disabled" : ""}>☎ 打電話 · 不耗一天</button><button class="main-btn" data-short-contact="${id}" data-contact-type="message" data-contact-topic="${topic}" ${allowance.disabled ? "disabled" : ""}>送出訊息 · 不耗一天 ↑</button></div><p class="chat-allowance" role="status">${allowance.reason}</p></div></section>`;
 }
 export function peopleApp() {
   const known = state.knownPeople.filter((id) => NPCS[id]);

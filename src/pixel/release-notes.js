@@ -2,6 +2,18 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.23.0", date: "2026-09-08", title: "少找一點，多玩一點",
+    notes: [
+      "行程頁固定提示正在安排的日期，單次例行安排可以復原；預算區分已排費用與尚未入帳的收入。",
+      "聊天、見面、走訪與開始今天的按鈕標示時間用途；人物速覽直接提供聯絡、見面與可接續故事的入口。",
+      "每天與每週先呈現最多三項實際變化，完整故事與數值明細仍保留，不會重複發獎。",
+      "地圖新增今天有約、待辦工作、想訓練與想休息的篩選，可搭配原有搜尋使用。",
+      "公開狀態與婚禮選擇先確認影響再生效；分手移到獨立關係管理區。",
+      "設定按閱讀顯示、聲音演出、故事、存檔資料與更新離線分組；調整後保留展開位置，字體與原比例按鈕更容易找到。",
+      "手機按鈕與長文字可換行，閱讀字級更一致；輸入時依可用視窗高度調整面板，保留原本縮放操作。",
+    ],
+  },
+  {
     version: "0.22.0", date: "2026-09-08", title: "只有我們知道的日常",
     notes: [
       "九位可攻略角色各有曖昧、交往、穩定與婚後的專屬日常；玩笑、安靜陪伴與坦白需要，會留下不同的相處偏好。",
@@ -196,4 +208,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.45.0";
+export const CORE_VERSION = "1.46.0";

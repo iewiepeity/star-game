@@ -1,3 +1,4 @@
+import { revealControl } from "./reveal-control.mjs";
 import { test, expect } from "@playwright/test";
 import { initialPixelState } from "../../src/pixel/model.js";
 const read = (p) => p.evaluate(() => window.__pixelRead?.());
@@ -32,6 +33,7 @@ test("five palette themes apply across settings, gameplay, and reload without mo
   await menu(page, "settings");
   await expect(page.locator("button[data-pixel-theme]")).toHaveCount(5);
   for (const id of ["cream", "rose", "sage", "lilac", "night"]) {
+    await revealControl(page.locator(`button[data-pixel-theme="${id}"]`));
     await page.locator(`button[data-pixel-theme="${id}"]`).click();
     await expect(page.locator("html")).toHaveAttribute("data-pixel-theme", id);
     await page.screenshot({
@@ -39,6 +41,7 @@ test("five palette themes apply across settings, gameplay, and reload without mo
       path: info.outputPath("settings-" + id + ".png"),
     });
   }
+  await revealControl(page.locator('[data-set-speed="4"]'));
   await page.locator('[data-set-speed="4"]').click();
   expect((await read(page)).state.life.speed).toBe(4);
   await close(page);
@@ -72,6 +75,7 @@ test("transient toast is centered above the HUD and stays visible inside a modal
 }, info) => {
   await start(page);
   await menu(page, "settings");
+  await revealControl(page.locator('[data-ui="pause"]'));
   await page.locator('[data-ui="pause"]').click();
   const toast = page.locator("#toast");
   await expect(toast).toHaveClass(/visible/);

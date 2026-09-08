@@ -304,8 +304,12 @@ test("changed profile controls and actual Pixel click handlers persist choices w
   try {
     const ui = createFeatureUI({ state: () => ({ life }), native: { phone() {}, people() {} }, checkpoint: () => saves++, changed() {}, toast: text => toasts.push(text), show: (_id, html) => { shown = html; }, heading: (...text) => text.join(" "), escape: text => text });
     ui.handle({ closest: () => true, dataset: { romanceCeremony: "none", npcId: "jiqing" } });
+    assert.equal(life.game.relationships.jiqing.ceremony, "undecided");
+    ui.handle({ closest: () => true, dataset: { confirmRelationship: "yes" } });
     assert.equal(life.game.relationships.jiqing.ceremony, "none");
     ui.handle({ closest: () => true, dataset: { romanceCeremony: "small", npcId: "jiqing" } });
+    assert.equal(life.game.relationships.jiqing.ceremony, "none");
+    ui.handle({ closest: () => true, dataset: { confirmRelationship: "yes" } });
     assert.equal(life.game.relationships.jiqing.ceremony, "small");
     assert.equal(life.game.relationships.jiqing.visibility, "underground");
     ui.handle({ closest: () => true, dataset: { romanceAction: "breakup", npcId: "jiqing" } });

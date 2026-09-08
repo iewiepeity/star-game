@@ -5,6 +5,29 @@ import { CHOICES, planDay, access } from "./life.js";
 import { bookCareer } from "./career.js";
 import { SCHEDULE_PRESETS } from "../logic/schedule-assistant.js";
 const undo = new WeakMap();
+const routineUndo = new WeakMap();
+export function canUndoRoutine(life) {
+  const entry = routineUndo.get(life);
+  return !!entry && !life.pending && entry.fingerprint === fingerprint(life);
+}
+export function planRoutineWithUndo(life, day, assignment) {
+  const previous = structuredClone(life.plan[day]);
+  const safe = !life.pending && !protectedDay(life, day);
+  const reason = planDay(life, day, assignment);
+  if (!reason) {
+    routineUndo.delete(life);
+    if (safe) routineUndo.set(life, { previous, day, fingerprint: fingerprint(life) });
+  }
+  return reason;
+}
+export function undoRoutine(life) {
+  if (!canUndoRoutine(life)) return { ok: false, message: "行動或資源已改變，不能復原剛才的安排。" };
+  const entry = routineUndo.get(life);
+  const reason = planDay(life, entry.day, entry.previous);
+  if (reason) return { ok: false, message: reason };
+  routineUndo.delete(life);
+  return { ok: true, day: entry.day, message: "已復原剛才的安排；尚未花費時間或金錢。" };
+}
 const protectedDay = (life, i) =>
   i < life.day ||
   (i === life.day && life.pending) ||

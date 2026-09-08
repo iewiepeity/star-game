@@ -26,6 +26,7 @@ async function settings(page) {
 test("連點同一位置依序排週一至週日，保留捲動、篩選與展開狀態", async ({ page }) => {
   await start(page);
   await page.locator("#week-control").click();
+  await page.locator(".planner-extras > summary").click();
   await page.locator(".planner-tools summary").click();
   await page.locator('[data-schedule-filter="訓練"]').click();
   const activity = page.locator('[data-plan="acting"]');

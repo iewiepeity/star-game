@@ -1,3 +1,4 @@
+import { revealControl } from "./reveal-control.mjs";
 import { PIXEL_VERSION, RELEASE_NOTES } from "../../src/pixel/release-notes.js";
 import { test, expect } from "@playwright/test";
 import { initialPixelState } from "../../src/pixel/model.js";
@@ -159,6 +160,7 @@ test("export, import preview, rollback backup and real new-character prologue", 
   await apps(page);
   await page.locator('[data-pixel-app="settings"]').last().click();
   await page.locator(".new-journey summary").click();
+  await revealControl(page.locator('[data-storage="new"]'));
   await page.locator('[data-storage="new"]').click();
   await page.locator('[data-storage="confirm"]').click();
   await expect(page.locator('[data-create-field="realName"]')).toBeVisible();
@@ -247,6 +249,7 @@ test("the complete offline pack reloads and enters an unvisited room without a n
   await apps(page);
   await page.locator('[data-pixel-app="settings"]').last().click();
   await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
+  await revealControl(page.locator('[data-offline="download"]'));
   await page.locator('[data-offline="download"]').click();
   await page.locator('[data-offline="confirm-download"]').click();
   await expect(page.locator("#offline-status")).toHaveText(
@@ -350,6 +353,7 @@ test("handbook search, categories and six custom shortcuts survive reload", asyn
   await page.locator('[data-pixel-app="phone"]').click();
   await page.locator('[data-pixel-app="settings"]').click();
   await page.locator(".new-journey summary").click();
+  await revealControl(page.locator('[data-storage="retire"]'));
   await page.locator('[data-storage="retire"]').click();
   expect((await read(page)).state.life.game.endingResult).toBeNull();
   await page.locator('[data-storage="retire-confirm"]').click();
@@ -471,8 +475,10 @@ test("integrity: ending offers optional familiar-face inheritance without phanto
   await page.locator('[data-ui="menu"]').first().click();
   await page.locator('#panel [data-ui="settings"]').click();
   await page.locator(".new-journey summary").click();
+  await revealControl(page.locator('[data-storage="retire"]'));
   await page.locator('[data-storage="retire"]').click();
   await page.locator('[data-storage="retire-confirm"]').click();
+  await revealControl(page.locator('[data-storage="new"]'));
   await page.locator('[data-storage="new"]').click();
   await expect(page.locator('[data-run-inherit="no"]')).toHaveAttribute(
     "aria-pressed",

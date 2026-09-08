@@ -1,3 +1,4 @@
+import { revealControl } from "./reveal-control.mjs";
 import { initialPixelState } from "../../src/pixel/model.js";
 import { test, expect } from "@playwright/test";
 test.use({ actionTimeout: 12000 });
@@ -148,13 +149,16 @@ test("NPC moves while the world runs; pause and panels freeze the world", async 
     )
     .toBeGreaterThan(8);
   await menu(page, "settings");
+  await revealControl(page.getByRole("button", { name: "暫停世界" }));
   await page.getByRole("button", { name: "暫停世界" }).click();
   await close(page);
   const paused = await read(page);
   await page.waitForTimeout(700);
   expect((await read(page)).state.elapsed).toBe(paused.state.elapsed);
   await menu(page, "settings");
+  await revealControl(page.getByRole("button", { name: "繼續世界" }));
   await page.getByRole("button", { name: "繼續世界" }).click();
+  await revealControl(page.getByRole("button", { name: "操作說明" }));
   await page.getByRole("button", { name: "操作說明" }).click();
   const modal = await read(page);
   await page.waitForTimeout(500);

@@ -1,6 +1,6 @@
 {
-  "version": "0.22.0",
-  "bytes": 115290284,
+  "version": "0.23.0",
+  "bytes": 115307606,
   "entries": [
     {
       "url": "./privacy.html",
@@ -36,7 +36,7 @@
     },
     {
       "url": "./phone.css",
-      "bytes": 30638
+      "bytes": 33638
     },
     {
       "url": "./pixel.webmanifest",
@@ -752,7 +752,7 @@
     },
     {
       "url": "./src/pixel/city-ui.js",
-      "bytes": 11533
+      "bytes": 12888
     },
     {
       "url": "./src/pixel/core-bridge.js",
@@ -772,7 +772,7 @@
     },
     {
       "url": "./src/pixel/feature-ui.js",
-      "bytes": 27967
+      "bytes": 30748
     },
     {
       "url": "./src/pixel/furniture-layers.js",
@@ -796,7 +796,7 @@
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 31316
+      "bytes": 32058
     },
     {
       "url": "./src/pixel/life.js",
@@ -808,7 +808,11 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 52632
+      "bytes": 52662
+    },
+    {
+      "url": "./src/pixel/map-purpose.js",
+      "bytes": 1833
     },
     {
       "url": "./src/pixel/menu-icons.js",
@@ -844,7 +848,7 @@
     },
     {
       "url": "./src/pixel/planner-tools.js",
-      "bytes": 6528
+      "bytes": 7546
     },
     {
       "url": "./src/pixel/preferences.js",
@@ -852,7 +856,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 14382
+      "bytes": 15423
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -868,7 +872,7 @@
     },
     {
       "url": "./src/pixel/settings-ui.js",
-      "bytes": 8391
+      "bytes": 8908
     },
     {
       "url": "./src/pixel/sprites.js",
@@ -907,8 +911,12 @@
       "bytes": 2590
     },
     {
+      "url": "./src/pixel/ux-summaries.js",
+      "bytes": 3016
+    },
+    {
       "url": "./src/pixel/viewport.js",
-      "bytes": 2313
+      "bytes": 3105
     },
     {
       "url": "./src/pixel/world.js",
@@ -972,11 +980,11 @@
     },
     {
       "url": "./src/views/npc.js",
-      "bytes": 14871
+      "bytes": 16036
     },
     {
       "url": "./src/views/people.js",
-      "bytes": 7089
+      "bytes": 7121
     },
     {
       "url": "./src/views/personal-stories.js",

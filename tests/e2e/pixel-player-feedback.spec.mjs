@@ -121,6 +121,7 @@ test("行程表顯示職涯計數與生活替代目標", async ({ page }) => {
   });
   await page.locator('[data-ui="menu"]').first().click();
   await page.locator('#panel [data-ui="schedule"]').click();
+  await page.locator(".planner-extras > summary").click();
   await page.locator(".weekly-task summary").click();
   await expect(page.locator(".weekly-task")).toContainText("職涯 1");
   await expect(page.locator(".weekly-task")).toContainText("生活／休息 2 天");

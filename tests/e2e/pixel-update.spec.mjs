@@ -1,3 +1,4 @@
+import { revealControl } from "./reveal-control.mjs";
 import { test as base, expect } from "@playwright/test";
 import { createServer } from "node:http";
 import { createReadStream } from "node:fs";
@@ -99,6 +100,7 @@ async function prepare(page, site) {
   await page.locator('[data-ui="menu"]').first().click();
   await page.locator('#panel [data-ui="settings"]').click();
   site.next();
+  await revealControl(page.locator('[data-offline="update"]'));
   await page.locator('[data-offline="update"]').click();
   await expect(
     page.getByRole("button", { name: "儲存並更新", exact: true }),

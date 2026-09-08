@@ -303,6 +303,7 @@ function settings() {
   show(
     "settings",
     `${heading("YOUR LITTLE WORLD", "照自己的步調")}${settingsMarkup({ theme: preferences.get().theme, speed: state.life.speed, paused, preferences: preferences.get(), narrativeSettings: state.life.game.narrativeSettings })}`,
+    { preserveScroll: true },
   );
 }
 function clinic() {

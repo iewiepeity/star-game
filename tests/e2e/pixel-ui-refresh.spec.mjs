@@ -1,3 +1,4 @@
+import { revealControl } from "./reveal-control.mjs";
 import { test, expect } from "@playwright/test";
 import { initialPixelState } from "../../src/pixel/model.js";
 import { ROOMS } from "../../src/pixel/data.js";
@@ -199,6 +200,7 @@ test("pixel visual system covers menus, creation and every theme", async ({
   await page.getByRole("button", { name: "關閉視窗" }).click();
   await menu(page, "settings");
   for (const theme of ["rose", "sage", "lilac", "night", "cream"]) {
+    await revealControl(page.locator(`[data-pixel-theme="${theme}"]`));
     await page.locator(`[data-pixel-theme="${theme}"]`).click();
     await expect(page.locator("html")).toHaveAttribute(
       "data-pixel-theme",

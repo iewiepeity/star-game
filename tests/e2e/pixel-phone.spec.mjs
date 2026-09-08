@@ -1,3 +1,4 @@
+import { revealControl } from "./reveal-control.mjs";
 import { careerCommand, bookCareer } from "../../src/pixel/career.js";
 import { JOB_CATALOG } from "../../src/data/jobs.js";
 import { test, expect } from "@playwright/test";
@@ -246,6 +247,7 @@ test("phone app accents stay colorful across five themes and liked hearts stay p
       await page.getByRole("button", { name: "關閉視窗" }).click();
     await page.getByRole("button", { name: "開啟選單" }).click();
     await page.locator('[data-ui="settings"]').click();
+    await revealControl(page.locator(`button[data-pixel-theme="${theme}"]`));
     await page.locator(`button[data-pixel-theme="${theme}"]`).click();
     await app(page);
     const colors = await page

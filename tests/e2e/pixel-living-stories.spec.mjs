@@ -1,3 +1,4 @@
+import { revealControl } from "./reveal-control.mjs";
 import { test, expect } from "@playwright/test";
 import { initialPixelState } from "../../src/pixel/model.js";
 import { RELEASE_NOTES } from "../../src/pixel/release-notes.js";
@@ -85,9 +86,11 @@ test("五項敘事偏好與更新紀錄在設定內可用，重新載入仍保�
   const prefs = { textMode: "concise", skipReadRoutine: "true", romanceFrequency: "low", conflictIntensity: "gentle", storyReminders: "false" };
   for (const [key, value] of Object.entries(prefs)) {
     const button = page.locator(`[data-narrative-pref="${key}"][data-value="${value}"]`);
+    await revealControl(button);
     await button.click();
     await expect(button).toHaveAttribute("aria-pressed", "true");
   }
+  await revealControl(page.locator('[data-ui="release-notes"]'));
   await page.locator('[data-ui="release-notes"]').click();
   await expect(page.locator(".release-entry").first()).toContainText(`v${RELEASE_NOTES[0].version}`);
   await expect(page.locator(".release-entry").first()).toContainText(RELEASE_NOTES[0].title);
@@ -97,6 +100,7 @@ test("五項敘事偏好與更新紀錄在設定內可用，重新載入仍保�
   await waitForPixelSaveReady(page);
   expect((await read(page)).game.narrativeSettings).toEqual({ textMode: "concise", skipReadRoutine: true, romanceFrequency: "low", conflictIntensity: "gentle", storyReminders: false });
   await menu(page, "settings");
+  await revealControl(page.locator('[data-life="narrative-history"]'));
   await page.locator('[data-life="narrative-history"]').click();
   await expect(page.locator('#panel')).toContainText("日常");
 });

@@ -1,3 +1,6 @@
+import { MAP_PURPOSES, mapPurposeRooms } from "./map-purpose.js";
+import { esc } from "../core/utils.js";
+import { access } from "./life.js";
 import {
   CITY_PLACES,
   CITY_CATALOG,
@@ -9,6 +12,7 @@ import { ROOMS } from "./data.js";
 import { CHOICES } from "./life.js";
 import { AGENCIES } from "../data/agencies.js";
 export function createCityUI(api) {
+  let purpose = "all", applyMapFilter = null;
   let zoom = 1,
     selectedId = null,
     travelTimer = null,
@@ -29,9 +33,9 @@ export function createCityUI(api) {
     const place = CITY_PLACES.find((p) => p.id === publicRoom(id));
     const current = s().sceneId === id,
       name = place?.id === id ? place.name : ROOMS[id].name;
-    const services = Object.values(CHOICES)
-      .filter((d) => d.room === id && ["訓練", "工作"].includes(d.group))
-      .map((d) => d.label);
+    const services = Object.entries(CHOICES)
+      .filter(([, d]) => d.room === id && ["訓練", "工作", "休息"].includes(d.group))
+      .map(([key, d]) => { const reason = access(s().life, { id: key }); return `${d.label} · 占一天${reason ? `（${reason}）` : ""}`; });
     document
       .querySelectorAll("[data-map-place], [data-map-list]")
       .forEach((b) =>
@@ -40,7 +44,7 @@ export function createCityUI(api) {
     const el = document.getElementById("map-detail");
     if (!el) return;
     el.dataset.place = id;
-    el.innerHTML = `<div><small>${place?.district || "星望市"} · ${current ? "你在這裡" : s().visited.includes(id) ? "曾經到訪" : "還沒去過"}</small><h3>${name}</h3><p>${services.length ? services.join("・") : place?.description || "走進這個地方，看看身邊的人與物。"}</p></div><button class="primary" data-map-enter="${id}" ${current ? "disabled" : ""}>${current ? "目前位置" : "前往這裡 →"}</button>`;
+    el.innerHTML = `<div><small>${place?.district || "星望市"} · ${current ? "你在這裡" : s().visited.includes(id) ? "曾經到訪" : "還沒去過"}</small><h3>${name}</h3><p>${services.length ? services.map(esc).join("；") : place?.description || "走進這個地方，看看身邊的人與物。"}</p></div><button class="primary" data-map-enter="${id}" ${current ? "disabled" : ""}>${current ? "目前位置" : "前往看看 · 不耗一天 →"}</button>`;
   }
   function overview() {
     const el = document.getElementById("map-detail");
@@ -55,7 +59,7 @@ export function createCityUI(api) {
     cancelRoute();
     api.show(
       "travel",
-      `<header class="map-heading">${api.heading("STARWISH CITY", "星望市", "點建築選擇目的地，走訪不消耗天數。")}</header><div class="map-tools"><label><span class="sr-only">尋找地點</span><input id="map-search" type="search" placeholder="找地點、課程或公司…" autocomplete="off"></label><button data-map-zoom="out" aria-label="縮小地圖">−</button><button data-map-zoom="in" aria-label="放大地圖">＋</button><button data-map-home>全市</button></div><div class="city-map-viewport" tabindex="0" aria-label="星望市地圖，可捲動"><div class="city-map-canvas" style="--map-zoom:${zoom}"><img class="city-map-art" src="assets/pixel/city/map-organic.webp" alt="星望市：影視、音樂、傳媒、文化、生活與海灣街區"><nav class="city-map-landmarks" aria-label="城市地點">${CITY_PLACES.map((p) => `<button class="map-landmark ${publicRoom(s().sceneId) === p.id ? "current" : ""}" style="--x:${p.x}%;--y:${p.y}%" data-map-place="${p.id}" aria-label="${p.name}" aria-pressed="false"><span>${p.short}</span>${publicRoom(s().sceneId) === p.id ? '<i aria-hidden="true">▼</i>' : ""}</button>`).join("")}</nav></div></div><div id="map-detail" class="map-detail" aria-live="polite"><div><small>我的城市足跡</small><h3>${CITY_PLACES.filter((p) => s().visited.includes(p.id)).length} / 27</h3><p>移到建築上看看，或點一下選擇。手機可以放大、滑動地圖。</p></div><button data-ui="close">回到${ROOMS[s().sceneId].name}</button></div>`,
+      `<header class="map-heading">${api.heading("STARWISH CITY", "星望市", "點建築選擇目的地，走訪不消耗天數。")}</header><nav class="map-purpose" aria-label="今天想做什麼">${Object.entries(MAP_PURPOSES).map(([key, label]) => `<button data-map-purpose="${key}" aria-pressed="${purpose === key}">${label}</button>`).join("")}</nav><div class="map-tools"><label><span class="sr-only">尋找地點</span><input id="map-search" type="search" placeholder="找地點、課程或公司…" autocomplete="off"></label><button data-map-zoom="out" aria-label="縮小地圖">−</button><button data-map-zoom="in" aria-label="放大地圖">＋</button><button data-map-home>全市</button></div><div class="city-map-viewport" tabindex="0" aria-label="星望市地圖，可捲動"><div class="city-map-canvas" style="--map-zoom:${zoom}"><img class="city-map-art" src="assets/pixel/city/map-organic.webp" alt="星望市：影視、音樂、傳媒、文化、生活與海灣街區"><nav class="city-map-landmarks" aria-label="城市地點">${CITY_PLACES.map((p) => `<button class="map-landmark ${publicRoom(s().sceneId) === p.id ? "current" : ""}" style="--x:${p.x}%;--y:${p.y}%" data-map-place="${p.id}" aria-label="${p.name}" aria-pressed="false"><span>${p.short}</span>${publicRoom(s().sceneId) === p.id ? '<i aria-hidden="true">▼</i>' : ""}</button>`).join("")}</nav></div></div><div id="map-detail" class="map-detail" aria-live="polite"><div><small>我的城市足跡</small><h3>${CITY_PLACES.filter((p) => s().visited.includes(p.id)).length} / 27</h3><p>移到建築上看看，或點一下選擇。手機可以放大、滑動地圖。</p></div><button data-ui="close">回到${ROOMS[s().sceneId].name}</button></div>`,
     );
     const tip = document.querySelector("#panel-content > .pixel-tutorial");
     if (tip) {
@@ -88,7 +92,8 @@ export function createCityUI(api) {
     mapObserver = new window.ResizeObserver(fit);
     mapObserver.observe(viewport);
     fit();
-    input.addEventListener("input", () => {
+    applyMapFilter = () => {
+      const allowed = mapPurposeRooms(s().life, purpose);
       const q = input.value.trim().toLowerCase();
       let matches = 0;
       for (const b of document.querySelectorAll("[data-map-place], [data-map-list]")) {
@@ -102,21 +107,26 @@ export function createCityUI(api) {
             .filter((c) => c.room === p.id)
             .map((c) => c.label),
         ].join(" ");
+        const visible = allowed.has(p.id) && (!q || words.toLowerCase().includes(q));
         b.classList.toggle(
           "search-match",
-          !!q && words.toLowerCase().includes(q),
+          (purpose !== "all" || !!q) && visible,
         );
         b.classList.toggle(
           "search-muted",
-          !!q && !words.toLowerCase().includes(q),
+          !visible,
         );
         if (b.dataset.mapList) {
-          b.hidden = !!q && !words.toLowerCase().includes(q);
+          b.hidden = !visible;
           if (!b.hidden) matches++;
         }
       }
-      directory.querySelector(".map-no-results").hidden = matches > 0;
-    });
+      const empty = directory.querySelector(".map-no-results");
+      empty.hidden = matches > 0;
+      empty.textContent = purpose === "appointment" ? "今天沒有符合搜尋的已排約定，可改看全部地點。" : purpose === "work" ? "目前沒有符合搜尋的已接工作，可改看全部地點。" : "沒有符合目前條件的地點，換個篩選或搜尋試試。";
+    };
+    input.addEventListener("input", applyMapFilter);
+    applyMapFilter();
     for (const b of document.querySelectorAll("[data-map-place], [data-map-list]")) {
       const id = b.dataset.mapPlace || b.dataset.mapList;
       b.addEventListener("pointerenter", (e) => {
@@ -205,6 +215,13 @@ export function createCityUI(api) {
   }
   function handle(b) {
     const d = b.dataset;
+    if (d.mapPurpose) {
+      if (!Object.hasOwn(MAP_PURPOSES, d.mapPurpose) || storyTrip) return true;
+      purpose = d.mapPurpose;
+      document.querySelectorAll("[data-map-purpose]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.mapPurpose === purpose)));
+      applyMapFilter?.();
+      return true;
+    }
     if (d.mapPlace || d.mapList) {
       // A story trip must retain its arrival callback and agreed destination.
       // Clicking a landmark while the short route preview is visible must not

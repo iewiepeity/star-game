@@ -1,3 +1,5 @@
+import { personalStoryStatus } from "../logic/personal-stories.js";
+import { romanceDailyStatus } from "../logic/romance-daily.js";
 import { romanceRepairStatus } from "../logic/romance-life.js";
 import { personalStoryPanel, personalStoryReminder } from "./personal-stories.js";
 import { npcInvitationPanel } from "./npc-invitation.js";
@@ -50,7 +52,7 @@ const visibilityLabel = (value) =>
 
 function interactionButtons(current, story, rel) {
   return (
-    `<button data-chat-open="${current}">開啟對話 · 不占一天</button><button data-romance-talk="${current}">聊聊我們的關係</button><p>每人每週短聯絡 2 次，合計 5 次；下列正式邀約占一天。</p>` +
+    `<button data-chat-open="${current}">開啟對話 · 不耗一天</button><button data-romance-talk="${current}">聊聊我們的關係</button><p>每人每週短聯絡 2 次，合計 5 次；下列正式邀約占一天。</p>` +
     Object.entries(NPC_INTERACTIONS)
       .map(([id, d]) => {
         const conflict = rel.hostility || 0;
@@ -80,7 +82,7 @@ function interactionButtons(current, story, rel) {
                 ? "正式交往後才會開放"
                 : "",
           reasonId = `npc-action-reason-${current}-${id}`;
-        return `<span class="npc-action-option"><button class="${id === "reconcile" ? "reconcile" : ""}" data-npc-interact="${id}" data-npc-id="${current}" ${disabled ? `disabled aria-describedby="${reasonId}"` : ""}>${esc(d.label)}${d.cost ? `・${money(d.cost)}` : ""}</button>${disabled ? `<small id="${reasonId}">${esc(title)}</small>` : ""}</span>`;
+        return `<span class="npc-action-option"><button class="${id === "reconcile" ? "reconcile" : ""}" data-npc-interact="${id}" data-npc-id="${current}" ${disabled ? `disabled aria-describedby="${reasonId}"` : ""}>安排${esc(d.label)} · 占一天${d.cost ? `・${money(d.cost)}` : ""}</button>${disabled ? `<small id="${reasonId}">${esc(title)}</small>` : ""}</span>`;
       })
       .join("")
   );
@@ -92,7 +94,7 @@ function romanceActions(current, rel) {
   if (!["dating", "committed", "engaged", "married"].includes(rel.romance))
     return "";
   const ceremony = rel.romance === "married" ? `<p>儀式：${({ undecided: "尚未決定", none: "暫不舉辦", small: "已辦親友小婚禮", legacy: "保留原有婚姻紀錄" })[rel.ceremony] || "保留原有婚姻紀錄"}；公開狀態另行選擇。</p>${["undecided", "none"].includes(rel.ceremony) ? `<button data-romance-ceremony="small" data-npc-id="${current}">一起辦親友小婚禮</button>${rel.ceremony === "undecided" ? `<button data-romance-ceremony="none" data-npc-id="${current}">暫時不辦儀式</button>` : ""}` : ""}` : "";
-  return `<div class="romance-actions"><span>關係選擇</span>${ceremony}${rel.visibility !== "public" ? `<button data-romance-action="public" data-npc-id="${current}">公開戀情</button>` : ""}${rel.visibility !== "underground" ? `<button data-romance-action="underground" data-npc-id="${current}">保留私人空間（已公開的消息不會消失）</button>` : ""}<button class="danger" data-romance-action="breakup" data-npc-id="${current}">提出分手</button></div>`;
+  return `<div class="romance-actions"><span>關係選擇</span>${ceremony}${rel.visibility !== "public" ? `<button data-romance-action="public" data-npc-id="${current}">公開戀情</button>` : ""}${rel.visibility !== "underground" ? `<button data-romance-action="underground" data-npc-id="${current}">保留私人空間（已公開的消息不會消失）</button>` : ""}<details class="relationship-management"><summary>關係管理</summary><p>分開會改變伴侶關係；下一步會先確認，不會立刻分手。</p><button class="danger" data-romance-action="breakup" data-npc-id="${current}">考慮分開</button></details></div>`;
 }
 
 function routeHint(current, rel) {
@@ -208,9 +210,12 @@ export function npcApp() {
   const relationship = `<section class="relationship-panel ${rel.hostility >= 45 ? "conflict" : ""}"><header><span>RELATIONSHIP</span><h3>${esc(story.stage.label)}・${esc(romanceStageLabel(rel.romance))}</h3><small>${esc(visibilityLabel(rel.visibility))}</small></header><div class="relationship-signals"><article><span>相處感覺</span><b>${esc(affectionSignal(current))}</b></article><article><span>信任觀察</span><b>${esc(trustSignal(current))}</b></article><article><span>衝突跡象</span><b>${esc(hostilitySignal(current))}</b></article></div><p class="relationship-hint">${esc(romanceProgress(current))}</p></section>`;
   const meetingCard = `<article class="npc-first-meeting npc-memory-card"><small>FIRST ENCOUNTER・第 ${meeting.week} 週</small><h3>初次相遇・${esc(meeting.title)}</h3><p>${esc(meeting.text)}</p><small>${esc(meeting.source)}</small></article>`;
   const careerCard = `<article class="npc-career-card"><small>職涯近況・${esc(npc.special ? npc.job : career.field)}</small><h3>${trendLabel(career.trend)}</h3><p>近期作品 ${career.works}・獎項 ${career.awards}</p><small>擅長領域：${career.specialties.map(esc).join("、") || "跨領域"}</small></article>`;
+  const ongoing = personalStoryStatus(current);
+  const daily = romanceDailyStatus(current);
+  const quickActions = `<section class="npc-quick-actions" aria-label="找這個人"><h3>今天想怎麼相處？</h3><div class="npc-actions"><button data-chat-open="${current}">開啟對話 · 不耗一天</button><button data-npc-interact="personal" data-npc-id="${current}">安排見面 · 占一天</button>${ongoing?.ready ? `<button data-personal-story-open="${current}">接續${esc(ongoing.chapterTitle)}</button>` : ongoing?.canResume ? `<button data-personal-story-resume="${current}">恢復暫放的故事</button>` : ""}${daily?.ready ? `<button data-romance-daily="${current}">接續戀愛日常</button>` : ""}</div><small>見面先選日期；故事排進後續空檔，不會直接開始今天的行程。</small></section>`;
   const content = {
     overview:
-      relationship + personalStoryReminder(current) +
+      quickActions + relationship + personalStoryReminder(current) +
       `<div class="npc-overview-cards">${careerCard}<article class="npc-memory-card"><small>初次相遇・第 ${meeting.week} 週</small><p>${esc(meeting.title)}</p><button data-npc-profile-tab="memories">翻翻共同回憶 →</button></article></div>`,
     relationship: `<section class="npc-relationship-actions"><h3>把關係放進生活裡</h3><p>${esc(routeHint(current, rel))}</p>${npcInvitationPanel(current)}<div class="npc-actions">${interactionButtons(current, story, rel)}</div>${romanceActions(current, rel)}</section>`,
     memories:

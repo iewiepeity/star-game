@@ -284,3 +284,36 @@
      list heading's space so the composer stays within the phone viewport. */
   :is(#panel .pixel-app, .people-hub) .messenger.thread-open .inside-title { display: none; }
 }
+/* Task-focused mobile UI: keep pixel decoration, readable text and clear controls. */
+#panel .planner-context {
+  position: sticky; top: 0; z-index: 5; display: flex; align-items: center;
+  justify-content: space-between; gap: 10px; padding: 12px;
+  background: var(--ui-paper); color: var(--ui-ink); border: 2px solid var(--ui-edge);
+}
+#panel .planner-context small { display: block; margin-top: 5px; }
+#panel :is(.planner-budget, .journey-highlights, .npc-quick-actions) { margin-block: 14px; }
+#panel .journey-highlights article { padding: 12px; margin-block: 8px; border-inline-start: 3px solid var(--ui-accent); background: var(--ui-tint); }
+#panel :is(.settings-group, .planner-extras, .result-breakdown, .relationship-management) { margin-block: 12px; border: 1px solid var(--ui-edge); padding: 10px; }
+#panel :is(.settings-group, .planner-extras, .result-breakdown, .relationship-management) > summary { cursor: pointer; min-height: 44px; display: list-item; align-content: center; font-weight: 700; }
+#panel .relationship-management { flex-basis: 100%; }
+#panel .map-purpose { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 10px; }
+#panel .map-purpose [aria-pressed="true"] { border-width: 2px; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+#panel :is(.primary, .main-btn) { font-weight: 700; border-width: 2px; }
+#panel button.danger { border: 2px solid #8a2434; color: #8a2434; background: #fff1f2; }
+#panel :is(.planner-context, .planner-budget, .npc-quick-actions, .settings-groups, .journey-highlights) small { font-size: calc(14px * var(--reading-scale, 1)); line-height: 1.65; }
+#panel[data-keyboard="true"] { max-height: var(--usable-panel-height, calc(100dvh - 24px)); top: var(--visible-panel-top, 12px); bottom: auto; margin-block: 0; }
+@media (max-width: 700px) {
+  #panel { max-height: min(calc(100dvh - 24px), var(--usable-panel-height, 100dvh)); }
+  #panel button:not(.map-landmark):not(.close-panel) { min-height: 44px; white-space: normal; overflow-wrap: anywhere; height: auto; }
+  #panel :is(.command-row, .npc-actions button, .panel-actions button, .chat-send-row button) { min-width: 0; line-height: 1.5; }
+  #panel :is(.command-row small, .chat-composer small, .chat-composer nav button, .character-memory small, .npc-actions button, .map-detail p) { font-size: calc(14px * var(--reading-scale, 1)); }
+  #panel :is(input, textarea, select) { font-size: max(16px, calc(16px * var(--reading-scale, 1))); }
+  #panel .planner-context { align-items: stretch; flex-direction: column; padding: 8px; }
+  #panel .planner-context button { align-self: flex-start; }
+  #panel .chat-composer { position: static; }
+  #panel .chat-send-row { flex-wrap: wrap; }
+  #panel .chat-send-row small { flex-basis: 100%; }
+  #panel .chat-send-row button { flex: 1 1 130px; }
+  #panel :is(.eyebrow, .inside-title > div > span, .npc-quick-actions > small) { letter-spacing: .04em; }
+  #panel .eyebrow { font-size: calc(12px * var(--reading-scale, 1)); }
+}

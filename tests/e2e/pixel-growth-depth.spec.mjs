@@ -37,6 +37,7 @@ test("year-three goal choice updates its visible requirements and persists after
   page,
 }) => {
   await start(page, 105);
+  await page.locator(".planner-extras > summary").click();
   await page.locator(".weekly-task summary").click();
   await page.locator('[data-weekly-goal="team"]').click();
   await expect(page.locator('[data-weekly-goal="team"]')).toHaveAttribute(
@@ -54,6 +55,7 @@ test("year-three goal choice updates its visible requirements and persists after
   await page.reload();
   await expect(page.locator("#loading")).toBeHidden({ timeout: 30000 });
   await page.locator("#week-control").click();
+  await page.locator(".planner-extras > summary").click();
   await page.locator(".weekly-task summary").click();
   await expect(page.locator('[data-weekly-goal="team"]')).toHaveAttribute(
     "aria-pressed",
