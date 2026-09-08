@@ -1,5 +1,5 @@
-// VisualViewport.scale is read-only. Briefly constrain the viewport to request
-// a mobile zoom reset, then restore the original, zoomable viewport settings.
+// VisualViewport.scale is read-only. Change the initial scale slightly so the
+// browser actually reapplies it, then restore the original zoomable viewport.
 export function createViewportControls(button, panel) {
   const viewport = window.visualViewport;
   const meta = document.querySelector('meta[name="viewport"]');
@@ -29,7 +29,8 @@ export function createViewportControls(button, panel) {
       sync();
       return Promise.resolve(true);
     }
-    meta.setAttribute("content", "width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover");
+    // Repeating initial-scale=1 can leave the user's current zoom untouched.
+    meta.setAttribute("content", "width=device-width, initial-scale=1.0001, minimum-scale=1, maximum-scale=1.0001, viewport-fit=cover");
     resetting = new Promise(resolve => {
       window.setTimeout(() => {
         meta.setAttribute("content", original);

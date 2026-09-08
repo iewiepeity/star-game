@@ -1381,6 +1381,8 @@ progress::-moz-progress-bar {
   transform-origin: top left;
   transition: none;
 }
+/* The next tap must hit the same activity, without a pressed/hover translation. */
+#panel[data-view="schedule"] .action-catalog button { transform: none; }
 @media (max-width: 700px) {
   #reset-view { top: 62px; right: 10px; }
   /* Keep iOS focus from unexpectedly magnifying form controls. */

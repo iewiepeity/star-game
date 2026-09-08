@@ -1,6 +1,6 @@
 {
   "version": "0.20.1",
-  "bytes": 115228934,
+  "bytes": 115229178,
   "entries": [
     {
       "url": "./index.html",
@@ -24,7 +24,7 @@
     },
     {
       "url": "./pixel-theme.css",
-      "bytes": 50092
+      "bytes": 50249
     },
     {
       "url": "./phone.css",
@@ -876,7 +876,7 @@
     },
     {
       "url": "./src/pixel/viewport.js",
-      "bytes": 2226
+      "bytes": 2313
     },
     {
       "url": "./src/pixel/world.js",

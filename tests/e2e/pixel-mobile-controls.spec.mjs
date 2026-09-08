@@ -88,7 +88,7 @@ test("場景放大與縮小皆能一鍵回原比例，設定與行程不受影�
   await page.locator('[data-ui="zoom-in"]').click();
   await page.locator('[data-ui="zoom-in"]').click();
   expect((await read(page)).zoom).toBeGreaterThan(before.zoom);
-  await page.locator('#panel [data-ui="reset-view"]').click();
+  await page.locator('#panel-content [data-ui="reset-view"]').click();
   await expect.poll(async () => (await read(page)).zoom).toBeCloseTo(before.zoom, 5);
   await page.locator('[data-ui="zoom-out"]').click();
   expect((await read(page)).zoom).toBeLessThan(before.zoom);
