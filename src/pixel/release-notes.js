@@ -2,6 +2,15 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.23.1", date: "2026-09-08", title: "讓進度與安排確實對得上",
+    notes: [
+      "存讀檔不再把過去到訪的地點算成本週探訪，也不會在外出時觸發寵物的返家迎接。",
+      "開始行動後，排程助手不再允許復原當天安排；未來日期仍可套用範本。",
+      "待辦通告助手可正確使用公園空檔；已完成今天的行程後，剩餘預算不再重算今日費用。",
+      "行程表可繼續安排修改中或退稿後的創作，不會誤選已發行作品。",
+    ],
+  },
+  {
     version: "0.23.0", date: "2026-09-08", title: "少找一點，多玩一點",
     notes: [
       "行程頁固定提示正在安排的日期，單次例行安排可以復原；預算區分已排費用與尚未入帳的收入。",
@@ -208,4 +217,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.46.0";
+export const CORE_VERSION = "1.46.1";

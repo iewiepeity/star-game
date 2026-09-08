@@ -3,10 +3,15 @@ import { esc } from "../core/utils.js";
 import { costOf, definition, DAY_NAMES } from "./life.js";
 import { canUndoRoutine } from "./planner-tools.js";
 
+export function remainingPlanCost(life) {
+  const start = life.day + (life.pending?.phase === "result" ? 1 : 0);
+  return life.plan.slice(start).reduce((sum, assignment) => sum + costOf(life, assignment), 0);
+}
+
 export function plannerContext(life, selectedDay) {
   const selected = definition(life, life.plan[selectedDay])?.label || "未安排";
   const today = definition(life, life.plan[life.day])?.label || "未安排";
-  const cost = life.plan.slice(life.day).reduce((sum, assignment) => sum + costOf(life, assignment), 0);
+  const cost = remainingPlanCost(life);
   const warnings = [cost > life.game.money ? "目前現金不足以支付餘下已排行程；尚未取得的收入不計入。" : "", life.game.fatigue > 80 ? "目前疲勞偏高，建議在高負荷行動前安排休息。" : ""].filter(Boolean);
   return `<section class="planner-context" aria-label="目前排程位置"><div role="status" aria-live="polite"><b>正在安排${DAY_NAMES[selectedDay]} · ${esc(selected)}</b><small>今天是${DAY_NAMES[life.day]} · ${esc(today)}；選擇行程只改排程，不會開始執行。</small></div><button data-routine-undo ${canUndoRoutine(life) ? "" : "disabled"}>復原剛才安排</button></section><div class="planner-budget"><p class="tiny-note" data-training-subsidy>${esc(trainingSubsidyNotice(life.game.week))}</p><p>餘下已排費用 $${cost.toLocaleString()} · 現金 $${life.game.money.toLocaleString()}</p><small>收入依實際完成結果計算，這裡不預先當作已入帳。</small>${warnings.map(text => `<p role="status">${esc(text)}</p>`).join("")}</div>`;
 }

@@ -1,4 +1,4 @@
-import { plannerContext, highlightsMarkup } from "./ux-summaries.js";
+import { plannerContext, highlightsMarkup, remainingPlanCost } from "./ux-summaries.js";
 import { planRoutineWithUndo, undoRoutine } from "./planner-tools.js";
 import { selectWeeklyGoal } from "../logic/weekly-goals.js";
 import { withCore } from "./core-bridge.js";
@@ -109,9 +109,7 @@ export function createLifeUI(api) {
     selectedDay = Math.max(l.day, Math.min(6, day));
     if (l.day === 7) return summary();
     const selected = l.plan[selectedDay];
-    const estimate = l.plan
-      .slice(l.day)
-      .reduce((sum, a) => sum + costOf(l, a), 0);
+    const estimate = remainingPlanCost(l);
     const cards = Object.entries(CHOICES)
       .filter(([id]) => !id.startsWith("career_"))
       .filter(([id]) => !["home_host", "home_craft", "city_date", "city_collab"].includes(id))
@@ -122,7 +120,7 @@ export function createLifeUI(api) {
             ? {
                 id,
                 projectId: l.game.creativeProjects.find(
-                  (p) => p.status === "draft",
+                  (p) => ["draft", "revising", "rejected"].includes(p.status),
                 )?.id,
               }
             : { id };

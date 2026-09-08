@@ -6,6 +6,11 @@ import { bookCareer } from "./career.js";
 import { SCHEDULE_PRESETS } from "../logic/schedule-assistant.js";
 const undo = new WeakMap();
 const routineUndo = new WeakMap();
+function canUndoPlanner(life) {
+  const entry = undo.get(life);
+  return !!entry && !life.pending && !life.game.endingResult &&
+    life.game.forcedRestWeek !== life.game.week && entry.fingerprint === fingerprint(life);
+}
 export function canUndoRoutine(life) {
   const entry = routineUndo.get(life);
   return !!entry && !life.pending && entry.fingerprint === fingerprint(life);
@@ -85,7 +90,7 @@ export function applyPlannerTool(life, id) {
     return { ok: false, message: "目前無法調整行程" };
   if (id === "undo") {
     const previous = undo.get(life);
-    if (!previous || previous.fingerprint !== fingerprint(life))
+    if (!canUndoPlanner(life))
       return { ok: false, message: "行動或資源已更新，無法復原舊的排程" };
     const { plan, game } = previous.state;
     life.plan = structuredClone(plan);
@@ -116,7 +121,7 @@ export function applyPlannerTool(life, id) {
       for (let day = life.day; day < 7; day++) {
         if (
           protectedDay(life, day) ||
-          !["rest", "park"].includes(life.plan[day].id)
+          !["rest", "explore_park"].includes(life.plan[day].id)
         )
           continue;
         const r = bookCareer(life, CHOICES, "job", { jobId: job.jobId }, day);
@@ -141,8 +146,10 @@ export function applyPlannerTool(life, id) {
       if (!access(life, a, day) && !planDay(life, day, a)) count++;
     }
   }
-  if (count)
-    undo.set(life, { state: snapshot, fingerprint: fingerprint(life) });
+  if (count) {
+    undo.delete(life);
+    if (!life.pending) undo.set(life, { state: snapshot, fingerprint: fingerprint(life) });
+  }
   return {
     ok: count > 0,
     message: count
@@ -157,7 +164,7 @@ export function plannerToolsMarkup(life) {
     .map(([id, p]) => `<button data-planner-tool="${id}">${p.label}</button>`)
     .join(
       "",
-    )}<button data-planner-tool="repeat" ${life.previousPlan ? "" : "disabled"}>沿用上週</button><button data-planner-tool="rest">例行安排改休息</button><button data-planner-tool="due">優先安排待辦通告</button><button data-planner-tool="undo" ${undo.has(life) ? "" : "disabled"}>復原助手變更</button></div></details>`;
+    )}<button data-planner-tool="repeat" ${life.previousPlan ? "" : "disabled"}>沿用上週</button><button data-planner-tool="rest">例行安排改休息</button><button data-planner-tool="due">優先安排待辦通告</button><button data-planner-tool="undo" ${canUndoPlanner(life) ? "" : "disabled"}>復原助手變更</button></div></details>`;
 }
 
 export function setWeeklyFocus(life, id) {

@@ -1,6 +1,6 @@
 {
-  "version": "0.23.0",
-  "bytes": 115307606,
+  "version": "0.23.1",
+  "bytes": 115308739,
   "entries": [
     {
       "url": "./privacy.html",
@@ -796,7 +796,7 @@
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 32058
+      "bytes": 32054
     },
     {
       "url": "./src/pixel/life.js",
@@ -820,7 +820,7 @@
     },
     {
       "url": "./src/pixel/model.js",
-      "bytes": 4636
+      "bytes": 4809
     },
     {
       "url": "./src/pixel/navigation.js",
@@ -848,7 +848,7 @@
     },
     {
       "url": "./src/pixel/planner-tools.js",
-      "bytes": 7546
+      "bytes": 7796
     },
     {
       "url": "./src/pixel/preferences.js",
@@ -856,7 +856,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 15423
+      "bytes": 15990
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -912,7 +912,7 @@
     },
     {
       "url": "./src/pixel/ux-summaries.js",
-      "bytes": 3016
+      "bytes": 3163
     },
     {
       "url": "./src/pixel/viewport.js",

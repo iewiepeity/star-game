@@ -124,9 +124,12 @@ export function validatePixelState(raw) {
   if (!state.life.game.realName && !state.life.game.stageName)
     state.life.game.realName = state.playerName;
   state.life.game.name = state.life.game.stageName || state.life.game.realName;
-  for (const id of state.visited) arriveAt(state.life, id);
-  if (!raw.life)
+  // Only the original scene-only save needs visits reconstructed. Modern saves
+  // already own dated visits; validation must not replay arrivals or pet greetings.
+  if (!raw.life) {
+    for (const id of state.visited) arriveAt(state.life, id);
     for (const id of state.knownPeople) recordMeeting(state.life, id);
+  }
   return state;
 }
 export function objectives(state) {
