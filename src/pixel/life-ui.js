@@ -1,3 +1,6 @@
+import { trainingSubsidyNotice } from "../logic/economy.js";
+import { selectWeeklyGoal } from "../logic/weekly-goals.js";
+import { withCore } from "./core-bridge.js";
 import { trainingLevel } from "../logic/training-narrative.js";
 import { narrativeText, narrativePreferences, canSkipRoutineResult, markRoutineRead } from "../logic/narrative-preferences.js";
 import { auditionResultCard } from "../views/audition-result.js";
@@ -128,7 +131,7 @@ export function createLifeUI(api) {
         return row(
           training ? `${d.label} · ${training.label}` : d.label,
           reason ||
-            `${ROOMS[d.room].name}${training ? ` · ${training.problem}` : ""}${!hasVisited(l.game, ROOMS[d.room].venue) && d.room !== "home" ? " · 含首次前往" : ""}`,
+            `${ROOMS[d.room].name}${training ? ` · ${training.problem}${training.unlocked ? " · 已掌握突破技巧，可用於相關試鏡" : ""}` : ""}${!hasVisited(l.game, ROOMS[d.room].venue) && d.room !== "home" ? " · 含首次前往" : ""}`,
           `data-plan="${id}" ${a.projectId ? `data-project="${a.projectId}"` : ""} ${locked ? "disabled" : ""} aria-pressed="${selected.id === id}"`,
           costOf(l, a) ? money(costOf(l, a)) : "—",
         );
@@ -136,7 +139,7 @@ export function createLifeUI(api) {
       .join("");
     show(
       "schedule",
-      `${heading("WEEKLY PLAN", "我的一週", "第一週就能自由改排。課程與工作會帶你前往場地，不需先花一天登記。")}${weeklyFocusMarkup(l)}${plannerToolsMarkup(l)}<div class="week-strip" role="group" aria-label="七日行程">${l.plan.map((a, i) => `<button data-day="${i}" class="${i === selectedDay ? "selected" : ""}" ${i < l.day ? "disabled" : ""}><small>週${"一二三四五六日"[i]}</small><strong>${escape(label(a))}</strong><span>${i < l.day ? "已完成" : i === l.day ? "今天" : "可調整"}</span></button>`).join("")}</div><div class="section-heading"><b>安排 ${DAY_NAMES[selectedDay]}</b><span>餘下學費／外出費 ${money(estimate)}</span></div><nav class="schedule-filters" aria-label="行程類型">${["全部", "訓練", "工作", "探訪", "生活", "創作", "休息"].map((f) => `<button data-schedule-filter="${f}" aria-pressed="${filter === f}">${f}</button>`).join("")}</nav><div class="action-catalog">${cards}</div><div class="panel-actions"><button data-ui="menu">◀ 選單</button><button data-life="auto" ${l.pending ? "disabled" : ""}>自動執行行程</button><button class="primary" data-life="today">開始今天 →</button></div>`,
+      `${heading("WEEKLY PLAN", "我的一週", "第一週就能自由改排。課程與工作會帶你前往場地，不需先花一天登記。")}${weeklyFocusMarkup(l)}<p class="tiny-note" data-training-subsidy>${escape(trainingSubsidyNotice(l.game.week))}</p>${plannerToolsMarkup(l)}<div class="week-strip" role="group" aria-label="七日行程">${l.plan.map((a, i) => `<button data-day="${i}" class="${i === selectedDay ? "selected" : ""}" ${i < l.day ? "disabled" : ""}><small>週${"一二三四五六日"[i]}</small><strong>${escape(label(a))}</strong><span>${i < l.day ? "已完成" : i === l.day ? "今天" : "可調整"}</span></button>`).join("")}</div><div class="section-heading"><b>安排 ${DAY_NAMES[selectedDay]}</b><span>餘下學費／外出費 ${money(estimate)}</span></div><nav class="schedule-filters" aria-label="行程類型">${["全部", "訓練", "工作", "探訪", "生活", "創作", "休息"].map((f) => `<button data-schedule-filter="${f}" aria-pressed="${filter === f}">${f}</button>`).join("")}</nav><div class="action-catalog">${cards}</div><div class="panel-actions"><button data-ui="menu">◀ 選單</button><button data-life="auto" ${l.pending ? "disabled" : ""}>自動執行行程</button><button class="primary" data-life="today">開始今天 →</button></div>`,
       { preserveScroll: true, scrollAnchor },
     );
   }
@@ -414,7 +417,7 @@ export function createLifeUI(api) {
       r.results.reduce((s, r) => s + r.deltas.money, 0) + r.reward.money;
     show(
       "summary",
-      `${heading("WEEK IN REVIEW", `第 ${r.week} 週 · 我的成長`)}<div class="week-reward"><span>本週淨收支</span><strong>${net > 0 ? "+" : ""}${money(net)}</strong><small>${r.reward.met ? `達成${r.reward.orientation ? "新人安頓" : "每週養成"}任務 · 補助 ${money(r.reward.money)}` : "下週再試：探訪／訓練、工作與適當休息"}</small></div><ol class="week-history">${r.results.map((r) => `<li><small>週${"一二三四五六日"[r.day]}</small><b>${escape(r.label)}</b><span>${r.deltas.money ? money(r.deltas.money) : "—"}</span></li>`).join("")}</ol><div class="panel-actions"><button data-ui="saves">存檔</button><button class="primary" data-life="next-week">開始下一週 →</button></div>`,
+      `${heading("WEEK IN REVIEW", `第 ${r.week} 週 · 我的成長`)}<div class="week-reward"><span>本週淨收支</span><strong>${net > 0 ? "+" : ""}${money(net)}</strong><small>${r.reward.met ? `達成${escape(r.reward.goalLabel || (r.reward.orientation ? "新人安頓" : "每週養成"))}任務 · 補助 ${money(r.reward.money)}` : "下週再試：探訪／訓練、工作與適當休息"}</small></div><ol class="week-history">${r.results.map((r) => `<li><small>週${"一二三四五六日"[r.day]}</small><b>${escape(r.label)}</b><span>${r.deltas.money ? money(r.deltas.money) : "—"}</span></li>`).join("")}</ol><div class="panel-actions"><button data-ui="saves">存檔</button><button class="primary" data-life="next-week">開始下一週 →</button></div>`,
     );
   }
   function narrativeHistory() {
@@ -531,6 +534,11 @@ export function createLifeUI(api) {
     if (careerUI.handle(target)) return true;
     const d = target.dataset,
       l = life();
+    if (d.weeklyGoal) {
+      const result = l.pending ? { ok: false, message: "今天的行動已開始，下週再選重心。" } : withCore(l, game => selectWeeklyGoal(game, d.weeklyGoal));
+      if (result.ok) checkpoint();
+      schedule(); toast(result.message); return true;
+    }
     if (d.weeklyFocus) {
       const r = setWeeklyFocus(l, d.weeklyFocus);
       checkpoint();

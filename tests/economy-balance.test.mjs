@@ -8,12 +8,15 @@ import {
   reliefGigAvailable,
 } from "../src/logic/economy.js";
 
-test("前八週訓練費七折，第九週恢復原價", () => {
+test("學費補助於第九至十二週逐步退場", () => {
   assert.equal(effectiveActionCost(ACTIONS.vocal, 1), 560);
   assert.equal(effectiveActionCost(ACTIONS.dance, 8), 700);
-  assert.equal(effectiveActionCost(ACTIONS.vocal, 9), 800);
+  assert.equal(effectiveActionCost(ACTIONS.vocal, 9), 640);
   assert.equal(newcomerSubsidyActive(8), true);
-  assert.equal(newcomerSubsidyActive(9), false);
+  assert.equal(newcomerSubsidyActive(9), true);
+  assert.equal(effectiveActionCost(ACTIONS.vocal, 11), 720);
+  assert.equal(effectiveActionCost(ACTIONS.vocal, 13), 800);
+  assert.equal(newcomerSubsidyActive(13), false);
 });
 
 test("街頭演出與新人零工都有真實收入設定", () => {

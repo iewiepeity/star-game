@@ -40,6 +40,7 @@ export default defineConfig({
     {
       name: "mobile-webkit",
       testMatch: [
+        "**/pixel-growth-depth.spec.mjs",
         "**/pixel-security.spec.mjs",
         "**/pixel-mobile-controls.spec.mjs",
         "**/pixel-audit-fixes.spec.mjs",

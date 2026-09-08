@@ -1,6 +1,6 @@
 {
-  "version": "0.20.1",
-  "bytes": 115237751,
+  "version": "0.21.0",
+  "bytes": 115256185,
   "entries": [
     {
       "url": "./privacy.html",
@@ -64,7 +64,7 @@
     },
     {
       "url": "./src/core/character-memory-state.js",
-      "bytes": 2091
+      "bytes": 2707
     },
     {
       "url": "./src/core/city-life-state.js",
@@ -112,11 +112,11 @@
     },
     {
       "url": "./src/core/state.js",
-      "bytes": 18868
+      "bytes": 19141
     },
     {
       "url": "./src/core/training-narrative-state.js",
-      "bytes": 1997
+      "bytes": 2146
     },
     {
       "url": "./src/core/utils.js",
@@ -340,7 +340,7 @@
     },
     {
       "url": "./src/data/sequel-story-content.js",
-      "bytes": 8005
+      "bytes": 8281
     },
     {
       "url": "./src/data/social.js",
@@ -472,7 +472,7 @@
     },
     {
       "url": "./src/logic/economy.js",
-      "bytes": 689
+      "bytes": 1240
     },
     {
       "url": "./src/logic/event-context.js",
@@ -512,7 +512,7 @@
     },
     {
       "url": "./src/logic/job-engine.js",
-      "bytes": 27277
+      "bytes": 27659
     },
     {
       "url": "./src/logic/job-list-model.js",
@@ -556,7 +556,7 @@
     },
     {
       "url": "./src/logic/npc-interaction-engine.js",
-      "bytes": 5458
+      "bytes": 5714
     },
     {
       "url": "./src/logic/npc-invitations.js",
@@ -608,7 +608,11 @@
     },
     {
       "url": "./src/logic/romance-engine.js",
-      "bytes": 16062
+      "bytes": 16476
+    },
+    {
+      "url": "./src/logic/romance-experiences.js",
+      "bytes": 1037
     },
     {
       "url": "./src/logic/routine-rules.js",
@@ -636,7 +640,7 @@
     },
     {
       "url": "./src/logic/sequel-engine.js",
-      "bytes": 6338
+      "bytes": 11219
     },
     {
       "url": "./src/logic/short-contact.js",
@@ -652,15 +656,23 @@
     },
     {
       "url": "./src/logic/training-narrative.js",
-      "bytes": 5110
+      "bytes": 5220
+    },
+    {
+      "url": "./src/logic/training-techniques.js",
+      "bytes": 2327
     },
     {
       "url": "./src/logic/wardrobe.js",
       "bytes": 2529
     },
     {
+      "url": "./src/logic/weekly-goals.js",
+      "bytes": 3451
+    },
+    {
       "url": "./src/logic/weekly-task.js",
-      "bytes": 4738
+      "bytes": 6156
     },
     {
       "url": "./src/logic/work-echoes.js",
@@ -696,11 +708,11 @@
     },
     {
       "url": "./src/pixel/career-ui.js",
-      "bytes": 25889
+      "bytes": 26047
     },
     {
       "url": "./src/pixel/career.js",
-      "bytes": 24147
+      "bytes": 24420
     },
     {
       "url": "./src/pixel/cast.js",
@@ -772,7 +784,7 @@
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 30658
+      "bytes": 31316
     },
     {
       "url": "./src/pixel/life.js",
@@ -828,7 +840,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 12622
+      "bytes": 13532
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -916,7 +928,7 @@
     },
     {
       "url": "./src/views/character-memory.js",
-      "bytes": 2149
+      "bytes": 2443
     },
     {
       "url": "./src/views/community-heart.js",

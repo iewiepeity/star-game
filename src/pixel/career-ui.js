@@ -160,7 +160,7 @@ export function createCareerUI(api) {
           ?.filter((o) => o.status === "active")
           .map(
             (o) =>
-              `<article class="career-card"><b>${esc(o.title)}</b><p>${o.completedSessions}/${o.requiredSessions} 次</p>${btn("安排續作製作", `data-book="sequel" data-id="${esc(o.id)}"`)}</article>`,
+              `<article class="career-card"><b>${esc(o.title)}</b><p>${o.completedSessions}/${o.requiredSessions} 次${o.direction === "promotion" ? " · 含一天宣傳，報酬＋25%" : o.direction === "creative" ? " · 創作主導，含額外打磨" : " · 原班回歸"}</p>${btn("安排續作製作", `data-book="sequel" data-id="${esc(o.id)}"`)}</article>`,
           )
           .join("") || ""
       }`,

@@ -1,3 +1,4 @@
+import { techniqueChoices } from "./training-techniques.js";
 import { workEchoAuditionBonus, consumeWorkEchoOpportunity, activeWorkEchoOpportunity } from "./work-echoes.js";
 import { auditionResultCard } from "../views/audition-result.js";
 import { canAccessJob } from "./industry.js";
@@ -429,7 +430,7 @@ function baseAuditionChance(job, choice = "steady") {
           workEchoAuditionBonus(job.id) +
           scandalMarketPenalty() +
           role.auditionModifier +
-          (choice === "steady" ? 8 : -3),
+          (choice === "steady" ? 8 : techniqueChoices(job, state).some(c => c.id === choice) ? 12 : -3),
       ),
     ),
   );
@@ -450,7 +451,7 @@ export function jobAuditionDecision(task) {
     kind: "job_audition",
     title: `${titleTag(job.title)}試鏡`,
     text: `試鏡角色：${role.label}。${job.audition.prompt}（目前${performanceLabel("audition")}）`,
-    choices: job.audition.choices.map((c) => ({
+    choices: [...job.audition.choices, ...techniqueChoices(job, state)].map((c) => ({
       id: c.id,
       label: c.label,
       note: `${c.note}・${successRateLabel(auditionChance(job, c.id))}`,
@@ -461,6 +462,8 @@ export function resolveAudition(id, choice) {
   const job = JOB_BY_ID[id],
     record = assertStage(id, ["audition_scheduled", "audition"]);
   if (!job || !record) return null;
+  const technique = techniqueChoices(job, state).find(c => c.id === choice);
+  if (!job.audition.choices.some(c => c.id === choice) && !technique) return null;
   const role = roleProfile(job),
     pct = auditionChance(job, choice),
     passed = chance(pct),
@@ -476,7 +479,7 @@ export function resolveAudition(id, choice) {
   storyFeed(record, {
     phase: "audition",
     title: `${titleTag(job.title)}試鏡`,
-    text: `${story?.audition?.arrival || job.audition.prompt} ${choice === "bold" ? story?.audition?.bold : story?.audition?.steady} ${passed ? story?.audition?.passed : story?.audition?.failed}`,
+    text: `${story?.audition?.arrival || job.audition.prompt} ${technique?.text || (choice === "bold" ? story?.audition?.bold : story?.audition?.steady)} ${passed ? story?.audition?.passed : story?.audition?.failed}`,
     choice,
     result: passed ? "passed" : "failed",
   });
@@ -492,14 +495,14 @@ export function resolveAudition(id, choice) {
     roleId: role.id,
     npcCast: [...(record.npcCast || [])],
   });
-  return { passed, chance: pct, label: successRateLabel(pct), role, story };
+  return { passed, chance: pct, label: successRateLabel(pct), role, story, technique };
 }
 export function resolveScheduledJobAudition(task, choice) {
   const job = JOB_BY_ID[task?.payload?.jobId],
     result = job && resolveAudition(job.id, choice),
     copy = result?.story?.audition;
   if (!job || !result) return { ok: false, text: "這場試鏡已失效。" };
-  const audition = { passed: result.passed, work: job.title, role: result.role.label, venue: job.audition.venue, client: job.client, arrival: copy?.arrival || job.audition.prompt, choice: choice === "bold" ? copy?.bold : copy?.steady, feedback: result.passed ? copy?.passed : copy?.failed };
+  const audition = { passed: result.passed, work: job.title, role: result.role.label, venue: job.audition.venue, client: job.client, arrival: copy?.arrival || job.audition.prompt, choice: result.technique?.text || (choice === "bold" ? copy?.bold : copy?.steady), feedback: result.passed ? copy?.passed : copy?.failed };
 
   return {
     ok: true,

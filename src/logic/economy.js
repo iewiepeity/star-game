@@ -4,7 +4,13 @@ const NEWCOMER_TRAINING_RATE = 0.7;
 export function trainingSubsidyRate(week) {
   return Number(week) <= NEWCOMER_SUBSIDY_END_WEEK
     ? NEWCOMER_TRAINING_RATE
-    : 1;
+    : Number(week) <= 10 ? 0.8 : Number(week) <= 12 ? 0.9 : 1;
+}
+
+export function trainingSubsidyNotice(week) {
+  const rate = trainingSubsidyRate(week), next = trainingSubsidyRate(Number(week) + 1);
+  if (rate === 1) return "新人培訓補助已結束，目前按原學費計算。";
+  return `目前學費 ${Math.round(rate * 10)} 折。前八週七折，第九～十週八折，第十一～十二週九折，第十三週恢復原價。${next !== rate ? `下週將改為${next === 1 ? "原價" : Math.round(next * 10) + "折"}，請預留預算。` : ""}`;
 }
 
 export function effectiveActionCost(action, week) {

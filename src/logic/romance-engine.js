@@ -1,3 +1,4 @@
+import { romanceExperienceStatus } from "./romance-experiences.js";
 import { state } from "../core/state.js";
 import { invalidateHomeKeys } from "../core/home-state.js";
 import { NPCS } from "../data/npcs.js";
@@ -219,6 +220,7 @@ export function romanceOpportunity(id, game = state) {
   const eligible = romanceEligibility(id, game);
   if (!eligible.ok) return null;
   const since = Math.max(0, game.week - (rel.romanceSinceWeek ?? game.week));
+  if (!romanceExperienceStatus(id, need.next, game).ready) return null;
   if (
     (rel.affection || 0) < need.affection ||
     (rel.closeness || 0) < need.closeness ||
@@ -269,7 +271,7 @@ export function transitionRomance(id, next, source = "關係事件") {
   )
     return {
       ok: false,
-      reason: "彼此的心意、信任或相處時間還未準備好，先照目前的步調相處。",
+      reason: !romanceExperienceStatus(id, next, state).ready ? romanceExperienceStatus(id, next, state).message : "彼此的心意、信任或相處時間還未準備好，先照目前的步調相處。",
     };
   const before = current;
   rel.romance = next;
@@ -417,5 +419,7 @@ export function romanceProgress(id) {
     return "彼此已有在意，還需要更多相處與信任。";
   if (state.week - (rel.romanceSinceWeek ?? state.week) < (need.minWeeks || 0))
     return "這段關係還需要一些共同生活的時間，暫時不必急著進下一步。";
-  return "彼此已準備好，可以找個時間聊聊我們的關係。";
+  const experience = romanceExperienceStatus(id, need.next, state);
+  if (!experience.ready) return experience.message;
+  return `${experience.labels.length ? experience.message : ""}彼此已準備好，可以找個時間聊聊我們的關係。`;
 }

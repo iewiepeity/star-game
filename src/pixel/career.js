@@ -480,6 +480,10 @@ export function careerDecision(life, a) {
 export function resolveCareerDay(life, a, choice) {
   if (a.id === "career_task") {
     const task = state.scheduledActivities[a.taskId];
+    if (task?.kind === "job_audition") {
+      const decision = jobAuditionDecision(task);
+      if (decision && !decision.choices.some(item => item.id === choice)) return { ok: false, pending: true, decision, text: "請先選擇目前能使用的試鏡方式。" };
+    }
     if (task.kind === "npc_interact")
       state.stamina = Math.max(0, state.stamina - (task.stamina || 0));
     else applyActivityLoad(task);

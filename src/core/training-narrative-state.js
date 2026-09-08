@@ -7,6 +7,7 @@ export function normalizeTrainingProgress(raw) {
   return Object.fromEntries(Object.keys(TRAINING_CURRICULUM).filter(id => raw?.[id] && typeof raw[id] === "object").map(id => {
     const p = raw[id];
     return [id, {
+      unlocked: p.unlocked === true || p.stage === "breakthrough" || (Array.isArray(p.history) && p.history.some(x => x?.stage === "breakthrough")),
       sessions: Math.floor(number(p.sessions)), skill: number(p.skill, 1000),
       stage: stages.includes(p.stage) ? p.stage : "beginner",
       plateauSessions: Math.floor(number(p.plateauSessions)), cycleStartSkill: number(Number.isFinite(p.cycleStartSkill) ? p.cycleStartSkill : p.skill, 1000),

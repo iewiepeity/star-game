@@ -23,6 +23,7 @@ export function initialState() {
     characterMemories: {},
     narrativeSettings: normalizeNarrativeSettings(),
     routineNarrativeHistory: [],
+    weeklyGoal: null,
     trainingNarrativeProgress: {},
     personalStories: {},
     romanceDaily: {},
@@ -291,6 +292,7 @@ export function hydrateState(saved) {
   next.narrativeSettings = normalizeNarrativeSettings(saved.narrativeSettings);
   next.routineNarrativeHistory = normalizeRoutineNarrativeHistory(saved.routineNarrativeHistory);
   next.trainingNarrativeProgress = normalizeTrainingProgress(saved.trainingNarrativeProgress);
+  next.weeklyGoal = saved.weeklyGoal && Number.isInteger(saved.weeklyGoal.week) && ["balanced", "craft", "market", "life", "team", "rebalance", "legacy"].includes(saved.weeklyGoal.id) ? { week: saved.weeklyGoal.week, id: saved.weeklyGoal.id } : null;
   next.agencyAgreements = normalizeAgencyAgreements(saved.agencyAgreements);
   next.workEchoes = normalizeWorkEchoes(saved.workEchoes);
   for (const [id, rel] of Object.entries(next.relationships || {})) {

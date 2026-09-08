@@ -40,7 +40,7 @@ export const SEQUEL_SCENES = Object.freeze({
 const scenesFor = offer => SEQUEL_SCENES[offer.category] || SEQUEL_SCENES.電影;
 export function sequelOfferText(work) {
   const cast = work.npcCast?.length ? "若接受，製作還要配合原有合作對象的共同檔期。" : "若接受，需實際安排製作時段；這封邀請本身不算完成作品。";
-  return `《${work.title}》留下的成品成為新提案的起點。${scenesFor(work).offer}\n\n${cast}加價可以談，製作次數不會因此減少；也可以婉拒，保留往其他方向嘗試的時間。`;
+  return `《${work.title}》留下的成品成為新提案的起點。${scenesFor(work).offer}\n\n${cast}提高報酬需多留一天宣傳；爭取創作主導需多一天打磨，成果取決於專業與狀態。也可以依原條件回歸或婉拒。`;
 }
 export function sequelSessionText(offer) {
   const scenes = scenesFor(offer).sessions;
@@ -50,6 +50,6 @@ export function sequelSessionText(offer) {
 export function sequelCompletionText(offer, quality, pay) {
   const scenes = scenesFor(offer);
   const grade = quality >= 90 ? "high" : quality >= 80 ? "middle" : "low";
-  const terms = offer.negotiated ? "先前談定的加價已按約列入這次收入，製作要求仍如原定完成。" : "這次依原先談定的條件完成結算，回歸的選擇也真正留進作品紀錄。";
+  const terms = offer.direction === "creative" ? "你以額外打磨換取創作主導，這次的專業與身體狀態也留在成品裡。" : offer.termsVersion === 2 && offer.negotiated ? "額外宣傳義務已完成，加價按約列入收入。" : offer.negotiated ? "先前談定的加價已按約列入這次收入，製作要求仍如原定完成。" : "這次依原先談定的條件完成結算，回歸的選擇也真正留進作品紀錄。";
   return `《${offer.title}》完成。${scenes[grade]}${terms} 品質 ${quality}、收入＋${pay}。`;
 }

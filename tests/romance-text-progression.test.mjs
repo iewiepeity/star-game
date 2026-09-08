@@ -9,6 +9,7 @@ import {NPC_ROMANCE_SCENES} from '../src/data/romance-scenes.js';
 function setup(stage='dating'){
  resetState();state.week=100;state.completedWorks.push({id:'test-work'});meetNpc('jiqing');
  Object.assign(state.relationships.jiqing,{romance:stage,romanceSinceWeek:20,closeness:100,trust:100,affection:100,hostility:0,romanceHistory:[]});
+ state.characterMemories={jiqing:{bonds:['care','work']}};
  state.partnerId='jiqing';state.eventQueue=[];state.queuedEvents=[];state.activeEvent=null;state.npcStoryHistory=['jiqing:stage:bonded'];
 }
 function queuedRomances(){return [...state.eventQueue,...state.queuedEvents].map(x=>x.event).filter(x=>x.id.startsWith('npc-romance-jiqing:'))}

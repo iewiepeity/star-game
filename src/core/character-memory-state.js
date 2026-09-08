@@ -22,7 +22,13 @@ export function normalizeCharacterMemories(raw) {
     const item = object(source);
     const entries = (key, kind, limit) => (Array.isArray(item[key]) ? item[key] : []).map(normalizeMemoryEntry).filter(entry => entry && (!kind || entry.kind === kind)).slice(-limit);
     const promises = entries("promises", "promise", 40);
-    return [id, { preferences: values(item.preferences), boundaries: values(item.boundaries),
+    const shared = entries("shared", "shared", 60), responses = entries("responses", "response", 40);
+    const knownBonds = new Set(["care", "private", "work", "reliability"]);
+    const bonds = new Set((Array.isArray(item.bonds) ? item.bonds : []).filter(id => knownBonds.has(id)));
+    for (const entry of shared) if (entry.key.startsWith("bond:") && knownBonds.has(entry.value)) bonds.add(entry.value);
+    if (promises.some(p => p.status === "fulfilled")) bonds.add("reliability");
+    if (!bonds.size && responses.some(p => p.key === "support" && p.value === "listened")) bonds.add("care");
+    return [id, { bonds: [...bonds], preferences: values(item.preferences), boundaries: values(item.boundaries),
       promises: promises.filter((entry, index) => promises.findLastIndex(other => other.key === entry.key) === index),
       responses: entries("responses", "response", 40), shared: entries("shared", "shared", 60), history: entries("history", null, 100),
     }];

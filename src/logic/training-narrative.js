@@ -18,7 +18,7 @@ export function trainingLevel(id, game = state) {
   const skill = trainingSkill(id, game);
   const stage = progress?.stage === "breakthrough" && progress.skill <= skill ? "breakthrough" : abilityStage(skill);
   const lesson = TRAINING_CURRICULUM[id][stage];
-  return { stage, label: TRAINING_STAGE_LABELS[stage], skill, sessions: progress?.sessions || 0, problem: validLesson(id, progress?.lastProblemId)?.problem || lesson.problem, lesson };
+  return { unlocked: progress?.unlocked === true, stage, label: TRAINING_STAGE_LABELS[stage], skill, sessions: progress?.sessions || 0, problem: validLesson(id, progress?.lastProblemId)?.problem || lesson.problem, lesson };
 }
 // Called once by the existing training transaction, after its original gains.
 // Only narrative memory changes here: tuition, condition load and gains stay owned by routineTraining.
@@ -35,6 +35,7 @@ export function recordTrainingPractice(game, id, beforeSkill, gains, multiplier)
   const lesson = TRAINING_CURRICULUM[id][stage];
   const result = stage === "breakthrough" ? "breakthrough" : multiplier < .8 || !progressed ? "limited" : "steady";
   all[id] = {
+    unlocked: previous?.unlocked === true || stage === "breakthrough",
     sessions, skill, stage, plateauSessions: stage === "plateau" ? plateauSessions : 0,
     cycleStartSkill: stage === "plateau" ? cycleStartSkill : skill,
     lastProblemId: lesson.id, lastLessonId: lesson.id, lastResult: result,

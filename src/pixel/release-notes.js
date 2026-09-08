@@ -2,6 +2,16 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.21.0", date: "2026-09-08", title: "練會的本事，走過的日子",
+    notes: [
+      "九類訓練突破後，相關試鏡會多出可用的表現方式；已掌握的技巧不因下次練習或讀檔消失。",
+      "新的續作可選原班回歸、加薪並多留一天宣傳，或多一天打磨換取創作主導；成品也會反映這次能力與狀態。舊合約照原條件完成。",
+      "第九週起可在週初選擇重心；隨職涯年份增加合作、轉型及作品與生活目標，開始行動後鎖定，每週只領一次獎勵。",
+      "穩定伴侶、訂婚與婚姻會參照共同經歷，支持、談心、合作與履約都能留下記憶；既有關係不會降級。",
+      "新人學費前八週七折，第九至十週八折，第十一至十二週九折，第十三週恢復原價；行程表會提前提醒。救急短工不變。",
+    ],
+  },
+  {
     version: "0.20.1", date: "2026-09-08", title: "行程連著排，畫面找得回",
     notes: [
       "手機改排行程時會留在原本的位置，篩選和展開的排程助手也會保留。",
@@ -176,4 +186,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.43.1";
+export const CORE_VERSION = "1.44.0";
