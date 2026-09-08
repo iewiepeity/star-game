@@ -15,6 +15,9 @@ export function normalizeWorkEchoes(raw) {
       npcId: NPCS[r.npcId] ? r.npcId : null, npcText: clean(r.npcText, 1000),
       choice: validChoices.has(r.choice) ? r.choice : null, resolvedWeek: r.resolvedWeek ? week(r.resolvedWeek) : null,
       eventQueued: !!r.eventQueued,
+      ...(r.copyVersion === 1 && clean(r.copyId, 180) ? {
+        copyVersion: 1, copyId: clean(r.copyId, 180),
+      } : {}),
     });
   }
   return { records: [...unique.values()].slice(-6000), opportunities: (Array.isArray(raw?.opportunities) ? raw.opportunities : []).filter(o => o && clean(o.workId, 140) && /^J\d{3}$/.test(o.jobId)).slice(-180).map(o => ({

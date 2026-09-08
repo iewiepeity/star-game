@@ -2,6 +2,14 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.24.0", date: "2026-09-08", title: "每一份作品，都有自己的後來",
+    notes: [
+      "歌曲、影視與節目的九種創作方向，新增各自的發行初期、幾週後與隔年回看故事；同方向作品會輪替不同情境。",
+      "作品回響分開呈現創作者筆記、公開討論、觀眾留言與共作夥伴的聲音，市場表現及先前的心情選擇也會影響私人後續。",
+      "擴充草稿、製作與發行文本；已回應的舊故事照原樣保留，尚未回應的自製作品回響接上新版內容。",
+    ],
+  },
+  {
     version: "0.23.4", date: "2026-09-08", title: "打開首頁，就到星望市",
     notes: [
       "網站首頁直接開啟像素生活，舊版網址仍可接回同一段旅程。",
@@ -240,4 +248,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.46.4";
+export const CORE_VERSION = "1.47.0";

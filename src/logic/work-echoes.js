@@ -5,15 +5,23 @@ import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
 import { availableJobs } from "./job-engine.js";
 import { enqueueVisibleEvent } from "./event-queue.js";
+import { originalEchoCopy, WORK_ECHO_COPY_VERSION, WORK_ECHO_CHOICE_OUTCOMES } from "../data/work-echo-content.js";
 
 const STAGES = [{ id: "opening", after: 1, label: "發行初期" }, { id: "weeks", after: 4, label: "幾週之後" }, { id: "anniversary", after: 52, label: "隔年回看" }];
 const validChoices = new Set(["proud", "mixed", "quiet", "revisit", "forward", "leave"]);
 export function releasedEchoWorks(game = state) {
-  const works = (game.completedWorks || []).filter(w => w && typeof w.id === "string" && w.title && Number.isFinite(w.completedWeek));
+  const projects = game.creativeProjects || [];
+  const works = (game.completedWorks || []).filter(w => w && typeof w.id === "string" && w.title && Number.isFinite(w.completedWeek)).map(work => {
+    const project = projects.find(p => p.id === work.creativeProjectId);
+    return project ? { ...work, creativeType: project.type, direction: work.direction || project.direction,
+      distributionMode: work.distributionMode ?? project.distributionMode,
+      selfParticipation: work.selfParticipation ?? project.selfParticipation } : work;
+  });
   const originals = new Set(works.map(w => w.creativeProjectId).filter(Boolean));
   return [...works, ...(game.creativeProjects || []).filter(p => p.status === "released" && Number.isFinite(p.releaseWeek) && !originals.has(p.id)).map(p => ({
     id: `creative-${p.id}`, creativeProjectId: p.id, title: p.title, category: p.category || (p.type === "song" ? "歌曲" : p.type === "show" ? "綜藝" : "電影"),
     completedWeek: p.releaseWeek, quality: Math.min(100, Math.round((p.quality || 0) / 10)), marketScore: p.marketScore, revenue: p.revenue, npcCast: p.team || [], original: true,
+    creativeType: p.type, direction: p.direction, distributionMode: p.distributionMode, selfParticipation: p.selfParticipation,
   }))].filter((w, i, all) => all.findIndex(other => other.id === w.id) === i);
 }
 function reception(work) {
@@ -22,6 +30,9 @@ function reception(work) {
   return (work.fans || 0) >= 200 ? 78 : (work.fans || 0) >= 60 ? 62 : 45;
 }
 function echoCopy(work, stage, records, game) {
+  const collaborator = (work.npcCast || []).find(id => NPCS[id] && game.knownPeople?.includes(id)) || null;
+  const authored = originalEchoCopy(work, stage.id, records, collaborator);
+  if (authored) return authored;
   const name = `《${work.title}》`, medium = work.category === "歌曲" ? "聽" : "看";
   const slow = reception(work) < 60 && work.quality >= 70;
   const mixed = reception(work) >= 75 && records.some(r => r.workId === work.id && r.choice === "mixed");
@@ -57,6 +68,7 @@ function echoCopy(work, stage, records, game) {
 }
 function echoEvent(record) {
   const first = record.stage === "opening";
+  const outcomes = record.copyVersion === WORK_ECHO_COPY_VERSION ? WORK_ECHO_CHOICE_OUTCOMES[record.copyId?.split(":")[0]] : null;
   return { id: record.id, kind: "職涯事件", persistent: true, routine: false,
     title: record.title, text: record.text, summary: record.summary,
     storyContext: { source: "作品回響", channel: "story", workId: record.workId, npcIds: record.npcId ? [record.npcId] : [], week: record.dueWeek },
@@ -68,7 +80,7 @@ function echoEvent(record) {
       ["revisit", "帶著這份作品，再找一個合作窗口", "你決定讓舊作成為下一次討論的材料；若有合適的公開通告，工作信箱會留下可自行安排的試鏡線索。"],
       ["forward", "記下經驗，讓下一份作品走新的方向", "你把能帶走的經驗留下，沒有要求下一份作品重複同一種成功。"],
       ["leave", "今天只回看，不加新的安排", "你把這頁收好。回顧可以只是回顧，不必立刻變成工作。"],
-    ]).map(([choice, label, outcome]) => ({ id: choice, label, outcome, effect: { workEcho: { workId: record.workId, stage: record.stage, choice } } })),
+    ]).map(([choice, label, outcome]) => ({ id: choice, label, outcome: outcomes?.[choice] || outcome, effect: { workEcho: { workId: record.workId, stage: record.stage, choice } } })),
   };
 }
 export function tickWorkEchoes(game = state) {
@@ -83,6 +95,16 @@ export function tickWorkEchoes(game = state) {
         ...echoCopy(work, stage, records, game), choice: null, resolvedWeek: null, eventQueued: false };
       records.push(record);
       if (record.npcId) recordCharacterMemory(record.npcId, { kind: "shared", key: record.id, value: record.stage, label: record.publicTitle, text: record.npcText, source: "共同作品回響", week: record.dueWeek }, game);
+    } else if (!record.resolvedWeek && record.copyVersion !== WORK_ECHO_COPY_VERSION) {
+      // Upgrade only unanswered original-work chapters. Answered stories and
+      // previously written character memories remain historical records.
+      const copy = echoCopy(work, stage, records, game);
+      if (copy.copyVersion === WORK_ECHO_COPY_VERSION) {
+        Object.assign(record, copy);
+        if (game === state) for (const item of [game.activeEvent, ...(game.eventQueue || []), ...(game.queuedEvents || [])]) {
+          if (item?.event?.id === id) Object.assign(item.event, echoEvent(record));
+        }
+      }
     }
     if (!record.eventQueued && !record.resolvedWeek && game === state) {
       const known = [game.activeEvent, ...(game.eventQueue || []), ...(game.queuedEvents || [])].some(item => item?.event?.id === id) || game.eventHistory?.some(item => item.id === id);
@@ -98,7 +120,7 @@ export function applyWorkEchoEffect(payload = {}, game = state) {
   if (!record || !work || record.resolvedWeek || !validChoices.has(payload.choice)) return { ok: false, message: "這段回響已經記下，或作品目前不在履歷裡。" };
   if (!echoEvent(record).choices.some(c => c.id === payload.choice)) return { ok: false, message: "這個回應不屬於目前的作品階段。" };
   record.choice = payload.choice; record.resolvedWeek = game.week;
-  if (payload.choice === "mixed") {
+  if (record.stage === "opening") {
     // A delayed first conversation still informs an unplayed later chapter.
     for (const later of game.workEchoes.records.filter(r => r.workId === work.id && r.stage !== "opening" && !r.resolvedWeek)) {
       Object.assign(later, echoCopy(work, STAGES.find(s => s.id === later.stage), game.workEchoes.records, game));

@@ -1,6 +1,6 @@
 {
-  "version": "0.23.4",
-  "bytes": 116332883,
+  "version": "0.24.0",
+  "bytes": 116491678,
   "entries": [
     {
       "url": "./privacy.html",
@@ -128,7 +128,7 @@
     },
     {
       "url": "./src/core/work-echo-state.js",
-      "bytes": 1831
+      "bytes": 1958
     },
     {
       "url": "./src/data/abilities.js",
@@ -175,8 +175,12 @@
       "bytes": 25828
     },
     {
+      "url": "./src/data/creative-phase-variants.js",
+      "bytes": 21235
+    },
+    {
       "url": "./src/data/creative-story-content.js",
-      "bytes": 15599
+      "bytes": 17773
     },
     {
       "url": "./src/data/deepening-content.js",
@@ -375,6 +379,22 @@
       "bytes": 1060
     },
     {
+      "url": "./src/data/work-echo-content.js",
+      "bytes": 11623
+    },
+    {
+      "url": "./src/data/work-echo-script-content.js",
+      "bytes": 41059
+    },
+    {
+      "url": "./src/data/work-echo-show-content.js",
+      "bytes": 38683
+    },
+    {
+      "url": "./src/data/work-echo-song-content.js",
+      "bytes": 41110
+    },
+    {
       "url": "./src/entry.js",
       "bytes": 339
     },
@@ -468,7 +488,7 @@
     },
     {
       "url": "./src/logic/creative.js",
-      "bytes": 12562
+      "bytes": 12910
     },
     {
       "url": "./src/logic/cross-event-engine.js",
@@ -688,7 +708,7 @@
     },
     {
       "url": "./src/logic/work-echoes.js",
-      "bytes": 13245
+      "bytes": 14898
     },
     {
       "url": "./src/logic/work-lifecycle.js",
@@ -860,7 +880,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 17195
+      "bytes": 17788
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -960,7 +980,7 @@
     },
     {
       "url": "./src/views/creative.js",
-      "bytes": 11431
+      "bytes": 11621
     },
     {
       "url": "./src/views/forum.js",

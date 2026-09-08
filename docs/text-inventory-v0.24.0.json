@@ -1,0 +1,190 @@
+{
+  "method": {
+    "version": 1,
+    "scope": "pixel-runtime.mjs 的相同三個入口，沿靜態相對 ES module import/export 與字面值 dynamic import 追蹤的 src JavaScript 依賴閉包；工作樹含已接入但未追蹤的新檔案。",
+    "entries": [
+      "src/entry.js",
+      "src/privacy-page.js",
+      "src/pixel/main.js"
+    ],
+    "exclusions": [
+      "assets/vendor/phaser.esm.min.js",
+      "src/data/portraits.js",
+      "src/data/story-art.js",
+      "src/data/work-art.js",
+      "src/pixel/release-notes.js"
+    ],
+    "extraction": "用 espree AST 擷取含漢字的字串值及完整 template literal；排除註解、非文本識別欄位、物件鍵、成員索引鍵、import/export 路徑與素材 metadata。HTML 標籤剝除但保留 alt/title/placeholder/aria-label 的可讀內容。",
+    "templates": "每個完整模板的靜態片段以 ${…} 接合，算一條，不展開任何插值排列。插值中的獨立中文字串／巢狀模板另外依相同規則擷取；動態填入的作品名、人物名和數字不灌入模板字數。",
+    "deduplication": "Unicode NFC 與連續空白正規化後，依完整靜態文本去重；跨檔重複只算一次。分組各自去重，群組可能重疊，不能相加。",
+    "counts": "uniqueTexts 是獨立靜態文本數（含 UI、名稱與短句，並非劇情事件數）；hanCharacters 只計去重文本中的 Unicode Script=Han 字元，不計標點、數字、英文字及模板插值。longTexts/longHanCharacters 限單條至少 20 漢字，是長度篩選，不保證都是敘事。",
+    "groups": {
+      "allRuntime": "上述正式遊戲執行期依賴閉包中的所有合格文本。",
+      "contentData": "其中 src/data/ 的資料文本，含敘事、選項、名稱和資料標籤，不宣稱全數為劇情。",
+      "creativeWorks": "其中檔名以 creative、work-echo 或 original-work 開頭的模組（自製作品流程、後續回響及其 UI）。"
+    },
+    "comparison": "before/after 使用相同口徑；delta 為淨增減。added/removed 是完整去重靜態文本集合差，改寫舊句會同時列為 removed 和 added，不能把 added 當成淨增字數。",
+    "limitations": "靜態依賴可達不代表每個 export 或每條分支都會在單輪遊戲觸發；不估算排列組合、重播次數、玩家自訂名稱或讀完所需時間。"
+  },
+  "before": {
+    "source": {
+      "type": "git",
+      "ref": "862a4bd736260372a928dabf69faac9e184a8869",
+      "commit": "862a4bd736260372a928dabf69faac9e184a8869"
+    },
+    "reachableFiles": 246,
+    "excludedFiles": [
+      "assets/vendor/phaser.esm.min.js",
+      "src/data/story-art.js",
+      "src/data/work-art.js",
+      "src/pixel/release-notes.js"
+    ],
+    "groups": {
+      "allRuntime": {
+        "files": 242,
+        "uniqueTexts": 14705,
+        "hanCharacters": 323624,
+        "longTexts": 6690,
+        "longHanCharacters": 254670
+      },
+      "contentData": {
+        "files": 59,
+        "uniqueTexts": 10636,
+        "hanCharacters": 271186,
+        "longTexts": 5902,
+        "longHanCharacters": 226317
+      },
+      "creativeWorks": {
+        "files": 9,
+        "uniqueTexts": 355,
+        "hanCharacters": 6758,
+        "longTexts": 128,
+        "longHanCharacters": 5060,
+        "filePaths": [
+          "src/core/work-echo-state.js",
+          "src/data/creative-story-content.js",
+          "src/logic/creative-schedule.js",
+          "src/logic/creative-team.js",
+          "src/logic/creative-workflow.js",
+          "src/logic/creative.js",
+          "src/logic/work-echoes.js",
+          "src/views/creative.js",
+          "src/views/work-echoes.js"
+        ]
+      }
+    }
+  },
+  "after": {
+    "source": {
+      "type": "working-tree"
+    },
+    "reachableFiles": 251,
+    "excludedFiles": [
+      "assets/vendor/phaser.esm.min.js",
+      "src/data/story-art.js",
+      "src/data/work-art.js",
+      "src/pixel/release-notes.js"
+    ],
+    "groups": {
+      "allRuntime": {
+        "files": 247,
+        "uniqueTexts": 15481,
+        "hanCharacters": 360564,
+        "longTexts": 7306,
+        "longHanCharacters": 289699
+      },
+      "contentData": {
+        "files": 64,
+        "uniqueTexts": 11413,
+        "hanCharacters": 308127,
+        "longTexts": 6517,
+        "longHanCharacters": 261320
+      },
+      "creativeWorks": {
+        "files": 14,
+        "uniqueTexts": 1131,
+        "hanCharacters": 43698,
+        "longTexts": 744,
+        "longHanCharacters": 40089,
+        "filePaths": [
+          "src/core/work-echo-state.js",
+          "src/data/creative-phase-variants.js",
+          "src/data/creative-story-content.js",
+          "src/data/work-echo-content.js",
+          "src/data/work-echo-script-content.js",
+          "src/data/work-echo-show-content.js",
+          "src/data/work-echo-song-content.js",
+          "src/logic/creative-schedule.js",
+          "src/logic/creative-team.js",
+          "src/logic/creative-workflow.js",
+          "src/logic/creative.js",
+          "src/logic/work-echoes.js",
+          "src/views/creative.js",
+          "src/views/work-echoes.js"
+        ]
+      }
+    }
+  },
+  "comparison": {
+    "allRuntime": {
+      "delta": {
+        "uniqueTexts": 776,
+        "hanCharacters": 36940,
+        "longTexts": 616,
+        "longHanCharacters": 35029
+      },
+      "added": {
+        "uniqueTexts": 778,
+        "hanCharacters": 36967,
+        "longTexts": 616,
+        "longHanCharacters": 35029
+      },
+      "removed": {
+        "uniqueTexts": 2,
+        "hanCharacters": 27,
+        "longTexts": 0,
+        "longHanCharacters": 0
+      }
+    },
+    "contentData": {
+      "delta": {
+        "uniqueTexts": 777,
+        "hanCharacters": 36941,
+        "longTexts": 615,
+        "longHanCharacters": 35003
+      },
+      "added": {
+        "uniqueTexts": 777,
+        "hanCharacters": 36941,
+        "longTexts": 615,
+        "longHanCharacters": 35003
+      },
+      "removed": {
+        "uniqueTexts": 0,
+        "hanCharacters": 0,
+        "longTexts": 0,
+        "longHanCharacters": 0
+      }
+    },
+    "creativeWorks": {
+      "delta": {
+        "uniqueTexts": 776,
+        "hanCharacters": 36940,
+        "longTexts": 616,
+        "longHanCharacters": 35029
+      },
+      "added": {
+        "uniqueTexts": 778,
+        "hanCharacters": 36967,
+        "longTexts": 616,
+        "longHanCharacters": 35029
+      },
+      "removed": {
+        "uniqueTexts": 2,
+        "hanCharacters": 27,
+        "longTexts": 0,
+        "longHanCharacters": 0
+      }
+    }
+  }
+}

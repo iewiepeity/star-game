@@ -1,5 +1,6 @@
 // Direction-specific craft scenes. Release copy is selected from actual results,
 // so a modest release never borrows the language of a hit.
+import { CREATIVE_PHASE_VARIANTS } from "./creative-phase-variants.js";
 const route = (development, production, release, strength, risk) => ({
   development: development[0], production: production[0], release: release[1],
   developmentBeats: development, productionBeats: production, releaseBeats: release,
@@ -140,17 +141,56 @@ export const CREATIVE_DIRECTION_STORIES = {
   },
 };
 
+function phaseSlot(project, phase) {
+  if (phase === "development") {
+    return Math.min(3, Math.max(0, Math.ceil((project.progress || 0) / 25) - 1));
+  }
+  if (phase === "production") {
+    return project.productionProgress >= 100 || project.status === "ready_release" ? 2 : Math.min(1, Math.max(0, (project.productionSessions || 1) - 1));
+  }
+  if (phase === "release") return (project.marketScore || 0) >= 82 ? 2 : (project.marketScore || 0) >= 55 ? 1 : 0;
+  return null;
+}
+
+// A story key identifies an actual craft step, not just its broad text pool.
+// Saving the key with history keeps repeated renders stable after recording it.
+export function creativePhaseKey(project, phase) {
+  const step = phase === "development" ? project.progress || 0
+    : phase === "production" ? `${project.productionSessions || 0}:${project.productionProgress || 0}:${phaseSlot(project, phase)}`
+    : project.marketScore || 0;
+  return `${project.type}:${project.direction}:${phase}:${project.storyStep || 0}:${step}`;
+}
+
+function projectVariantOffset(project, count) {
+  // Real project IDs end in their creation ordinal. Consecutive works therefore
+  // start on different authored variants even when their timestamps differ.
+  const ordinal = /^CP-\d+-(\d+)$/.exec(project.id || "");
+  if (ordinal) return Number(ordinal[1]) % count;
+  let hash = 0;
+  for (const char of String(project.id || project.title || "")) hash = (Math.imul(hash, 31) + char.codePointAt(0)) >>> 0;
+  return hash % count;
+}
+
 export function creativePhaseCopy(project, phase) {
   const entry = CREATIVE_DIRECTION_STORIES[project?.type]?.[project?.direction];
   if (!entry) return "你重新核對草稿與目前的製作安排，先完成眼前能確認的一步。";
-  if (phase === "development") {
-    const index = Math.min(3, Math.max(0, Math.ceil((project.progress || 0) / 25) - 1));
-    return entry.developmentBeats[index];
+  const slot = phaseSlot(project, phase);
+  if (slot === null) return entry[phase] || entry.development;
+  const extra = CREATIVE_PHASE_VARIANTS[project.type]?.[project.direction]?.[phase]?.[slot];
+  const pool = [entry[`${phase}Beats`][slot], extra].filter(Boolean);
+  const history = Array.isArray(project.storyHistory) ? project.storyHistory : [];
+  const key = creativePhaseKey(project, phase);
+  const recorded = history.findLast(scene => scene?.phase === phase && scene.storyKey === key && pool.includes(scene.text));
+  if (recorded) return recorded.text;
+
+  // Older saves have no storyKey. Text matching still recognizes the original
+  // scene and offers its unseen sibling on the next step in this same slot.
+  const seen = history.filter(scene => scene?.phase === phase && pool.includes(scene.text));
+  const offset = projectVariantOffset(project, pool.length);
+  for (let i = 0; i < pool.length; i++) {
+    const candidate = pool[(offset + i) % pool.length];
+    if (!seen.some(scene => scene.text === candidate)) return candidate;
   }
-  if (phase === "production") {
-    const index = project.productionProgress >= 100 || project.status === "ready_release" ? 2 : Math.min(1, Math.max(0, (project.productionSessions || 1) - 1));
-    return entry.productionBeats[index];
-  }
-  if (phase === "release") return entry.releaseBeats[(project.marketScore || 0) >= 82 ? 2 : (project.marketScore || 0) >= 55 ? 1 : 0];
-  return entry[phase] || entry.development;
+  // Once both variants have been read, alternate rather than immediately repeat.
+  return pool[(pool.indexOf(seen.at(-1).text) + 1) % pool.length];
 }
