@@ -1,4 +1,6 @@
 :root {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   font-family: "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
   color: #50473e;
   background: #faf5eb;

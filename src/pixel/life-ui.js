@@ -4,6 +4,7 @@ import { auditionResultCard } from "../views/audition-result.js";
 import { npcSocialPost } from "../logic/social-context.js";
 import {
   applyPlannerTool,
+  nextPlanningDay,
   plannerToolsMarkup,
   setWeeklyFocus,
   weeklyFocusMarkup,
@@ -98,7 +99,7 @@ export function createLifeUI(api) {
         p.assignment,
       ));
   }
-  function schedule(day = selectedDay) {
+  function schedule(day = selectedDay, scrollAnchor) {
     const l = life();
     if (l.game.endingResult) return careerUI.ending();
     selectedDay = Math.max(l.day, Math.min(6, day));
@@ -136,6 +137,7 @@ export function createLifeUI(api) {
     show(
       "schedule",
       `${heading("WEEKLY PLAN", "我的一週", "第一週就能自由改排。課程與工作會帶你前往場地，不需先花一天登記。")}${weeklyFocusMarkup(l)}${plannerToolsMarkup(l)}<div class="week-strip" role="group" aria-label="七日行程">${l.plan.map((a, i) => `<button data-day="${i}" class="${i === selectedDay ? "selected" : ""}" ${i < l.day ? "disabled" : ""}><small>週${"一二三四五六日"[i]}</small><strong>${escape(label(a))}</strong><span>${i < l.day ? "已完成" : i === l.day ? "今天" : "可調整"}</span></button>`).join("")}</div><div class="section-heading"><b>安排 ${DAY_NAMES[selectedDay]}</b><span>餘下學費／外出費 ${money(estimate)}</span></div><nav class="schedule-filters" aria-label="行程類型">${["全部", "訓練", "工作", "探訪", "生活", "創作", "休息"].map((f) => `<button data-schedule-filter="${f}" aria-pressed="${filter === f}">${f}</button>`).join("")}</nav><div class="action-catalog">${cards}</div><div class="panel-actions"><button data-ui="menu">◀ 選單</button><button data-life="auto" ${l.pending ? "disabled" : ""}>自動執行行程</button><button class="primary" data-life="today">開始今天 →</button></div>`,
+      { preserveScroll: true, scrollAnchor },
     );
   }
   function offer(assignment) {
@@ -576,10 +578,13 @@ export function createLifeUI(api) {
           world().cancelActivity();
           world().stopRoute();
         }
-        toast(`${DAY_NAMES[selectedDay]}已改成${CHOICES[d.plan].label}`);
+        const plannedDay = selectedDay;
+        selectedDay = nextPlanningDay(l, plannedDay);
+        toast(`${DAY_NAMES[plannedDay]}已改成${CHOICES[d.plan].label}；${selectedDay !== plannedDay ? `接著安排${DAY_NAMES[selectedDay]}` : "已到本週最後可調整的日期，可點日期修改。"}`);
+        changed();
       }
       checkpoint();
-      schedule();
+      schedule(selectedDay, `[data-plan="${CSS.escape(d.plan)}"]`);
       return true;
     }
     if (d.offer) {

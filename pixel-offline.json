@@ -1,6 +1,6 @@
 {
-  "version": "0.20.0",
-  "bytes": 115222551,
+  "version": "0.20.1",
+  "bytes": 115228934,
   "entries": [
     {
       "url": "./index.html",
@@ -8,11 +8,11 @@
     },
     {
       "url": "./pixel.html",
-      "bytes": 4619
+      "bytes": 4788
     },
     {
       "url": "./pixel.css",
-      "bytes": 50688
+      "bytes": 50748
     },
     {
       "url": "./pixel-ui.css",
@@ -24,7 +24,7 @@
     },
     {
       "url": "./pixel-theme.css",
-      "bytes": 49170
+      "bytes": 50092
     },
     {
       "url": "./phone.css",
@@ -764,7 +764,7 @@
     },
     {
       "url": "./src/pixel/life-ui.js",
-      "bytes": 30278
+      "bytes": 30658
     },
     {
       "url": "./src/pixel/life.js",
@@ -776,7 +776,7 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 50872
+      "bytes": 52506
     },
     {
       "url": "./src/pixel/menu-icons.js",
@@ -812,7 +812,7 @@
     },
     {
       "url": "./src/pixel/planner-tools.js",
-      "bytes": 6197
+      "bytes": 6528
     },
     {
       "url": "./src/pixel/preferences.js",
@@ -820,7 +820,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 12128
+      "bytes": 12622
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -836,7 +836,7 @@
     },
     {
       "url": "./src/pixel/settings-ui.js",
-      "bytes": 7998
+      "bytes": 8089
     },
     {
       "url": "./src/pixel/sprites.js",
@@ -875,8 +875,12 @@
       "bytes": 2590
     },
     {
+      "url": "./src/pixel/viewport.js",
+      "bytes": 2226
+    },
+    {
       "url": "./src/pixel/world.js",
-      "bytes": 43278
+      "bytes": 43354
     },
     {
       "url": "./src/views/achievements.js",

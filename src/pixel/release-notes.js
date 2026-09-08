@@ -2,6 +2,14 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.20.1", date: "2026-09-08", title: "行程連著排，畫面找得回",
+    notes: [
+      "手機改排行程時會留在原本的位置，篩選和展開的排程助手也會保留。",
+      "每點一次活動就安排一天，再點同一活動會接著排下一天；正式約定會略過，排到週末後可點日期繼續修改。",
+      "場景與設定加入「回到原比例」。手機頁面放大時，也會出現方便點選的還原按鈕。",
+    ],
+  },
+  {
     version: "0.20.0", date: "2026-09-08", title: "那些話，後來都有了回音",
     notes: [
       "十位人物各有四次慢慢展開的小故事，陪伴、建議與沒有接話會走向不同後續；每段都能暫放，想起時再繼續。",

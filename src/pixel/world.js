@@ -837,6 +837,10 @@ export function createWorld(controller) {
       this.zoomFactor = Phaser.Math.Clamp(this.zoomFactor + delta, 0.65, 2);
       this.resizeView();
     }
+    resetZoom() {
+      this.zoomFactor = 1;
+      this.resizeView();
+    }
     bindInput() {
       let down = null,
         dragged = false;

@@ -60,6 +60,7 @@ import {
 } from "./data.js";
 import { initialPixelState, objectives } from "./model.js";
 import { createWorld } from "./world.js";
+import { createViewportControls } from "./viewport.js";
 const $ = (id) => document.getElementById(id);
 const escape = (value) =>
   String(value).replace(
@@ -91,6 +92,7 @@ let state = loaded.state || initialPixelState(),
   panelType = "",
   toastTimer = null;
 const panel = $("panel");
+const viewportControls = createViewportControls($("viewport-reset"), panel);
 let previousFocus = null;
 let checkpointCount = 0;
 let resumeUpdateAfterConflict = false;
@@ -165,7 +167,17 @@ function setDialogueVisible(visible) {
   ))
     element.inert = visible;
 }
-function show(type, html) {
+function show(type, html, { preserveScroll = false, scrollAnchor } = {}) {
+  const keepPosition = preserveScroll && panel.open && panelType === type;
+  const scrollTop = keepPosition ? panel.scrollTop : 0;
+  const expanded = keepPosition
+    ? [...panel.querySelectorAll("details")].map(node => node.open) : [];
+  const anchor = keepPosition && scrollAnchor ? panel.querySelector(scrollAnchor) : null;
+  const anchorTop = anchor?.getBoundingClientRect().top;
+  const focused = keepPosition && panel.contains(document.activeElement)
+    ? document.activeElement : null;
+  const focusAttribute = focused && [...focused.attributes].find(attribute =>
+    attribute.name === "id" || attribute.name.startsWith("data-"));
   if (panelType === "travel" && type !== "travel") cityUI.cancelRoute();
   panelType = type;
   panel.dataset.view = type;
@@ -181,7 +193,17 @@ function show(type, html) {
     panel.showModal();
   }
   if ($("toast").classList.contains("visible")) panel.append($("toast"));
-  panel.scrollTop = 0;
+  if (keepPosition) {
+    panel.querySelectorAll("details").forEach((node, i) => { node.open = !!expanded[i]; });
+    if (focusAttribute) {
+      panel.querySelector(`[${focusAttribute.name}="${CSS.escape(focusAttribute.value)}"]`)
+        ?.focus({ preventScroll: true });
+    }
+  }
+  panel.scrollTop = scrollTop;
+  const nextAnchor = anchor && panel.querySelector(scrollAnchor);
+  if (nextAnchor) panel.scrollTop += nextAnchor.getBoundingClientRect().top - anchorTop;
+  viewportControls.sync();
   world?.keys.clear();
   for (const hotspot of world?.hotspots || []) {
     hotspot.title.setVisible(false);
@@ -921,7 +943,15 @@ document.addEventListener("keydown", (event) => {
 setInterval(() => lifeUI.tick(0.1), 100);
 document.addEventListener("click", async (event) => {
   const target = event.target.closest("button");
-  if (!target || !world) return;
+  if (!target) return;
+  if (target.dataset.ui === "reset-view") {
+    world?.resetZoom();
+    cityUI.handle({ dataset: { mapHome: "" } });
+    const restored = await viewportControls.reset();
+    toast(restored ? "已回到原比例" : "場景已回到原比例；頁面縮放仍由瀏覽器控制，請從瀏覽器選單調整。");
+    return;
+  }
+  if (!world) return;
   if (target.dataset.ui === "return-home") {
     if (!canReturnHome(state, appearanceBusy || controller.transitioning))
       return;

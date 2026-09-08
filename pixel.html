@@ -49,7 +49,7 @@
         ><span id="load-progress">整理房間與行李…</span>
       </div>
       <section class="scene-title">
-        <span class="eyebrow" id="pixel-version-label">STARLIGHT DAYS · v0.20.0</span>
+        <span class="eyebrow" id="pixel-version-label">STARLIGHT DAYS · v0.20.1</span>
         <h1 id="room-title">我的住處</h1>
         <p id="room-subtitle">一切從這個小房間開始</p>
       </section>
@@ -64,6 +64,7 @@
         ><button data-ui="stop-activity">結束動作</button>
       </div>
       <button id="return-home" data-ui="return-home" aria-label="一鍵回家" disabled>⌂ 在家</button>
+      <button id="reset-view" data-ui="reset-view">↺ 回到原比例</button>
       <div id="world-hint">點地面走走 · 點家具與人物互動</div>
     </main>
     <footer class="bottom-bar">
@@ -113,6 +114,7 @@
       hidden
     ></section>
     <div id="toast" role="status" aria-live="polite"></div>
+    <button id="viewport-reset" data-ui="reset-view" hidden>↺ 回到原比例</button>
     <dialog id="panel" aria-labelledby="panel-title">
       <button class="close-panel" data-ui="close" aria-label="關閉視窗">
         ×

@@ -1,0 +1,27 @@
+name: Mobile controls targeted verification
+on:
+  push:
+    branches: [codex/mobile-planner-zoom-reset]
+permissions:
+  contents: read
+jobs:
+  mobile-controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - run: node --test tests/pixel-mobile-planner.test.mjs
+      - run: npx playwright test pixel-mobile-controls.spec.mjs --project=mobile --project=mobile-webkit --workers=2 --reporter=line
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: failure()
+        with:
+          name: mobile-controls-diagnostics
+          path: test-results/

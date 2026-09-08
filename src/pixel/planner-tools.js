@@ -9,6 +9,14 @@ const protectedDay = (life, i) =>
   i < life.day ||
   (i === life.day && life.pending) ||
   life.plan[i].id.startsWith("career_") || life.plan[i].id === "home_host" || !!life.plan[i].appointmentId;
+// Sequential taps may replace routine plans, but never jump into a reservation
+// or wrap back to an earlier day. A date can still be selected explicitly.
+export function nextPlanningDay(life, day) {
+  for (let next = day + 1; next < life.plan.length; next++) {
+    if (!protectedDay(life, next)) return next;
+  }
+  return day;
+}
 export function assignmentForAction(action, venue) {
   if (action === "free")
     return {
