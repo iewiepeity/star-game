@@ -48,3 +48,12 @@ npx playwright test pixel-mobile-controls.spec.mjs --project=mobile --project=mo
 `VisualViewport.scale` 是唯讀值，浮動按鈕依可視範圍的位移與倍率定位，參考 [MDN VisualViewport](https://developer.mozilla.org/en-US/docs/Web/API/VisualViewport)。動態 viewport 還原的相容性背景見 [CSSWG 討論 #9787](https://github.com/w3c/csswg-drafts/issues/9787)。
 
 若瀏覽器或使用者的輔助使用設定拒絕頁面還原，保留按鈕並顯示實際狀態，不宣稱頁面已成功還原。桌面瀏覽器選單控制的整頁縮放、作業系統放大鏡不屬於網頁可控制的倍率。
+
+## 發布阻塞修復
+
+合併 PR #55 後，main CI 未通過，Pages 因發布閘門跳過，正式站仍回傳 v1.42.0。
+
+- 日常事件建立時省略未定義的 id 與 training，確保存讀檔前後的記錄結構一致；原有故事文字、效果與防重複結算不變。
+- 更新紀錄 E2E 依目前 RELEASE_NOTES 核對最新版本與標題，並繼續確認 v0.20.0 的歷史內容。
+- 已讀休息／未讀訓練 E2E 使用固定 RNG 種子，避免隨機重要事件依法暫停自動播放而污染本案例。重要事件的正常暫停規則保留。
+- 本機 11 項相關存讀檔測試與修改檔案 ESLint 通過，v1.43.1 build 成功。部署仍遵守既有 CI 閘門，未修改 workflow 或略過失敗檢查。
