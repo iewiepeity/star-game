@@ -23,8 +23,11 @@ test("pixel release contains its complete import graph and no classic runtime", 
     await assert.rejects(access(new URL(`dist/${file}`, root)), { code: "ENOENT" });
   for (const entry of ["index.html", "pixel.html"]) {
     const html = await readFile(new URL(`dist/${entry}`, root), "utf8");
-    for (const [, file] of html.matchAll(/(?:src|href)="([^"#]+)"/g))
+    for (const [, file] of html.matchAll(/(?:src|href)="([^"#]+)"/g)) {
+      // Canonical links describe the public page; they are not local assets.
+      if (/^https?:\/\//.test(file)) continue;
       await access(new URL(`dist/${file}`, root));
+    }
   }
 });
 

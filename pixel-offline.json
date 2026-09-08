@@ -1,6 +1,6 @@
 {
   "version": "0.23.4",
-  "bytes": 115312975,
+  "bytes": 117865970,
   "entries": [
     {
       "url": "./privacy.html",
@@ -12,11 +12,11 @@
     },
     {
       "url": "./index.html",
-      "bytes": 5263
+      "bytes": 7038
     },
     {
       "url": "./pixel.html",
-      "bytes": 1354
+      "bytes": 2951
     },
     {
       "url": "./pixel.css",
@@ -2525,6 +2525,10 @@
     {
       "url": "./assets/scenes/white-wall-gallery.webp",
       "bytes": 92638
+    },
+    {
+      "url": "./assets/social/star-game-cover-v1.png",
+      "bytes": 2549623
     },
     {
       "url": "./assets/star-city-street.webp",
