@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'">
+  <title>隱私與本機資料 · 星途未定</title>
+  <link rel="stylesheet" href="./privacy.css">
+  <script type="module" src="./src/privacy-page.js"></script>
+</head>
+<body><main>
+  <h1>隱私與本機資料</h1>
+  <p>星途未定 · 說明版本 2026-09-08</p>
+  <p>你的角色與旅程保存在本裝置。本遊戲目前不設會員、不使用 Cookie、廣告或分析追蹤器，也不會主動把存檔傳送給開發者。不需要輸入真實姓名或真實生日。</p>
+  <h2>裝置會記住什麼？</h2>
+  <ul>
+    <li>IndexedDB：角色姓名、藝名、角色生日、遊戲進度、成就、存檔、備份與損壞資料復原副本。</li>
+    <li>localStorage：介面與聲音設定、舊版存檔，以及離開頁面前的緊急備份。</li>
+    <li>Cache Storage 與 Service Worker：遊戲程式、圖片、音樂等離線資源。</li>
+  </ul>
+  <p>上述儲存用於遊玩、保存與復原旅程、記住設定及離線功能，不用於跨網站追蹤。資料通常保留至你主動清除，或瀏覽器因空間、隱私模式等原因移除；請自行匯出重要存檔備份。</p>
+  <h2>連線、匯出與分享</h2>
+  <p>載入與更新遊戲時，GitHub Pages 主機服務可能處理 IP 位址、瀏覽器資訊及存取紀錄；這與本機遊戲存檔不同。詳見 <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noreferrer">GitHub 隱私權聲明</a>。</p>
+  <p>你可從遊戲「設定 → 存檔與讀檔」匯出 JSON。匯出檔含角色與遊戲內容，分享前請自行確認；開發者不會自動收到它。請勿公開附上包含個資的存檔。</p>
+  <p>如有一般隱私問題，可透過 <a href="https://github.com/iewiepeity/star-game/issues" rel="noreferrer">專案問題回報</a>聯絡維護者；公開回報僅描述問題，不要提供個資、密鑰或完整存檔。漏洞請參閱專案 SECURITY.md，避免公開利用細節。</p>
+  <h2>清除本裝置的本遊戲資料</h2>
+  <p>這與「建立新角色」不同：所有本遊戲存檔、成就、備份、設定與離線快取都會移除，無法從遊戲內復原。其他網站資料不會被清除；你先前下載的 JSON 與其他裝置副本須另外刪除。</p>
+  <p>請先匯出需要的存檔，並關閉其他遊戲分頁及主畫面 App。清除期間不要開啟遊戲；再次進入會建立新的本機資料並重新下載資源。</p>
+  <label for="erase-confirmation">確定後，請輸入「清除」：</label>
+  <input id="erase-confirmation" autocomplete="off" spellcheck="false">
+  <button id="erase-data" type="button" disabled>永久清除本遊戲資料</button>
+  <p id="erase-status" role="status" aria-live="polite"></p>
+  <noscript><p>此按鈕需要 JavaScript。你也可以透過瀏覽器的網站資料設定清除，但該操作可能連帶清除同網域的其他專案資料。</p></noscript>
+  <p><a href="./pixel.html">回到遊戲</a></p>
+</main></body>
+</html>

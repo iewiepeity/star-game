@@ -40,6 +40,7 @@ export function settingsMarkup({ theme, speed, paused, preferences = {}, narrati
     <section class="preference-section"><header><h3>離線與安裝</h3><span id="offline-status">第一次連線後可準備離線內容</span></header><div class="buttons"><button data-offline="install">加入主畫面</button><button data-offline="download">準備完整離線內容</button><button data-offline="update">檢查更新</button></div><progress id="offline-progress" max="100" value="0" hidden></progress></section>
     <div class="settings-utilities"><button data-ui="saves"><i>${menuIcon("saves")}</i><span><b>存檔與讀檔</b><small>留住現在的旅程</small></span><em>›</em></button><button data-ui="help"><i>?</i><span><b>操作說明</b><small>走路、互動與行程</small></span><em>›</em></button></div>
     <details class="new-journey"><summary>下一段人生</summary><p>可先存檔，再選擇結算或從頭開始。</p><div class="buttons"><button data-storage="retire">主動退圈並結算</button><button data-storage="new">建立新角色</button></div></details>
+    <section class="preference-section"><h3>隱私與本機資料</h3><p>遊戲不使用追蹤 Cookie，存檔與設定保存在這台裝置。</p><a href="./privacy.html">查看隱私說明／清除本遊戲資料</a><p class="tiny-note">離開遊戲前，建議先匯出重要存檔。</p></section>
     <p class="preference-footnote">配色只改變介面，保留場景和人物插畫原本的顏色。</p>
   </div>`;
 }

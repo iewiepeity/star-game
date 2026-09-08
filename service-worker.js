@@ -1,6 +1,6 @@
-const CACHE="star-game-runtime-v1.43.1";
+const CACHE="star-game-runtime-v1.43.1-security-1";
 const AUDIO_SHELL=["tap","open","close","back","confirm","schedule","warning","reward","message","paper","scroll","select","switch","tick"].map(name=>`./assets/audio/kenney-interface/${name}.ogg`);
-const SHELL=["./pixel.html","./pixel.css","./pixel-ui.css","./pixel-apps.css","./pixel-theme.css","./phone.css","./assets/fonts/Cubic_11.woff2","./pixel.webmanifest","./pixel-offline.json","./","./index.html","./src/entry.js","./assets/city/starwish-city-soft.jpg","./assets/rookie-room.webp","./assets/icons/app-icon.svg","./assets/icons/favicon-32.png","./assets/icons/apple-touch-icon.png","./assets/icons/icon-192.webp","./assets/icons/icon-512.webp",...AUDIO_SHELL];
+const SHELL=["./privacy.html","./privacy.css","./src/privacy-page.js","./src/privacy-data.js","./pixel.html","./pixel.css","./pixel-ui.css","./pixel-apps.css","./pixel-theme.css","./phone.css","./assets/fonts/Cubic_11.woff2","./pixel.webmanifest","./pixel-offline.json","./","./index.html","./src/entry.js","./assets/city/starwish-city-soft.jpg","./assets/rookie-room.webp","./assets/icons/app-icon.svg","./assets/icons/favicon-32.png","./assets/icons/apple-touch-icon.png","./assets/icons/icon-192.webp","./assets/icons/icon-512.webp",...AUDIO_SHELL];
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL))));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith("star-game-runtime-")&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 self.addEventListener("message",event=>{if(event.data?.type==="SKIP_WAITING")self.skipWaiting()});

@@ -83,7 +83,9 @@ let audioUnlocked = false;
 let appearanceBusy = false;
 let legacyStorage = null;
 try { legacyStorage = window.localStorage; } catch {}
-storage = await createStorage(legacyStorage);
+storage = await createStorage(legacyStorage, {
+  onDataDeleted: () => window.location.replace(new URL("./privacy.html", window.location.href)),
+});
 const loaded = storage.read();
 let recoveryBlocked = !!loaded.error;
 let state = loaded.state || initialPixelState(),
@@ -373,7 +375,7 @@ function phone() {
 }
 
 function heading(kicker, title, description = "") {
-  return `<header class="panel-heading"><span class="eyebrow">${kicker}</span><h2 id="panel-title">${title}</h2>${description ? `<p class="lede">${description}</p>` : ""}</header>`;
+  return `<header class="panel-heading"><span class="eyebrow">${escape(kicker)}</span><h2 id="panel-title">${escape(title)}</h2>${description ? `<p class="lede">${escape(description)}</p>` : ""}</header>`;
 }
 function welcome() {
   show(
@@ -415,7 +417,7 @@ function wardrobe() {
 function profile() {
   show(
     "profile",
-    `${heading("THIS IS ME · 玩家資訊", "我的角色")}<div class="player-profile"><img src="${portrait()}" alt="目前角色的立繪"><div><label>本名<input id="real-name-input" maxlength="16" value="${escape(state.life.game.realName || state.playerName)}" autocomplete="name"></label><label>藝名（選填）<input id="name-input" maxlength="16" value="${escape(state.life.game.stageName || "")}" autocomplete="nickname"></label><p>${escape(outfits.find((o) => o.id === state.outfitId).name)}<br><span class="tiny-note">${AVATARS[state.avatarId].name} · ${AGENCIES[state.life.game.currentAgencyId]?.name || "自由藝人"}</span></p><button class="primary" data-ui="name">儲存名字</button><p class="tiny-note">${state.visited.length} 個足跡 · ${state.knownPeople.length} 位新朋友</p><button data-ui="closet">前往衣櫃</button></div></div><div class="identity-caption"><b>${state.identity.gender} · 同性別外型</b><button data-ui="clinic">診所性別變更服務 →</button></div>${avatarChoices()}<div class="buttons"><button data-pixel-app="stats">完整能力與健康</button><button data-pixel-app="achievements">成就收藏</button><button data-pixel-app="log">生涯紀錄</button></div><div class="ability-grid">${Object.entries(
+    `${heading("THIS IS ME · 玩家資訊", "我的角色")}<div class="player-profile"><img src="${portrait()}" alt="目前角色的立繪"><div><label>角色本名<input id="real-name-input" maxlength="16" value="${escape(state.life.game.realName || state.playerName)}" autocomplete="off"></label><label>藝名（選填）<input id="name-input" maxlength="16" value="${escape(state.life.game.stageName || "")}" autocomplete="off"></label><p>${escape(outfits.find((o) => o.id === state.outfitId).name)}<br><span class="tiny-note">${AVATARS[state.avatarId].name} · ${AGENCIES[state.life.game.currentAgencyId]?.name || "自由藝人"}</span></p><button class="primary" data-ui="name">儲存名字</button><p class="tiny-note">${state.visited.length} 個足跡 · ${state.knownPeople.length} 位新朋友</p><button data-ui="closet">前往衣櫃</button></div></div><div class="identity-caption"><b>${state.identity.gender} · 同性別外型</b><button data-ui="clinic">診所性別變更服務 →</button></div>${avatarChoices()}<div class="buttons"><button data-pixel-app="stats">完整能力與健康</button><button data-pixel-app="achievements">成就收藏</button><button data-pixel-app="log">生涯紀錄</button></div><div class="ability-grid">${Object.entries(
       state.life.game.stats,
     )
       .map(([name, v]) => `<div><small>${name}</small><b>${v}</b></div>`)

@@ -17,6 +17,7 @@ export async function pixelRuntimeFiles() {
     for (const [, specifier] of imports) await visit(new URL(specifier, url));
   }
   await visit(new URL("src/entry.js", root));
+  await visit(new URL("src/privacy-page.js", root));
   await visit(new URL("src/pixel/main.js", root));
   return [...seen].sort();
 }

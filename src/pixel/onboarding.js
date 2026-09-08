@@ -11,7 +11,7 @@ export function refreshCreationStats(state, root) {
 }
 export function creationFields(state, esc) {
   const g = state.life.game;
-  return `<div class="creation-fields"><label>本名<input data-create-field="realName" maxlength="16" value="${esc(g.realName || state.playerName)}" autocomplete="name"></label><label>藝名（選填）<input data-create-field="stageName" maxlength="16" value="${esc(g.stageName)}" autocomplete="nickname"></label><label>生日月份<input data-create-field="birthMonth" type="number" min="1" max="12" value="${g.birthMonth}"></label><label>生日日期<input data-create-field="birthDay" type="number" min="1" max="31" value="${g.birthDay}"></label></div><details class="creation-stats"><summary>我的初始能力 · 可以重新擲骰</summary><div class="ability-grid">${Object.entries(
+  return `<div class="creation-fields"><label>角色本名<input data-create-field="realName" maxlength="16" value="${esc(g.realName || state.playerName)}" autocomplete="off"></label><label>藝名（選填）<input data-create-field="stageName" maxlength="16" value="${esc(g.stageName)}" autocomplete="off"></label><label>角色生日月份<input data-create-field="birthMonth" type="number" min="1" max="12" value="${g.birthMonth}"></label><label>角色生日日期<input data-create-field="birthDay" type="number" min="1" max="31" value="${g.birthDay}"></label></div><p class="tiny-note">請使用角色資料，不需要真實姓名或生日。僅儲存在本裝置。<a href="./privacy.html">隱私與本機資料</a></p><details class="creation-stats"><summary>我的初始能力 · 可以重新擲骰</summary><div class="ability-grid">${Object.entries(
     g.stats,
   )
     .map(

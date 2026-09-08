@@ -1,14 +1,22 @@
 {
   "version": "0.20.1",
-  "bytes": 115229178,
+  "bytes": 115237751,
   "entries": [
     {
+      "url": "./privacy.html",
+      "bytes": 3354
+    },
+    {
+      "url": "./privacy.css",
+      "bytes": 692
+    },
+    {
       "url": "./index.html",
-      "bytes": 1313
+      "bytes": 1364
     },
     {
       "url": "./pixel.html",
-      "bytes": 4788
+      "bytes": 5150
     },
     {
       "url": "./pixel.css",
@@ -588,7 +596,7 @@
     },
     {
       "url": "./src/logic/random-events.js",
-      "bytes": 3795
+      "bytes": 3946
     },
     {
       "url": "./src/logic/reputation-engine.js",
@@ -776,7 +784,7 @@
     },
     {
       "url": "./src/pixel/main.js",
-      "bytes": 52506
+      "bytes": 52632
     },
     {
       "url": "./src/pixel/menu-icons.js",
@@ -804,7 +812,7 @@
     },
     {
       "url": "./src/pixel/onboarding.js",
-      "bytes": 4707
+      "bytes": 4875
     },
     {
       "url": "./src/pixel/pet-visual.js",
@@ -836,7 +844,7 @@
     },
     {
       "url": "./src/pixel/settings-ui.js",
-      "bytes": 8089
+      "bytes": 8391
     },
     {
       "url": "./src/pixel/sprites.js",
@@ -848,7 +856,7 @@
     },
     {
       "url": "./src/pixel/storage.js",
-      "bytes": 14797
+      "bytes": 15000
     },
     {
       "url": "./src/pixel/story-actors.js",
@@ -881,6 +889,14 @@
     {
       "url": "./src/pixel/world.js",
       "bytes": 43354
+    },
+    {
+      "url": "./src/privacy-data.js",
+      "bytes": 1784
+    },
+    {
+      "url": "./src/privacy-page.js",
+      "bytes": 1380
     },
     {
       "url": "./src/views/achievements.js",

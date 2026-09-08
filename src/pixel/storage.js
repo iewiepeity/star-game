@@ -1,6 +1,7 @@
 import { SAVE_KEY, validatePixelState } from "./model.js";
 
-export const PIXEL_DATABASE = "star-game-pixel-saves-v2";
+import { PIXEL_DATABASE } from "../privacy-data.js";
+export { PIXEL_DATABASE } from "../privacy-data.js";
 const STORE = "saves";
 const META = "revision";
 const JOURNAL_PREFIX = `${SAVE_KEY}-pending-`;
@@ -67,6 +68,7 @@ export async function createPixelStorage(
     indexedDB = globalThis.indexedDB,
     databaseName = PIXEL_DATABASE,
     broadcast = globalThis.BroadcastChannel,
+    onDataDeleted = () => {},
   } = {},
 ) {
   let db = null,
@@ -148,9 +150,14 @@ export async function createPixelStorage(
   }
   try {
     db = await openDatabase(indexedDB, databaseName);
-    db.onversionchange = () => {
+    db.onversionchange = (event) => {
       db.close();
       db = null;
+      if (event.newVersion === null) {
+        cache.clear();
+        conflict = true;
+        onDataDeleted();
+      }
       lastError = "儲存空間已更新，請重新載入";
     };
     await new Promise((resolve, reject) => {

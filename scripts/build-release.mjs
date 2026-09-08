@@ -9,6 +9,8 @@ const packageJson = JSON.parse(
 );
 const files = [
   "index.html",
+  "privacy.html",
+  "privacy.css",
   "pixel.html",
   "pixel.css",
   "pixel-ui.css",
