@@ -23,12 +23,18 @@ test("pixel release contains its complete import graph and no classic runtime", 
     await assert.rejects(access(new URL(`dist/${file}`, root)), { code: "ENOENT" });
   for (const entry of ["index.html", "pixel.html"]) {
     const html = await readFile(new URL(`dist/${entry}`, root), "utf8");
+    const shareImage = "https://iewiepeity.github.io/star-game/assets/social/star-game-cover-v2.png";
+    assert.match(html, new RegExp(`<meta property="og:image" content="${shareImage}"`));
+    assert.match(html, new RegExp(`<meta name="twitter:image" content="${shareImage}"`));
+    assert.match(html, /<meta property="og:image:width" content="1200"/);
+    assert.match(html, /<meta property="og:image:height" content="630"/);
     for (const [, file] of html.matchAll(/(?:src|href)="([^"#]+)"/g)) {
       // Canonical links describe the public page; they are not local assets.
       if (/^https?:\/\//.test(file)) continue;
       await access(new URL(`dist/${file}`, root));
     }
   }
+  await access(new URL("dist/assets/social/star-game-cover-v2.png", root));
 });
 
 test("offline installation requests existing pixel files and activation removes the previous cache", async () => {
