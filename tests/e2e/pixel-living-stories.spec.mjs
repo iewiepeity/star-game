@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { initialPixelState } from "../../src/pixel/model.js";
+import { RELEASE_NOTES } from "../../src/pixel/release-notes.js";
 import { recordMeeting } from "../../src/pixel/life.js";
 import { resumePixelSave as waitForPixelSaveReady } from "./pixel-save-ready.mjs";
 
@@ -88,8 +89,9 @@ test("五項敘事偏好與更新紀錄在設定內可用，重新載入仍保�
     await expect(button).toHaveAttribute("aria-pressed", "true");
   }
   await page.locator('[data-ui="release-notes"]').click();
-  await expect(page.locator(".release-entry").first()).toContainText("v0.20.0");
-  await expect(page.locator(".release-entry").first()).toContainText("提前邀約");
+  await expect(page.locator(".release-entry").first()).toContainText(`v${RELEASE_NOTES[0].version}`);
+  await expect(page.locator(".release-entry").first()).toContainText(RELEASE_NOTES[0].title);
+  await expect(page.locator(".release-entry").filter({ hasText: "v0.20.0" })).toContainText("提前邀約");
   await page.reload();
   await expect(page.locator("#loading")).toBeHidden({ timeout: 20000 });
   await waitForPixelSaveReady(page);

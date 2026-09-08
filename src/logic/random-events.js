@@ -34,7 +34,10 @@ function choose(kind,key,pool){
 function applyMoment(event){
  const readBefore=routineWasRead(event,state);
  const effects=applyEffects(event.effect,event.title);
- const moment={id:event.id,kind:classifyEvent(event),title:event.title,text:event.text,outcome:event.outcome,effects,routine:true,readBefore,important:!!event.important||!!event.effect?.npc,hasChoices:!!event.choices?.length,followUp:!!event.followUp,training:event.training};
+ const moment={kind:classifyEvent(event),title:event.title,text:event.text,outcome:event.outcome,effects,routine:true,readBefore,important:!!event.important||!!event.effect?.npc,hasChoices:!!event.choices?.length,followUp:!!event.followUp};
+ // Optional fields must survive a JSON save/load without changing the record.
+ if(event.id!==undefined)moment.id=event.id;
+ if(event.training!==undefined)moment.training=event.training;
  state.eventHistory.push({week:state.week,...moment});
  return moment;
 }

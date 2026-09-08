@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { initialPixelState } from "../../src/pixel/model.js";
-import { beginDay, settleDay } from "../../src/pixel/life.js";
+import { initialLife, beginDay, settleDay } from "../../src/pixel/life.js";
 import { SCHEDULE_EVENTS } from "../../src/data/schedule-events.js";
 import { routineNarrativeId } from "../../src/logic/narrative-preferences.js";
 import { NPCS } from "../../src/data/npcs.js";
@@ -10,6 +10,9 @@ test.setTimeout(60000);
 const read = page => page.evaluate(() => window.__pixelRead());
 async function start(page, configure) {
   const s = initialPixelState(); s.flags.intro = true; s.playerName = "夏知星";
+  // This scenario covers read/unread routine playback. A clock-based seed can
+  // also draw an important life event, which correctly interrupts auto mode.
+  s.life = initialLife("read-rest-unread-training");
   s.life.game.money = 100000; s.life.game.pixelPrologueActive = false; s.life.speed = 16;
   configure(s);
   await page.addInitScript(state => {
