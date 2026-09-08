@@ -1,6 +1,6 @@
 {
   "version": "0.23.3",
-  "bytes": 115312363,
+  "bytes": 115312610,
   "entries": [
     {
       "url": "./privacy.html",
@@ -36,7 +36,7 @@
     },
     {
       "url": "./phone.css",
-      "bytes": 34196
+      "bytes": 34443
     },
     {
       "url": "./pixel.webmanifest",

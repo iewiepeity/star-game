@@ -193,6 +193,7 @@ test("unified menu, camera drag and bottom dialogue checkpoint remain usable", a
   expect((await read(page)).player.x).toBe(before.player.x);
   expect((await read(page)).player.moving).toBe(false);
   await menu(page, "settings");
+  await revealControl(page.locator('[data-ui="center"]'));
   await page.getByRole("button", { name: "鏡頭回到主角" }).click();
   await close(page);
   await travel(page, "cafe");

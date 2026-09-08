@@ -302,6 +302,11 @@
 #panel[data-view="travel"] .map-purpose { grid-column: 1 / -1; grid-row: 2; margin-block: 0; }
 #panel[data-view="travel"] .map-tools { grid-row: 3; }
 #panel[data-view="travel"] .city-map-viewport, #panel[data-view="travel"] .city-map-sidebar { grid-row: 4; }
+@media (min-width: 651px) {
+  #panel[data-view="travel"] .city-map-sidebar { overflow: auto; }
+  #panel[data-view="travel"] .city-place-directory { flex: 1 0 210px; }
+  #panel[data-view="travel"] .city-place-list { flex: 1; min-height: 160px; }
+}
 @media (max-width: 650px) {
   #panel[data-view="travel"] #panel-content { grid-template-rows: auto auto auto minmax(160px, 1fr) auto; }
   #panel[data-view="travel"] .city-map-sidebar { grid-row: 5; }

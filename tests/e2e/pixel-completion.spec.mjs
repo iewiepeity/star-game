@@ -596,7 +596,9 @@ test("settings shows the running version and readable update history without adv
   await expect(last).toHaveAttribute('open', '');
   await expect(last.locator('li').first()).toBeVisible();
   await page.getByRole('button', {name:'回到設定', exact:true}).click();
+  await revealControl(page.locator('.version-summary'));
   await expect(page.locator('.version-summary')).toBeVisible();
+  await revealControl(page.locator('[aria-label="演出速度"]'));
   await expect(page.locator('[aria-label="演出速度"]')).toBeVisible();
   const after = (await read(page)).state.life;
   expect(after.day).toBe(before.day);

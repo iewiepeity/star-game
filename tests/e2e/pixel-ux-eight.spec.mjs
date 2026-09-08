@@ -55,7 +55,7 @@ test("設定摺疊在修改後保持展開，大字仍能操作", async ({ page 
   await menu(page, "settings");
   await expect(page.locator('#panel-content [data-ui="reset-view"]')).toBeVisible();
   await page.locator('[data-pixel-pref="fontSize"][data-value="large"]').click();
-  const theme = page.locator('[data-pixel-theme="rose"]');
+  const theme = page.locator('button[data-pixel-theme="rose"]');
   await revealControl(theme);
   await theme.click();
   await expect(theme).toBeVisible();
