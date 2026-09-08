@@ -1,5 +1,5 @@
 import { PERSONAL_STORIES } from "../data/personal-stories.js";
-import { ROMANCE_DAILY_STORIES } from "../data/romance-daily-stories.js";
+import { romanceDailyPool } from "../data/romance-personal-daily.js";
 import { NPCS } from "../data/npcs.js";
 
 const object = value => value && typeof value === "object" && !Array.isArray(value) ? value : {};
@@ -42,7 +42,7 @@ export function normalizeRomanceDaily(raw) {
     const input = object(source), history = [];
     for (const item of Array.isArray(input.history) ? input.history : []) {
       const record = object(item);
-      const scene = Object.hasOwn(ROMANCE_DAILY_STORIES, record.stage) ? ROMANCE_DAILY_STORIES[record.stage].find(scene => scene.id === record.sceneId) : null;
+      const scene = romanceDailyPool(npcId, record.stage).find(scene => scene.id === record.sceneId);
       if (!scene?.choices.some(choice => choice.id === record.choice)) continue;
       const week = count(record.week);
       if (history.some(entry => entry.week === week)) continue;

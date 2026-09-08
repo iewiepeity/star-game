@@ -1,3 +1,4 @@
+import { romanceCommitmentRecall } from "./romance-life.js";
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
 import { NPC_STORY_CONTENT } from "../data/npc-story-content.js";
@@ -157,22 +158,16 @@ function romanceChoices(npc, id, opportunity, copy, laterEffect) {
   if (opportunity.from === "engaged")
     choices.push({
       id: "private-vow",
-      label: "辦一場只邀親友的婚禮",
-      note: "深厚羈絆與品德解鎖；婚訊公開，儀式與細節留給親友。",
-      special: true,
-      requires: {
-        relationship: { [id]: { closeness: 90, trust: 82, affection: 82 } },
-        hidden: { 品德: 600 },
-      },
-      outcome:
-        copy.yes +
-        " 你們對外確認婚訊，儀式卻沒有直播與贊助；每張椅子都留給真正想邀請的人。",
+      label: "結婚，並辦一場只邀親友的小婚禮",
+      note: "小型親友婚禮；不會自動公開婚訊。",
+      outcome: copy.yes + " 你們另外選了一場只邀親友的小婚禮；是否公開婚訊仍由彼此另行決定。",
       effect: {
         npc: id,
-        relation: 8,
-        trust: 10,
-        affection: 8,
+        relation: 4,
+        trust: 5,
+        affection: 4,
         romance: "married",
+        romanceCeremony: "small",
       },
     });
   return choices;
@@ -243,10 +238,11 @@ export function queueNpcStoryEvents() {
             id: `npc-romance-${key}`,
             npcId: id,
             kind: "戀愛事件",
+            romanceCopyVersion: 2,
             priority: 100,
             persistent: true,
             title: `${npc.name}｜${romance.title}`,
-            text: romance.text,
+            text: [romance.text, ["dating", "committed", "engaged", "broken"].includes(opportunity.from) ? romanceCommitmentRecall(id) : ""].filter(Boolean).join("\n\n"),
             choices: romanceChoices(npc, id, opportunity, romance, laterEffect),
           };
         if (acceptedQueue(event, "戀愛事件")) {

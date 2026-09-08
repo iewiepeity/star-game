@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { initialState, state, resetState, hydrateState } from "../src/core/state.js";
 import { NPC_LIST } from "../src/data/npcs.js";
 import { PERSONAL_STORIES } from "../src/data/personal-stories.js";
-import { ROMANCE_DAILY_STORIES } from "../src/data/romance-daily-stories.js";
+import { romanceDailyPool } from "../src/data/romance-personal-daily.js";
 import { personalStoryStatus, personalStoryEvent, tickPersonalStories, pausePersonalStory, resumePersonalStory, applyPersonalStoryChoice, isPersonalStoryEventCurrent } from "../src/logic/personal-stories.js";
 import { romanceDailyEvent, romanceDailyStatus, requestRomanceDaily } from "../src/logic/romance-daily.js";
 import { normalizePersonalStories, normalizeRomanceDaily } from "../src/core/personal-stories-state.js";
@@ -118,11 +118,11 @@ test("the in-scene pause action closes no chapter, grants no relationship reward
   assert.ok(personalStoryEvent("jiqing"));
 });
 
-test("four romance stages have distinct everyday scenes, real outcomes and a six-scene no-repeat cycle", () => {
+test("four romance stages have distinct everyday scenes, real outcomes and a complete no-repeat cycle", () => {
   for (const [romance, stage] of [["ambiguous", "ambiguous"], ["dating", "dating"], ["committed", "steady"], ["married", "married"]]) {
     fresh("jiqing", romance);
     const seen = new Set();
-    for (let week = 1; week <= 6; week++) {
+    for (let week = 1; week <= romanceDailyPool("jiqing", stage).length; week++) {
       state.week = week;
       const event = romanceDailyEvent("jiqing");
       assert.equal(event.personalStory.stage, stage);
@@ -136,7 +136,7 @@ test("four romance stages have distinct everyday scenes, real outcomes and a six
       assert.ok(state.relationships.jiqing.trust > before.relationships.jiqing.trust || state.relationships.jiqing.affection > before.relationships.jiqing.affection || state.relationships.jiqing.closeness > before.relationships.jiqing.closeness);
       assert.equal(resolveEvent(event, event.choices[1].id), null);
     }
-    assert.equal(seen.size, ROMANCE_DAILY_STORIES[stage].length);
+    assert.equal(seen.size, romanceDailyPool("jiqing", stage).length);
   }
 });
 
@@ -148,7 +148,7 @@ test("frequency and conflict settings shape new invitations without erasing an a
     state.week = week;
     const event = romanceDailyEvent("jiqing");
     seen.add(event.personalStory.sceneId);
-    assert.equal(ROMANCE_DAILY_STORIES.dating.find(scene => scene.id === event.personalStory.sceneId).intensity, "gentle");
+    assert.equal(romanceDailyPool("jiqing", "dating").find(scene => scene.id === event.personalStory.sceneId).intensity, "gentle");
     resolveEvent(event, event.choices[0].id);
   }
   assert.equal(seen.size, 4);
@@ -176,15 +176,15 @@ test("romance choices preserve explicit player preferences and remember actual s
   fresh("jiqing", "ambiguous");
   recordCharacterMemory("jiqing", { kind: "preference", key: "place", value: "lively", text: "玩家說喜歡熱鬧" });
   recordCharacterMemory("jiqing", { kind: "boundary", key: "space", value: "freely", text: "玩家說可照平常聯絡" });
-  resolveEvent(romanceDailyEvent("jiqing"), "quiet");
+  resolveEvent(romanceDailyEvent("jiqing"), "stay");
   assert.equal(characterMemory("jiqing").preferences.place, "lively");
   assert.equal(characterMemory("jiqing").boundaries.space, "freely");
-  for (let week = 2; week <= 4; week++) {
+  for (let week = 2; week <= 5; week++) {
     state.week = week;
     const event = romanceDailyEvent("jiqing");
     resolveEvent(event, event.choices[0].id);
   }
-  state.week = 5;
+  state.week = 6;
   const event = romanceDailyEvent("jiqing"), before = state.relationships.jiqing.trust;
   assert.equal(event.personalStory.sceneId, "not-a-test");
   resolveEvent(event, "demand");

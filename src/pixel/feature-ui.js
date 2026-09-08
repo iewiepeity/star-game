@@ -1,3 +1,4 @@
+import { beginRomanceRepair, reviewRomanceRepair, chooseRomanceCeremony, REPAIR_COPY } from "../logic/romance-life.js";
 import { pausePersonalStory, resumePersonalStory } from "../logic/personal-stories.js";
 import { prunePersonalStoryEvents, requestPersonalStory } from "../logic/event-engine.js";
 import { applyAgencyAgreementEffect } from "../logic/agency-agreements.js";
@@ -523,18 +524,25 @@ export function createFeatureUI(api) {
       }
       return true;
     }
+    if (d.romanceRepair || d.romanceCeremony) {
+      mutate(() => {
+        const result = d.romanceCeremony ? chooseRomanceCeremony(d.npcId, d.romanceCeremony) : d.romanceRepair === "begin" ? beginRomanceRepair(d.npcId) : reviewRomanceRepair(d.npcId);
+        return { ...result, message: result.text || result.reason };
+      });
+      return true;
+    }
     if (d.romanceAction) {
       if (d.romanceAction === "breakup")
         api.show(
           "relationship-confirm",
-          `${api.heading("A PERSONAL DECISION", "確定要提出分手？", "這會改變彼此的關係，並留下共同的記憶。")}<div class="pixel-app"><button data-pixel-app="people">再想一想</button><button data-confirm-breakup="${d.npcId}">確認提出分手</button></div>`,
+          `${api.heading("A PERSONAL DECISION", "確定要提出分手？", "這會改變彼此的關係，並留下共同的記憶。")}<div class="pixel-app"><button data-pixel-app="people">再想一想</button>${Object.entries(REPAIR_COPY).map(([reason, copy]) => `<button data-confirm-breakup="${d.npcId}" data-breakup-reason="${reason}">${copy.label}：確認分手</button>`).join("")}</div>`,
         );
       else mutate(() => setRomanceVisibility(d.npcId, d.romanceAction));
       return true;
     }
     if (d.confirmBreakup) {
       current = "people";
-      mutate(() => breakUp(d.confirmBreakup));
+      mutate(() => breakUp(d.confirmBreakup, d.breakupReason || "主動分手"));
       return true;
     }
     if (d.socialPost) {

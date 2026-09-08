@@ -1,6 +1,6 @@
 {
-  "version": "0.21.0",
-  "bytes": 115256185,
+  "version": "0.22.0",
+  "bytes": 115290284,
   "entries": [
     {
       "url": "./privacy.html",
@@ -64,7 +64,7 @@
     },
     {
       "url": "./src/core/character-memory-state.js",
-      "bytes": 2707
+      "bytes": 3147
     },
     {
       "url": "./src/core/city-life-state.js",
@@ -88,7 +88,7 @@
     },
     {
       "url": "./src/core/personal-stories-state.js",
-      "bytes": 3336
+      "bytes": 3274
     },
     {
       "url": "./src/core/player-name.js",
@@ -103,6 +103,10 @@
       "bytes": 1020
     },
     {
+      "url": "./src/core/romance-life-state.js",
+      "bytes": 2263
+    },
+    {
       "url": "./src/core/save-schema.js",
       "bytes": 11319
     },
@@ -112,7 +116,7 @@
     },
     {
       "url": "./src/core/state.js",
-      "bytes": 19141
+      "bytes": 19312
     },
     {
       "url": "./src/core/training-narrative-state.js",
@@ -324,11 +328,15 @@
     },
     {
       "url": "./src/data/romance-daily-stories.js",
-      "bytes": 24582
+      "bytes": 24192
+    },
+    {
+      "url": "./src/data/romance-personal-daily.js",
+      "bytes": 20738
     },
     {
       "url": "./src/data/romance-scenes.js",
-      "bytes": 47268
+      "bytes": 47979
     },
     {
       "url": "./src/data/romance.js",
@@ -480,7 +488,7 @@
     },
     {
       "url": "./src/logic/event-engine.js",
-      "bytes": 14137
+      "bytes": 14416
     },
     {
       "url": "./src/logic/event-queue.js",
@@ -568,7 +576,7 @@
     },
     {
       "url": "./src/logic/npc-storylines.js",
-      "bytes": 12359
+      "bytes": 12432
     },
     {
       "url": "./src/logic/overseas.js",
@@ -604,15 +612,19 @@
     },
     {
       "url": "./src/logic/romance-daily.js",
-      "bytes": 7367
+      "bytes": 8337
     },
     {
       "url": "./src/logic/romance-engine.js",
-      "bytes": 16476
+      "bytes": 17125
     },
     {
       "url": "./src/logic/romance-experiences.js",
       "bytes": 1037
+    },
+    {
+      "url": "./src/logic/romance-life.js",
+      "bytes": 5675
     },
     {
       "url": "./src/logic/routine-rules.js",
@@ -760,7 +772,7 @@
     },
     {
       "url": "./src/pixel/feature-ui.js",
-      "bytes": 27345
+      "bytes": 27967
     },
     {
       "url": "./src/pixel/furniture-layers.js",
@@ -840,7 +852,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 13532
+      "bytes": 14382
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -960,7 +972,7 @@
     },
     {
       "url": "./src/views/npc.js",
-      "bytes": 13761
+      "bytes": 14871
     },
     {
       "url": "./src/views/people.js",

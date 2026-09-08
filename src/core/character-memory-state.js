@@ -1,3 +1,4 @@
+import { romanceDailyPool, romanceDailyBond } from "../data/romance-personal-daily.js";
 import { NPCS } from "../data/npcs.js";
 
 const object = value => value && typeof value === "object" && !Array.isArray(value) ? value : {};
@@ -26,6 +27,13 @@ export function normalizeCharacterMemories(raw) {
     const knownBonds = new Set(["care", "private", "work", "reliability"]);
     const bonds = new Set((Array.isArray(item.bonds) ? item.bonds : []).filter(id => knownBonds.has(id)));
     for (const entry of shared) if (entry.key.startsWith("bond:") && knownBonds.has(entry.value)) bonds.add(entry.value);
+    for (const entry of shared) {
+      const match = /^romance:([^:]+):(.+)$/.exec(entry.key);
+      if (!match) continue;
+      const scene = romanceDailyPool(id, match[1]).find(item => item.id === match[2]);
+      const bond = romanceDailyBond(scene, scene?.choices.find(choice => choice.id === entry.value));
+      if (bond) bonds.add(bond);
+    }
     if (promises.some(p => p.status === "fulfilled")) bonds.add("reliability");
     if (!bonds.size && responses.some(p => p.key === "support" && p.value === "listened")) bonds.add("care");
     return [id, { bonds: [...bonds], preferences: values(item.preferences), boundaries: values(item.boundaries),

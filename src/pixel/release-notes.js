@@ -2,6 +2,16 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.22.0", date: "2026-09-08", title: "只有我們知道的日常",
+    notes: [
+      "九位可攻略角色各有曖昧、交往、穩定與婚後的專屬日常；玩笑、安靜陪伴與坦白需要，會留下不同的相處偏好。",
+      "伴侶日常新增私下暱稱、牽手、擁抱與晚安吻；每次都能選擇先聊天，不因拒絕碰觸扣好感。",
+      "共同日常會連到支持、談心、工作與可靠相處的經歷，承諾事件也會回想真正發生過的事；舊紀錄可銜接，不重複發獎。",
+      "結婚登記、親友小婚禮與公開婚訊分開選擇；可以暫不辦儀式，婚姻不會自動公開。",
+      "分手可記錄疏於相處、生活方向不同或失信傷害；修復需要針對原因的後續相處與履約，不只等待或累積數值。",
+    ],
+  },
+  {
     version: "0.21.0", date: "2026-09-08", title: "練會的本事，走過的日子",
     notes: [
       "九類訓練突破後，相關試鏡會多出可用的表現方式；已掌握的技巧不因下次練習或讀檔消失。",
@@ -186,4 +196,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.44.0";
+export const CORE_VERSION = "1.45.0";

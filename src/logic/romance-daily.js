@@ -1,7 +1,7 @@
 import { state } from "../core/state.js";
 import { NPCS } from "../data/npcs.js";
 import { ROMANCE_ROUTES } from "../data/romance.js";
-import { ROMANCE_DAILY_STORIES } from "../data/romance-daily-stories.js";
+import { romanceDailyPool, romanceDailyBond } from "../data/romance-personal-daily.js";
 import { normalizeRomanceDaily } from "../core/personal-stories-state.js";
 import { narrativePreferences } from "./narrative-preferences.js";
 import { characterMemory } from "./character-memory.js";
@@ -23,15 +23,15 @@ function stageFor(id, game) {
   if (!stage || (stage !== "ambiguous" && game.partnerId !== id)) return null;
   return stage;
 }
-function availablePool(stage, game) {
+function availablePool(id, stage, game) {
   const limit = INTENSITY[narrativePreferences(game).conflictIntensity] ?? 1;
-  return (ROMANCE_DAILY_STORIES[stage] || []).filter(scene => INTENSITY[scene.intensity] <= limit);
+  return romanceDailyPool(id, stage).filter(scene => INTENSITY[scene.intensity] <= limit);
 }
 function nextScene(id, game) {
   const stage = stageFor(id, game), record = recordFor(id, game);
   if (!stage || !record) return null;
   const history = record.history.filter(item => item.stage === stage).map(item => item.sceneId);
-  const pool = availablePool(stage, game);
+  const pool = availablePool(id, stage, game);
   return pool.find(scene => !history.includes(scene.id)) || [...pool].sort((a, b) => history.lastIndexOf(a.id) - history.lastIndexOf(b.id))[0] || null;
 }
 export function romanceDailyStatus(id, game = state) {
@@ -47,9 +47,9 @@ export function romanceDailyStatus(id, game = state) {
 }
 function memoryOpening(id, game) {
   const memory = characterMemory(id, game);
-  if (memory.boundaries?.space === "ask") return "對方記得你希望先被詢問，先確認今天是否想一起相處，再開啟這段話題。";
-  if (memory.boundaries?.notice === "advance") return "這段相處先配合你希望提早確認的習慣，沒有把你的空檔當成已經答應。";
-  if (memory.disclosure === "guarded") return "對方先問你有沒有餘裕聽，沒有像以前一樣立刻把更深的心事說出來。";
+  if (memory.boundaries?.space === "ask") return "訊息先跳出一句：『今天想不想見面？不方便就改天。』";
+  if (memory.boundaries?.notice === "advance") return "這次是提前約好的時間。對方到了，先傳來一張門口的照片。";
+  if (memory.disclosure === "guarded") return "對方把話停在嘴邊，先問：『現在有空聽嗎？』";
   return "";
 }
 export function romanceDailyEvent(id, game = state) {
@@ -59,13 +59,17 @@ export function romanceDailyEvent(id, game = state) {
   if (!scene) return null;
   const payload = { kind: "romanceDaily", npcId: id, stage: status.stage, sceneId: scene.id, revision: record.revision, offeredWeek: weekOf(game) };
   const previous = record.history.at(-1);
-  const echo = previous ? `上一次的相處留下了這件事：${previous.outcome}` : "";
+  const memory = characterMemory(id, game);
+  const nickname = memory.preferences?.["romance-nickname"];
+  const echo = previous ? `你想起上回的「${romanceDailyPool(id, previous.stage).find(item => item.id === previous.sceneId)?.title || "相處"}」。${previous.outcome}` : "";
+  const greeting = status.stage !== "ambiguous" && nickname && nickname !== "name" ? `『${nickname}。』對方只在你聽得到的距離這樣叫了一聲。` : "";
+  const style = scene.id.startsWith("personal-") ? ({ playful: "對方先笑著補了一句：『我知道，你又準備逗我了。』", quiet: "對方把旁邊的位置留給你，沒有急著把話說滿。", direct: "對方先問起你今天過得如何，等你說完才接下去。" }[memory.preferences?.["romance-style"]] || "") : "";
   return {
     id: `romance-daily:${id}:${status.stage}:${scene.id}:${record.revision}`,
     npcId: id, kind: "戀愛日常", priority: 64, persistent: true,
     personalStory: payload,
     title: `${NPCS[id].name}｜${STAGE_LABELS[status.stage]}・${scene.title}`,
-    text: [memoryOpening(id, game), echo, fill(scene.text, id)].filter(Boolean).join("\n\n"),
+    text: [memoryOpening(id, game), greeting, echo, fill(scene.text, id), style].filter(Boolean).join("\n\n"),
     choices: scene.choices.map(choice => ({ id: choice.id, label: choice.label, outcome: fill(choice.outcome, id), effect: { personalStory: { ...payload, choice: choice.id } } })),
   };
 }
@@ -76,7 +80,7 @@ export function requestRomanceDaily(id, game = state) {
 function validPayload(payload, game) {
   if (payload?.kind !== "romanceDaily") return false;
   const id = payload.npcId, record = recordFor(id, game), stage = stageFor(id, game);
-  return !!record && !!stage && stage === payload.stage && record.revision === payload.revision && record.lastWeek < weekOf(game) && Number.isInteger(payload.offeredWeek) && payload.offeredWeek >= 1 && payload.offeredWeek <= weekOf(game) && !!ROMANCE_DAILY_STORIES[stage]?.some(scene => scene.id === payload.sceneId);
+  return !!record && !!stage && stage === payload.stage && record.revision === payload.revision && record.lastWeek < weekOf(game) && Number.isInteger(payload.offeredWeek) && payload.offeredWeek >= 1 && payload.offeredWeek <= weekOf(game) && romanceDailyPool(id, stage).some(scene => scene.id === payload.sceneId);
 }
 export function isRomanceDailyEventCurrent(event, game = state) {
   const payload = event?.personalStory || event?.choices?.find(choice => choice.effect?.personalStory)?.effect.personalStory;
@@ -86,10 +90,12 @@ export function isRomanceDailyEventCurrent(event, game = state) {
 export function applyRomanceDailyChoice(payload, game = state) {
   if (!validPayload(payload, game)) return { ok: false, text: "你們目前的相處階段已經改變，請從人物頁重新確認。", effects: [], memoryEntries: [] };
   const id = payload.npcId, record = recordFor(id, game);
-  const scene = ROMANCE_DAILY_STORIES[payload.stage].find(scene => scene.id === payload.sceneId);
+  const scene = romanceDailyPool(id, payload.stage).find(scene => scene.id === payload.sceneId);
   const choice = scene.choices.find(choice => choice.id === payload.choice);
   if (!choice) return { ok: false, text: "這個相處選項不存在。", effects: [], memoryEntries: [] };
   const outcome = fill(choice.outcome, id);
+  const bond = romanceDailyBond(scene, choice);
+  if (game.relationships?.[id]) game.relationships[id].lastInteractionWeek = weekOf(game);
   record.history.push({ week: weekOf(game), stage: payload.stage, sceneId: scene.id, choice: choice.id, outcome, intensity: scene.intensity });
   record.history = record.history.slice(-120);
   record.lastWeek = weekOf(game);
@@ -100,6 +106,7 @@ export function applyRomanceDailyChoice(payload, game = state) {
     effects: [{ npc: id, ...choice.effect }],
     memoryEntries: [
       { npcId: id, kind: "shared", key: `romance:${payload.stage}:${scene.id}`, value: choice.id, label: `${STAGE_LABELS[payload.stage]}・${scene.title}`, text: outcome, source: "戀愛日常", week: weekOf(game) },
+      ...(bond ? [{ npcId: id, kind: "shared", key: `bond:${bond}`, value: bond, label: scene.title, text: outcome, source: "戀愛日常", week: weekOf(game) }] : []),
       ...(choice.memory ? [{ ...choice.memory, npcId: id, source: "戀愛日常", week: weekOf(game) }] : []),
     ],
   };

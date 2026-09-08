@@ -1,3 +1,4 @@
+import { romanceRepairStatus } from "../logic/romance-life.js";
 import { personalStoryPanel, personalStoryReminder } from "./personal-stories.js";
 import { npcInvitationPanel } from "./npc-invitation.js";
 import { characterMemoryPanel } from "./character-memory.js";
@@ -86,9 +87,12 @@ function interactionButtons(current, story, rel) {
 }
 
 function romanceActions(current, rel) {
+  const repair = romanceRepairStatus(current);
+  if (repair && !repair.ready) return `<div class="romance-actions"><span>${esc(repair.label)}</span><p>${esc(repair.step === 0 ? repair.text : repair.need)}</p>${repair.step === 0 ? `<button data-romance-repair="begin" data-npc-id="${current}">${esc(repair.plan)}</button>` : `<button data-romance-repair="review" data-npc-id="${current}" ${repair.canReview ? "" : "disabled"}>回頭談這次做到的事</button>`}</div>`;
   if (!["dating", "committed", "engaged", "married"].includes(rel.romance))
     return "";
-  return `<div class="romance-actions"><span>關係選擇</span>${rel.visibility !== "public" ? `<button data-romance-action="public" data-npc-id="${current}">公開戀情</button>` : ""}${rel.visibility !== "underground" && rel.romance !== "married" ? `<button data-romance-action="underground" data-npc-id="${current}">轉為地下戀</button>` : ""}<button class="danger" data-romance-action="breakup" data-npc-id="${current}">提出分手</button></div>`;
+  const ceremony = rel.romance === "married" ? `<p>儀式：${({ undecided: "尚未決定", none: "暫不舉辦", small: "已辦親友小婚禮", legacy: "保留原有婚姻紀錄" })[rel.ceremony] || "保留原有婚姻紀錄"}；公開狀態另行選擇。</p>${["undecided", "none"].includes(rel.ceremony) ? `<button data-romance-ceremony="small" data-npc-id="${current}">一起辦親友小婚禮</button>${rel.ceremony === "undecided" ? `<button data-romance-ceremony="none" data-npc-id="${current}">暫時不辦儀式</button>` : ""}` : ""}` : "";
+  return `<div class="romance-actions"><span>關係選擇</span>${ceremony}${rel.visibility !== "public" ? `<button data-romance-action="public" data-npc-id="${current}">公開戀情</button>` : ""}${rel.visibility !== "underground" ? `<button data-romance-action="underground" data-npc-id="${current}">保留私人空間（已公開的消息不會消失）</button>` : ""}<button class="danger" data-romance-action="breakup" data-npc-id="${current}">提出分手</button></div>`;
 }
 
 function routeHint(current, rel) {

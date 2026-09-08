@@ -1,3 +1,4 @@
+import { normalizeRomanceLife, refreshQueuedMarriageInvitations } from "./romance-life-state.js";
 import { normalizePersonalStories, normalizeRomanceDaily } from "./personal-stories-state.js";
 import { normalizeSavedLooks } from "../logic/wardrobe.js";
 import {
@@ -472,6 +473,7 @@ export function hydrateState(saved) {
           ? "underground"
           : "private");
     rel.romanceSinceWeek = Number(rel.romanceSinceWeek) || 0;
+    normalizeRomanceLife(rel);
     rel.romanceHistory = Array.isArray(rel.romanceHistory)
       ? rel.romanceHistory
       : [];
@@ -581,6 +583,7 @@ export function hydrateState(saved) {
   delete next.mapLocation;
   delete next.lastVisitedLocation;
   delete next.lastVisitedWeek;
+  refreshQueuedMarriageInvitations(next);
   next.saveVersion = 16;
   state = next;
   return state;

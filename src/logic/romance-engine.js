@@ -1,3 +1,5 @@
+import { normalizeRomanceLife } from "../core/romance-life-state.js";
+import { romanceRepairStatus, inferBreakupReason } from "./romance-life.js";
 import { romanceExperienceStatus } from "./romance-experiences.js";
 import { state } from "../core/state.js";
 import { invalidateHomeKeys } from "../core/home-state.js";
@@ -118,6 +120,7 @@ export function ensureRomanceFields(id) {
   rel.hostilityHistory = Array.isArray(rel.hostilityHistory)
     ? rel.hostilityHistory
     : [];
+  normalizeRomanceLife(rel);
   return rel;
 }
 
@@ -217,6 +220,7 @@ export function romanceOpportunity(id, game = state) {
   if (!rel || !game.knownPeople?.includes(id)) return null;
   const need = NEXT_THRESHOLDS[rel.romance || "none"];
   if (!need) return null;
+  if (rel.romance === "broken" && !romanceRepairStatus(id, game)?.ready) return null;
   const eligible = romanceEligibility(id, game);
   if (!eligible.ok) return null;
   const since = Math.max(0, game.week - (rel.romanceSinceWeek ?? game.week));
@@ -290,7 +294,9 @@ export function transitionRomance(id, next, source = "關係事件") {
     rel.visibility = "private";
     rel.mediaAcknowledged = false;
   }
-  if (next === "married") rel.visibility = "public";
+  if (next === "married") rel.ceremony = "undecided";
+  if (next === "broken") rel.romanceRepair = { reason: inferBreakupReason(source, rel), sinceWeek: state.week, step: 0, startedWeek: 0 };
+  if (next === "dating") { rel.romanceRepair = null; rel.ceremony = "undecided"; }
   rel.romanceHistory.push({ week: state.week, from: before, to: next, source });
   rel.events = [
     ...(rel.events || []),
@@ -413,6 +419,8 @@ export function romanceProgress(id) {
       : "先照現在的步調相處。";
   if (need.next === "dating" && state.partnerId && state.partnerId !== id)
     return "你已有伴侶，請先處理現有關係。";
+  const repair = romanceRepairStatus(id);
+  if (repair && !repair.ready) return `上次分開：${repair.label}。${repair.step === 0 ? repair.plan : repair.need}`;
   if (rel.affection < need.affection)
     return "友情與信任不等於戀愛心意。可以關心近況、談談私事，讓彼此有機會更靠近。";
   if (rel.closeness < need.closeness || rel.trust < need.trust)
