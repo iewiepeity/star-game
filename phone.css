@@ -298,6 +298,14 @@
 #panel .relationship-management { flex-basis: 100%; }
 #panel .map-purpose { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 10px; }
 #panel .map-purpose [aria-pressed="true"] { border-width: 2px; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+#panel[data-view="travel"] #panel-content { grid-template-rows: auto auto auto minmax(0, 1fr); }
+#panel[data-view="travel"] .map-purpose { grid-column: 1 / -1; grid-row: 2; margin-block: 0; }
+#panel[data-view="travel"] .map-tools { grid-row: 3; }
+#panel[data-view="travel"] .city-map-viewport, #panel[data-view="travel"] .city-map-sidebar { grid-row: 4; }
+@media (max-width: 650px) {
+  #panel[data-view="travel"] #panel-content { grid-template-rows: auto auto auto minmax(160px, 1fr) auto; }
+  #panel[data-view="travel"] .city-map-sidebar { grid-row: 5; }
+}
 #panel :is(.primary, .main-btn) { font-weight: 700; border-width: 2px; }
 #panel button.danger { border: 2px solid #8a2434; color: #8a2434; background: #fff1f2; }
 #panel :is(.planner-context, .planner-budget, .npc-quick-actions, .settings-groups, .journey-highlights) small { font-size: calc(14px * var(--reading-scale, 1)); line-height: 1.65; }

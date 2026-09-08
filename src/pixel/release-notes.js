@@ -2,6 +2,14 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.23.3", date: "2026-09-08", title: "清除資料，也停下背景寫入",
+    notes: [
+      "清除本機資料前先停止離線快取，等待背景寫入結束，避免已清除的快取被重新建立。",
+      "地圖情境篩選獨立成列，不再擠壓桌面版右側地點名錄。",
+      "同步新版人物速覽、戀情確認與摺疊設定的自動驗證流程。",
+    ],
+  },
+  {
     version: "0.23.2", date: "2026-09-08", title: "約好的日子，都好好留下",
     notes: [
       "新增預約不再移除其他日期的通告、見面或創作安排；連排製作時，同一作品的製作預算只計一次。",
@@ -225,4 +233,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.46.2";
+export const CORE_VERSION = "1.46.3";

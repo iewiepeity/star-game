@@ -172,13 +172,17 @@ test("公開與地下戀切換會保存，但不重複領取曝光獎勵", async
   await profile();
   const before = (await read(page)).state.life;
   await page.locator('[data-romance-action="public"]').click();
+  expect((await read(page)).state.life.game.fans).toBe(before.game.fans);
+  await page.locator('[data-confirm-relationship]').click();
   const first = (await read(page)).state.life.game;
   expect(first.fans).toBeGreaterThan(before.game.fans);
   await page.locator('[data-romance-action="underground"]').click();
+  await page.locator('[data-confirm-relationship]').click();
   await page.reload();
   await expect(page.locator("#loading")).toBeHidden({ timeout: 15000 });
   await profile();
   await page.locator('[data-romance-action="public"]').click();
+  await page.locator('[data-confirm-relationship]').click();
   const after = (await read(page)).state.life;
   expect(after.game.relationships.guchengxi.visibility).toBe("public");
   expect(after.game.fans).toBe(first.fans);

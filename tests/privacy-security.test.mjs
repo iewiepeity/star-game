@@ -24,7 +24,11 @@ test("erase stops old writers, clears backups/preferences and preserves unrelate
   const sessionStorage = memory([["other-session", "keep"], ["star-game-save", "old"]]);
   const deleted = [], unregistered = [];
   const registrations = [
-    { scope: "https://example.com/star-game/", active: { scriptURL: "https://example.com/star-game/service-worker.js" }, unregister: async () => unregistered.push("game") },
+    { scope: "https://example.com/star-game/", active: { scriptURL: "https://example.com/star-game/service-worker.js", postMessage: (message, ports) => {
+      assert.equal(message.type, "STOP_GAME_CACHING");
+      assert.deepEqual(deleted, []);
+      ports[0].postMessage({ type: "GAME_CACHING_STOPPED" });
+    } }, unregister: async () => unregistered.push("game") },
     { scope: "https://example.com/other/", active: { scriptURL: "https://example.com/other/service-worker.js" }, unregister: async () => unregistered.push("other") },
   ];
   await clearGameData({ indexedDB, localStorage, sessionStorage,

@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { initialPixelState } from "../../src/pixel/model.js";
 import { bookCareer } from "../../src/pixel/career.js";
 import { CHOICES } from "../../src/pixel/life.js";
+import { revealControl } from "./reveal-control.mjs";
 
 test.use({ serviceWorkers: "block" });
 const read = page => page.evaluate(() => window.__pixelRead());
@@ -86,6 +87,7 @@ test("場景放大與縮小皆能一鍵回原比例，設定與行程不受影�
   await start(page);
   const before = await read(page);
   await settings(page);
+  await revealControl(page.locator('[data-ui="zoom-in"]'));
   await page.locator('[data-ui="zoom-in"]').click();
   await page.locator('[data-ui="zoom-in"]').click();
   expect((await read(page)).zoom).toBeGreaterThan(before.zoom);

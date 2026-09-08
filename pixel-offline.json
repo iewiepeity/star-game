@@ -1,6 +1,6 @@
 {
-  "version": "0.23.2",
-  "bytes": 115310394,
+  "version": "0.23.3",
+  "bytes": 115312363,
   "entries": [
     {
       "url": "./privacy.html",
@@ -36,7 +36,7 @@
     },
     {
       "url": "./phone.css",
-      "bytes": 33638
+      "bytes": 34196
     },
     {
       "url": "./pixel.webmanifest",
@@ -860,7 +860,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 16487
+      "bytes": 16903
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -928,7 +928,7 @@
     },
     {
       "url": "./src/privacy-data.js",
-      "bytes": 1784
+      "bytes": 2779
     },
     {
       "url": "./src/privacy-page.js",

@@ -91,7 +91,7 @@ test("profiles show one chapter at a time, preserve public information, and have
   await app(page, "people");
   await page.locator('[data-people-section="profiles"]').click();
   await expect(page.locator('[data-profile-section="overview"]')).toBeVisible();
-  await expect(page.locator("[data-npc-interact]")).toHaveCount(0);
+  await expect(page.locator('.npc-quick-actions [data-npc-interact="personal"]')).toBeVisible();
   await expect(page.locator(".npc-profile-tabs > button")).toHaveCount(4);
   const colors = await page
     .locator(".relationship-signals article")

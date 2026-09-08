@@ -127,7 +127,9 @@ test("old first-meeting memories display the event week and profiles separate ac
     },
   ];
   state.npcProfileTab = "overview";
-  assert.doesNotMatch(npcApp(), /data-npc-interact|npc-info-section/);
+  assert.match(npcApp(), /npc-quick-actions/);
+  assert.match(npcApp(), /data-npc-interact="personal"/);
+  assert.doesNotMatch(npcApp(), /npc-info-section/);
   state.npcProfileTab = "relationship";
   assert.match(npcApp(), /data-npc-interact/);
   assert.doesNotMatch(npcApp(), /npc-info-section/);

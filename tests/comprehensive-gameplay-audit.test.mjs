@@ -248,6 +248,8 @@ test("戀愛引擎實際結算也要檢查好感與交往週數", () => {
   });
   assert.equal(transitionRomance("jiqing", "committed").ok, false);
   state.week += 8;
+  assert.equal(transitionRomance("jiqing", "committed").ok, false);
+  state.characterMemories = { jiqing: { bonds: ["care"] } };
   assert.equal(transitionRomance("jiqing", "committed").ok, true);
 });
 

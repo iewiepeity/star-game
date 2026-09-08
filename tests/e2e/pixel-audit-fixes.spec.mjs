@@ -402,7 +402,8 @@ test("five palettes and information panels pass the audited accessibility checks
     ),
   );
   await seed(page, begun());
-  await page.addScriptTag({ content: axe.source });
+  await page.route("**/__test-axe.js", route => route.fulfill({ contentType: "application/javascript", body: axe.source }));
+  await page.addScriptTag({ url: "/__test-axe.js" });
   async function audit(label) {
     await page.evaluate(async () => {
       await document.fonts.ready;

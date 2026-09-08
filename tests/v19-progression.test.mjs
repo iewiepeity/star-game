@@ -38,6 +38,7 @@ test("深厚戀情會解鎖非典型求婚選項",()=>{
  resetState();state.week=100;state.knownPeople=["lujingran"];state.hidden.共情=600;
  state.relationships.lujingran={closeness:90,trust:85,affection:92,hostility:0,romance:"committed",romanceSinceWeek:1,romanceHistory:[],events:[]};
  state.npcStoryHistory=["lujingran:stage:bonded"];
+ state.characterMemories={lujingran:{bonds:["care","private"]}};
  queueNpcStoryEvents();
  const queued=[...state.eventQueue.map(x=>x.event),...state.queuedEvents.map(x=>x.event)];
  const event=queued.find(x=>x.id?.includes(":romance:committed:"));

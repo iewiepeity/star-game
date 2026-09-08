@@ -53,7 +53,7 @@ test("連排時固定日期提示可見，復原只改最後一天", async ({ pa
 test("設定摺疊在修改後保持展開，大字仍能操作", async ({ page }) => {
   await start(page);
   await menu(page, "settings");
-  await expect(page.locator('[data-ui="reset-view"]')).toBeVisible();
+  await expect(page.locator('#panel-content [data-ui="reset-view"]')).toBeVisible();
   await page.locator('[data-pixel-pref="fontSize"][data-value="large"]').click();
   const theme = page.locator('[data-pixel-theme="rose"]');
   await revealControl(theme);
@@ -88,7 +88,7 @@ test("地圖可用情境加搜尋，沒有約定時不捏造人物位置", async
   await expect(page.locator(".map-no-results")).toBeVisible();
   await expect(page.locator(".map-no-results")).toContainText("今天沒有");
   await page.locator('[data-map-purpose="training"]').click();
-  await page.locator("#map-search").fill("演技");
+  await page.locator("#map-search").fill("表演");
   await expect(page.locator(".city-place-row:visible")).not.toHaveCount(0);
   await page.locator(".city-place-row:visible").first().click();
   await expect(page.locator("#map-detail")).toContainText("占一天");

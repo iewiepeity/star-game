@@ -159,7 +159,7 @@ test("export, import preview, rollback backup and real new-character prologue", 
   await expect.poll(async () => (await read(page)).panel).toBe("");
   await apps(page);
   await page.locator('[data-pixel-app="settings"]').last().click();
-  await page.locator(".new-journey summary").click();
+  await revealControl(page.locator('[data-storage="new"]'));
   await revealControl(page.locator('[data-storage="new"]'));
   await page.locator('[data-storage="new"]').click();
   await page.locator('[data-storage="confirm"]').click();
@@ -352,7 +352,7 @@ test("handbook search, categories and six custom shortcuts survive reload", asyn
   await expect(page.locator('.pixel-app[data-app="social"]')).toBeVisible();
   await page.locator('[data-pixel-app="phone"]').click();
   await page.locator('[data-pixel-app="settings"]').click();
-  await page.locator(".new-journey summary").click();
+  await revealControl(page.locator('[data-storage="new"]'));
   await revealControl(page.locator('[data-storage="retire"]'));
   await page.locator('[data-storage="retire"]').click();
   expect((await read(page)).state.life.game.endingResult).toBeNull();
@@ -450,12 +450,14 @@ test("integrity: weekly strategy controls save all three choices and fit narrow 
   await page.locator('[data-ui="menu"]').first().click();
   await page.locator('#panel [data-ui="schedule"]').click();
   for (const focus of ["people", "fame", "growth"]) {
+    await revealControl(page.locator(`[data-weekly-focus="${focus}"]`));
     await page.locator(`[data-weekly-focus="${focus}"]`).click();
     await expect(
       page.locator(`[data-weekly-focus="${focus}"]`),
     ).toHaveAttribute("aria-pressed", "true");
     expect((await read(page)).state.life.game.focus).toBe(focus);
   }
+  await revealControl(page.locator('[data-weekly-focus="people"]'));
   await page.locator('[data-weekly-focus="people"]').click();
   expect(
     await page
@@ -474,7 +476,7 @@ test("integrity: ending offers optional familiar-face inheritance without phanto
   await start(page);
   await page.locator('[data-ui="menu"]').first().click();
   await page.locator('#panel [data-ui="settings"]').click();
-  await page.locator(".new-journey summary").click();
+  await revealControl(page.locator('[data-storage="new"]'));
   await revealControl(page.locator('[data-storage="retire"]'));
   await page.locator('[data-storage="retire"]').click();
   await page.locator('[data-storage="retire-confirm"]').click();
@@ -580,6 +582,7 @@ test("settings shows the running version and readable update history without adv
   await expect(page.locator('.version-summary')).toContainText(`v${PIXEL_VERSION}`);
   await expect(page.locator('#pixel-version-label')).toContainText(`v${PIXEL_VERSION}`);
   await page.screenshot({path:info.outputPath("settings-version.png")});
+  await revealControl(page.locator('[data-ui="release-notes"]'));
   await page.locator('[data-ui="release-notes"]').click();
   await expect(page.locator('#panel-title')).toHaveText("版本更新紀錄");
   await expect(page.locator('.release-entry')).toHaveCount(RELEASE_NOTES.length);

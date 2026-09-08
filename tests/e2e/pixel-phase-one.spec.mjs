@@ -149,16 +149,16 @@ test("NPC moves while the world runs; pause and panels freeze the world", async 
     )
     .toBeGreaterThan(8);
   await menu(page, "settings");
-  await revealControl(page.getByRole("button", { name: "暫停世界" }));
+  await revealControl(page.locator('[data-ui="pause"]'));
   await page.getByRole("button", { name: "暫停世界" }).click();
   await close(page);
   const paused = await read(page);
   await page.waitForTimeout(700);
   expect((await read(page)).state.elapsed).toBe(paused.state.elapsed);
   await menu(page, "settings");
-  await revealControl(page.getByRole("button", { name: "繼續世界" }));
+  await revealControl(page.locator('[data-ui="pause"]'));
   await page.getByRole("button", { name: "繼續世界" }).click();
-  await revealControl(page.getByRole("button", { name: "操作說明" }));
+  await revealControl(page.locator('[data-ui="help"]'));
   await page.getByRole("button", { name: "操作說明" }).click();
   const modal = await read(page);
   await page.waitForTimeout(500);
@@ -177,6 +177,7 @@ test("unified menu, camera drag and bottom dialogue checkpoint remain usable", a
   await menu(page);
   await expect(page.locator(".command-menu button")).toHaveCount(10);
   await page.locator('[data-ui="settings"]').click();
+  await revealControl(page.locator('[data-ui="zoom-in"]'));
   await page.getByRole("button", { name: "放大場景" }).click();
   await close(page);
   const before = await read(page),
@@ -328,6 +329,7 @@ test("the actual furniture replaces floating buttons; touch selects before walki
   await start(page);
   // Zoom out so the bed can be reached even on a narrow phone viewport.
   await menu(page, "settings");
+  await revealControl(page.locator('[data-ui="zoom-out"]'));
   for (let i = 0; i < 4; i++)
     await page.getByRole("button", { name: "縮小場景" }).click();
   await close(page);
