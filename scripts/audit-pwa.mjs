@@ -8,5 +8,9 @@ if(!worker.includes("SKIP_WAITING"))throw new Error("Service Worker 更新必須
 console.log(`PWA cache version verified: ${expected}`);
 
 if(pkg.version!==CORE_VERSION)throw new Error("版本紀錄的核心版本必須與 package version 同步");
-const pixel=await readFile(new URL("../pixel.html",import.meta.url),"utf8");
+const pixel=await readFile(new URL("../index.html",import.meta.url),"utf8");
 if(!pixel.includes(`STARLIGHT DAYS · v${PIXEL_VERSION}</span>`))throw new Error("像素頁預設版號必須與版本紀錄同步");
+
+const manifest=JSON.parse(await readFile(new URL("../pixel.webmanifest",import.meta.url),"utf8"));
+if(manifest.start_url!=="./")throw new Error("安裝版應從網站首頁啟動");
+if(manifest.id!=="./pixel.html")throw new Error("保留已安裝應用程式的既有識別");

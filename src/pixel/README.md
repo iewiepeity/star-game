@@ -1,6 +1,6 @@
 # Pixel life · v0.18.2
 
-The pixel game is the only runtime. `/index.html` redirects to `/pixel.html`.
+The pixel game is the only runtime. `/` and `/index.html` load it directly; legacy `/pixel.html` links redirect to `/` with query strings and fragments preserved.
 The handbook has 17 destinations plus the handbook itself. See the current
 [feature guide](../../docs/audits/2026-09-07-feature-guide.md) for behavior and limits.
 Legacy saves can be imported explicitly; legacy UI/runtime files are not packaged.

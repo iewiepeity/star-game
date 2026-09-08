@@ -1,27 +1,129 @@
 <!doctype html>
 <html lang="zh-Hant">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self'; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="description" content="走進星望市，展開你的像素生活、明星養成與戀愛旅程。" />
-    <meta name="theme-color" content="#f9f3e8" />
     <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self'; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'"
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
     />
+    <meta name="theme-color" content="#f9f3e8" />
+    <link rel="manifest" href="./pixel.webmanifest">
+    <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
+    <title>星途未定 · 像素生活</title>
     <link rel="icon" href="./assets/icons/app-icon.svg" type="image/svg+xml" />
     <link rel="icon" href="./assets/icons/favicon-32.png" sizes="32x32" type="image/png" />
-    <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png" sizes="180x180" />
-    <link rel="manifest" href="./pixel.webmanifest" />
-    <title>星途未定 · 像素生活</title>
-    <script src="./src/entry.js" defer></script>
-  </head>
+    <link rel="stylesheet" href="pixel.css" />
+    <link rel="stylesheet" href="pixel-ui.css" />
+  <link rel="stylesheet" href="./pixel-apps.css">
+    <link rel="preload" href="assets/fonts/Cubic_11.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="pixel-theme.css">
+  <link rel="stylesheet" href="phone.css">
+</head>
   <body>
-    <main>
-      <p>正在進入星望市…</p>
-      <a href="./pixel.html">進入像素生活</a>
-      <noscript><p>請啟用 JavaScript，以開始遊戲。</p></noscript>
+    <header class="topbar">
+      <div class="calendar-hud">
+        <span class="calendar-emblem" aria-hidden="true">✦</span>
+        <div>
+          <small id="date-label">第 1 年 · 1 週</small
+          ><b id="day-label">星期一</b>
+        </div>
+      </div>
+      <div class="resource-hud">
+        <span id="energy-label">體力 100</span
+        ><span id="fatigue-label">疲勞 0</span
+        ><span id="mood-label">心情 70</span>
+      </div>
+      <div class="money-hud">
+        <b id="money-label">$18,000</b
+        ><small id="save-status" role="status">載入中…</small>
+      </div>
+    </header>
+    <main id="world-shell">
+      <div
+        id="world"
+        role="application"
+        aria-label="像素場景。點地面移動、點家具或人物互動。也可從選單查看附近物件。"
+        tabindex="0"
+      ></div>
+      <div id="loading">
+        <span class="spark">✦</span><strong>正在搬進星望市</strong
+        ><span id="load-progress">整理房間與行李…</span>
+      </div>
+      <section class="scene-title">
+        <span class="eyebrow" id="pixel-version-label">STARLIGHT DAYS · v0.23.4</span>
+        <h1 id="room-title">我的住處</h1>
+        <p id="room-subtitle">一切從這個小房間開始</p>
+      </section>
+      <div id="activity-strip" hidden>
+        <span id="activity-label"></span
+        ><progress
+          id="activity-progress"
+          max="1"
+          value="0"
+          aria-label="活動進度"
+        ></progress><output id="activity-percent">0%</output
+        ><button data-ui="stop-activity">結束動作</button>
+      </div>
+      <button id="return-home" data-ui="return-home" aria-label="一鍵回家" disabled>⌂ 在家</button>
+      <button id="reset-view" data-ui="reset-view">↺ 回到原比例</button>
+      <div id="world-hint">點地面走走 · 點家具與人物互動</div>
     </main>
+    <footer class="bottom-bar">
+      <button
+        class="corner-button save-corner"
+        data-ui="saves"
+        aria-label="存檔與讀檔"
+      >
+        ▣<span>存檔</span>
+      </button>
+      <button class="daily-status player-card" data-ui="profile" aria-label="查看我的角色">
+        <span class="player-chip">
+          <span class="player-portrait-frame">
+          <img
+            id="player-head"
+            src="assets/avatars/raven-newcomer.webp"
+            alt="你的角色"
+          /></span><span class="player-card-copy"
+            ><small class="player-card-caption">我的星途</small
+            ><b id="player-name">星途新人</b
+            ><small id="outfit-label">新人私服</small></span
+          >
+        </span>
+        <span id="today-label">今日 · 認識排練室</span>
+      </button>
+      <div class="runner-controls">
+        <button data-life="speed" id="speed-label" aria-label="切換速度">
+          1×</button
+        ><button data-ui="schedule" id="week-control">▦ 當週行程</button
+        ><button data-life="auto" id="auto-control">▷ 自動行程</button
+        ><button data-life="today" id="run-label">今日行動</button>
+      </div>
+      <button
+        class="corner-button menu-button"
+        data-ui="menu"
+        aria-label="開啟選單"
+      >
+        <span aria-hidden="true">☷</span> 選單
+      </button>
+    </footer>
+    <section
+      id="dialogue"
+      class="dialogue-dock"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="dialogue-name"
+      hidden
+    ></section>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <button id="viewport-reset" data-ui="reset-view" hidden>↺ 回到原比例</button>
+    <dialog id="panel" aria-labelledby="panel-title">
+      <button class="close-panel" data-ui="close" aria-label="關閉視窗">
+        ×
+      </button>
+      <div id="panel-content"></div>
+    </dialog>
+    <script type="module" src="src/pixel/main.js"></script>
   </body>
 </html>

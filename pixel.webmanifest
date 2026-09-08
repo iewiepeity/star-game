@@ -4,7 +4,7 @@
   "short_name": "星途未定",
   "description": "在星望市寫下自己的明星人生",
   "lang": "zh-Hant",
-  "start_url": "./pixel.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#fffaf2",

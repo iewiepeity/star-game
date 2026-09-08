@@ -1,10 +1,10 @@
 {
-  "version": "0.23.3",
-  "bytes": 115312610,
+  "version": "0.23.4",
+  "bytes": 115312975,
   "entries": [
     {
       "url": "./privacy.html",
-      "bytes": 3354
+      "bytes": 3344
     },
     {
       "url": "./privacy.css",
@@ -12,11 +12,11 @@
     },
     {
       "url": "./index.html",
-      "bytes": 1364
+      "bytes": 5263
     },
     {
       "url": "./pixel.html",
-      "bytes": 5150
+      "bytes": 1354
     },
     {
       "url": "./pixel.css",
@@ -40,7 +40,7 @@
     },
     {
       "url": "./pixel.webmanifest",
-      "bytes": 499
+      "bytes": 489
     },
     {
       "url": "./assets/vendor/phaser.esm.min.js",
@@ -376,7 +376,7 @@
     },
     {
       "url": "./src/entry.js",
-      "bytes": 349
+      "bytes": 339
     },
     {
       "url": "./src/logic/achievement-engine.js",
@@ -860,7 +860,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 16903
+      "bytes": 17195
     },
     {
       "url": "./src/pixel/save-transfer.js",

@@ -18,14 +18,15 @@ test("homepage opens pixel life, preserves the save and does not trap Back navig
       localStorage.setItem("star-game-pixel-phase-one-v1", JSON.stringify({ state: saved }));
   }, saved);
 
-  await page.goto(entryUrl("pixel.html", baseURL));
+  await page.goto(entryUrl("pixel.html?legacy=1#resume", baseURL));
+  await expect(page).toHaveURL(entryUrl("./?legacy=1#resume", baseURL));
   await expect(page.locator("#loading")).toBeHidden();
   // Seed an independent original-game save without its pagehide autosave running.
   const legacySave = JSON.stringify({ game: "star-game", v: 16, state: initialState(), savedAt: Date.now(), label: "自動存檔" });
   await page.evaluate(value => localStorage.setItem("star-game-save", value), legacySave);
   for (const path of ["./?v=home-entry#resume", "index.html?v=home-entry#resume"]) {
     await page.goto(entryUrl(path, baseURL));
-    await expect(page).toHaveURL(entryUrl("pixel.html?v=home-entry#resume", baseURL));
+    await expect(page).toHaveURL(entryUrl(path, baseURL));
     await expect(page.locator("#loading")).toBeHidden();
     await expect(page.getByRole("button", { name: "開啟選單" })).toBeVisible();
     const loaded = await page.evaluate(() => window.__pixelRead().state);
@@ -34,7 +35,7 @@ test("homepage opens pixel life, preserves the save and does not trap Back navig
     expect(loaded.life.game.money).toBe(12345);
     expect(await page.evaluate(() => localStorage.getItem("star-game-save"))).toBe(legacySave);
     await page.goBack();
-    await expect(page).toHaveURL(entryUrl("pixel.html", baseURL));
+    await expect(page).toHaveURL(entryUrl("./?legacy=1#resume", baseURL));
     await expect(page.locator("#loading")).toBeHidden();
   }
   expect(errors).toEqual([]);
@@ -62,7 +63,10 @@ test("cached homepage still enters pixel life while offline", async ({ page, con
   await context.setOffline(true);
   try {
     await page.goto(entryUrl("index.html?offline-entry=1", baseURL));
-    await expect(page).toHaveURL(entryUrl("pixel.html?offline-entry=1", baseURL));
+    await expect(page).toHaveURL(entryUrl("index.html?offline-entry=1", baseURL));
+    await expect(page.locator("#loading")).toBeHidden();
+    await page.goto(entryUrl("pixel.html?offline-legacy=1#resume", baseURL));
+    await expect(page).toHaveURL(entryUrl("./?offline-legacy=1#resume", baseURL));
     await expect(page.locator("#loading")).toBeHidden();
     await page.getByRole("button", { name: "開啟選單" }).click();
     await expect(page.locator(".command-menu")).toBeVisible();

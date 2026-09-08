@@ -1,6 +1,6 @@
 # 星途未定
 
-目前像素版：**v0.21.0**。網站首頁自動進入 [`pixel.html`](./pixel.html)；也可直接使用這個像素版網址。包含全城地圖、32 個空間、角色換裝、NPC 互動、行程與職涯流程。完整敘事重寫與原文備查見 [`文本交付紀錄`](./docs/narrative/2026-09-06/NARRATIVE-REWRITE.md)。最新介面與驗證見 [`PIXEL-UI-REFRESH.md`](./PIXEL-UI-REFRESH.md)。
+目前像素版：**v0.23.4**。網站[首頁](./)直接開啟像素遊戲；舊的 `pixel.html` 連結會轉回首頁，原有存檔繼續使用。包含全城地圖、32 個空間、角色換裝、NPC 互動、行程與職涯流程。完整敘事重寫與原文備查見 [`文本交付紀錄`](./docs/narrative/2026-09-06/NARRATIVE-REWRITE.md)。最新介面與驗證見 [`PIXEL-UI-REFRESH.md`](./PIXEL-UI-REFRESH.md)。
 
 玩家視角與內部設定分離修正見 [`玩家文字修正紀錄`](./docs/narrative/2026-09-06-player-view/NARRATIVE-REWRITE.md)。
 

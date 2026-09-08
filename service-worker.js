@@ -1,4 +1,4 @@
-const CACHE="star-game-runtime-v1.46.3";
+const CACHE="star-game-runtime-v1.46.4";
 let cachingStopped=false;
 const cacheTasks=new Set();
 function trackCacheTask(task){cacheTasks.add(task);task.then(()=>cacheTasks.delete(task),()=>cacheTasks.delete(task));return task;}

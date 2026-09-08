@@ -22,7 +22,7 @@ test("網頁提供基本 CSP，阻擋任意腳本、外掛與 base URL 注入", 
   assert.match(html, /http-equiv="Content-Security-Policy"/);
   assert.match(html, /script-src 'self'/);
   assert.match(html, /object-src 'none'/);
-  assert.match(html, /base-uri 'self'/);
+  assert.match(html, /base-uri 'none'/);
 });
 
 test("瀏覽器分頁與 iOS 主畫面使用正式品牌圖示", async () => {
