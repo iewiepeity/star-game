@@ -23,10 +23,15 @@ for(const [avatar,outfit,scene,item,kind] of [
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await start(page,avatar,outfit,scene,{itemId:item,kind,elapsed:0});
   const expected=actionMeta(`${avatar}-${outfit}`).sheet;
-  await expect.poll(async()=>(await read(page)).player.texture).toBe(expected);
+  await expect.poll(()=>page.evaluate(()=>window.__pixelRead().player.texture)).toBe(expected);
   await page.screenshot({path:info.outputPath(`${avatar}-${kind}.png`)});
-  const before=await read(page);
-  await expect.poll(async()=>(await read(page)).player.frame).not.toBe(before.player.frame);
+  const before=await page.evaluate(()=>window.__pixelRead().player.frame);
+  const next=before.replace(/-[01]$/,before.endsWith('-0')?'-1':'-0');
+  // CI can advance simulation slower than wall time. Require the actual other
+  // authored frame (not a finished activity), while keeping poll payloads small.
+  await expect.poll(()=>page.evaluate(()=>window.__pixelRead().player.frame),{
+    timeout:15000,intervals:[100],
+  }).toBe(next);
   await page.locator('[data-ui="stop-activity"]').click();
   await expect.poll(async()=>(await read(page)).player.pose).toBe('standing');
   expect((await read(page)).player.texture).not.toBe(expected);
