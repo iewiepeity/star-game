@@ -2,6 +2,13 @@
 // both derive their version from this entry. Build audits check the release files.
 export const RELEASE_NOTES = [
   {
+    version: "0.24.1", date: "2026-09-09", title: "穿上喜歡的衣服，動起來",
+    notes: [
+      "四位主角的十五套服裝都補上跳舞、練唱與坐著喝咖啡的動作，聲樂課也有專屬練唱演出。",
+      "九位城市人物新增閱讀、看手機、喝飲料與跳舞的生活動作，延續原有造型與像素畫風。",
+    ],
+  },
+  {
     version: "0.24.0", date: "2026-09-08", title: "每一份作品，都有自己的後來",
     notes: [
       "歌曲、影視與節目的九種創作方向，新增各自的發行初期、幾週後與隔年回看故事；同方向作品會輪替不同情境。",

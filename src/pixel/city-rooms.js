@@ -1218,7 +1218,7 @@ export function registerCityRooms(rooms, spots) {
         y: rect.y + (y - crop[1]) * scale,
       }));
     spots[id] = {
-      service: { kinds: ["read", ...(id === "dance" ? ["dance"] : [])] },
+      service: { kinds: ["read", ...(id === "dance" ? ["dance"] : []), ...(id === "recording" ? ["sing"] : [])] },
       detail: { kinds: ["read"] },
     };
   }

@@ -365,6 +365,12 @@ export const ACTIVITY_TYPES = {
     flag: "practiced",
     done: "記住了這一段舞步，下次再練習。",
   },
+  sing: {
+    label: "跟著旋律練唱",
+    duration: 6,
+    flag: "practiced",
+    done: "調整呼吸，再把這一段旋律唱穩。",
+  },
   read: {
     label: "練習朗讀",
     duration: 6,
