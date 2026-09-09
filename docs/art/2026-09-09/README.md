@@ -25,8 +25,9 @@
 - `node --test tests/pixel-phase-one.test.mjs tests/pixel-completion.test.mjs tests/pixel-identity.test.mjs`：57 項通過。
 - `node scripts/verify-action-atlases.mjs`：552 格皆獨立，來源雜湊、像素逐位元相同與圖集尺寸檢查通過。
 - 修改的 JS／MJS 檔案 ESLint 通過；`npm run build` 通過，產出含新增圖集及模組的離線包。
-- 已檢視生成原圖並修正衣服、鞋色與錯列；尚未完成實際遊戲畫面的視覺驗收。
-- `tests/e2e/pixel-action-art.spec.mjs` 已加入桌面／手機的四主角動作還原、停止動作及換裝載入失敗重試案例。執行環境缺少 Chromium；安裝遭下載逾時／不完整壓縮檔阻擋，測試停在瀏覽器啟動前，因此這 10 個案例尚未驗證通過。
+- 已檢視生成原圖並修正衣服、鞋色與錯列；另檢視四位主角共 8 張桌面／手機實際遊戲截圖，抽查新姿勢、服裝與咖啡座位朝向。不是全部 60 套服裝逐套的瀏覽器目視驗收。
+- 本機 Chromium 下載受阻後，改由 GitHub 分支限定的驗證流程執行 `tests/e2e/pixel-action-art.spec.mjs`；桌面／手機共 **10 項通過（48.9 秒）**，涵蓋四主角動作還原、換格、停止動作及換裝載入失敗回復／重試。
+- 驗證提交：`64788db804cab891770627095346ee9fd1439deb`；[GitHub Actions 結果與截圖](https://github.com/iewiepeity/star-game/actions/runs/34319600448)。後續此筆更新僅補驗證紀錄，不修改執行程式或素材。
 
 具備 Chromium 的環境可執行：
 
