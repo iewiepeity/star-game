@@ -1,6 +1,6 @@
 {
-  "version": "0.24.0",
-  "bytes": 116491678,
+  "version": "0.24.1",
+  "bytes": 134876564,
   "entries": [
     {
       "url": "./privacy.html",
@@ -735,6 +735,10 @@
       "bytes": 7690
     },
     {
+      "url": "./src/pixel/action-sprites.js",
+      "bytes": 2989
+    },
+    {
       "url": "./src/pixel/actor-motion.js",
       "bytes": 2503
     },
@@ -764,7 +768,7 @@
     },
     {
       "url": "./src/pixel/city-rooms.js",
-      "bytes": 23869
+      "bytes": 23910
     },
     {
       "url": "./src/pixel/city-schedule.js",
@@ -780,11 +784,11 @@
     },
     {
       "url": "./src/pixel/data.js",
-      "bytes": 14926
+      "bytes": 15073
     },
     {
       "url": "./src/pixel/expanded-sprites.js",
-      "bytes": 5577
+      "bytes": 5677
     },
     {
       "url": "./src/pixel/fabric-colors.js",
@@ -820,7 +824,7 @@
     },
     {
       "url": "./src/pixel/life.js",
-      "bytes": 28538
+      "bytes": 28564
     },
     {
       "url": "./src/pixel/location-day-copy.js",
@@ -852,7 +856,7 @@
     },
     {
       "url": "./src/pixel/npc-gestures.js",
-      "bytes": 2428
+      "bytes": 2654
     },
     {
       "url": "./src/pixel/offline.js",
@@ -880,7 +884,7 @@
     },
     {
       "url": "./src/pixel/release-notes.js",
-      "bytes": 17788
+      "bytes": 18161
     },
     {
       "url": "./src/pixel/save-transfer.js",
@@ -900,7 +904,7 @@
     },
     {
       "url": "./src/pixel/sprites.js",
-      "bytes": 6439
+      "bytes": 6565
     },
     {
       "url": "./src/pixel/storage-ui.js",
@@ -944,7 +948,7 @@
     },
     {
       "url": "./src/pixel/world.js",
-      "bytes": 43354
+      "bytes": 43624
     },
     {
       "url": "./src/privacy-data.js",
@@ -2021,6 +2025,70 @@
     {
       "url": "./assets/new-start-box.webp",
       "bytes": 28112
+    },
+    {
+      "url": "./assets/pixel/actions/actions-cast-0.webp",
+      "bytes": 1233816
+    },
+    {
+      "url": "./assets/pixel/actions/actions-cast-1.webp",
+      "bytes": 1134392
+    },
+    {
+      "url": "./assets/pixel/actions/actions-cast-2.webp",
+      "bytes": 1301384
+    },
+    {
+      "url": "./assets/pixel/actions/actions-noir-0.webp",
+      "bytes": 1050104
+    },
+    {
+      "url": "./assets/pixel/actions/actions-noir-1.webp",
+      "bytes": 1014320
+    },
+    {
+      "url": "./assets/pixel/actions/actions-noir-2.webp",
+      "bytes": 1043538
+    },
+    {
+      "url": "./assets/pixel/actions/actions-raven-0.webp",
+      "bytes": 1199072
+    },
+    {
+      "url": "./assets/pixel/actions/actions-raven-1.webp",
+      "bytes": 1264998
+    },
+    {
+      "url": "./assets/pixel/actions/actions-raven-2.webp",
+      "bytes": 1268894
+    },
+    {
+      "url": "./assets/pixel/actions/actions-sage-0.webp",
+      "bytes": 1184414
+    },
+    {
+      "url": "./assets/pixel/actions/actions-sage-1.webp",
+      "bytes": 1188394
+    },
+    {
+      "url": "./assets/pixel/actions/actions-sage-2.webp",
+      "bytes": 1233774
+    },
+    {
+      "url": "./assets/pixel/actions/actions-sunny-0.webp",
+      "bytes": 1299130
+    },
+    {
+      "url": "./assets/pixel/actions/actions-sunny-1.webp",
+      "bytes": 1426662
+    },
+    {
+      "url": "./assets/pixel/actions/actions-sunny-2.webp",
+      "bytes": 1369282
+    },
+    {
+      "url": "./assets/pixel/actions/manifest.json",
+      "bytes": 168414
     },
     {
       "url": "./assets/pixel/atlas-manifest.json",

@@ -77,6 +77,7 @@ export function createWorld(controller) {
         "pixel-atlas-manifest",
         "assets/pixel/atlas-manifest.json",
       );
+      this.load.json("pixel-action-manifest", "assets/pixel/actions/manifest.json");
       const state = controller.state(),
         key = actorKey(state);
       this.initialOld = [
@@ -88,10 +89,7 @@ export function createWorld(controller) {
       for (const id of this.initialOld)
         this.load.image(`raw-${id}`, `assets/pixel/${id}.png`);
       this.initialExpanded = [
-        ...["cast-0", "cast-1", "cast-2"].map((id) => ({
-          key: id,
-          url: `assets/pixel/cast/${id}.webp`,
-        })),
+        ...["shenyao", "linxiafan", "hanzhiyuan"].flatMap(expandedAssets),
         ...expandedAssets(key),
       ];
       for (const a of this.initialExpanded)
@@ -104,7 +102,7 @@ export function createWorld(controller) {
           importAtlas(
             this,
             a.key,
-            this.cache.json.get("pixel-atlas-manifest").frames[a.key],
+            this.atlasFrames(a.key),
           );
         this.loadRoom();
       } catch (e) {
@@ -115,6 +113,11 @@ export function createWorld(controller) {
       this.scale.on("resize", () => this.resizeView());
       controller.ready(this);
     }
+    atlasFrames(key) {
+      return key.startsWith("actions-")
+        ? this.cache.json.get("pixel-action-manifest").sheets[key].frames
+        : this.cache.json.get("pixel-atlas-manifest").frames[key];
+    }
     async ensureAssets(
       id = controller.state().sceneId,
       key = actorKey(controller.state()),
@@ -124,7 +127,7 @@ export function createWorld(controller) {
       if (!this.textures.exists(roomAssetKey(room)))
         assets.push({ key: roomAssetKey(room), url: room.asset });
       const extra = expandedAssets(key),
-        old = extra.length ? [] : oldHero(key);
+        old = expandedMeta(key) ? [] : oldHero(key);
       for (const a of extra)
         if (!this.textures.exists(a.key))
           assets.push({ key: `raw-${a.key}`, url: a.url });
@@ -150,7 +153,7 @@ export function createWorld(controller) {
           importAtlas(
             this,
             a.key,
-            this.cache.json.get("pixel-atlas-manifest").frames[a.key],
+            this.atlasFrames(a.key),
           );
       for (const k of old) if (!this.textures.exists(k)) importSprites(this, k);
     }
@@ -196,7 +199,7 @@ export function createWorld(controller) {
       const expanded = expandedAssets(key);
       retain(
         "heroes",
-        expanded.length ? expanded.map((a) => a.key) : oldHero(key),
+        [...expanded.map((a) => a.key), ...(expandedMeta(key) ? [] : oldHero(key))],
         2,
       );
     }
@@ -1256,6 +1259,8 @@ export function createWorld(controller) {
               : null,
             object: a.behavior?.objectId || null,
             facing: a.facing,
+            texture: a.sprite.texture.key,
+            frame: a.sprite.frame.name,
             speed: a.speed,
             blockedFor: a.blockedFor,
             goal: a.goal ? { ...a.goal } : null,

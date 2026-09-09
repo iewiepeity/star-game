@@ -216,7 +216,7 @@ for (const [id, venue] of Object.entries(TRAINING_VENUES)) {
     group: "訓練",
     room: roomForVenue(venue),
     item: "service",
-    pose: id === "dance" ? "dance" : "read",
+    pose: id === "dance" ? "dance" : id === "vocal" ? "sing" : "read",
     action: id,
   };
 }

@@ -1,4 +1,5 @@
 import { OUTFITS } from "../data/wardrobe.js";
+import { actionAssets } from "./action-sprites.js";
 const IDS = Object.keys(OUTFITS);
 const NPC_GROUPS = [
   ["shenyao", "tangtang", "guchengxi"],
@@ -25,12 +26,13 @@ export function expandedMeta(key) {
 }
 export const expandedAssets = (key) => {
   const m = expandedMeta(key);
-  return m
+  const base = m
     ? [m.sheet, ...(m.poseSheet ? [m.poseSheet] : [])].map((id) => ({
         key: id,
         url: `assets/pixel/${m.npc ? "cast" : "wardrobe"}/${id}.webp`,
       }))
     : [];
+  return [...base, ...actionAssets(key)];
 };
 // Cell geometry is supplied by the reviewed source atlas manifest. A single GPU
 // texture serves all five outfits (or three NPCs), instead of five duplicates.

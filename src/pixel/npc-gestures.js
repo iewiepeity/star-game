@@ -1,7 +1,10 @@
 import { actorFrame } from "./sprites.js";
+import { authoredActivityFrame } from "./action-sprites.js";
 // Small hand-held props and restrained gestures work with every existing NPC atlas.
 // No unsupported seated frame is placed on top of furniture.
 export function drawNpcGesture(actor, pose, elapsed, reduced = false) {
+  const authoredPose = pose === "type" ? "phone" : pose === "check" ? "read" : pose;
+  if (authoredActivityFrame(actor, authoredPose, elapsed, {}, reduced)) return;
   actorFrame(actor, false, elapsed);
   const g = actor.gesture;
   g.clear();
