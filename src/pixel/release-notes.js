@@ -255,4 +255,4 @@ export const RELEASE_NOTES = [
   },
 ];
 export const PIXEL_VERSION = RELEASE_NOTES[0].version;
-export const CORE_VERSION = "1.47.0";
+export const CORE_VERSION = "1.47.1";

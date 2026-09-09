@@ -18,8 +18,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - run: node scripts/audit-pwa.mjs
+      - run: npm run build
       - run: node --test tests/pixel-action-art.test.mjs
-      - run: npx playwright test tests/e2e/pixel-action-art.spec.mjs --project=desktop --project=mobile --workers=2 --reporter=line
+      - run: npx playwright test tests/e2e/pixel-action-art.spec.mjs --project=desktop --project=mobile --workers=2 --repeat-each=3 --reporter=line
       - name: Save screenshots and failure diagnostics
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
